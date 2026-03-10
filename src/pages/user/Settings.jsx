@@ -1,27 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings as SettingsIcon, 
   Lock, 
   Bell, 
   Moon, 
-  Smartphone, 
+  Sun,
   ShieldCheck, 
   Trash2,
-  ChevronRight,
   Save
 } from 'lucide-react';
 import api from '../../api';
+
+// Theme helper
+const getTheme = () => localStorage.getItem('theme') || 'dark';
+const applyTheme = (theme) => {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+};
 
 const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [theme, setTheme] = useState(getTheme);
   
   const [passwords, setPasswords] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
@@ -121,6 +136,38 @@ const Settings = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {/* Dark/Light Mode Toggle */}
+              <div
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid var(--border-subtle)' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  {theme === 'dark' ? <Moon size={20} className="text-muted" /> : <Sun size={20} style={{ color: '#fbbf24' }} />}
+                  <div>
+                    <div style={{ fontWeight: 600 }}>Tema: {theme === 'dark' ? '🌙 Karanlık' : '☀️ Aydınlık'}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Arayüz rengini değiştir</div>
+                  </div>
+                </div>
+                {/* Real Toggle Switch */}
+                <div
+                  onClick={toggleTheme}
+                  style={{
+                    width: 48, height: 26, borderRadius: 13,
+                    background: theme === 'dark' ? 'rgba(59,130,246,0.4)' : '#fbbf24',
+                    position: 'relative', cursor: 'pointer', transition: 'background 0.3s',
+                    border: '1px solid var(--border-subtle)'
+                  }}
+                >
+                  <div style={{
+                    width: 20, height: 20, borderRadius: '50%', background: 'white',
+                    position: 'absolute', top: 2,
+                    left: theme === 'dark' ? 2 : 26,
+                    transition: 'left 0.3s',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                  }} />
+                </div>
+              </div>
+
+              {/* Notifications */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px solid var(--border-subtle)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                   <Bell size={20} className="text-muted" />
@@ -129,7 +176,6 @@ const Settings = () => {
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Sınav hatırlatmaları ve duyurular</div>
                   </div>
                 </div>
-                {/* Simulated Switch */}
                 <div style={{ width: 44, height: 24, borderRadius: 12, background: 'var(--primary)', position: 'relative', cursor: 'pointer' }}>
                   <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', right: 2, top: 2 }} />
                 </div>
@@ -143,7 +189,6 @@ const Settings = () => {
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Hesabınızı daha güvenli hale getirin</div>
                   </div>
                 </div>
-                <ChevronRight size={20} className="text-muted" />
               </div>
             </div>
           </div>

@@ -17,6 +17,12 @@ import Videos from './pages/user/Videos';
 import Profile from './pages/user/Profile';
 import Favorites from './pages/user/Favorites';
 import Settings from './pages/user/Settings';
+import Leaderboard from './pages/user/Leaderboard';
+import UserProfile from './pages/user/UserProfile';
+
+// Apply saved theme on initial load
+const savedTheme = localStorage.getItem('theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
 
 const Navbar = () => {
   const token = localStorage.getItem('token');
@@ -120,8 +126,10 @@ function App() {
               <Route path="/mistakes" element={<Mistakes />} />
               <Route path="/videos" element={<Videos />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:userId" element={<UserProfile />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/admin" element={isAdmin ? <AdminPanel /> : <div style={{textAlign: 'center', marginTop: 100, color: 'red'}}>Bu sayfayı görüntüleme yetkiniz yok.</div>} />
               <Route path="/exam/:id" element={<ExamArea />} />
               <Route path="/exam/quick/:id" element={<ExamArea isQuickTest={true} />} />

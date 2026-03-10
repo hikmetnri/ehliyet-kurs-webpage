@@ -9,7 +9,7 @@ import {
   Video, 
   User,
   Settings,
-  ChevronRight,
+  Trophy,
   ShieldCheck
 } from 'lucide-react';
 
@@ -25,6 +25,7 @@ const Sidebar = () => {
     { name: 'Video Eğitimler', path: '/videos', icon: <Video size={20} /> },
     { name: 'Favorilerim', path: '/favorites', icon: <Star size={20} /> },
     { name: 'Yanlışlarım', path: '/mistakes', icon: <XCircle size={20} /> },
+    { name: 'Liderlik', path: '/leaderboard', icon: <Trophy size={20} /> },
     { name: 'Profil', path: '/profile', icon: <User size={20} /> },
   ];
 
