@@ -1,17 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { ShieldAlert, LogOut, User } from 'lucide-react';
+import api from './api';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ExamArea from './pages/ExamArea';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import AdminPanel from './pages/admin/AdminPanel';
+import Sidebar from './components/layout/Sidebar';
+import Feed from './pages/user/Feed';
+import Lessons from './pages/user/Lessons';
+import LessonReader from './pages/user/LessonReader';
+import Mistakes from './pages/user/Mistakes';
+import Videos from './pages/user/Videos';
+import Profile from './pages/user/Profile';
+import Favorites from './pages/user/Favorites';
+import Settings from './pages/user/Settings';
 
 const Navbar = () => {
   const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || 'null'));
+
+  useEffect(() => {
+    if (token) {
+      api.get('/auth/me')
+        .then(res => {
+          const freshUser = res.data.data || res.data;
+          setUser(freshUser);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+        })
+        .catch(err => {
+          if (err.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+          }
+        });
+    }
+  }, [token]);
+
   const isAdmin = user && user.role === 'admin';
   
   const handleLogout = () => {
@@ -35,7 +63,7 @@ const Navbar = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginLeft: 16, borderLeft: '1px solid var(--border-subtle)', paddingLeft: 24 }}>
               {isAdmin ? (
                 <>
-                  <a href="/admin" className="nav-link" style={{ color: '#fbbf24', fontWeight: 600 }}>Admin Paneli</a>
+                  <Link to="/admin" className="nav-link" style={{ color: '#fbbf24', fontWeight: 600 }}>Admin Paneli</Link>
                   <Link to="/dashboard" className="nav-link">Sistem Önizleme</Link>
                 </>
               ) : (
@@ -71,20 +99,36 @@ const Navbar = () => {
 };
 
 function App() {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  const isAdmin = user?.role === 'admin';
+
   return (
     <Router>
       <div className="app-container">
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin" element={isAdmin ? <AdminPanel /> : <div style={{textAlign: 'center', marginTop: 100, color: 'red'}}>Bu sayfayı görüntüleme yetkiniz yok.</div>} />
-            <Route path="/exam/:id" element={<ExamArea />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-          </Routes>
-        </main>
+        {token && <Sidebar />}
+        <div className={token ? 'with-sidebar' : ''}>
+          <Navbar />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/lessons" element={<Lessons />} />
+              <Route path="/lessons/:id" element={<LessonReader />} />
+              <Route path="/mistakes" element={<Mistakes />} />
+              <Route path="/videos" element={<Videos />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/admin" element={isAdmin ? <AdminPanel /> : <div style={{textAlign: 'center', marginTop: 100, color: 'red'}}>Bu sayfayı görüntüleme yetkiniz yok.</div>} />
+              <Route path="/exam/:id" element={<ExamArea />} />
+              <Route path="/exam/quick/:id" element={<ExamArea isQuickTest={true} />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+            </Routes>
+          </main>
+        </div>
       </div>
     </Router>
   );

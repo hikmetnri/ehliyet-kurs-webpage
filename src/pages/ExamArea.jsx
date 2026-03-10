@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, FileText, Star } from 'lucide-react';
 import api from '../api';
 
-const ExamArea = () => {
+const ExamArea = ({ isQuickTest = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [exam, setExam] = useState(null);
@@ -12,6 +12,7 @@ const ExamArea = () => {
   const [answers, setAnswers] = useState({});
   const [isFinished, setIsFinished] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState(JSON.parse(localStorage.getItem('favorite_questions') || '[]'));
 
   // Mock data fallback handler
   const loadMockExam = () => {
@@ -49,19 +50,29 @@ const ExamArea = () => {
           return;
         }
 
-        // Fetch Exam info
-        try {
-          const examRes = await api.get(`/exams/${id}`);
-          if (examRes.data) {
-            setExam(examRes.data);
+        if (isQuickTest) {
+          try {
+            const catRes = await api.get(`/categories/${id}`);
+            setExam(catRes.data.data || catRes.data);
+          } catch (e) {
+            setExam({ _id: id, title: 'Hızlı Test', duration: 20 });
           }
-        } catch (e) {
-          // If the backend doesn't have an individual GET /exams/:id route yet
-          setExam({ _id: id, title: 'Deneme Sınavı', duration: 45 });
+        } else {
+          // Fetch Exam info
+          try {
+            const examRes = await api.get(`/exams/${id}`);
+            if (examRes.data) {
+              setExam(examRes.data);
+            }
+          } catch (e) {
+            // If the backend doesn't have an individual GET /exams/:id route yet
+            setExam({ _id: id, title: 'Deneme Sınavı', duration: 45 });
+          }
         }
 
-        // Fetch Questions for this exam
-        const qRes = await api.get(`/questions?examId=${id}`);
+        // Fetch Questions
+        const qUrl = isQuickTest ? `/questions?category=${id}` : `/questions?examId=${id}`;
+        const qRes = await api.get(qUrl);
         if (qRes.data && Array.isArray(qRes.data)) {
             // Need to map the backend 'text' to frontend 'description'
             // and adapt options structure
@@ -116,33 +127,83 @@ const ExamArea = () => {
     }
   };
 
+  const toggleFavorite = (question) => {
+    let newFavs;
+    const isFav = favorites.some(f => f.id === question._id);
+    
+    if (isFav) {
+      newFavs = favorites.filter(f => f.id !== question._id);
+    } else {
+      newFavs = [...favorites, {
+        id: question._id,
+        text: question.description,
+        correctAnswerText: question.options.find(o => o.isCorrect)?.text,
+        examId: id,
+        category: exam?.title || 'Genel'
+      }];
+    }
+    
+    setFavorites(newFavs);
+    localStorage.setItem('favorite_questions', JSON.stringify(newFavs));
+  };
+
   const handleFinish = async () => {
     setIsFinished(true);
     
-    // Calculate score locally
+    // Calculate stats
     let correctCount = 0;
+    let wrongCount = 0;
+    const wrongQuestionsList = [];
+
     questions.forEach(q => {
       const selectedIdx = answers[q._id];
-      if (selectedIdx !== undefined && q.options[selectedIdx]?.isCorrect) {
+      const isCorrect = selectedIdx !== undefined && q.options[selectedIdx]?.isCorrect;
+      
+      if (isCorrect) {
         correctCount++;
+      } else {
+        wrongCount++;
+        wrongQuestionsList.push({
+          questionId: q._id,
+          questionText: q.description,
+          userAnswer: selectedIdx,
+          correctAnswer: q.options.findIndex(opt => opt.isCorrect),
+          options: q.options.map(opt => opt.text),
+          explanation: q.explanation || ''
+        });
       }
     });
 
     const score = (correctCount / questions.length) * 100;
-    console.log(`Final Score: ${score}%`);
+    const passed = score >= 70;
 
-    // Here you would post the result to the backend
+    // Send to backend
     try {
-      await api.post('/exam-results', {
-        exam: exam._id,
-        score: score,
-        correctCount: correctCount,
-        wrongCount: questions.length - correctCount - Object.keys(answers).length, // Adjust for actually wrong vs empty if needed
-        totalQuestions: questions.length,
-        passed: score >= 70
-      });
+      await Promise.all([
+        // Save the overall exam result
+        api.post('/exam-results', {
+          examId: exam._id,
+          examName: exam.name || exam.title,
+          totalQuestions: questions.length,
+          correctCount: correctCount,
+          wrongCount: wrongCount,
+          score: Math.round(score),
+          passed: passed,
+          wrongQuestions: wrongQuestionsList,
+          testType: isQuickTest ? 'short_test' : 'exam'
+        }),
+        // Also save to "Mistakes" (WrongAnswer) collection for tracking
+        api.post('/wrong-answers/bulk', {
+          wrongQuestions: wrongQuestionsList,
+          correctQuestionIds: questions
+            .filter(q => answers[q._id] !== undefined && q.options[answers[q._id]]?.isCorrect)
+            .map(q => q._id),
+          testType: isQuickTest ? 'short_test' : 'exam'
+        })
+      ]);
+      console.log('Result and mistakes saved successfully');
     } catch (e) {
-      console.warn("Could not save result to API (if mock test, this is expected)");
+      console.error("Could not save result/mistakes to API:", e);
     }
   };
 
@@ -191,9 +252,22 @@ const ExamArea = () => {
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FileText size={18} /> Soru {currentIndex + 1} / {questions.length}
         </span>
-        <span style={{ color: 'var(--primary)' }}>
-          {answers[currentQ._id] !== undefined ? 'Cevaplandı' : 'Bekliyor'}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button 
+            onClick={() => toggleFavorite(currentQ)}
+            style={{ 
+              background: 'none', border: 'none', cursor: 'pointer', 
+              color: favorites.some(f => f.id === currentQ._id) ? '#fbbf24' : 'var(--text-muted)',
+              display: 'flex', alignItems: 'center', gap: 4
+            }}
+          >
+            <Star size={20} fill={favorites.some(f => f.id === currentQ._id) ? '#fbbf24' : 'none'} />
+            <span style={{ fontSize: '0.8rem' }}>Favorilere Ekle</span>
+          </button>
+          <span style={{ color: 'var(--primary)' }}>
+            {answers[currentQ._id] !== undefined ? 'Cevaplandı' : 'Bekliyor'}
+          </span>
+        </div>
       </div>
 
       <div className="glass-panel" style={{ padding: '40px' }}>

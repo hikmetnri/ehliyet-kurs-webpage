@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, AlertCircle, PlayCircle } from 'lucide-react';
+import { BookOpen, Clock, AlertCircle, PlayCircle, Trophy, Flame, Target } from 'lucide-react';
 import api from '../api';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [exams, setExams] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchExams = async () => {
+    const fetchDashboardData = async () => {
       try {
-        // Handle MachAcademy response: Array of objects
-        if (Array.isArray(response.data)) {
-          setExams(response.data);
-        } else if (response.data && response.data.data) {
-          setExams(response.data.data);
-        } else {
-          throw new Error("Format mismatch");
+        const [examRes, statsRes] = await Promise.all([
+          api.get('/exams'),
+          api.get('/exam-results/stats')
+        ]);
+
+        // Handle Exams
+        if (Array.isArray(examRes.data)) {
+          setExams(examRes.data);
+        } else if (examRes.data && examRes.data.data) {
+          setExams(examRes.data.data);
         }
+
+        // Handle Stats
+        setStats(statsRes.data);
+
       } catch (err) {
-        console.error('Error fetching exams:', err);
+        console.error('Error fetching dashboard data:', err);
         // Fallback mockup exams if backend is offline or empty
         setExams([
           { _id: 'mock-1', title: 'Ehliyet Çıkmış Sorular 1', questionCount: 50, duration: 45, type: 'exam' },
@@ -33,7 +41,7 @@ const Dashboard = () => {
       }
     };
 
-    fetchExams();
+    fetchDashboardData();
   }, []);
 
   const handleStartExam = (id) => {
@@ -51,6 +59,43 @@ const Dashboard = () => {
           <h2 style={{ fontSize: '2rem', marginBottom: 8 }}>Sınav Merkezi</h2>
           <p className="text-muted">Gelişiminizi görmek için sınav çözmeye başlayın.</p>
         </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginBottom: 40 }}>
+        <div className="glass-panel" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ padding: 12, background: 'rgba(59, 130, 246, 0.1)', borderRadius: 12, color: 'var(--primary)' }}>
+            <Trophy size={28} />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats?.successRate || 0}%</div>
+            <div className="text-muted" style={{ fontSize: '0.875rem' }}>Başarı Oranı</div>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ padding: 12, background: 'rgba(16, 185, 129, 0.1)', borderRadius: 12, color: 'var(--secondary)' }}>
+            <Flame size={28} />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats?.streak || 0} Gün</div>
+            <div className="text-muted" style={{ fontSize: '0.875rem' }}>Çalışma Serisi</div>
+          </div>
+        </div>
+
+        <div className="glass-panel" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ padding: 12, background: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, color: '#ef4444' }}>
+            <Target size={28} />
+          </div>
+          <div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{stats?.totalCorrect || 0} / {stats?.totalQuestions || 0}</div>
+            <div className="text-muted" style={{ fontSize: '0.875rem' }}>Toplam Doğru</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <h3 style={{ fontSize: '1.5rem' }}>Deneme Sınavları</h3>
       </div>
 
       <div className="exam-grid">
