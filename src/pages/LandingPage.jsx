@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle, Shield, Brain, Star } from 'lucide-react';
+import { 
+  CheckCircle, 
+  Shield, 
+  Brain, 
+  Star, 
+  Download, 
+  Smartphone, 
+  Globe, 
+  Zap, 
+  Award,
+  ArrowRight
+} from 'lucide-react';
 
 import api from '../api';
 
@@ -11,10 +22,9 @@ const LandingPage = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    // Sadece ana kategorileri getirir
     api.get('/categories').then(res => {
       if (res.data && res.data.data) {
-        setCategories(res.data.data.filter(c => !c.parent)); // Only parent categories
+        setCategories(res.data.data.filter(c => !c.parent));
       }
     }).catch(err => console.error("Could not fetch categories", err));
   }, []);
@@ -25,17 +35,39 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="animate-fade-in">
+    <div className="landing-wrapper" style={{ overflowX: 'hidden' }}>
+      {/* Background Decor */}
+      <div className="bg-decor" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -1,
+        background: 'radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), transparent 70%), radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05), transparent 50%)',
+        pointerEvents: 'none'
+      }} />
+
       {/* Hero Section */}
-      <section className="hero">
+      <section className="hero" style={{ padding: '120px 5% 80px' }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          style={{ marginBottom: 32, display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 99, background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', color: 'var(--primary)', fontSize: '0.875rem', fontWeight: 600 }}
+        >
+          <Zap size={16} /> 2026 Müfredatına Tam Uyumlu
+        </motion.div>
+
         <motion.h1 
           className="hero-title"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: 800, letterSpacing: '-0.02em' }}
         >
-          Sınavlara Hazırlanmanın <br />
-          <span className="text-gradient">En Akıllı Yolu</span>
+          Ehliyet Sınavında <br />
+          <span className="text-gradient">Başarıya Giden Yol</span>
         </motion.h1>
         
         <motion.p 
@@ -43,119 +75,171 @@ const LandingPage = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
+          style={{ fontSize: '1.25rem', color: 'var(--text-muted)', maxWidth: 700, margin: '0 auto 48px' }}
         >
-          Binlerce MEB onaylı çıkmış soru, videolu konu anlatımları ve detaylı başarı analiziniz ile ehliyet sınavını ilk girişinizde kazanın.
+          En güncel MEB soruları, yapay zeka destekli hata analizi ve videolu derslerle ehliyetinizi ilk girişinizde, garantili bir şekilde alın.
         </motion.p>
         
         <motion.div 
           className="hero-buttons"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          style={{ display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}
         >
-          <button className="btn btn-primary" onClick={goToApp} style={{ padding: '16px 32px', fontSize: '1.125rem' }}>
-            Hemen Soru Çöz <CheckCircle size={20} />
+          <button className="btn btn-primary" onClick={goToApp} style={{ padding: '18px 40px', fontSize: '1.125rem' }}>
+            Hemen Başla <ArrowRight size={20} />
           </button>
+          
+          <button className="btn btn-outline" style={{ padding: '18px 40px', fontSize: '1.125rem', background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
+            <Smartphone size={20} /> Android Uygulamasını İndir
+          </button>
+        </motion.div>
+
+        {/* Stats Strip */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          style={{ marginTop: 80, display: 'flex', gap: 60, flexWrap: 'wrap', justifyContent: 'center', opacity: 0.7 }}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>50.000+</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Aktif Öğrenci</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>%98</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Başarı Oranı</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white' }}>5000+</div>
+            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Güncel Soru</div>
+          </div>
         </motion.div>
       </section>
 
       {/* Features Section */}
-      <section className="features" style={{ paddingTop: 40, paddingBottom: 40 }}>
-        <div className="section-header" style={{ textAlign: 'center', marginBottom: 40, width: '100%', gridColumn: '1 / -1' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: 16 }}>Sizin İçin Geliştirilmiş Özellikler</h2>
-          <p className="text-muted">Projenin tüm platformlarında olan entegre yapımızı keşfedin.</p>
+      <section className="features-section" style={{ padding: '100px 5%' }}>
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <h2 style={{ fontSize: '2.5rem', marginBottom: 16 }}>Neden Bizimle Hazırlanmalısın?</h2>
+          <p className="text-muted" style={{ fontSize: '1.125rem' }}>Ehliyet Yolu, geleneksel yöntemleri modern teknolojiyle birleştirir.</p>
         </div>
 
-        <div className="feature-card glass-panel" style={{ '--border-subtle': 'rgba(59, 130, 246, 0.2)' }}>
-          <div className="feature-icon">
-            <Shield size={24} />
-          </div>
-          <h3 className="feature-title">Güncel Çıkmış Sorular</h3>
-          <p className="feature-desc">Milli Eğitim Bakanlığı'nın en son havuzunda yer alan, güncel ve birebir çıkmış ehliyet sorularıyla pratik yapın.</p>
-        </div>
-
-        <div className="feature-card glass-panel" style={{ '--border-subtle': 'rgba(16, 185, 129, 0.2)' }}>
-          <div className="feature-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--secondary)' }}>
-            <Brain size={24} />
-          </div>
-          <h3 className="feature-title">Yapay Zeka Destekli Analiz</h3>
-          <p className="feature-desc">Yanlış yaptığınız soruları hafızaya alır, başarı yüzdenizi detaylı grafiklerle göstererek eksiklerinizi anında kapatır.</p>
-        </div>
-
-        <div className="feature-card glass-panel" style={{ '--border-subtle': 'rgba(239, 68, 68, 0.2)' }}>
-          <div className="feature-icon" style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
-            <Star size={24} />
-          </div>
-          <h3 className="feature-title">Web ve Mobil Uyumlu</h3>
-          <p className="feature-desc">İster bilgisayardan masaüstü rahatlığında çözün, ister arayüz sayesinde molalarınızda telefondan tekrar edin.</p>
-        </div>
-
-        <div className="feature-card glass-panel" style={{ '--border-subtle': 'rgba(245, 158, 11, 0.2)' }}>
-          <div className="feature-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-          </div>
-          <h3 className="feature-title">Video Dersler</h3>
-          <p className="feature-desc">Sadece soru çözmekle kalmayın, konuları özel video anlatımlı derslerle sıfırdan öğrenin.</p>
-        </div>
-
-        <div className="feature-card glass-panel" style={{ '--border-subtle': 'rgba(168, 85, 247, 0.2)' }}>
-          <div className="feature-icon" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          </div>
-          <h3 className="feature-title">PDF Ders Notları</h3>
-          <p className="feature-desc">Ders notlarını yüksek kaliteli PDF formatında cihazınıza indirin ve çevrimdışı çalışın.</p>
-        </div>
-
-        <div className="feature-card glass-panel" style={{ '--border-subtle': 'rgba(14, 165, 233, 0.2)' }}>
-          <div className="feature-icon" style={{ background: 'rgba(14, 165, 233, 0.1)', color: '#0ea5e9' }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          </div>
-          <h3 className="feature-title">Topluluk Akışı</h3>
-          <p className="feature-desc">Aklınıza takılan soruları toplulukla paylaşın, tartışmalara katılın ve deneyimlerinizi aktarın.</p>
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="features" style={{ paddingTop: 40, background: 'rgba(0,0,0,0.2)' }}>
-        <div className="section-header" style={{ textAlign: 'center', marginBottom: 40, width: '100%', gridColumn: '1 / -1' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: 16 }}>Test Kategorileri</h2>
-          <p className="text-muted">Hangi sınıfta ehliyet alacaksanız o alanda test çözmeye başlayın.</p>
-        </div>
-
-        {categories.map((cat, index) => (
-          <motion.div 
-            key={cat._id} 
-            className="feature-card glass-panel" 
-            style={{ cursor: 'pointer', textAlign: 'center', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
-            onClick={goToApp}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <div className="feature-icon" style={{ background: cat.color ? `${cat.color}20` : 'rgba(255,255,255,0.1)', color: cat.color || 'white', width: 64, height: 64, borderRadius: '50%' }}>
-               {/* Replace with dynamic icon if necessary, using default for now */}
-               <CheckCircle size={32} />
+        <div className="features" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: 24 }}>
+          <div className="feature-card glass-panel" style={{ padding: 40, border: '1px solid rgba(59, 130, 246, 0.2)' }}>
+            <div className="feature-icon" style={{ width: 56, height: 56, background: 'rgba(59, 130, 246, 0.1)', color: 'var(--primary)' }}>
+              <Brain size={28} />
             </div>
-            <h3 className="feature-title" style={{ marginTop: 16 }}>{cat.name}</h3>
-            <p className="feature-desc" style={{ marginTop: 8 }}>{cat.description || `${cat.name} sınavına hazırlık testleri`}</p>
-          </motion.div>
-        ))}
+            <h3 style={{ fontSize: '1.5rem', marginBottom: 12 }}>Yapay Zeka Destekli</h3>
+            <p className="text-muted">Sistem, yanlış yaptığınız soruları analiz eder ve öğrenene kadar o soruları karşınıza çıkarmaya devam eder.</p>
+          </div>
+
+          <div className="feature-card glass-panel" style={{ padding: 40, border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <div className="feature-icon" style={{ width: 56, height: 56, background: 'rgba(16, 185, 129, 0.1)', color: 'var(--secondary)' }}>
+              <Award size={28} />
+            </div>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: 12 }}>Resmi Sınav Formatı</h3>
+            <p className="text-muted">Tüm dijital denemelerimiz MEB'in gerçek e-sınav arayüzü ile %100 uyumlu olarak tasarlanmıştır.</p>
+          </div>
+
+          <div className="feature-card glass-panel" style={{ padding: 40, border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+            <div className="feature-icon" style={{ width: 56, height: 56, background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7' }}>
+              <Globe size={28} />
+            </div>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: 12 }}>Her Yerden Erişim</h3>
+            <p className="text-muted">İster telefonunda, ister bilgisayarında. Tüm ilerlemen bulutta saklanır ve cihazlar arasında senkronize olur.</p>
+          </div>
+        </div>
       </section>
 
-      {/* Footer / Contact */}
-      <footer style={{ padding: '60px 5%', textAlign: 'center', borderTop: '1px solid var(--border-subtle)' }}>
-        <h3 style={{ fontSize: '1.5rem', marginBottom: 24, fontFamily: 'Outfit, sans-serif' }}>MachAcademy</h3>
-        <p className="text-muted" style={{ marginBottom: 24, maxWidth: 600, margin: '0 auto 24px' }}>
-          Sürücü belgesi alma sürecinizdeki en büyük destekçiniz. Hemen kendi çalışma planınızı oluşturun ve öğrenmeye başlayın.
-        </p>
-        <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginBottom: 24 }}>
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/privacy'); }} style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Gizlilik Politikası</a>
-          <a href="#" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Kullanım Koşulları</a>
-          <a href="mailto:admin@machacademy.com" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>İletişim</a>
+      {/* Categories Grid */}
+      <section style={{ padding: '100px 5%', background: 'rgba(15, 23, 42, 0.3)' }}>
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <h2 style={{ fontSize: '2.5rem', marginBottom: 16 }}>Test Kategorileri</h2>
+          <p className="text-muted">Hedeflediğin ehliyet sınıfına göre özelleştirilmiş test havuzu.</p>
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.875rem' }}>© 2026 MachAcademy (Ehliyet Yolu). Tüm Hakları Saklıdır.</p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24, maxWidth: 1200, margin: '0 auto' }}>
+          {categories.map((cat, index) => (
+            <motion.div 
+              key={cat._id} 
+              className="glass-panel" 
+              style={{ padding: 32, cursor: 'pointer', textAlign: 'center', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              whileHover={{ y: -10, boxShadow: '0 20px 40px rgba(0,0,0,0.4)', borderColor: 'var(--primary)' }}
+              onClick={goToApp}
+            >
+              <div style={{ 
+                width: 72, 
+                height: 72, 
+                margin: '0 auto 20px', 
+                background: cat.color ? `${cat.color}20` : 'rgba(255,255,255,0.1)', 
+                color: cat.color || 'white', 
+                borderRadius: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Award size={36} />
+              </div>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: 8 }}>{cat.name}</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>{cat.description || `${cat.name} uzmanlık testleri`}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Android Promo CTA */}
+      <section style={{ padding: '120px 5%' }}>
+        <div className="glass-panel" style={{ 
+          maxWidth: 1000, 
+          margin: '0 auto', 
+          padding: '64px', 
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.2))',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center'
+        }}>
+          <div style={{ padding: 20, background: 'rgba(255,255,255,0.05)', borderRadius: '50%', marginBottom: 32 }}>
+            <Smartphone size={60} color="var(--primary)" />
+          </div>
+          <h2 style={{ fontSize: '2.5rem', marginBottom: 20 }}>Cebindeki Kurs Merkezi</h2>
+          <p className="text-muted" style={{ fontSize: '1.125rem', maxWidth: 600, marginBottom: 40 }}>
+            Ehliyet Yolu mobil uygulamasıyla internetin olmadığı yerlerde bile çalışmaya devam et. Hemen ücretsiz indir.
+          </p>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+             <button className="btn btn-primary" style={{ padding: '16px 32px' }}>
+                <Download size={20} /> Play Store'dan İndir
+             </button>
+             <button className="btn btn-outline" style={{ padding: '16px 32px' }}>
+                Yakında App Store'da
+             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ padding: '80px 5% 40px', textAlign: 'center', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.75rem', fontWeight: 800, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+          <Shield color="var(--primary)" /> Ehliyet Yolu
+        </div>
+        <p className="text-muted" style={{ marginBottom: 40, maxWidth: 600, margin: '0 auto 40px' }}>
+          Sürücü belgesi alma sürecinizdeki en büyük dijital destekçiniz. 2026 yılı tüm sınav içerikleriyle hizmetinizdeyiz.
+        </p>
+        <div style={{ display: 'flex', gap: 32, justifyContent: 'center', marginBottom: 40 }}>
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate('/privacy'); }} style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }} className="hover-white">Gizlilik Politikası</a>
+          <a href="#" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }} className="hover-white">Kullanım Şartları</a>
+          <a href="mailto:admin@ehliyetyolu.com" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }} className="hover-white">Destek</a>
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.875rem' }}>© 2026 Ehliyet Yolu. Tüm Hakları Saklıdır.</p>
       </footer>
+
+      <style>{`
+        .hover-white:hover { color: white !important; }
+        .hero-title {
+           line-height:1.05 !important;
+        }
+      `}</style>
     </div>
   );
 };

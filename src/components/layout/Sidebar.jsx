@@ -39,7 +39,7 @@ const Sidebar = () => {
       <div className="sidebar-header">
         <Link to="/" className="nav-brand no-margin">
            <img src="/vite.svg" alt="logo" style={{ width: 32 }} />
-           <span>MachAcademy</span>
+           <span>Ehliyet Yolu</span>
         </Link>
       </div>
 

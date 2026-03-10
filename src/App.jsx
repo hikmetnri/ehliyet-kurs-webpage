@@ -53,7 +53,7 @@ const Navbar = () => {
       <div style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between', padding: '16px 32px', background: 'var(--glass-bg)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 24, border: '1px solid var(--border-subtle)', boxShadow: '0 4px 30px rgba(0,0,0,0.5)' }}>
         <Link to="/" className="nav-brand">
           <ShieldAlert color="#3b82f6" />
-          MachAcademy
+          Ehliyet Yolu
         </Link>
         <div className="nav-links">
           <Link to="/privacy" className="nav-link" style={{ fontSize: '1rem' }}>Gizlilik Politikası</Link>

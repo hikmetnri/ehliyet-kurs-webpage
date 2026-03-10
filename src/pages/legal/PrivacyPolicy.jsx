@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
       <div className="glass-panel" style={{ padding: '40px', borderRadius: 16 }}>
         <h2 style={{ fontSize: '1.5rem', marginBottom: 16, color: 'var(--primary)' }}>1. Veri Toplama ve Kullanım</h2>
         <p style={{ marginBottom: 24, color: 'var(--text-muted)' }}>
-          Uygulamamız (MachAcademy / Ehliyet Yolu) kullanıcı deneyimini sağlamak için temel hesap bilgilerini (E-posta, İsim) kaydeder.
+          Uygulamamız (Ehliyet Yolu) kullanıcı deneyimini sağlamak için temel hesap bilgilerini (E-posta, İsim) kaydeder.
           Sınav istatistikleriniz ve soru çözme verileriniz, başarı durumunuzu analiz etmek amacıyla toplanmaktadır.
         </p>
 
@@ -33,7 +33,7 @@ const PrivacyPolicy = () => {
         <p style={{ marginBottom: 24, color: 'var(--text-muted)' }}>
           Gizlilik ile ilgili tüm soru ve önerileriniz için aşağıdaki e-posta adresinden bize ulaşabilirsiniz:
           <br /><br />
-          <strong>Destek:</strong> admin@machacademy.com
+          <strong>Destek:</strong> admin@ehliyetyolu.com
         </p>
       </div>
     </div>
