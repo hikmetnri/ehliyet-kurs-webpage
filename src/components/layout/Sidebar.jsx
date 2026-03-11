@@ -39,7 +39,7 @@ const Sidebar = () => {
     <aside className="sidebar fixed-sidebar">
       <div className="sidebar-header">
         <Link to="/" className="nav-brand no-margin">
-           <img src="/vite.svg" alt="logo" style={{ width: 32 }} />
+           <img src="/logo.svg" alt="logo" style={{ width: 32 }} />
            <span>Ehliyet Yolu</span>
         </Link>
       </div>
