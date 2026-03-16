@@ -16,7 +16,9 @@ import {
   Copy,
   BarChart2,
   CheckCircle,
-  X
+  X,
+  Mail,
+  Send
 } from 'lucide-react';
 import api from '../../api';
 
@@ -31,6 +33,9 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [notifForm, setNotifForm] = useState({ title: '', body: '' });
   const [sendingNotif, setSendingNotif] = useState(false);
+  const [contactMessages, setContactMessages] = useState([]);
+  const [replyText, setReplyText] = useState({});
+  const [replyingTo, setReplyingTo] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -39,6 +44,9 @@ const AdminPanel = () => {
   useEffect(() => {
     if (activeTab === 'questions' && questions.length === 0) {
       fetchQuestions();
+    }
+    if (activeTab === 'messages' && contactMessages.length === 0) {
+      fetchMessages();
     }
   }, [activeTab]);
 
@@ -81,6 +89,31 @@ const AdminPanel = () => {
       setQuestions(Array.isArray(qList) ? qList : []);
     } catch (err) {
       console.error('Questions fetch error:', err);
+    }
+  };
+
+  const fetchMessages = async () => {
+    try {
+      const res = await api.get('/contact');
+      const mList = res.data?.data || [];
+      setContactMessages(mList);
+    } catch (err) {
+      console.error('Messages fetch error:', err);
+    }
+  };
+
+  const handleReplyMessage = async (msgId) => {
+    const reply = replyText[msgId];
+    if (!reply) return;
+    try {
+      await api.post(`/contact/${msgId}/reply`, { reply });
+      alert('Yanıt başarıyla gönderildi.');
+      setContactMessages(prev => prev.map(m => m._id === msgId ? { ...m, status: 'replied' } : m));
+      setReplyText(prev => ({ ...prev, [msgId]: '' }));
+      setReplyingTo(null);
+    } catch (err) {
+      console.error(err);
+      alert('Yanıt gönderilirken hata oluştu.');
     }
   };
 
@@ -372,12 +405,12 @@ const AdminPanel = () => {
         {posts.map(post => (
           <div key={post._id} className="glass-panel" style={{ padding: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => window.open(`/profile/${post.user?._id}`, '_blank')}>
                 <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <UserIcon size={16} color="white" />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 600 }}>{post.user?.firstName} {post.user?.lastName}</div>
+                  <div style={{ fontWeight: 600, color: 'var(--primary)' }}>{post.user?.firstName} {post.user?.lastName}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(post.createdAt).toLocaleString('tr-TR')}</div>
                 </div>
               </div>
@@ -396,14 +429,81 @@ const AdminPanel = () => {
                 </button>
               </div>
             </div>
-            <p style={{ marginBottom: post.media ? 16 : 0, lineHeight: 1.5 }}>{post.content}</p>
-            {post.media && <img src={post.media} alt="post" style={{ width: '100%', borderRadius: 12, maxHeight: 400, objectFit: 'cover', marginTop: 12 }} />}
+            <div style={{ cursor: 'pointer' }} onClick={() => post.media ? window.open(post.media, '_blank') : null}>
+              <p style={{ marginBottom: post.media ? 16 : 0, lineHeight: 1.5 }}>{post.content}</p>
+              {post.media && <img src={post.media} alt="post" style={{ width: '100%', borderRadius: 12, maxHeight: 400, objectFit: 'cover', marginTop: 12 }} />}
+            </div>
           </div>
         ))}
         {posts.length === 0 && (
           <div className="glass-panel text-center" style={{ padding: 40 }}>
             <MessageSquare size={48} className="text-muted" style={{ margin: '0 auto 16px', opacity: 0.2 }} />
             <p className="text-muted">Şu an onay bekleyen herhangi bir gönderi bulunmuyor.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // ─── Render: Messages ───────────────────────────────────────────────────────
+  const renderMessages = () => (
+    <div className="animate-fade-in">
+      <h2 style={{ marginBottom: 24 }}>Kullanıcı Mesajları</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {contactMessages.map(msg => (
+          <div key={msg._id} className="glass-panel" style={{ padding: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => msg.userId?._id && window.open(`/profile/${msg.userId._id}`, '_blank')}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <UserIcon size={16} color="white" />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--secondary)' }}>{msg.userId?.firstName || msg.userId?.name} {msg.userId?.lastName || ''}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(msg.createdAt).toLocaleString('tr-TR')} - {msg.userId?.email}</div>
+                </div>
+              </div>
+              <div>
+                <span style={{
+                  fontSize: '0.75rem', padding: '4px 10px', borderRadius: 12, fontWeight: 600,
+                  background: msg.status === 'replied' ? 'rgba(16,185,129,0.1)' : 'rgba(251,191,36,0.1)',
+                  color: msg.status === 'replied' ? 'var(--secondary)' : '#fbbf24'
+                }}>
+                  {msg.status === 'replied' ? 'Yanıtlandı' : 'Bekliyor'}
+                </span>
+              </div>
+            </div>
+            <h4 style={{ marginBottom: 8, fontSize: '1.1rem' }}>{msg.subject}</h4>
+            <p style={{ lineHeight: 1.5, background: 'rgba(255,255,255,0.02)', padding: 16, borderRadius: 8, marginBottom: 16 }}>{msg.message}</p>
+            
+            {msg.status !== 'replied' && (
+               replyingTo === msg._id ? (
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                   <textarea
+                     className="input-field"
+                     style={{ minHeight: 80, resize: 'none' }}
+                     placeholder="Kullanıcıya yanıtınız..."
+                     value={replyText[msg._id] || ''}
+                     onChange={(e) => setReplyText({ ...replyText, [msg._id]: e.target.value })}
+                   />
+                   <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                     <button className="btn btn-outline" onClick={() => setReplyingTo(null)} style={{ padding: '6px 16px' }}>İptal</button>
+                     <button className="btn btn-primary" onClick={() => handleReplyMessage(msg._id)} style={{ padding: '6px 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+                       <Send size={14} /> Gönder
+                     </button>
+                   </div>
+                 </div>
+               ) : (
+                 <button onClick={() => setReplyingTo(msg._id)} className="btn btn-primary" style={{ padding: '6px 16px', fontSize: '0.85rem' }}>
+                   Yanıtla
+                 </button>
+               )
+            )}
+          </div>
+        ))}
+        {contactMessages.length === 0 && (
+          <div className="glass-panel text-center" style={{ padding: 40 }}>
+            <Mail size={48} className="text-muted" style={{ margin: '0 auto 16px', opacity: 0.2 }} />
+            <p className="text-muted">Gelen mesaj bulunmuyor.</p>
           </div>
         )}
       </div>
@@ -458,6 +558,7 @@ const AdminPanel = () => {
     { key: 'exams', label: 'Sınavlar', icon: <BookOpen size={18} /> },
     { key: 'questions', label: 'Sorular', icon: <FileQuestion size={18} /> },
     { key: 'posts', label: 'Topluluk', icon: <MessageSquare size={18} />, badge: posts.length },
+    { key: 'messages', label: 'Mesajlar', icon: <Mail size={18} />, badge: contactMessages.filter(m => m.status !== 'replied').length },
     { key: 'notifications', label: 'Duyurular', icon: <Bell size={18} /> },
   ];
 
@@ -503,6 +604,7 @@ const AdminPanel = () => {
             {activeTab === 'exams' && renderExams()}
             {activeTab === 'questions' && renderQuestions()}
             {activeTab === 'posts' && renderPosts()}
+            {activeTab === 'messages' && renderMessages()}
             {activeTab === 'notifications' && renderNotifications()}
           </>
         )}
