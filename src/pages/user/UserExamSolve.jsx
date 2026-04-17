@@ -1,0 +1,455 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../api';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Loader2, Clock, ChevronLeft, ChevronRight,
+  CheckCircle2, XCircle, AlertCircle, BarChart2,
+  Send, RefreshCw, Home, Flag
+} from 'lucide-react';
+import useAuthStore from '../../store/authStore';
+
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+const resolveMedia = (src) => {
+  if (!src || src.startsWith('http')) return src;
+  if (src.startsWith('assets/content/')) return `${API_BASE}/content/${src.replace('assets/content/', '')}`;
+  if (src.startsWith('assets/images/')) return `${API_BASE}/images/${src.replace('assets/images/', '')}`;
+  if (src.startsWith('assets/')) return `${API_BASE}/images/${src.replace('assets/', '')}`;
+  return `${API_BASE}/images/${src}`;
+};
+
+const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
+
+// ─── Timer Hook ──────────────────────────────────────────────────────────────
+const useTimer = (durationMinutes, onExpire) => {
+  const [remaining, setRemaining] = useState(durationMinutes * 60);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (remaining <= 0) { onExpire?.(); return; }
+    intervalRef.current = setInterval(() => {
+      setRemaining(prev => {
+        if (prev <= 1) { clearInterval(intervalRef.current); onExpire?.(); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  const stop = () => clearInterval(intervalRef.current);
+
+  const formatted = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
+  const pct = ((durationMinutes * 60 - remaining) / (durationMinutes * 60)) * 100;
+  const isWarning = remaining < 300; // < 5 min
+  const isDanger = remaining < 60;
+
+  return { formatted, pct, isWarning, isDanger, stop, remaining };
+};
+
+// ─── Result Screen ────────────────────────────────────────────────────────────
+const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
+  let correct = 0, wrong = 0, empty = 0;
+  questions.forEach((q, i) => {
+    if (answers[i] === undefined || answers[i] === null) empty++;
+    else if (answers[i] === q.correctAnswer) correct++;
+    else wrong++;
+  });
+  const total = questions.length;
+  const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const passed = score >= 70;
+
+  return (
+    <div className="min-h-[70vh] flex flex-col items-center justify-center p-6">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', duration: 0.6 }}
+        className="w-full max-w-2xl glass-card p-10 rounded-3xl border border-white/10 shadow-2xl text-center"
+      >
+        {/* Score Circle */}
+        <div className={`w-32 h-32 rounded-full mx-auto mb-8 flex flex-col items-center justify-center border-4 shadow-xl ${
+          passed ? 'border-success bg-success/10 shadow-success/20' : 'border-danger bg-danger/10 shadow-danger/20'
+        }`}>
+          <span className={`text-4xl font-black ${passed ? 'text-success' : 'text-danger'}`}>{score}</span>
+          <span className="text-xs text-white/50 font-bold">PUAN</span>
+        </div>
+
+        <h2 className={`text-2xl font-black tracking-tight mb-2 ${passed ? 'text-success' : 'text-danger'}`}>
+          {passed ? '🎉 Tebrikler, Geçtiniz!' : '😕 Maalesef Kaldınız'}
+        </h2>
+        <p className="text-text-muted text-sm mb-8 font-medium">
+          {exam?.name} sınavı sonuçlandı. {passed ? 'Harika bir performans!' : 'Bir sonraki denemede başarılar!'}
+        </p>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="bg-success/10 border border-success/20 rounded-2xl p-4">
+            <p className="text-2xl font-black text-success">{correct}</p>
+            <p className="text-[10px] font-bold text-success/70 uppercase tracking-widest mt-1">Doğru</p>
+          </div>
+          <div className="bg-danger/10 border border-danger/20 rounded-2xl p-4">
+            <p className="text-2xl font-black text-danger">{wrong}</p>
+            <p className="text-[10px] font-bold text-danger/70 uppercase tracking-widest mt-1">Yanlış</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <p className="text-2xl font-black text-text-muted">{empty}</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Boş</p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-4">
+          <button
+            onClick={onRetry}
+            className="flex-1 flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            <RefreshCw className="w-4 h-4" /> Tekrar Çöz
+          </button>
+          <button
+            onClick={onHome}
+            className="flex-1 flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
+          >
+            <Home className="w-4 h-4" /> Sınav Merkezine Dön
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// ─── Main Exam Solve Component ────────────────────────────────────────────────
+const UserExamSolve = ({ customType }) => {
+  const { examId, categoryId } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
+
+  const [exam, setExam] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [started, setStarted] = useState(false);
+  const [answers, setAnswers] = useState({}); // { questionIndex: optionIndex }
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [phase, setPhase] = useState('intro'); // 'intro' | 'solving' | 'result'
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchExam = async () => {
+      try {
+        setLoading(true);
+        if (customType === 'short_test') {
+          // Synthetic exam based on category questions
+          const [qRes, catRes] = await Promise.all([
+            api.get(`/questions?category=${categoryId}&testType=short_test`),
+            api.get(`/categories/${categoryId}`)
+          ]);
+          const qs = qRes.data || [];
+          setQuestions(qs);
+          setExam({
+            _id: `short_test_${categoryId}`,
+            name: `${catRes.data?.data?.name || 'Konu'} Kısa Testi`,
+            description: 'Bu kategorideki konulardan oluşan özel test.',
+            duration: Math.max(10, Math.ceil(qs.length * 1.5)), // ~1.5 min per question
+            categoryId: categoryId
+          });
+        } else {
+          // Normal exam
+          const [examRes, qRes] = await Promise.all([
+            api.get(`/exams/${examId}`),
+            api.get(`/questions?exam=${examId}`),
+          ]);
+          setExam(examRes.data?.exam || examRes.data);
+          setQuestions(qRes.data || []);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchExam();
+  }, [examId, categoryId, customType]);
+
+  const handleExpire = useCallback(() => {
+    handleSubmit(true);
+  }, [answers, questions]);
+
+  const timer = useTimer(exam?.duration || 45, handleExpire);
+
+  const handleAnswer = (optionIdx) => {
+    setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
+  };
+
+  const handleSubmit = async (forced = false) => {
+    if (!forced && !window.confirm('Sınavı bitirmek istediğinize emin misiniz?')) return;
+    timer.stop();
+    setSubmitting(true);
+
+    try {
+      let correct = 0, wrong = 0;
+      const wrongQuestions = [];
+
+      questions.forEach((q, i) => {
+        const ans = answers[i];
+        if (ans === q.correctAnswer) correct++;
+        else if (ans !== undefined) {
+          wrong++;
+          wrongQuestions.push({ questionId: q._id, questionText: q.text });
+        }
+      });
+
+      const total = questions.length;
+      const empty = total - correct - wrong;
+      const score = total > 0 ? parseFloat(((correct / total) * 100).toFixed(1)) : 0;
+      const passed = score >= 70;
+      const timeSpentSecs = (exam?.duration || 45) * 60 - timer.remaining;
+
+      await api.post('/exam-results', {
+        examId: customType === 'short_test' ? null : examId,
+        examName: exam?.name,
+        categoryId: exam?.categoryId,
+        categoryName: exam?.categoryId?.name || '',
+        totalQuestions: total,
+        correctCount: correct,
+        wrongCount: wrong,
+        emptyCount: empty,
+        score,
+        passed,
+        duration: Math.round(timeSpentSecs / 60),
+        wrongQuestions,
+      });
+    } catch (err) {
+      console.error('Sonuç kaydedilemedi:', err);
+    } finally {
+      setSubmitting(false);
+      setPhase('result');
+    }
+  };
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-64">
+      <Loader2 className="w-10 h-10 animate-spin text-primary mb-3" />
+      <span className="text-text-muted text-xs font-bold uppercase tracking-widest">Sınav Hazırlanıyor...</span>
+    </div>
+  );
+
+  if (!exam) return (
+    <div className="text-center py-20">
+      <p className="text-text-muted">Sınav bulunamadı.</p>
+      <button onClick={() => navigate('/dashboard/exams')} className="mt-4 text-primary-light font-bold text-sm hover:underline">Geri Dön</button>
+    </div>
+  );
+
+  // ─── RESULT ────────────────────────────────────────────────────────
+  if (phase === 'result') {
+    return <ResultScreen
+      questions={questions}
+      answers={answers}
+      exam={exam}
+      onRetry={() => { setAnswers({}); setCurrentIdx(0); setPhase('intro'); }}
+      onHome={() => navigate('/dashboard/exams')}
+    />;
+  }
+
+  // ─── INTRO ─────────────────────────────────────────────────────────
+  if (phase === 'intro') {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+          className="w-full max-w-lg glass-card p-10 rounded-3xl border border-white/10 shadow-2xl text-center"
+        >
+          <div className="w-20 h-20 rounded-[28px] bg-primary/20 border-2 border-primary/30 flex items-center justify-center mx-auto mb-6">
+            <BarChart2 className="w-10 h-10 text-primary-light" />
+          </div>
+          <h2 className="text-2xl font-black text-white mb-2 tracking-tight">{exam.name}</h2>
+          {exam.description && <p className="text-text-muted text-sm mb-6 font-medium">{exam.description}</p>}
+
+          <div className="flex justify-center gap-6 mb-8">
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{questions.length}</p>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Soru</p>
+            </div>
+            <div className="w-px bg-white/10" />
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">{exam.duration || 45}</p>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Dakika</p>
+            </div>
+            <div className="w-px bg-white/10" />
+            <div className="text-center">
+              <p className="text-2xl font-black text-success">70</p>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Geçme Puanı</p>
+            </div>
+          </div>
+
+          <div className="p-4 bg-warning/5 border border-warning/20 rounded-2xl text-xs text-warning/80 font-medium text-left mb-8 flex gap-3">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>Sınav başladığında süre geri saymaya başlar. Süre dolduğunda sınav otomatik olarak teslim edilir.</span>
+          </div>
+
+          <div className="flex gap-4">
+            <button onClick={() => navigate(-1)} className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
+              <ChevronLeft className="w-4 h-4 inline mr-1" /> Geri
+            </button>
+            <button
+              onClick={() => setPhase('solving')}
+              disabled={questions.length === 0}
+              className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+            >
+              Sınava Başla →
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ─── SOLVING ───────────────────────────────────────────────────────
+  const q = questions[currentIdx];
+  const answeredCount = Object.keys(answers).length;
+  const progressPct = ((currentIdx) / questions.length) * 100;
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-128px)] overflow-hidden">
+
+      {/* Header Bar */}
+      <div className="shrink-0 flex items-center justify-between px-6 py-4 bg-bg-card border-b border-white/5">
+        <div className="flex items-center gap-4">
+          <button onClick={() => { if (window.confirm('Sınavdan çıkmak istiyor musunuz? İlerlemeniz kaydedilmez.')) navigate('/dashboard/exams'); }} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
+            <ChevronLeft className="w-5 h-5 text-text-muted" />
+          </button>
+          <div>
+            <h3 className="text-sm font-black text-white truncate max-w-xs">{exam.name}</h3>
+            <p className="text-[10px] font-bold text-text-muted uppercase">Soru {currentIdx + 1} / {questions.length}</p>
+          </div>
+        </div>
+
+        {/* Timer */}
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black text-sm transition-all ${
+          timer.isDanger ? 'bg-danger/10 border-danger/30 text-danger animate-pulse' :
+          timer.isWarning ? 'bg-warning/10 border-warning/30 text-warning' :
+          'bg-white/5 border-white/10 text-white'
+        }`}>
+          <Clock className="w-4 h-4" /> {timer.formatted}
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="w-full h-1 bg-black/30 shrink-0">
+        <motion.div
+          className="h-full bg-primary"
+          animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
+          transition={{ duration: 0.3 }}
+        />
+      </div>
+
+      {/* Question Area */}
+      <div className="flex-1 overflow-y-auto">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIdx}
+            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.2 }}
+            className="p-8 max-w-3xl mx-auto"
+          >
+            {/* Question */}
+            <div className="mb-8">
+              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black text-primary-light uppercase tracking-widest mb-4">
+                Soru {currentIdx + 1}
+              </span>
+              <p className="text-white text-base font-semibold leading-relaxed">{q.text}</p>
+
+              {/* Media */}
+              {q.media && (
+                <div className="mt-5">
+                  <img
+                    src={resolveMedia(q.media)}
+                    alt="Soru görseli"
+                    className="max-h-56 rounded-2xl border border-white/10 shadow-xl object-contain mx-auto"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Options */}
+            <div className="space-y-3">
+              {q.options.map((option, idx) => {
+                const selected = answers[currentIdx] === idx;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => handleAnswer(idx)}
+                    className={`w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all duration-200 ${
+                      selected
+                        ? 'bg-primary/15 border-primary/40 shadow-lg shadow-primary/10'
+                        : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-all ${
+                      selected
+                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                        : 'bg-white/5 text-text-muted border border-white/10'
+                    }`}>
+                      {OPTION_LABELS[idx]}
+                    </div>
+                    <span className={`text-sm leading-relaxed pt-0.5 ${selected ? 'text-white font-semibold' : 'text-white/80'}`}>
+                      {option}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Footer Navigation */}
+      <div className="shrink-0 px-6 py-4 bg-bg-card border-t border-white/5 flex items-center justify-between gap-4">
+        {/* Question Nav dots (minimap) */}
+        <div className="hidden md:flex items-center gap-1 flex-wrap max-w-xs">
+          {questions.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentIdx(i)}
+              className={`w-6 h-6 rounded text-[9px] font-bold transition-all ${
+                i === currentIdx ? 'bg-primary text-white' :
+                answers[i] !== undefined ? 'bg-success/30 text-success' : 'bg-white/10 text-text-muted hover:bg-white/20'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3 ml-auto">
+          <button
+            onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
+            disabled={currentIdx === 0}
+            className="flex items-center gap-1.5 px-5 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-white/10 transition-all disabled:opacity-30"
+          >
+            <ChevronLeft className="w-4 h-4" /> Önceki
+          </button>
+
+          {currentIdx < questions.length - 1 ? (
+            <button
+              onClick={() => setCurrentIdx(i => i + 1)}
+              className="flex items-center gap-1.5 px-5 py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              Sonraki <ChevronRight className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={() => handleSubmit(false)}
+              disabled={submitting}
+              className="flex items-center gap-1.5 px-5 py-3 bg-success text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-success/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+            >
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Sınavı Teslim Et</>}
+            </button>
+          )}
+        </div>
+      </div>
+
+    </div>
+  );
+};
+
+export default UserExamSolve;
