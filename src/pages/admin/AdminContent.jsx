@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -14,7 +15,7 @@ import {
   ChevronDown, Folder, Hash, AlignLeft, Code,
   Minus, UploadCloud, ZoomIn, ZoomOut, Maximize2,
   PanelLeft, PanelRight, SplitSquareVertical,
-  AlertCircle, Trash2, RefreshCw, FilePlus
+  AlertCircle, Trash2, RefreshCw, FilePlus, ExternalLink, Activity
 } from 'lucide-react';
 
 // ─── Media URL Helpers ──────────────────────────────────────────────────────
@@ -202,7 +203,10 @@ const ImagePreviewModal = ({ src, onClose }) => (
 
 // ─── Main AdminContent Component ────────────────────────────────────────────
 const AdminContent = () => {
+  const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
+  const [shortTestQuestions, setShortTestQuestions] = useState([]);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [selectedCatId, setSelectedCatId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -214,7 +218,10 @@ const AdminContent = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // View mode
-  const [viewMode, setViewMode] = useState('split'); // 'split' | 'preview' | 'editor'
+  const [viewMode, setViewMode] = useState('split');
+  // New Test Modal State
+  const [showNewTestModal, setShowNewTestModal] = useState(false);
+  const [newTestForm, setNewTestForm] = useState({ name: '', duration: '15' }); // 'split' | 'preview' | 'editor'
   const [previewZoom, setPreviewZoom] = useState(false);
 
   // Image preview
@@ -222,7 +229,7 @@ const AdminContent = () => {
 
   // Category modal
   const [catModal, setCatModal] = useState({ open: false, cat: null });
-  const [catForm, setCatForm] = useState({ name: '', description: '', color: '#6366f1', isPro: false, isActive: true, parent: null });
+  const [catForm, setCatForm] = useState({ name: '', description: '', color: '#6366f1', isPro: false, isActive: true, parent: null, image: '' });
   const [catSaving, setCatSaving] = useState(false);
 
   const textareaRef = useRef(null);
@@ -235,18 +242,33 @@ const AdminContent = () => {
     if (selectedCat) {
       setEditContent(selectedCat.content || '');
       setIsEditing(false);
+      fetchShortTestQuestions(selectedCat._id);
     }
   }, [selectedCatId, allCategories]);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/categories/all');
-      setAllCategories(res.data.data || []);
+      const catRes = await api.get('/categories/all');
+      setAllCategories(catRes.data.data || []);
     } catch (err) {
       console.error('Kategoriler alınamadı:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchShortTestQuestions = async (catId) => {
+    if (!catId) return;
+    setLoadingQuestions(true);
+    try {
+      const res = await api.get('/questions', { params: { testType: 'short_test', category: catId } });
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setShortTestQuestions(data.filter(q => (q.category?._id || q.category) === catId));
+    } catch (err) {
+      console.error('Sorular alınamadı:', err);
+    } finally {
+      setLoadingQuestions(false);
     }
   };
 
@@ -299,6 +321,47 @@ const AdminContent = () => {
     }
   };
 
+  // ── Short Test Question Handlers ─────────────────────────────────────────
+  const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
+  const [questionForm, setQuestionForm] = useState({ text: '', options: ['', '', '', ''], correctAnswer: 0, difficulty: 'medium' });
+  const [questionSaving, setQuestionSaving] = useState(false);
+
+  const handleDeleteQuestion = async (qId) => {
+    if (!window.confirm('Bu soruyu silmek istediğinize emin misiniz?')) return;
+    try {
+      await api.delete(`/questions/${qId}`);
+      fetchShortTestQuestions(selectedCatId);
+    } catch (err) {
+      alert('Soru silinemedi: ' + err.message);
+    }
+  };
+
+  const handleAddQuestion = async (e) => {
+    e.preventDefault();
+    const filled = questionForm.options.filter(o => o.trim());
+    if (!questionForm.text.trim() || filled.length < 2) {
+      alert('Soru metni ve en az 2 şık zorunludur.'); return;
+    }
+    setQuestionSaving(true);
+    try {
+      await api.post('/questions', {
+        text: questionForm.text.trim(),
+        options: questionForm.options.filter(o => o.trim()),
+        correctAnswer: questionForm.correctAnswer,
+        difficulty: questionForm.difficulty,
+        testType: 'short_test',
+        category: selectedCatId,
+      });
+      setShowAddQuestionModal(false);
+      setQuestionForm({ text: '', options: ['', '', '', ''], correctAnswer: 0, difficulty: 'medium' });
+      fetchShortTestQuestions(selectedCatId);
+    } catch (err) {
+      alert('Soru eklenemedi: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setQuestionSaving(false);
+    }
+  };
+
   // ── Category modal ──────────────────────────────────────────────────────
   const openCatModal = (cat = null) => {
     if (cat) {
@@ -309,9 +372,10 @@ const AdminContent = () => {
         isPro: cat.isPro || false,
         isActive: cat.isActive !== undefined ? cat.isActive : true,
         parent: cat.parent?._id || cat.parent || null,
+        image: cat.image || '',
       });
     } else {
-      setCatForm({ name: '', description: '', color: '#6366f1', isPro: false, isActive: true, parent: selectedCatId });
+      setCatForm({ name: '', description: '', color: '#6366f1', isPro: false, isActive: true, parent: selectedCatId, image: '' });
     }
     setCatModal({ open: true, cat });
   };
@@ -345,66 +409,70 @@ const AdminContent = () => {
     ? allCategories.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
     : rootCats;
 
-  // Custom markdown image renderer with click-to-zoom
+  // Custom markdown image renderer with click-to-zoom and extremely premium typography
   const markdownComponents = {
     img: ({ src, alt }) => {
       const resolvedSrc = resolveMediaUrl(src);
       return (
-      <div className="my-4">
+      <div className="my-10 w-full max-w-4xl mx-auto group">
         <div
-          className="relative group cursor-zoom-in inline-block max-w-full"
+          className="relative cursor-zoom-in rounded-[32px] p-2 bg-gradient-to-b from-white/10 to-transparent border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.01] overflow-hidden"
           onClick={() => setPreviewImage(resolvedSrc)}
         >
+          <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-hover:opacity-50 transition-all duration-700"></div>
           <img
             src={resolvedSrc}
             alt={alt}
-            className="max-w-full rounded-2xl border border-white/10 shadow-xl object-contain max-h-[500px]"
-            onError={e => { e.target.style.opacity = '0.3'; }}
+            className="w-full h-auto rounded-[24px] object-cover relative z-10"
+            onError={e => { e.target.style.display = 'none'; }}
           />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center">
-            <ZoomIn className="w-8 h-8 text-white" />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-[24px] flex items-center justify-center z-20">
+            <ZoomIn className="w-10 h-10 text-white" />
           </div>
         </div>
-        {alt && <p className="text-xs text-text-muted mt-2 text-center italic">{alt}</p>}
+        {alt && <p className="text-[11px] text-text-muted mt-4 text-center font-bold tracking-widest uppercase">{alt}</p>}
       </div>
       );
     },
-    h1: ({ children }) => <h1 className="text-2xl font-black text-white mt-8 mb-4 pb-2 border-b border-white/10">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-xl font-black text-white mt-6 mb-3">{children}</h2>,
-    h3: ({ children }) => <h3 className="text-lg font-bold text-primary-light mt-5 mb-2">{children}</h3>,
-    p: ({ children }) => <p className="text-text-secondary leading-relaxed mb-4">{children}</p>,
-    strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
-    em: ({ children }) => <em className="text-primary-light">{children}</em>,
+    h1: ({ children }) => <h1 className="text-4xl md:text-5xl font-black text-white mt-12 mb-6 tracking-tight leading-tight">{children}</h1>,
+    h2: ({ children }) => <h2 className="text-2xl md:text-3xl font-extrabold text-white mt-10 mb-5 tracking-tight border-b border-white/10 pb-4">{children}</h2>,
+    h3: ({ children }) => <h3 className="text-xl font-bold text-primary-light mt-8 mb-4">{children}</h3>,
+    p: ({ children }) => <p className="text-text-secondary text-base leading-[1.8] font-medium mb-6">{children}</p>,
+    strong: ({ children }) => <strong className="text-white font-black bg-white/5 px-1.5 py-0.5 rounded-lg border border-white/5">{children}</strong>,
+    em: ({ children }) => <em className="text-primary-light italic">{children}</em>,
     code: ({ inline, children }) => inline
-      ? <code className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded text-primary-light text-sm font-mono">{children}</code>
-      : <code className="block bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm font-mono text-green-400 overflow-x-auto my-4">{children}</code>,
+      ? <code className="px-2 py-1 bg-[#1e1e1e] border border-white/10 rounded-lg text-primary-light text-sm font-mono tracking-wide">{children}</code>
+      : <code className="block bg-[#161618] border border-white/10 rounded-2xl p-6 text-sm font-mono text-green-400 overflow-x-auto my-8 shadow-xl custom-scrollbar">{children}</code>,
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-primary/50 pl-4 my-4 italic text-text-secondary bg-primary/5 py-3 pr-4 rounded-r-xl">
-        {children}
+      <blockquote className="relative border-l-4 border-primary pl-6 my-8 py-4 bg-gradient-to-r from-primary/10 to-transparent rounded-r-2xl overflow-hidden group">
+        <Quote className="absolute right-4 top-4 w-12 h-12 text-primary/10 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
+        <div className="relative z-10 text-lg leading-relaxed text-text-secondary italic font-medium">
+            {children}
+        </div>
       </blockquote>
     ),
-    ul: ({ children }) => <ul className="list-none space-y-1 mb-4">{children}</ul>,
-    ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-4 text-text-secondary">{children}</ol>,
+    ul: ({ children }) => <ul className="flex flex-col gap-3 my-6 pl-2">{children}</ul>,
+    ol: ({ children }) => <ol className="list-decimal list-inside space-y-3 my-6 text-text-secondary font-medium text-base">{children}</ol>,
     li: ({ children }) => (
-      <li className="flex items-start gap-2 text-text-secondary">
-        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary/60 shrink-0" />
-        <span>{children}</span>
+      <li className="flex items-start gap-4 text-text-secondary font-medium text-base group">
+        <span className="mt-2 w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary group-hover:scale-125 transition-all shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+        <span className="leading-relaxed">{children}</span>
       </li>
     ),
     a: ({ href, children }) => (
       <a href={href} target="_blank" rel="noopener noreferrer"
-        className="text-primary-light underline underline-offset-2 hover:text-white transition-colors">
-        {children}
+        className="inline-flex items-center gap-1 text-primary-light font-bold hover:text-white transition-all underline decoration-primary/30 underline-offset-4 hover:decoration-white">
+        {children} <ExternalLink className="w-3 h-3" />
       </a>
     ),
-    hr: () => <hr className="border-white/10 my-6" />,
+    hr: () => <hr className="border-white/5 my-12" />,
     table: ({ children }) => (
-      <div className="overflow-x-auto my-4">
+      <div className="overflow-x-auto my-8 rounded-2xl border border-white/10 bg-black/20 shadow-2xl">
         <table className="w-full border-collapse text-sm">{children}</table>
       </div>
     ),
-    th: ({ children }) => <th className="border border-white/10 bg-white/5 px-4 py-2 text-left font-black text-white">{children}</th>,
-    td: ({ children }) => <td className="border border-white/10 px-4 py-2 text-text-secondary">{children}</td>,
+    th: ({ children }) => <th className="border-b border-white/10 bg-white/5 px-6 py-4 text-left font-black text-white text-xs uppercase tracking-widest">{children}</th>,
+    td: ({ children }) => <td className="border-b border-white/5 px-6 py-4 text-text-secondary font-medium align-middle">{children}</td>,
   };
 
   const hasUnsaved = isEditing && editContent !== (selectedCat?.content || '');
@@ -622,18 +690,29 @@ const AdminContent = () => {
                   </div>
                 )}
 
-                {/* Preview Pane */}
+                {/* Preview Pane / Read Mode */}
                 {(!isEditing || viewMode === 'preview' || viewMode === 'split') && (
-                  <div className={`flex flex-col overflow-hidden ${isEditing && viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
+                  <div className={`flex flex-col overflow-y-auto custom-scrollbar ${isEditing && viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
                     {isEditing && (
-                      <div className="px-4 py-2 bg-black/20 border-b border-white/5 flex items-center gap-2">
+                      <div className="px-4 py-2 bg-black/20 border-b border-white/5 flex items-center gap-2 sticky top-0 z-30 backdrop-blur-xl">
                         <Eye className="w-3.5 h-3.5 text-white/30" />
                         <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Canlı Önizleme</span>
                       </div>
                     )}
-                    <div className="flex-1 overflow-y-auto p-6 xl:p-10">
+                    
+                    <div className="p-6 xl:p-12 2xl:px-24">
+                      {(!isEditing || viewMode === 'preview') && selectedCat?.image && (
+                        <div className="mb-10 max-w-4xl mx-auto">
+                          <img 
+                            src={resolveMediaUrl(selectedCat.image)} 
+                            alt={selectedCat.name} 
+                            className="w-full h-auto rounded-[24px] object-cover shadow-2xl border border-white/10 max-h-[300px]"
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                          />
+                        </div>
+                      )}
                       {(isEditing ? editContent : selectedCat?.content) ? (
-                        <div className="max-w-3xl mx-auto">
+                        <div className="max-w-4xl mx-auto w-full">
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             rehypePlugins={[rehypeRaw]}
@@ -643,20 +722,100 @@ const AdminContent = () => {
                           </ReactMarkdown>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center h-full py-20 text-center">
-                          <div className="w-24 h-24 rounded-3xl border-2 border-dashed border-white/10 flex items-center justify-center mb-6">
-                            <BookOpen className="w-10 h-10 text-white/10" />
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                          <div className="w-24 h-24 rounded-[32px] border border-white/10 bg-white/5 shadow-2xl flex items-center justify-center mb-6">
+                            <BookOpen className="w-10 h-10 text-white/20" />
                           </div>
-                          <p className="text-text-muted font-medium mb-2">Bu kategori için henüz içerik eklenmemiş.</p>
+                          <p className="text-text-muted font-medium mb-2 text-sm">Bu konuya henüz ders içeriği metni eklenmemiş.</p>
                           <button
                             onClick={() => { setIsEditing(true); setViewMode('split'); }}
-                            className="mt-4 px-6 py-2.5 bg-primary/20 text-primary-light border border-primary/30 rounded-xl text-sm font-bold hover:bg-primary hover:text-white transition-all"
+                            className="mt-4 px-6 py-3 bg-gradient-to-br from-primary to-accent text-white rounded-xl text-xs uppercase tracking-widest font-black shadow-lg hover:shadow-primary/30 transition-all hover:scale-[1.02]"
                           >
-                            + İçerik Ekle
+                            Ders İçeriği Yaz
                           </button>
                         </div>
                       )}
                     </div>
+
+                    {/* Konu Sonu Kısa Test Soruları */}
+                    {(!isEditing || viewMode === 'preview') && selectedCat && (
+                      <div className="max-w-4xl mx-auto w-full px-6 xl:px-12 2xl:px-24 pb-12 mt-10">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-bg-dark">
+                                <Activity className="w-3.5 h-3.5 text-accent" />
+                                <span className="text-[10px] font-black tracking-widest uppercase text-white/50">Konu Sonu Kısa Test Soruları</span>
+                            </div>
+                            <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                        </div>
+
+                        <div className="glass-card p-6 rounded-3xl border border-white/5 shadow-2xl bg-black/20 space-y-4">
+                          {/* Header row */}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-bold text-white">
+                                {loadingQuestions ? 'Yükleniyor...' : `${shortTestQuestions.length} Soru`}
+                              </p>
+                              <p className="text-[10px] text-text-muted mt-0.5">Bu konuyu bitiren kullanıcı bu soruları çözecek. Flutter otomatik olarak gösterir.</p>
+                            </div>
+                            <button
+                              onClick={() => setShowAddQuestionModal(true)}
+                              className="flex items-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl text-xs font-black uppercase tracking-widest hover:-translate-y-0.5 transition-all shadow-lg shadow-accent/20"
+                            >
+                              <Plus className="w-4 h-4" /> Soru Ekle
+                            </button>
+                          </div>
+
+                          {/* Questions list */}
+                          {loadingQuestions ? (
+                            <div className="flex items-center justify-center py-8">
+                              <Loader2 className="w-6 h-6 animate-spin text-accent" />
+                            </div>
+                          ) : shortTestQuestions.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-10 text-center border-2 border-dashed border-white/5 rounded-2xl">
+                              <BookOpen className="w-10 h-10 text-white/10 mb-3" />
+                              <p className="text-sm text-text-muted">Bu konuya henüz kısa test sorusu eklenmemiş.</p>
+                              <button
+                                onClick={() => setShowAddQuestionModal(true)}
+                                className="mt-3 text-xs text-accent font-bold hover:underline"
+                              >
+                                + İlk soruyu ekleyerek başlayın
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {shortTestQuestions.map((q, idx) => (
+                                <div key={q._id} className="flex items-start gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
+                                  <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center shrink-0 text-[11px] font-black text-white/30">
+                                    {idx + 1}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{q.text}</p>
+                                    <div className="flex items-center gap-2 mt-1.5">
+                                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                        q.difficulty === 'easy' ? 'bg-success/10 text-success' :
+                                        q.difficulty === 'hard' ? 'bg-danger/10 text-danger' :
+                                        'bg-warning/10 text-warning'
+                                      }`}>
+                                        {q.difficulty === 'easy' ? 'Kolay' : q.difficulty === 'hard' ? 'Zor' : 'Orta'}
+                                      </span>
+                                      <span className="text-[10px] text-text-muted">{q.options?.length || 0} Şık</span>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => handleDeleteQuestion(q._id)}
+                                    className="w-8 h-8 rounded-lg bg-danger/0 hover:bg-danger/10 text-transparent hover:text-danger flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 shrink-0"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                   </div>
                 )}
               </div>
@@ -727,6 +886,16 @@ const AdminContent = () => {
                 </div>
 
                 <div>
+                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Kapak Görseli Yolu</label>
+                  <input
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 transition-all font-mono"
+                    placeholder="Örn: assets/content/motor.png"
+                    value={catForm.image}
+                    onChange={e => setCatForm(f => ({ ...f, image: e.target.value }))}
+                  />
+                </div>
+
+                <div>
                   <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Üst Kategori</label>
                   <select
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 transition-all"
@@ -790,6 +959,162 @@ const AdminContent = () => {
                   {catModal.cat ? 'Güncelle' : 'Oluştur'}
                 </button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Sınav Oluşturma Hızlı Modal ─────────────────────────────────────── */}
+      <AnimatePresence>
+        {showNewTestModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-sm bg-bg-card border border-white/10 rounded-3xl shadow-2xl p-6"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-2xl bg-accent/20 text-accent flex items-center justify-center">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white leading-tight">Hızlı Test Oluştur</h3>
+                  <p className="text-[10px] text-text-muted">Bulunduğun konuya eklenecektir.</p>
+                </div>
+              </div>
+              
+              <form onSubmit={handleCreateMiniTest} className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-text-secondary mb-2 block">Test Adı</label>
+                  <input 
+                    autoFocus
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-accent/50 transition-all"
+                    placeholder="Örn: Trafik Adabı Tarama Testi"
+                    value={newTestForm.name}
+                    onChange={e => setNewTestForm(f => ({ ...f, name: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-text-secondary mb-2 block">Süre (Dakika)</label>
+                  <input 
+                    type="number"
+                    min="1"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-accent/50 transition-all"
+                    value={newTestForm.duration}
+                    onChange={e => setNewTestForm(f => ({ ...f, duration: e.target.value }))}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
+                  <button type="button" onClick={() => setShowNewTestModal(false)} className="text-xs font-bold text-text-muted hover:text-white px-3 transition-colors">İptal</button>
+                  <button 
+                    type="submit"
+                    disabled={saveLoading || !newTestForm.name.trim()}
+                    className="px-6 py-3 bg-accent text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-accent-light transition-all disabled:opacity-50 shadow-xl shadow-accent/20"
+                  >
+                    {saveLoading ? 'Oluşturuluyor...' : 'Oluştur'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Soru Ekle Modal ──────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showAddQuestionModal && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-lg bg-bg-card border border-white/10 rounded-3xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+            >
+              <div className="p-5 border-b border-white/5 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-accent/20 text-accent flex items-center justify-center">
+                  <Plus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Kısa Test Sorusu Ekle</h3>
+                  <p className="text-[10px] text-text-muted">{selectedCat?.name} konusuna eklenecek</p>
+                </div>
+                <button onClick={() => setShowAddQuestionModal(false)} className="ml-auto p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAddQuestion} className="flex-1 overflow-y-auto p-5 space-y-4">
+                {/* Soru metni */}
+                <div>
+                  <label className="text-xs font-bold text-text-secondary mb-2 block">Soru Metni *</label>
+                  <textarea
+                    autoFocus
+                    rows={3}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-accent/50 transition-all resize-none placeholder:text-white/20"
+                    placeholder="Soruyu buraya yazın..."
+                    value={questionForm.text}
+                    onChange={e => setQuestionForm(f => ({ ...f, text: e.target.value }))}
+                  />
+                </div>
+
+                {/* Şıklar */}
+                <div>
+                  <label className="text-xs font-bold text-text-secondary mb-2 block">Şıklar (Doğru şıkkı seçmek için soldaki butona tıklayın)</label>
+                  <div className="space-y-2">
+                    {questionForm.options.map((opt, i) => (
+                      <div key={i} className={`flex items-center gap-3 p-3 rounded-2xl border-2 transition-all ${questionForm.correctAnswer === i ? 'border-success/50 bg-success/5' : 'border-white/5 bg-white/[0.02]'}`}>
+                        <button
+                          type="button"
+                          onClick={() => setQuestionForm(f => ({ ...f, correctAnswer: i }))}
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black text-xs transition-all ${questionForm.correctAnswer === i ? 'bg-success text-white' : 'bg-white/10 text-white/30 hover:bg-white/20'}`}
+                        >
+                          {String.fromCharCode(65 + i)}
+                        </button>
+                        <input
+                          className="flex-1 bg-transparent border-none outline-none text-sm text-white placeholder:text-white/20"
+                          placeholder={`${String.fromCharCode(65 + i)} şıkkını girin...`}
+                          value={opt}
+                          onChange={e => {
+                            const opts = [...questionForm.options];
+                            opts[i] = e.target.value;
+                            setQuestionForm(f => ({ ...f, options: opts }));
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Zorluk */}
+                <div>
+                  <label className="text-xs font-bold text-text-secondary mb-2 block">Zorluk Seviyesi</label>
+                  <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl">
+                    {[['easy','🟢 Kolay','bg-success'],['medium','🟡 Orta','bg-warning'],['hard','🔴 Zor','bg-danger']].map(([val, label, cls]) => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => setQuestionForm(f => ({ ...f, difficulty: val }))}
+                        className={`flex-1 py-2 text-xs font-black rounded-xl transition-all ${questionForm.difficulty === val ? `${cls} text-white` : 'text-text-muted hover:text-white'}`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-white/5">
+                  <button type="button" onClick={() => setShowAddQuestionModal(false)} className="text-xs font-bold text-text-muted hover:text-white transition-colors px-3">İptal</button>
+                  <button
+                    type="submit"
+                    disabled={questionSaving || !questionForm.text.trim()}
+                    className="px-6 py-3 bg-accent text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-accent-light transition-all disabled:opacity-50 shadow-lg shadow-accent/20"
+                  >
+                    {questionSaving ? 'Kaydediliyor...' : 'Kaydet'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

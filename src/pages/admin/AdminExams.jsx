@@ -840,9 +840,23 @@ const SignPickerModal = ({ onClose, onSelect }) => {
 };
 
 // ─── Exam Form Modal ───────────────────────────────────────────────────────────
-const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam }) => {
+const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, forceMiniTest = false }) => {
   const isEdit = !!existingExam;
-  const rootCats = categories.filter(c => !c.parent?._id && !c.parent);
+  const buildCategoryOptions = () => {
+    const roots = categories.filter(c => !c.parent?._id && !c.parent);
+    const result = [];
+    const addLevel = (cats, level) => {
+      cats.forEach(cat => {
+        const children = categories.filter(c => (c.parent?._id || c.parent) === cat._id);
+        const isLeaf = children.length === 0;
+        result.push({ ...cat, _level: level, _isLeaf: isLeaf });
+        if (children.length > 0) addLevel(children, level + 1);
+      });
+    };
+    addLevel(roots, 0);
+    return result;
+  };
+  const catOptions = buildCategoryOptions();
 
   const [form, setForm] = useState({ name: '', description: '', duration: '45', categoryId: '', isPro: false });
   const [loading, setLoading] = useState(false);
@@ -857,9 +871,10 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam }) =
           duration: String(existingExam.duration || 45),
           categoryId: existingExam.categoryId?._id || existingExam.categoryId || '',
           isPro: existingExam.isPro || false,
+          isMiniTest: existingExam.isMiniTest || false,
         });
       } else {
-        setForm({ name: '', description: '', duration: '45', categoryId: rootCats[0]?._id || '', isPro: false });
+        setForm({ name: '', description: '', duration: '45', categoryId: catOptions[0]?._id || '', isPro: false, isMiniTest: forceMiniTest });
       }
       setError('');
     }
@@ -876,6 +891,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam }) =
         duration: parseInt(form.duration) || 45,
         categoryId: form.categoryId || null,
         isPro: form.isPro,
+        isMiniTest: form.isMiniTest,
       };
       if (isEdit) {
         await api.put(`/exams/${existingExam._id}`, payload);
@@ -950,22 +966,31 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam }) =
                 value={form.categoryId}
                 onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
               >
-                <option value="" className="bg-bg-card">Seçiniz</option>
-                {rootCats.map(c => <option key={c._id} value={c._id} className="bg-bg-card">{c.name}</option>)}
+                <option value="" className="bg-bg-card">Ata veya Havuza Bırak...</option>
+                {catOptions.map(c => (
+                  <option 
+                    key={c._id} 
+                    value={c._id} 
+                    disabled={!c._isLeaf}
+                    className={`bg-bg-card ${!c._isLeaf ? 'text-white/30' : 'text-white'}`}
+                  >
+                    {'— '.repeat(c._level)}{!c._isLeaf ? '📁 ' : '📄 '}{c.name}{!c._isLeaf ? ' (grup)' : ''}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           <label className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${form.isPro ? 'border-warning/40 bg-warning/5' : 'border-white/5 bg-white/[0.02]'}`}>
-            <input type="checkbox" checked={form.isPro} onChange={e => setForm(f => ({ ...f, isPro: e.target.checked }))} className="hidden" />
-            <div className={`w-10 h-6 rounded-full transition-all relative ${form.isPro ? 'bg-warning' : 'bg-white/10'}`}>
-              <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${form.isPro ? 'left-5' : 'left-1'}`} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-white flex items-center gap-2"><Shield className="w-4 h-4 text-warning" /> PRO Üyelik Gerekli</p>
-              <p className="text-xs text-text-muted">Sadece PRO kullanıcılar görebilir</p>
-            </div>
-          </label>
+              <input type="checkbox" checked={form.isPro} onChange={e => setForm(f => ({ ...f, isPro: e.target.checked }))} className="hidden" />
+              <div className={`w-10 h-6 rounded-full shrink-0 transition-all relative ${form.isPro ? 'bg-warning' : 'bg-white/10'}`}>
+                <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${form.isPro ? 'left-5' : 'left-1'}`} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-white flex items-center gap-2 truncate"><Shield className="w-4 h-4 text-warning shrink-0" /> PRO Üyelik Gerekli</p>
+                <p className="text-[10px] text-text-muted truncate">Sadece PRO hesaplara özel</p>
+              </div>
+            </label>
 
           {error && (
             <div className="p-3 bg-danger/10 border border-danger/30 rounded-xl text-danger text-sm flex items-center gap-2">
@@ -1130,6 +1155,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams }) => {
 const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
   const [search, setSearch] = useState('');
   const [formModal, setFormModal] = useState({ open: false, question: null, isCopy: false, categoryId: null });
+  const [examModal, setExamModal] = useState({ open: false, exam: null });
   const [openCats, setOpenCats] = useState({});
   const toggleCat = (id) => setOpenCats(s => ({ ...s, [id]: !s[id] }));
 
@@ -1295,6 +1321,12 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
         >
           <Plus className="w-4 h-4" /> Soru Ekle
         </button>
+        <button
+          onClick={() => setExamModal({ open: true, exam: null })}
+          className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4" /> Test Oluştur
+        </button>
       </div>
 
       {/* Summary & Controls */}
@@ -1343,6 +1375,18 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
           />
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {examModal.open && (
+          <ExamFormModal
+            isOpen={examModal.open}
+            onClose={() => setExamModal({ open: false, exam: null })}
+            onSaved={onRefresh}
+            categories={categories}
+            existingExam={examModal.exam}
+            forceMiniTest
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -1359,10 +1403,13 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 
   const expandAll = () => {
     const next = {};
-    exams.forEach(e => next[e._id] = true);
+    tabExams.forEach(e => next[e._id] = true);
     setOpenExams(next);
   };
   const collapseAll = () => setOpenExams({});
+
+  // Exclude mini tests from exam tabs — mini tests live in ShortTestTab
+  const tabExams = exams.filter(e => !e.isMiniTest);
 
   const tabQuestions = questions.filter(q => q.testType === testType);
   const filtered = search ? tabQuestions.filter(q => q.text.toLowerCase().includes(search.toLowerCase())) : tabQuestions;
@@ -1418,7 +1465,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
         <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4 text-sm flex-1">
           <div className="flex items-center gap-2 text-text-secondary border-r border-white/5 pr-4">
             <PenTool className={`w-4 h-4 ${testType === 'trial_exam' ? 'text-warning' : 'text-primary'}`} />
-            <span><strong className="text-white">{exams.length}</strong> Aktif {title}</span>
+            <span><strong className="text-white">{tabExams.length}</strong> Aktif {title}</span>
           </div>
           <div className="flex items-center gap-2 text-text-secondary">
             <HelpCircle className="w-4 h-4 text-primary-light" />
@@ -1479,7 +1526,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
         </div>
       ) : (
         <div className="space-y-4">
-          {exams.map(exam => {
+          {tabExams.map(exam => {
             const examQs = getQuestionsForExam(exam._id);
             const eqCount = examQs.length;
             const dist = {
@@ -1780,7 +1827,7 @@ const AdminExams = () => {
             transition={{ duration: 0.2 }}
           >
             {tab === 'short_test' ? (
-              <ShortTestTab questions={questions} categories={categories} exams={exams} onRefresh={handleRefresh} />
+              <ShortTestTab questions={questions} categories={categories} exams={exams.filter(e => e.isMiniTest)} onRefresh={handleRefresh} />
             ) : tab === 'mock_exam' ? (
               <ExamQuestionsTab questions={questions} categories={categories} exams={exams} onRefresh={handleRefresh} testType="mock_exam" title="Deneme Sınavı" />
             ) : (

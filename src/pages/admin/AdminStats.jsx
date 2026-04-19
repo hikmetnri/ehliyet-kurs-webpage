@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, 
+  PieChart, Pie, Cell, BarChart, Bar, CartesianGrid
+} from 'recharts';
 import { 
   BarChart3, TrendingUp, AlertTriangle, QrCode, 
-  Loader2, Award, BrainCircuit, Users, Activity, Target, CheckCircle
+  Loader2, Award, BrainCircuit, Users, Activity, 
+  Target, CheckCircle, Bell, Clock, Crown, DownloadCloud
 } from 'lucide-react';
 
 const AdminStats = () => {
   const [overview, setOverview] = useState(null);
   const [categoryStats, setCategoryStats] = useState([]);
   const [difficultQuestions, setDifficultQuestions] = useState([]);
+  const [registrationTrend, setRegistrationTrend] = useState([]);
   const [qrCount, setQrCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -20,17 +26,19 @@ const AdminStats = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const [overviewRes, catRes, diffRes, qrRes] = await Promise.all([
+      const results = await Promise.allSettled([
         api.get('/admin/stats/overview'),
         api.get('/admin/stats/categories'),
         api.get('/admin/stats/difficult-questions'),
-        api.get('/admin/stats/qr')
+        api.get('/admin/stats/qr'),
+        api.get('/admin/stats/registration-trend')
       ]);
       
-      setOverview(overviewRes.data);
-      setCategoryStats(catRes.data || []);
-      setDifficultQuestions(diffRes.data || []);
-      setQrCount(qrRes.data?.count || 0);
+      setOverview(results[0].status === 'fulfilled' ? results[0].value.data : null);
+      setCategoryStats(results[1].status === 'fulfilled' ? results[1].value.data : []);
+      setDifficultQuestions(results[2].status === 'fulfilled' ? results[2].value.data : []);
+      setQrCount(results[3].status === 'fulfilled' ? results[3].value.data?.count : 0);
+      setRegistrationTrend(results[4].status === 'fulfilled' ? results[4].value.data : []);
     } catch (err) {
       console.error('İstatistikler alınamadı:', err);
     } finally {
@@ -42,194 +50,304 @@ const AdminStats = () => {
     return (
       <div className="flex flex-col h-[70vh] items-center justify-center">
         <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-        <span className="text-text-muted font-bold text-xs uppercase tracking-widest">Sistem Verileri Derleniyor...</span>
+        <span className="text-text-muted font-bold text-xs uppercase tracking-widest text-center">
+            Analitik Veriler Toplanıyor...
+        </span>
       </div>
     );
   }
 
-  // En iyi ve en kötü kategori
-  const bestCategory = categoryStats.length > 0 ? categoryStats[categoryStats.length - 1]?.categoryName : '-';
-  const worstCategory = categoryStats.length > 0 ? categoryStats[0]?.categoryName : '-';
+  const pieData = [
+    { name: 'PRO', value: overview?.proUsers || 0, color: '#FCD34D' },
+    { name: 'Free', value: (overview?.totalUsers || 0) - (overview?.proUsers || 0), color: '#6366f1' }
+  ];
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-6 pb-20">
+      
+      {/* --- HEADER --- */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Merkezi Algoritma & Dashboard</h1>
-          <p className="text-text-secondary text-sm mt-1">Sistemin nabzını tutun. Kullanıcı davranışları, başarı analizleri ve kritik veriler.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Merkezi Analitik Dashboard</h1>
+          <p className="text-text-secondary text-sm mt-1">Sistemin performans verileri ve kullanıcı davranış analizleri.</p>
         </div>
+        <button 
+          onClick={fetchStats}
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all"
+        >
+          <Activity className="w-4 h-4 text-primary-light" /> Verileri Tazele
+        </button>
       </div>
 
-      {/* Main Stats Cards */}
+      {/* --- TOP KPIs --- */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard 
-          icon={Users} title="Kayıtlı Öğrenci" value={overview?.totalUsers || 0} 
-          subtitle={`${overview?.newUsersThisWeek || 0} Bu Hafta`} 
-          color="text-primary-light" bg="bg-primary/20" border="border-primary/30" 
+          icon={Users} title="Toplam Öğrenci" value={overview?.totalUsers || 0} 
+          trend={`+${overview?.newUsersThisWeek || 0}`} trendLabel="Bu Hafta"
+          color="text-primary-light" bg="bg-primary/20"
         />
         <StatsCard 
-          icon={Activity} title="Bugün Aktif" value={overview?.activeToday || 0} 
-          subtitle="Son 24 saatteki trafik" 
-          color="text-success" bg="bg-success/20" border="border-success/30" 
+          icon={Crown} title="PRO Üyeler" value={overview?.proUsers || 0} 
+          trend={`%${Math.round((overview?.proUsers/overview?.totalUsers)*100) || 0}`} trendLabel="Oran"
+          color="text-amber-400" bg="bg-amber-400/20"
         />
         <StatsCard 
-          icon={Target} title="Ortalama Başarı" value={`%${overview?.avgSuccessRate || 0}`} 
-          subtitle="Tüm denemelerin ortalaması" 
-          color="text-warning" bg="bg-warning/20" border="border-warning/30" 
+          icon={Target} title="Genel Başarı" value={`%${overview?.avgSuccessRate || 0}`} 
+          trend="Stabil" trendLabel="Genel Durum"
+          color="text-emerald-400" bg="bg-emerald-400/20"
         />
         <StatsCard 
-          icon={QrCode} title="QR Taramalar" value={qrCount} 
-          subtitle="Fiziksel pazarlama dönüşümü" 
-          color="text-indigo-400" bg="bg-indigo-500/20" border="border-indigo-500/30" 
+          icon={QrCode} title="QR Dönüşümü" value={qrCount} 
+          trend="Aktif" trendLabel="Kampanyalar"
+          color="text-indigo-400" bg="bg-indigo-400/20"
         />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* --- REGISTRATION TREND (MAIN CHART) --- */}
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-2 glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-lg font-black text-white">Grafiksel Kayıt Akışı</h2>
+              <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Son 7 Günlük Kayıtlar</p>
+            </div>
+            <div className="px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-[10px] font-black text-primary-light uppercase tracking-widest">
+              Gerçek Zamanlı
+            </div>
+          </div>
+          
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={registrationTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                <XAxis 
+                    dataKey="name" 
+                    stroke="#ffffff30" 
+                    fontSize={10} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    dy={10}
+                />
+                <YAxis 
+                    stroke="#ffffff30" 
+                    fontSize={10} 
+                    tickLine={false} 
+                    axisLine={false}
+                    dx={-10}
+                />
+                <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff10', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}
+                    itemStyle={{ color: '#6366f1' }}
+                />
+                <Line 
+                    type="monotone" 
+                    dataKey="users" 
+                    stroke="#6366f1" 
+                    strokeWidth={4} 
+                    dot={{ fill: '#6366f1', strokeWidth: 2, r: 4, stroke: '#000' }}
+                    activeDot={{ r: 6, strokeWidth: 0 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+
+        {/* --- PRO STATUS (DONUT CHART) --- */}
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col items-center justify-center text-center"
+        >
+           <h2 className="text-lg font-black text-white mb-1">Üyelik Dağılımı</h2>
+           <p className="text-xs text-text-muted mb-6 uppercase tracking-widest font-bold">Gelir Modeli Yapısı</p>
+           
+           <div className="relative h-[220px] w-full flex items-center justify-center">
+             <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    cx="50%" cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={8}
+                    dataKey="value"
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip />
+                </PieChart>
+             </ResponsiveContainer>
+             {/* Center Label */}
+             <div className="absolute flex flex-col">
+               <span className="text-2xl font-black text-white">{overview?.proUsers || 0}</span>
+               <span className="text-[10px] font-black text-amber-400 uppercase">PRO</span>
+             </div>
+           </div>
+
+           <div className="flex gap-6 mt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
+                <span className="text-[11px] font-black text-white/60">PRO</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-primary shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                <span className="text-[11px] font-black text-white/60">ÜCRETSİZ</span>
+              </div>
+           </div>
+        </motion.div>
+
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* Kategori Başarı Oranları */}
+        {/* --- CATEGORY PROGRESS --- */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col h-full border border-white/5 shadow-2xl"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
         >
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-              <BarChart3 className="w-6 h-6 text-accent" />
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+               <TrendingUp className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">Konu Bazlı Başarı Oranları</h2>
-              <p className="text-xs text-text-secondary mt-1 tracking-wide">Algoritmanın çıkardığı "En Zorlanılan Konudan - En Kolaya"</p>
+              <h2 className="text-lg font-black text-white">Konu Performans Barometresi</h2>
+              <p className="text-xs text-text-muted mt-0.5">En çok çalışılması gereken konulardan en başarılılara.</p>
             </div>
           </div>
 
-          <div className="space-y-7 flex-1">
-            {categoryStats.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                 <p className="text-sm text-text-muted text-center">Henüz kategori verisi bulunmuyor.</p>
-              </div>
-            ) : (
-              categoryStats.map((stat, i) => (
-                <StatProgressBar 
-                  key={i}
-                  label={stat.categoryName}
-                  value={stat.totalAttempts}
-                  percentage={stat.avgSuccessRate}
-                  color={stat.avgSuccessRate > 75 ? 'bg-success' : stat.avgSuccessRate > 50 ? 'bg-warning' : 'bg-danger'}
-                />
-              ))
-            )}
+          <div className="space-y-6">
+            {categoryStats.slice(0, 6).map((stat, i) => (
+              <StatProgressBar 
+                key={i}
+                label={stat.categoryName}
+                percentage={stat.avgSuccessRate}
+                total={stat.totalAttempts}
+              />
+            ))}
           </div>
         </motion.div>
 
-        {/* En Çok Hata Yapılan Sorular */}
+        {/* --- DIFFICULT QUESTIONS --- */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col h-full border border-white/5 shadow-2xl"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col"
         >
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-danger/10 border border-danger/20 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-6 h-6 text-danger" />
-            </div>
-            <div>
-              <h2 className="text-lg font-black text-white">Sistemin Kritik Soruları</h2>
-              <p className="text-xs text-text-secondary mt-1 tracking-wide">Öğrencilerin sınavda en çok düştüğü tuzak sorular</p>
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                    <AlertTriangle className="w-6 h-6 text-rose-400" />
+                </div>
+                <div>
+                    <h2 className="text-lg font-black text-white">Kritik Hata Noktaları</h2>
+                    <p className="text-xs text-text-muted mt-0.5">Öğrencileri en çok eleyen sorular.</p>
+                </div>
             </div>
           </div>
 
-          <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
-            {difficultQuestions.length === 0 ? (
-              <div className="flex items-center justify-center h-full">
-                 <p className="text-sm text-text-muted text-center">Yeterli veri birikmedi.</p>
-              </div>
-            ) : (
-              difficultQuestions.slice(0, 5).map((q, i) => (
-                <div key={i} className="p-5 rounded-2xl bg-black/20 border border-white/5 hover:border-danger/30 transition-all group flex flex-col gap-3">
-                  <div className="flex justify-between items-center">
-                    <span className="px-3 py-1 bg-danger/10 text-danger border border-danger/20 rounded-lg text-[10px] font-black tracking-widest uppercase">
-                      Hata Oranı: %{Math.round(q.failRate * 100)}
-                    </span>
-                    <span className="text-[11px] font-medium text-text-muted bg-white/5 px-2 py-1 rounded-md">{q.wrongCount} Yanlış İşaretleme</span>
-                  </div>
-                  <p className="text-sm font-medium text-white/90 line-clamp-3 leading-relaxed">
-                    {q.text}
-                  </p>
+          <div className="space-y-3 flex-1 overflow-y-auto max-h-[480px] pr-2 custom-scrollbar">
+             {difficultQuestions.slice(0, 5).map((q, i) => (
+                <div key={i} className="p-5 rounded-3xl bg-white/[0.02] border border-white/5 flex flex-col gap-3 group hover:border-rose-500/30 transition-all">
+                   <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                         <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                         <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Kritik Soru</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-white/30">{q.wrongCount} Toplam Hata</span>
+                   </div>
+                   <p className="text-sm font-semibold text-white/80 leading-relaxed italic line-clamp-2">"{q.text}"</p>
+                   <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                      <div className="bg-rose-500 h-full" style={{ width: `${Math.round(q.failRate * 100)}%` }}></div>
+                   </div>
                 </div>
-              ))
-            )}
+             ))}
           </div>
         </motion.div>
 
       </div>
 
-      {/* Ekstra Bilgi Kartları */}
+      {/* --- FOOTER INSIGHTS --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <OverviewDetailCard 
-          icon={CheckCircle} color="text-success" bg="bg-success/10" 
-          title="En Çok Bilinen" desc={bestCategory}
-        />
-        <OverviewDetailCard 
-          icon={TrendingUp} color="text-warning" bg="bg-warning/10" 
-          title="Toplam Simülasyon" desc={`Sistemde ${overview?.totalExams || 0} adet sınav çözüldü`}
-        />
-        <OverviewDetailCard 
-          icon={BrainCircuit} color="text-primary-light" bg="bg-primary/10" 
-          title="Yapay Zeka Analizi" desc={worstCategory !== '-' ? `Öğrenciler ağırlıklı olarak ${worstCategory} konusuna çalıştırılmalı.` : 'Veri bekleniyor...'}
+         <InsightCard 
+            icon={Bell} title="Bildirim Etkileşimi" 
+            value={`%${Math.round((overview?.notifEnabledCount/overview?.totalUsers)*100) || 0}`}
+            desc={`${overview?.notifEnabledCount || 0} Kullanıcı bildirimleri açık.`}
+         />
+         <InsightCard 
+            icon={Clock} title="Favori Saat" 
+            value={`${overview?.mostCommonNotifHour || 0}:00`}
+            desc="Kullanıcılar en çok bu saatte çalışıyor."
+         />
+         <InsightCard 
+            icon={DownloadCloud} title="Haftalık Büyüme" 
+            value={`+${overview?.newUsersThisWeek || 0}`}
+            desc="Yeni katılan potansiyel PRO adayları."
+         />
+      </div>
+
+    </div>
+  );
+};
+
+// --- SUB COMPONENTS ---
+
+const StatsCard = ({ icon: Icon, title, value, trend, trendLabel, color, bg }) => (
+    <div className="glass-card p-6 rounded-[28px] border border-white/5 relative overflow-hidden group hover:border-white/10 transition-all">
+        <div className="absolute -right-2 -top-2 opacity-5 scale-150 rotate-12 group-hover:rotate-0 transition-transform">
+            <Icon className={`w-24 h-24 ${color}`} />
+        </div>
+        <div className="relative z-10 flex flex-col gap-4">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${bg} border border-white/5`}>
+                <Icon className={`w-6 h-6 ${color}`} />
+            </div>
+            <div>
+                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{title}</p>
+                <h3 className="text-3xl font-black text-white mt-1 leading-none">{value}</h3>
+                <div className="flex items-center gap-2 mt-4">
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg bg-white/5 ${color}`}>{trend}</span>
+                    <span className="text-[10px] text-text-muted font-bold tracking-tight">{trendLabel}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+const StatProgressBar = ({ label, percentage, total }) => {
+  const colorClass = percentage > 80 ? 'bg-emerald-500' : percentage > 60 ? 'bg-amber-400' : 'bg-rose-500';
+  const shadowClass = percentage > 80 ? 'shadow-[0_0_10px_rgba(16,185,129,0.3)]' : percentage > 60 ? 'shadow-[0_0_10px_rgba(251,191,36,0.3)]' : 'shadow-[0_0_10px_rgba(244,63,94,0.3)]';
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-end">
+        <span className="text-xs font-black text-white/80">{label}</span>
+        <span className="text-[10px] font-black text-text-muted uppercase tracking-tighter">%{percentage} Başarı <span className="opacity-40">/ {total} Çözüm</span></span>
+      </div>
+      <div className="h-2 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden">
+        <motion.div 
+            initial={{ width: 0 }} animate={{ width: `${percentage}%` }} transition={{ duration: 1, ease: 'easeOut' }}
+            className={`h-full rounded-full ${colorClass} ${shadowClass}`}
         />
       </div>
     </div>
   );
 };
 
-// Alt Bilgi Kartları
-const OverviewDetailCard = ({ icon: Icon, color, bg, title, desc }) => (
-   <div className="glass-card rounded-3xl p-6 flex items-center gap-5 border border-white/5 hover:bg-white/[0.02] transition-colors">
-     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 ${bg} ${color}`}>
-       <Icon className="w-7 h-7" />
-     </div>
-     <div>
-       <h4 className="text-xs font-bold uppercase tracking-widest text-text-muted">{title}</h4>
-       <p className="text-sm font-semibold text-white mt-1.5 line-clamp-2 leading-relaxed">{desc}</p>
-     </div>
-   </div>
-);
-
-// Progress Bar Component
-const StatProgressBar = ({ label, value, percentage, color }) => (
-  <div className="space-y-2.5">
-    <div className="flex justify-between items-end">
-      <span className="text-sm font-bold text-white/90">{label}</span>
-      <span className="text-[11px] font-bold text-text-muted bg-white/5 px-2 py-1 rounded-md">
-        %{percentage} Başarı <span className="opacity-50">({value} Çözüm)</span>
-      </span>
+const InsightCard = ({ icon: Icon, title, value, desc }) => (
+    <div className="glass-card p-6 rounded-[28px] border border-white/5 flex items-center gap-5 hover:bg-white/[0.01] transition-colors">
+        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
+            <Icon className="w-7 h-7 text-white/40" />
+        </div>
+        <div>
+            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{title}</p>
+            <h4 className="text-xl font-black text-white mt-0.5">{value}</h4>
+            <p className="text-[11px] font-medium text-text-muted mt-1 leading-tight">{desc}</p>
+        </div>
     </div>
-    <div className="h-2.5 w-full bg-black/40 rounded-full overflow-hidden shadow-inner border border-white/5 relative">
-      <motion.div 
-        initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className={`absolute top-0 left-0 h-full rounded-full ${color} shadow-lg`}
-      />
-    </div>
-  </div>
-);
-
-// Ana StatsCard Component
-const StatsCard = ({ icon: Icon, title, value, subtitle, color, bg, border }) => (
-  <div className="glass-card p-6 rounded-3xl border border-white/5 flex flex-col gap-4 hover:border-white/10 transition-all hover:-translate-y-1">
-    <div className="flex items-start justify-between">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border shadow-lg ${bg} ${color} ${border}`}>
-        <Icon className="w-6 h-6" />
-      </div>
-    </div>
-    <div>
-      <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest leading-none mb-2">{title}</p>
-      <p className="text-3xl font-black text-white leading-none">{value}</p>
-      <p className="text-[11px] font-semibold text-white/40 mt-3 flex items-center gap-1.5"><TrendingUp className="w-3 h-3" /> {subtitle}</p>
-    </div>
-  </div>
 );
 
 export default AdminStats;
+

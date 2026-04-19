@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Loader2, Search, User, Shield, Star, Crown, 
   Trash2, Mail, Phone, Calendar, RefreshCw, 
-  MoreVertical, CheckCircle2, XCircle, AlertTriangle, UserX, UserCheck,
+  CheckCircle2, XCircle, AlertTriangle, UserX, UserCheck,
   BarChart2, X, Target, TrendingUp, PieChart, Activity, Flame
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
@@ -15,7 +15,7 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'admin', 'user'
   
-  // Analiz/İstatistik Modeli States
+  // Analytics Modal States
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
   const [selectedUserStats, setSelectedUserStats] = useState(null);
@@ -29,7 +29,8 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/users');
+      // Backend'deki varsayılan 20 limit sınırını aşıp eski kullanıcıları (Admin/PRO) görebilmek için limit=1000 eklendi.
+      const res = await api.get('/users?limit=1000');
       if (res.data.success) {
         setUsers(res.data.users);
       }
@@ -92,7 +93,6 @@ const AdminUsers = () => {
     }
   };
 
-  // Kullanıcı İstatistiklerini Getir
   const handleOpenStats = async (userId) => {
     setStatsModalOpen(true);
     setLoadingStats(true);
@@ -111,13 +111,17 @@ const AdminUsers = () => {
   };
 
   const filteredUsers = users.filter(u => {
-    const matchesSearch = (u.firstName + ' ' + u.lastName).toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === 'all' || u.role === roleFilter;
+    const searchString = searchTerm.toLowerCase();
+    const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+    const matchesSearch = fullName.includes(searchString) || u.email.toLowerCase().includes(searchString);
+    let matchesRole = true;
+    if (roleFilter === 'admin') matchesRole = u.role === 'admin';
+    else if (roleFilter === 'pro') matchesRole = u.proStatus === true;
+    else if (roleFilter === 'active') matchesRole = u.isActive !== false;
+    else if (roleFilter === 'online') matchesRole = u.isOnline === true;
     return matchesSearch && matchesRole;
   });
 
-  // İstatistikler
   const totalUsers = users.length;
   const adminCount = users.filter(u => u.role === 'admin').length;
   const proCount = users.filter(u => u.proStatus).length;
@@ -129,196 +133,213 @@ const AdminUsers = () => {
       {/* Header Area */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Kullanıcı Yönetimi</h1>
-          <p className="text-text-secondary text-sm mt-1">Sisteme kayıtlı öğrencileri ve yöneticileri detaylı olarak kontrol edin.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Kullanıcı & Hesap Yönetimi</h1>
+          <p className="text-text-secondary text-sm mt-1">Öğrenci hesaplarını, yetkilerini ve abonelik durumlarını tek merkezden yönet.</p>
         </div>
         <button 
           onClick={() => fetchUsers()} 
-          className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-text-secondary hover:text-white hover:bg-white/10 transition-all"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all shadow-lg"
         >
-          <RefreshCw className="w-4 h-4" /> Yenile
+          <RefreshCw className="w-4 h-4 text-primary-light" /> Canlı Veri Yenile
         </button>
       </div>
 
-      {/* İstatistik Kartları */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-         <StatsCard icon={User} label="Toplam Kullanıcı" value={totalUsers} color="text-primary-light" bg="bg-primary/20" border="border-primary/30" />
-         <StatsCard icon={Shield} label="Yönetici Sayısı" value={adminCount} color="text-warning" bg="bg-warning/20" border="border-warning/30" />
-         <StatsCard icon={Crown} label="PRO Üyeler" value={proCount} color="text-indigo-400" bg="bg-indigo-500/20" border="border-indigo-500/30" />
-         <StatsCard icon={UserX} label="Askıda (Pasif)" value={inactiveCount} color="text-danger" bg="bg-danger/20" border="border-danger/30" />
+         <StatsCard icon={User} label="Toplam Hesap" value={totalUsers} color="text-primary-light" bg="bg-primary/20" />
+         <StatsCard icon={Shield} label="Root Yetkililer" value={adminCount} color="text-emerald-400" bg="bg-emerald-500/20" />
+         <StatsCard icon={Crown} label="Premium (PRO)" value={proCount} color="text-amber-400" bg="bg-amber-500/20" />
+         <StatsCard icon={UserX} label="Askıya Alınanlar" value={inactiveCount} color="text-rose-400" bg="bg-rose-500/20" />
       </div>
 
-      {/* Filtre ve Arama Alanı */}
-      <div className="p-4 bg-bg-card2 border border-white/5 rounded-3xl shadow-xl flex flex-col md:flex-row items-center gap-4">
-        <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-xl px-4 py-3 w-full">
-          <Search className="w-5 h-5 text-text-muted mr-3" />
+      {/* Search & Filter Bar */}
+      <div className="p-2 bg-bg-card border border-white/5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center gap-2">
+        <div className="flex-1 flex items-center bg-black/40 rounded-2xl px-5 py-3 w-full border border-white/5 transition-all focus-within:border-primary/50 focus-within:bg-black/60">
+          <Search className="w-5 h-5 text-primary-light mr-3" />
           <input 
             type="text" 
-            placeholder="Kullanıcı adı, e-posta veya telefon ara..." 
-            className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-text-muted"
+            placeholder="İsim veya E-posta ile ara..." 
+            className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-text-muted font-medium"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          {searchTerm && <button onClick={() => setSearchTerm('')}><XCircle className="w-4 h-4 text-text-muted" /></button>}
+          {searchTerm && (
+            <button onClick={() => setSearchTerm('')} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+              <XCircle className="w-4 h-4 text-text-muted" />
+            </button>
+          )}
         </div>
         
-        <div className="flex bg-white/5 border border-white/10 p-1 rounded-xl w-full md:w-auto">
-          {['all', 'user', 'admin'].map(role => (
+        <div className="flex bg-black/40 border border-white/5 p-1.5 rounded-2xl w-full xl:w-auto h-full overflow-x-auto custom-scrollbar shrink-0">
+          {['all', 'admin', 'pro', 'active', 'online'].map(role => (
             <button 
               key={role}
               onClick={() => setRoleFilter(role)}
-              className={`flex-1 md:flex-none px-6 py-2 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
-                roleFilter === role ? 'bg-primary text-white shadow-lg' : 'text-text-muted hover:text-white'
+              className={`flex-none px-6 py-2 rounded-xl text-xs font-black transition-all uppercase tracking-widest ${
+                roleFilter === role 
+                ? 'bg-primary text-white shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                : 'text-text-muted hover:text-white hover:bg-white/5'
               }`}
             >
-              {role === 'all' ? 'Tümü' : role === 'user' ? 'Öğrenci' : 'Yönetici'}
+              {role === 'all' ? 'Tümü' : role === 'admin' ? 'Yönetici' : role === 'pro' ? 'PRO Üye' : role === 'active' ? 'Aktif Hesap' : 'Çevrimiçi'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Main Table Card */}
+      {/* Main Table */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="glass-card rounded-3xl border border-white/10 overflow-hidden shadow-2xl bg-bg-card/50"
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+        className="glass-card rounded-[32px] border border-white/5 overflow-hidden shadow-2xl"
       >
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-text-secondary min-w-[800px]">
-            <thead className="bg-black/20 text-white/40 font-black uppercase text-[10px] tracking-widest border-b border-white/5">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left text-sm text-text-secondary min-w-[900px]">
+            <thead className="bg-black/40 text-white/40 font-black uppercase text-[10px] tracking-widest">
               <tr>
-                <th className="px-6 py-4 rounded-tl-3xl">Kullanıcı Bilgileri</th>
-                <th className="px-6 py-4">İletişim</th>
-                <th className="px-6 py-4">Statü Seçimi</th>
-                <th className="px-6 py-4">Hesap Durumu</th>
-                <th className="px-6 py-4 text-right rounded-tr-3xl">İşlemler</th>
+                <th className="px-6 py-5 rounded-tl-[32px] border-b border-white/5">Profil</th>
+                <th className="px-6 py-5 border-b border-white/5">Bağlantı Bilgisi</th>
+                <th className="px-6 py-5 border-b border-white/5">Erişim Düzeyi</th>
+                <th className="px-6 py-5 border-b border-white/5">Güvenlik Durumu</th>
+                <th className="px-6 py-5 text-right rounded-tr-[32px] border-b border-white/5">Aksiyonlar</th>
               </tr>
             </thead>
             
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/[0.02]">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-20 text-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
-                    <span className="text-text-muted font-bold text-xs uppercase tracking-widest">Veriler Yükleniyor...</span>
+                  <td colSpan="5" className="px-6 py-32 text-center relative overflow-hidden">
+                    <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+                    <span className="text-text-muted font-bold text-xs uppercase tracking-widest">Sistem Ağacı Taranıyor...</span>
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-20 text-center">
-                    <div className="w-16 h-16 rounded-3xl border-2 border-dashed border-white/10 flex items-center justify-center mx-auto mb-4">
+                  <td colSpan="5" className="px-6 py-32 text-center">
+                    <div className="w-20 h-20 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center mx-auto mb-6 bg-white/[0.01]">
                       <User className="w-8 h-8 text-white/20" />
                     </div>
-                    <p className="text-text-muted font-medium">Arama kriterlerinize uygun kullanıcı bulunamadı.</p>
+                    <p className="text-text-muted font-bold tracking-wide">Eşleşen herhangi bir kullanıcı bulunamadı.</p>
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => {
                   const isSuspended = user.isActive === false;
+                  const isMe = user._id === currentUser?._id;
                   
                   return (
-                    <tr key={user._id} className={`group transition-all ${isSuspended ? 'bg-danger/5 hover:bg-danger/10' : 'hover:bg-white/[0.02]'}`}>
-                      {/* Kullanıcı Bilgisi */}
-                      <td className="px-6 py-4">
+                    <tr key={user._id} className={`group transition-all duration-300 ${isSuspended ? 'bg-rose-500/[0.02] hover:bg-rose-500/[0.05]' : 'hover:bg-white/[0.02]'} ${isMe ? 'bg-primary/[0.02]' : ''}`}>
+                      
+                      {/* PROFILE COLUMN */}
+                      <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
-                          <div className={`relative w-12 h-12 rounded-2xl flex items-center justify-center border-2 shrink-0 ${isSuspended ? 'border-danger/30 bg-danger/10' : 'border-white/10 bg-white/5'}`}>
-                            {user.role === 'admin' ? <Shield className={`w-5 h-5 ${isSuspended ? 'text-danger' : 'text-primary-light'}`} /> : <User className={`w-5 h-5 ${isSuspended ? 'text-danger' : 'text-white/70'}`} />}
-                            {user.proStatus && <Crown className="w-3.5 h-3.5 text-warning absolute -top-1.5 -right-1.5 drop-shadow-md" />}
+                          <div className="relative">
+                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-300 ${
+                                isSuspended ? 'border-rose-500/30 bg-rose-500/10' : 
+                                user.role === 'admin' ? 'border-emerald-500/30 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]' :
+                                'border-white/10 bg-white/5'
+                              }`}>
+                                {user.role === 'admin' ? <Shield className={`w-5 h-5 ${isSuspended ? 'text-rose-400' : 'text-emerald-400'}`} /> : <User className={`w-5 h-5 ${isSuspended ? 'text-rose-400' : 'text-white/70'}`} />}
+                              </div>
+                              {user.proStatus && (
+                                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-amber-400 border-[3px] border-[#0a0a0a] flex items-center justify-center shadow-[0_0_10px_rgba(251,191,36,0.5)] z-10">
+                                      <Crown className="w-3 h-3 text-black" />
+                                  </div>
+                              )}
                           </div>
                           <div>
-                            <div className={`font-black text-sm tracking-tight ${isSuspended ? 'text-danger' : 'text-white'}`}>
-                              {user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : 'İsimsiz Kullanıcı'}
+                            <div className="flex items-center gap-2">
+                                <div className={`font-black text-sm tracking-tight ${isSuspended ? 'text-rose-400' : 'text-white'}`}>
+                                  {user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : 'İsimsiz Öğrenci'}
+                                </div>
+                                {user.isOnline && <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" title="Şu an çevrimiçi"></div>}
+                                {isMe && <span className="px-1.5 py-0.5 rounded bg-primary/20 text-[9px] font-black tracking-widest text-primary-light uppercase">Ben</span>}
                             </div>
-                            <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-text-muted mt-1">
-                              <Calendar className="w-3 h-3" />
-                              {new Date(user.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                            <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-text-muted mt-1.5">
+                              <Calendar className="w-3 h-3 opacity-50" />
+                              {new Date(user.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })} kayıt
                             </div>
                           </div>
                         </div>
                       </td>
                       
-                      {/* İletişim */}
-                      <td className="px-6 py-4">
-                        <div className="space-y-1.5">
-                          <div className="flex items-center gap-2 text-xs font-medium text-text-secondary">
-                            <Mail className="w-3.5 h-3.5 opacity-50" /> {user.email}
+                      {/* CONTACT COLUMN */}
+                      <td className="px-6 py-5">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2.5 text-xs font-semibold text-white/70 bg-white/5 px-3 py-1.5 rounded-lg w-fit">
+                            <Mail className="w-3.5 h-3.5 text-primary-light" /> {user.email}
                           </div>
                           {user.phone && (
-                            <div className="flex items-center gap-2 text-xs font-medium text-text-secondary">
-                              <Phone className="w-3.5 h-3.5 opacity-50" /> {user.phone}
+                            <div className="flex items-center gap-2.5 text-xs font-semibold text-white/70 bg-white/5 px-3 py-1.5 rounded-lg w-fit">
+                              <Phone className="w-3.5 h-3.5 text-emerald-400" /> {user.phone}
                             </div>
                           )}
                         </div>
                       </td>
                       
-                      {/* Rol ve Statü */}
-                      <td className="px-6 py-4">
-                         <div className="flex flex-col gap-2 items-start">
+                      {/* ROLES COLUMN */}
+                      <td className="px-6 py-5">
+                          <div className="flex flex-col gap-2 items-start">
                             <button 
                               onClick={() => handleRoleToggle(user._id, user.role)}
-                              className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                              className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                                 user.role === 'admin' 
-                                  ? 'bg-warning/10 text-warning border-warning/30 hover:bg-warning/20' 
-                                  : 'bg-white/5 text-text-muted border-white/10 hover:bg-primary/20 hover:text-primary hover:border-primary/30'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
+                                  : 'bg-white/5 text-text-muted border-white/10 hover:border-emerald-500/30 hover:text-emerald-400 hover:bg-emerald-500/5'
                               }`}
                             >
-                              {user.role === 'admin' ? 'YÖNETİCİ' : 'ÖĞRENCİ'}
+                              {user.role === 'admin' ? <span className="flex items-center gap-1.5"><Shield className="w-3 h-3"/> YÖNETİCİ (KALDIR)</span> : '+ YÖNETİCİ YAP'}
                             </button>
                             <button 
                               onClick={() => handleProToggle(user._id)}
-                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                                 user.proStatus 
-                                  ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20' 
-                                  : 'bg-white/5 text-text-muted border-white/10 hover:bg-white/10 hover:text-white'
+                                  ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border-amber-500/30 hover:from-amber-500 hover:to-orange-500 hover:text-black shadow-[0_0_10px_rgba(251,191,36,0.3)]' 
+                                  : 'bg-white/5 text-text-muted border-white/10 hover:border-amber-500/30 hover:text-amber-400 hover:bg-amber-500/5'
                               }`}
                             >
-                              {user.proStatus ? <><Crown className="w-3.5 h-3.5" /> PRO ÜYE</> : <><Star className="w-3.5 h-3.5 opacity-40" /> FREE ÜYE</>}
+                              {user.proStatus ? <><Crown className="w-3.5 h-3.5" /> PRO İPTAL ET</> : <><Star className="w-3.5 h-3.5 opacity-60" /> + PRO ÜYELİK VER</>}
                             </button>
                          </div>
                       </td>
 
-                      {/* Aktif/Pasif Durumu */}
-                      <td className="px-6 py-4">
+                      {/* STATUS COLUMN */}
+                      <td className="px-6 py-5">
                         <button 
                           onClick={() => handleStatusToggle(user._id, user.isActive)}
-                          disabled={user._id === currentUser?._id}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                            user._id === currentUser?._id ? 'opacity-50 cursor-not-allowed border-transparent bg-transparent text-text-muted' :
+                          disabled={isMe}
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                            isMe ? 'opacity-30 cursor-not-allowed border-transparent bg-white/5 text-white' :
                             isSuspended 
-                              ? 'bg-danger/10 text-danger border-danger/30 hover:shadow-lg hover:shadow-danger/20' 
-                              : 'bg-success/10 text-success border-success/30 hover:shadow-lg hover:shadow-success/20'
+                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.4)]' 
+                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
                           }`}
                         >
-                          {isSuspended ? <><UserX className="w-3.5 h-3.5" /> ASKIYA ALINDI</> : <><UserCheck className="w-3.5 h-3.5" /> AKTİF DURUMDA</>}
+                          {isSuspended ? <><UserX className="w-3.5 h-3.5" /> BANLANDI</> : <><UserCheck className="w-3.5 h-3.5" /> GÜVENLİ</>}
                         </button>
                       </td>
 
-                      {/* İşlemler */}
-                      <td className="px-6 py-4 text-right">
+                      {/* ACTIONS COLUMN */}
+                      <td className="px-6 py-5 text-right">
                         <div className="flex items-center justify-end gap-2">
-                           {/* Öğrenci Analizi Butonu */}
                            {user.role === 'user' && (
                             <button 
                               onClick={() => handleOpenStats(user._id)}
-                              className="flex items-center gap-2 px-3 py-2 bg-primary/10 border border-primary/20 text-primary-light rounded-xl hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
+                              className="p-2.5 bg-primary/10 border border-primary/20 text-primary-light rounded-xl hover:bg-primary hover:text-white transition-all shadow-lg"
                               title="Detaylı Analiz Gör"
                             >
-                              <BarChart2 className="w-4 h-4" />
-                              <span className="text-[10px] font-black uppercase tracking-wider">Analiz Et</span>
+                              <Activity className="w-4 h-4" />
                             </button>
                            )}
 
-                           {/* Sil Butonu */}
                            <button 
                              onClick={() => handleDelete(user._id)}
-                             disabled={user._id === currentUser?._id}
+                             disabled={isMe}
                              className={`p-2.5 rounded-xl transition-all border ${
-                               user._id === currentUser?._id 
+                               isMe 
                                ? 'opacity-30 cursor-not-allowed bg-transparent border-transparent text-text-muted'
-                               : 'bg-danger/10 text-danger border-danger/30 hover:bg-danger hover:text-white shadow-lg shadow-danger/10'
+                               : 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500 hover:text-white shadow-lg'
                              }`}
-                             title="Kullanıcıyı Sil"
+                             title="Hesabı Yokol"
                            >
                              <Trash2 className="w-4 h-4" />
                            </button>
@@ -333,126 +354,133 @@ const AdminUsers = () => {
         </div>
         
         {!loading && filteredUsers.length > 0 && (
-          <div className="px-6 py-4 border-t border-white/5 bg-black/20 flex justify-between items-center text-[11px] font-bold text-text-muted uppercase tracking-widest">
-            <span>Toplam {filteredUsers.length} kullanıcı</span>
-            <span>Gösterilen: Tümü</span>
+          <div className="px-6 py-4 border-t border-white/5 bg-black/40 flex justify-between items-center text-[10px] font-black text-text-muted uppercase tracking-widest">
+            <span>Toplam {filteredUsers.length} Bağlantı Tespiti</span>
+            <span className="px-2 py-1 bg-white/5 rounded-lg border border-white/10">Engine v2.1</span>
           </div>
         )}
       </motion.div>
 
-      {/* KULLANICI ANALİZ MODALI */}
+      {/* USER ANALYSIS MODAL (PREMIUM UI) */}
       <AnimatePresence>
         {statsModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              initial={{ opacity: 0, backdropFilter: "blur(0px)" }} 
+              animate={{ opacity: 1, backdropFilter: "blur(10px)" }} 
+              exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+              className="absolute inset-0 bg-black/70"
               onClick={() => setStatsModalOpen(false)}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-4xl bg-bg-card border border-white/10 rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+              className="relative w-full max-w-4xl bg-bg-card border border-white/10 rounded-[32px] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[90vh] flex flex-col"
             >
               {/* Modal Header */}
-              <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center">
-                    <BarChart2 className="w-6 h-6 text-primary-light" />
+              <div className="px-8 py-6 flex items-center justify-between bg-black/40 border-b border-white/5">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 rounded-[20px] bg-primary/20 border-2 border-primary/30 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                    <Activity className="w-7 h-7 text-primary-light" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-black text-white">Öğrenci Analiz Raporu</h2>
-                    <p className="text-sm text-text-muted">Kullanıcının sistemdeki tüm deneme ve soru geçmişi verileri.</p>
+                    <h2 className="text-2xl font-black text-white tracking-tight">Kullanıcı Derin Analizi</h2>
+                    <p className="text-xs text-primary-light uppercase tracking-widest font-bold mt-1">Simülasyon Motoru Raporu</p>
                   </div>
                 </div>
-                <button onClick={() => setStatsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors">
-                  <X className="w-6 h-6 text-white/50" />
+                <button onClick={() => setStatsModalOpen(false)} className="p-2.5 bg-white/5 hover:bg-rose-500 hover:text-white rounded-2xl transition-all border border-white/10">
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 overflow-y-auto">
+              <div className="p-8 overflow-y-auto custom-scrollbar">
                 {loadingStats ? (
-                  <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-                    <span className="text-text-muted font-bold text-sm uppercase tracking-widest">Veriler İşleniyor...</span>
+                  <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                    <Loader2 className="w-16 h-16 animate-spin text-primary" />
+                    <span className="text-primary-light font-black text-xs uppercase tracking-widest animate-pulse">Sinir Ağları Taranıyor...</span>
                   </div>
                 ) : selectedUserStats ? (
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                      
-                     {/* Kullanıcı Kartı (Minimal) */}
-                     <div className="flex items-center justify-between bg-black/20 border border-white/5 p-4 rounded-2xl">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                            <User className="text-white/50 w-5 h-5" />
+                     {/* Identity Card */}
+                     <div className="flex items-center justify-between bg-gradient-to-r from-white/[0.03] to-transparent border border-white/5 p-6 rounded-[24px]">
+                        <div className="flex items-center gap-5">
+                          <div className="w-14 h-14 rounded-full bg-black/50 border-2 border-white/10 flex items-center justify-center">
+                            <User className="text-white/40 w-6 h-6" />
                           </div>
                           <div>
-                            <div className="font-bold text-white text-base">
+                            <div className="font-black text-white text-xl tracking-tight flex items-center gap-3">
                               {selectedUserStats.user.firstName} {selectedUserStats.user.lastName} 
-                              {selectedUserStats.user.proStatus && <span className="ml-2 px-2 py-0.5 bg-warning/20 text-warning rounded text-[10px] uppercase">PRO ÜYE</span>}
+                              {selectedUserStats.user.proStatus && <span className="px-2.5 py-0.5 bg-amber-400 text-black rounded uppercase text-[10px] font-black shadow-[0_0_10px_rgba(251,191,36,0.4)]">PRO</span>}
                             </div>
-                            <div className="text-xs text-text-muted">{selectedUserStats.user.email}</div>
+                            <div className="text-sm font-medium text-white/50 flex items-center gap-2 mt-1">
+                                <Mail className="w-3.5 h-3.5" /> {selectedUserStats.user.email}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right">
-                           <div className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Kullanıcı Puanı</div>
-                           <div className="text-xl font-black text-primary-light">{selectedUserStats.user.totalScore} <span className="text-sm text-white/50">XP</span></div>
+                        <div className="text-right bg-black/40 px-6 py-3 rounded-[20px] border border-white/5">
+                           <div className="text-[10px] text-text-muted uppercase tracking-widest font-black">Algoritma XP</div>
+                           <div className="text-3xl font-black text-primary-light">{selectedUserStats.user.totalScore}</div>
                         </div>
                      </div>
 
-                     {/* İstatistik Göstergeleri */}
+                     {/* Stat Cards */}
                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <ReportCard title="Başarı Oranı" value={`%${selectedUserStats.stats.successRate}`} icon={Target} color="text-success" bg="bg-success/20" />
-                        <ReportCard title="Çözülen Sınav" value={selectedUserStats.stats.totalExams} icon={Activity} color="text-primary-light" bg="bg-primary/20" />
-                        <ReportCard title="Toplam Soru" value={selectedUserStats.stats.totalQuestions} icon={PieChart} color="text-indigo-400" bg="bg-indigo-500/20" />
-                        <ReportCard title="Seri (Streak)" value={`${selectedUserStats.stats.streak} Gün`} icon={Flame} color="text-warning" bg="bg-warning/20" />
+                        <ReportCard title="Yapay Zeka Onayı" value={`%${selectedUserStats.stats.successRate}`} icon={Target} color="text-emerald-400" bg="bg-emerald-500/10" border="border-emerald-500/20" />
+                        <ReportCard title="Simülasyon" value={selectedUserStats.stats.totalExams} icon={Activity} color="text-indigo-400" bg="bg-indigo-500/10" border="border-indigo-500/20" />
+                        <ReportCard title="Çözülen Düğüm" value={selectedUserStats.stats.totalQuestions} icon={PieChart} color="text-amber-400" bg="bg-amber-500/10" border="border-amber-500/20" />
+                        <ReportCard title="Ateş Serisi" value={`${selectedUserStats.stats.streak} Gün`} icon={Flame} color="text-rose-400" bg="bg-rose-500/10" border="border-rose-500/20" />
                      </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-bg-card2 border border-white/5 rounded-2xl p-5">
-                            <h3 className="text-sm font-bold text-text-muted uppercase tracking-widest mb-4">Sınav Durumları</h3>
-                            <div className="flex items-center gap-6">
-                                <div className="flex-1 space-y-2">
-                                  <div className="flex justify-between text-sm">
-                                    <span className="text-white">Geçilen Sınavlar</span>
-                                    <span className="font-black text-success">{selectedUserStats.stats.passedCount}</span>
+                     {/* Progress Visualizer */}
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-black/30 border border-white/5 rounded-[24px] p-6 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-[40px] group-hover:bg-emerald-500/10 transition-all"></div>
+                            <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-6 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Geçme Garantisi Analizi</h3>
+                            <div className="space-y-5 relative z-10">
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-end">
+                                    <span className="text-xs font-bold text-white/80">Tamamlanan Sınavlar</span>
+                                    <span className="font-black text-emerald-400 text-lg">{selectedUserStats.stats.passedCount}</span>
                                   </div>
-                                  <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                                     <div className="h-full bg-success rounded-full" style={{ width: `${(selectedUserStats.stats.passedCount / Math.max(selectedUserStats.stats.totalExams, 1)) * 100}%` }}></div>
+                                  <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                                     <div className="h-full bg-emerald-400 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${(selectedUserStats.stats.passedCount / Math.max(selectedUserStats.stats.totalExams, 1)) * 100}%` }}></div>
                                   </div>
                                 </div>
-                                <div className="flex-1 space-y-2">
-                                  <div className="flex justify-between text-sm">
-                                    <span className="text-white">Kaldığı Sınavlar</span>
-                                    <span className="font-black text-danger">{selectedUserStats.stats.failedCount}</span>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-end">
+                                    <span className="text-xs font-bold text-white/80">Başarısız Simülasyonlar</span>
+                                    <span className="font-black text-rose-400 text-lg">{selectedUserStats.stats.failedCount}</span>
                                   </div>
-                                  <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                                     <div className="h-full bg-danger rounded-full" style={{ width: `${(selectedUserStats.stats.failedCount / Math.max(selectedUserStats.stats.totalExams, 1)) * 100}%` }}></div>
+                                  <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                                     <div className="h-full bg-rose-400 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" style={{ width: `${(selectedUserStats.stats.failedCount / Math.max(selectedUserStats.stats.totalExams, 1)) * 100}%` }}></div>
                                   </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-bg-card2 border border-white/5 rounded-2xl p-5">
-                            <h3 className="text-sm font-bold text-text-muted uppercase tracking-widest mb-4">Soru Cevaplama Grafiği</h3>
-                            <div className="flex items-center gap-6">
-                                <div className="flex-1 space-y-2">
-                                  <div className="flex justify-between text-sm">
-                                    <span className="text-white">Doğru Cevaplar</span>
-                                    <span className="font-black text-primary-light">{selectedUserStats.stats.totalCorrect}</span>
+                        <div className="bg-black/30 border border-white/5 rounded-[24px] p-6 relative overflow-hidden group">
+                            <div className="absolute top-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-[40px] group-hover:bg-primary/10 transition-all"></div>
+                            <h3 className="text-[10px] font-black text-primary-light uppercase tracking-widest mb-6 flex items-center gap-2"><PieChart className="w-4 h-4" /> Soru Algoritması Performansı</h3>
+                            <div className="space-y-5 relative z-10">
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-end">
+                                    <span className="text-xs font-bold text-white/80">Kusursuz Kararlar</span>
+                                    <span className="font-black text-primary-light text-lg">{selectedUserStats.stats.totalCorrect}</span>
                                   </div>
-                                  <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                                     <div className="h-full bg-primary rounded-full" style={{ width: `${(selectedUserStats.stats.totalCorrect / Math.max(selectedUserStats.stats.totalQuestions, 1)) * 100}%` }}></div>
+                                  <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                                     <div className="h-full bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" style={{ width: `${(selectedUserStats.stats.totalCorrect / Math.max(selectedUserStats.stats.totalQuestions, 1)) * 100}%` }}></div>
                                   </div>
                                 </div>
-                                <div className="flex-1 space-y-2">
-                                  <div className="flex justify-between text-sm">
-                                    <span className="text-white">Yanlış Cevaplar</span>
-                                    <span className="font-black text-warning">{selectedUserStats.stats.totalWrong}</span>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-end">
+                                    <span className="text-xs font-bold text-white/80">Kritik Hatalar</span>
+                                    <span className="font-black text-amber-400 text-lg">{selectedUserStats.stats.totalWrong}</span>
                                   </div>
-                                  <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
-                                     <div className="h-full bg-warning rounded-full" style={{ width: `${(selectedUserStats.stats.totalWrong / Math.max(selectedUserStats.stats.totalQuestions, 1)) * 100}%` }}></div>
+                                  <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                                     <div className="h-full bg-amber-400 rounded-full shadow-[0_0_10px_rgba(251,191,36,0.5)]" style={{ width: `${(selectedUserStats.stats.totalWrong / Math.max(selectedUserStats.stats.totalQuestions, 1)) * 100}%` }}></div>
                                   </div>
                                 </div>
                             </div>
@@ -460,7 +488,12 @@ const AdminUsers = () => {
                      </div>
                   </div>
                 ) : (
-                  <div className="text-center py-10 text-text-muted">Kullanıcı verisi bulunamadı.</div>
+                  <div className="text-center py-20">
+                     <div className="w-20 h-20 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center mx-auto mb-4 opacity-50">
+                        <AlertTriangle className="w-8 h-8 text-white" />
+                     </div>
+                     <p className="text-text-muted font-bold">Kullanıcıya ait rapor çekilemedi veya veritabanında henüz işlem yapmamış.</p>
+                  </div>
                 )}
               </div>
             </motion.div>
@@ -472,28 +505,32 @@ const AdminUsers = () => {
   );
 };
 
-// Basit istatistik kartı componenti (Tepe Alanı İçin)
-const StatsCard = ({ icon: Icon, label, value, color, bg, border }) => (
-  <div className="glass-card p-5 rounded-3xl border border-white/5 flex items-center gap-4 hover:border-white/10 transition-colors">
-    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border ${bg} ${color} ${border}`}>
-      <Icon className="w-6 h-6" />
+// Top KPIs Components
+const StatsCard = ({ icon: Icon, label, value, color, bg }) => (
+  <div className="glass-card p-6 rounded-[24px] border border-white/5 flex items-center gap-5 hover:bg-white/[0.02] hover:border-white/10 transition-all relative overflow-hidden group">
+    <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center shrink-0 border border-white/5 ${bg} ${color} relative z-10`}>
+      <Icon className="w-7 h-7" />
     </div>
-    <div>
-      <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">{label}</p>
-      <p className="text-2xl font-black text-white">{value}</p>
+    <div className="relative z-10">
+      <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{label}</p>
+      <p className="text-3xl font-black text-white leading-none mt-1">{value}</p>
+    </div>
+    <div className={`absolute -right-6 -bottom-6 opacity-[0.03] scale-150 rotate-12 transition-transform duration-500 group-hover:rotate-0 group-hover:scale-110 ${color}`}>
+        <Icon className="w-32 h-32" />
     </div>
   </div>
 );
 
-// Report Modal İçi Kart Componenti
-const ReportCard = ({ title, value, icon: Icon, color, bg }) => (
-  <div className="bg-bg-card2 border border-white/5 rounded-2xl p-4 flex flex-col items-start gap-3">
-    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bg} ${color}`}>
+// Detail Cards inside Modal
+const ReportCard = ({ title, value, icon: Icon, color, bg, border }) => (
+  <div className={`bg-black/20 border ${border} rounded-[20px] p-5 flex flex-col items-start gap-3 relative overflow-hidden group hover:bg-white/[0.02] transition-colors`}>
+    <div className={`absolute top-0 right-0 w-24 h-24 ${bg} rounded-bl-[100px] opacity-20 transition-all group-hover:scale-110`}></div>
+    <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center ${bg} ${color} relative z-10`}>
        <Icon className="w-5 h-5" />
     </div>
-    <div>
-      <div className="text-2xl font-black text-white">{value}</div>
-      <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mt-1">{title}</div>
+    <div className="relative z-10">
+      <div className="text-2xl font-black text-white tracking-tight">{value}</div>
+      <div className="text-[9px] font-black uppercase tracking-widest text-white/50 mt-1">{title}</div>
     </div>
   </div>
 );
