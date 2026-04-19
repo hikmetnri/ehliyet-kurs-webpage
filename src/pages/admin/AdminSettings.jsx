@@ -6,7 +6,7 @@ import {
   Loader2, Settings, Bell, Quote, ShieldAlert,
   Database, RefreshCw, Send, History, Trash2,
   AlertTriangle, CheckCircle2, Terminal, Info,
-  Plus, Edit, Save, X, Power, Users, Star, Smartphone
+  Plus, Edit, Save, X, Power, Users, Star, Smartphone, HelpCircle, GripVertical
 } from 'lucide-react';
 
 const AdminSettings = () => {
@@ -28,6 +28,12 @@ const AdminSettings = () => {
   const [editingQuote, setEditingQuote] = useState(null);
   const [quoteData, setQuoteData] = useState({ text: '', author: '' });
 
+  // FAQ State
+  const [faqs, setFaqs] = useState([]);
+  const [showFaqForm, setShowFaqForm] = useState(false);
+  const [editingFaq, setEditingFaq] = useState(null);
+  const [faqData, setFaqData] = useState({ question: '', answer: '', isActive: true });
+
   // System State
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [logs, setLogs] = useState([]);
@@ -40,6 +46,7 @@ const AdminSettings = () => {
     if (activeTab === 'quotes') fetchQuotes();
     if (activeTab === 'system') fetchMaintenanceStatus();
     if (activeTab === 'logs') fetchLogs();
+    if (activeTab === 'faqs') fetchFaqs();
   }, [activeTab, setSearchParams]);
 
   // Notifications Logic
@@ -106,6 +113,50 @@ const AdminSettings = () => {
     } catch (err) { alert("Silinemedi."); }
   };
 
+  // FAQ Logic
+  const fetchFaqs = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get('/admin/faqs');
+      setFaqs(res.data);
+    } catch (err) { console.error(err); } finally { setLoading(false); }
+  };
+
+  const startEditFaq = (faq) => {
+    setEditingFaq(faq);
+    setFaqData({ question: faq.question, answer: faq.answer, isActive: faq.isActive });
+    setShowFaqForm(true);
+  };
+
+  const handleFaqSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      if (editingFaq) {
+        await api.put(`/admin/faqs/${editingFaq._id}`, faqData);
+      } else {
+        await api.post('/admin/faqs', faqData);
+      }
+      setShowFaqForm(false); setEditingFaq(null); setFaqData({ question: '', answer: '', isActive: true });
+      fetchFaqs();
+    } catch (err) { alert("Hata: " + err.message); } finally { setLoading(false); }
+  };
+
+  const handleDeleteFaq = async (id) => {
+    if (!window.confirm("Bu S.S.S. başlığını silmek istiyor musunuz?")) return;
+    try {
+      await api.delete(`/admin/faqs/${id}`);
+      setFaqs(prev => prev.filter(f => f._id !== id));
+    } catch (err) { alert("Silinemedi."); }
+  };
+
+  const handleToggleFaqActive = async (faq) => {
+    try {
+      await api.put(`/admin/faqs/${faq._id}`, { ...faq, isActive: !faq.isActive });
+      fetchFaqs();
+    } catch (err) { alert("Durum değiştirilemedi."); }
+  };
+
   // System Logic
   const fetchMaintenanceStatus = async () => {
     try {
@@ -155,6 +206,7 @@ const AdminSettings = () => {
         {[
           { id: 'notifications', label: 'Bildirim Merkezi', icon: Bell },
           { id: 'quotes', label: 'Günün Sözleri', icon: Quote },
+          { id: 'faqs', label: 'S.S.S. Yönetimi', icon: HelpCircle },
           { id: 'system', label: 'Sistem Ayarları', icon: Database },
           { id: 'logs', label: 'İşlem Kayıtları', icon: Terminal }
         ].map(tab => (
@@ -458,6 +510,120 @@ const AdminSettings = () => {
                         </div>
                     ))}
                  </div>
+            </motion.div>
+          )}
+
+          {/* TAB: FAQS */}
+          {activeTab === 'faqs' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6">
+              
+              <div className="glass-card p-6 lg:p-8 rounded-3xl border border-white/5 bg-bg-card/50 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+                
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                      <HelpCircle className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-black text-white tracking-tight">S.S.S. Yönetimi</h2>
+                      <p className="text-xs text-text-secondary mt-1">Landing page ve Flutter uygulaması için <span className="text-violet-400 font-bold">Sıkça Sorulan Sorular</span>ı buradan yönetin.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setShowFaqForm(true); setEditingFaq(null); setFaqData({ question: '', answer: '', isActive: true }); }}
+                    className="flex items-center gap-2 bg-violet-500 hover:bg-violet-400 text-white font-black py-2.5 px-5 rounded-xl transition-all text-sm"
+                  >
+                    <Plus className="w-4 h-4" /> Yeni Ekle
+                  </button>
+                </div>
+
+                {/* FAQ Form */}
+                <AnimatePresence>
+                  {showFaqForm && (
+                    <motion.form
+                      initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                      onSubmit={handleFaqSubmit}
+                      className="mb-8 overflow-hidden"
+                    >
+                      <div className="bg-black/30 border border-violet-500/30 rounded-2xl p-6 space-y-5">
+                        <h3 className="text-white font-black text-sm uppercase tracking-widest">{editingFaq ? 'S.S.S. Güncelle' : 'Yeni S.S.S. Ekle'}</h3>
+                        <div>
+                          <label className="text-[10px] uppercase font-black text-text-muted tracking-widest block mb-2">Soru</label>
+                          <input
+                            type="text" required value={faqData.question}
+                            onChange={e => setFaqData(p => ({ ...p, question: e.target.value }))}
+                            placeholder="Örn: Bu platform tamamen ücretsiz mi?"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-text-muted focus:outline-none focus:border-violet-500/50 transition-colors"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] uppercase font-black text-text-muted tracking-widest block mb-2">Cevap</label>
+                          <textarea
+                            required rows={3} value={faqData.answer}
+                            onChange={e => setFaqData(p => ({ ...p, answer: e.target.value }))}
+                            placeholder="Detaylı ve net bir cevap yazın..."
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-text-muted focus:outline-none focus:border-violet-500/50 transition-colors resize-none"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-text-muted text-xs font-bold">Aktif mi?</span>
+                            <button type="button" onClick={() => setFaqData(p => ({...p, isActive: !p.isActive}))} className={`w-12 h-6 rounded-full transition-colors relative ${faqData.isActive ? 'bg-success' : 'bg-white/10'}`}>
+                              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${faqData.isActive ? 'translate-x-7' : 'translate-x-1'}`}></div>
+                            </button>
+                          </div>
+                        <div className="flex gap-3 pt-2">
+                          <button type="submit" disabled={loading} className="flex items-center gap-2 bg-violet-500 hover:bg-violet-400 text-white font-black py-2.5 px-6 rounded-xl transition-all text-sm">
+                            <Save className="w-4 h-4" /> {editingFaq ? 'Güncelle' : 'Kaydet'}
+                          </button>
+                          <button type="button" onClick={() => setShowFaqForm(false)} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white font-black py-2.5 px-6 rounded-xl transition-all text-sm">
+                            <X className="w-4 h-4" /> Vazgeç
+                          </button>
+                        </div>
+                      </div>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+
+                {/* FAQ List */}
+                {loading ? (
+                  <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 text-violet-500 animate-spin" /></div>
+                ) : faqs.length === 0 ? (
+                  <div className="text-center py-16 text-text-muted">
+                    <HelpCircle className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                    <p className="font-bold">Henüz hiç S.S.S. eklenmemiş.</p>
+                    <p className="text-xs mt-1">Yukarıdaki "Yeni Ekle" butonuna tıklayarak başlayın.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {faqs.map((faq, i) => (
+                      <motion.div key={faq._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
+                        className={`flex items-start gap-4 p-4 rounded-2xl border transition-all ${faq.isActive ? 'border-white/10 bg-white/[0.02]' : 'border-white/5 bg-black/20 opacity-50'}`}
+                      >
+                        <GripVertical className="w-5 h-5 text-white/20 mt-1 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-bold text-sm mb-1 truncate">S: {faq.question}</p>
+                          <p className="text-text-muted text-xs line-clamp-2">C: {faq.answer}</p>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className={`text-[10px] uppercase font-black tracking-widest px-2 py-0.5 rounded-full ${ faq.isActive ? 'bg-success/10 text-success' : 'bg-white/5 text-text-muted'}`}>{faq.isActive ? 'Aktif' : 'Pasif'}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button onClick={() => handleToggleFaqActive(faq)} className="p-2 rounded-xl hover:bg-white/5 text-text-muted hover:text-white transition-colors" title={faq.isActive ? 'Pasif Yap' : 'Aktif Yap'}>
+                            <Power className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => startEditFaq(faq)} className="p-2 rounded-xl hover:bg-violet-500/10 text-text-muted hover:text-violet-400 transition-colors">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleDeleteFaq(faq._id)} className="p-2 rounded-xl hover:bg-error/10 text-text-muted hover:text-error transition-colors">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
 
