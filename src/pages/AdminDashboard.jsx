@@ -242,7 +242,7 @@ const AdminDashboard = () => {
           color={{ bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/20' }}
           items={reportedItems}
           emptyText="Şu an açık şikayet yok."
-          onViewAll={() => alert("Raporlar yönetim sayfası geliştirme aşamasındadır.")}
+          onViewAll={() => navigate('/admin/reports')}
           renderItem={(report) => (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 mt-1">

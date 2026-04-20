@@ -5,9 +5,17 @@ import {
   Loader2, Search, User, Shield, Star, Crown, 
   Trash2, Mail, Phone, Calendar, RefreshCw, 
   CheckCircle2, XCircle, AlertTriangle, UserX, UserCheck,
-  BarChart2, X, Target, TrendingUp, PieChart, Activity, Flame
+  BarChart2, X, Target, TrendingUp, PieChart, Activity, Flame, Bell, Send, Award,
+  Trophy, Zap, Gem, Medal, Rocket, Heart
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+
+const ICON_MAP = { Award, Star, Trophy, Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart };
+
+const BadgeIcon = ({ name, ...props }) => {
+  const Icon = ICON_MAP[name] || Award;
+  return <Icon {...props} />;
+};
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -19,6 +27,12 @@ const AdminUsers = () => {
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [loadingStats, setLoadingStats] = useState(false);
   const [selectedUserStats, setSelectedUserStats] = useState(null);
+  
+  // Notification Modal States
+  const [notifModalOpen, setNotifModalOpen] = useState(false);
+  const [notifData, setNotifData] = useState({ title: '', body: '' });
+  const [sendingNotif, setSendingNotif] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState([]); // Multiple selection
 
   const currentUser = useAuthStore((state) => state.user);
 
@@ -98,15 +112,68 @@ const AdminUsers = () => {
     setLoadingStats(true);
     setSelectedUserStats(null);
     try {
-      const res = await api.get(`/exam-results/user/${userId}/stats`);
-      if (res.data.success) {
-        setSelectedUserStats(res.data);
+      const [statsRes, badgesRes] = await Promise.all([
+        api.get(`/exam-results/user/${userId}/stats`),
+        api.get(`/badges/user/${userId}`)
+      ]);
+      
+      if (statsRes.data.success) {
+        setSelectedUserStats({
+          ...statsRes.data,
+          badges: badgesRes.data // This is expected to be the result from badgeController.getUserBadges
+        });
       }
     } catch (err) {
       alert("İstatistikler yüklenirken hata oluştu.");
       setStatsModalOpen(false);
     } finally {
       setLoadingStats(false);
+    }
+  };
+
+  const handleOpenNotifModal = (user = null) => {
+    if (user) {
+      // Single user mode
+      setSelectedUserIds([user._id]);
+    }
+    setNotifModalOpen(true);
+  };
+
+  const handleSendNotif = async () => {
+    if (!notifData.title || !notifData.body || selectedUserIds.length === 0) return;
+    try {
+      setSendingNotif(true);
+      const res = await api.post('/notifications/targeted', {
+        title: notifData.title,
+        body: notifData.body,
+        userIds: selectedUserIds
+      });
+      if (res.data.success) {
+        alert(`${selectedUserIds.length} kullanıcıya bildirim gönderildi.`);
+        setNotifModalOpen(false);
+        setNotifData({ title: '', body: '' });
+        setSelectedUserIds([]);
+      }
+    } catch (err) {
+      alert("Bildirim gönderilirken hata oluştu.");
+    } finally {
+      setSendingNotif(false);
+    }
+  };
+
+  const handleToggleSelect = (userId) => {
+    setSelectedUserIds(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId) 
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUserIds.length === filteredUsers.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(filteredUsers.map(u => u._id));
     }
   };
 
@@ -136,12 +203,22 @@ const AdminUsers = () => {
           <h1 className="text-3xl font-black text-white tracking-tight">Kullanıcı & Hesap Yönetimi</h1>
           <p className="text-text-secondary text-sm mt-1">Öğrenci hesaplarını, yetkilerini ve abonelik durumlarını tek merkezden yönet.</p>
         </div>
-        <button 
-          onClick={() => fetchUsers()} 
-          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all shadow-lg"
-        >
-          <RefreshCw className="w-4 h-4 text-primary-light" /> Canlı Veri Yenile
-        </button>
+        <div className="flex items-center gap-3">
+          {selectedUserIds.length > 0 && (
+            <button 
+              onClick={() => handleOpenNotifModal()}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+            >
+              <Bell className="w-4 h-4" /> {selectedUserIds.length} Seçiliye Bildirim
+            </button>
+          )}
+          <button 
+            onClick={() => fetchUsers()} 
+            className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all shadow-lg"
+          >
+            <RefreshCw className="w-4 h-4 text-primary-light" /> Canlı Veri Yenile
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -196,7 +273,15 @@ const AdminUsers = () => {
           <table className="w-full text-left text-sm text-text-secondary min-w-[900px]">
             <thead className="bg-black/40 text-white/40 font-black uppercase text-[10px] tracking-widest">
               <tr>
-                <th className="px-6 py-5 rounded-tl-[32px] border-b border-white/5">Profil</th>
+                <th className="px-6 py-5 rounded-tl-[32px] border-b border-white/5 w-10">
+                  <input 
+                    type="checkbox" 
+                    checked={filteredUsers.length > 0 && selectedUserIds.length === filteredUsers.length}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-0 cursor-pointer"
+                  />
+                </th>
+                <th className="px-6 py-5 border-b border-white/5">Profil</th>
                 <th className="px-6 py-5 border-b border-white/5">Bağlantı Bilgisi</th>
                 <th className="px-6 py-5 border-b border-white/5">Erişim Düzeyi</th>
                 <th className="px-6 py-5 border-b border-white/5">Güvenlik Durumu</th>
@@ -227,8 +312,18 @@ const AdminUsers = () => {
                   const isMe = user._id === currentUser?._id;
                   
                   return (
-                    <tr key={user._id} className={`group transition-all duration-300 ${isSuspended ? 'bg-rose-500/[0.02] hover:bg-rose-500/[0.05]' : 'hover:bg-white/[0.02]'} ${isMe ? 'bg-primary/[0.02]' : ''}`}>
+                    <tr key={user._id} className={`group transition-all duration-300 ${isSuspended ? 'bg-rose-500/[0.02] hover:bg-rose-500/[0.05]' : 'hover:bg-white/[0.02]'} ${isMe ? 'bg-primary/[0.02]' : ''} ${selectedUserIds.includes(user._id) ? 'bg-primary/[0.05]' : ''}`}>
                       
+                      {/* CHECKBOX */}
+                      <td className="px-6 py-5">
+                        <input 
+                          type="checkbox" 
+                          checked={selectedUserIds.includes(user._id)}
+                          onChange={() => handleToggleSelect(user._id)}
+                          className="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-0 cursor-pointer"
+                        />
+                      </td>
+
                       {/* PROFILE COLUMN */}
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
@@ -304,31 +399,61 @@ const AdminUsers = () => {
 
                       {/* STATUS COLUMN */}
                       <td className="px-6 py-5">
-                        <button 
-                          onClick={() => handleStatusToggle(user._id, user.isActive)}
-                          disabled={isMe}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                            isMe ? 'opacity-30 cursor-not-allowed border-transparent bg-white/5 text-white' :
-                            isSuspended 
-                              ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.4)]' 
-                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
-                          }`}
-                        >
-                          {isSuspended ? <><UserX className="w-3.5 h-3.5" /> BANLANDI</> : <><UserCheck className="w-3.5 h-3.5" /> GÜVENLİ</>}
-                        </button>
+                        <div className="flex flex-col gap-2 items-start">
+                          <button 
+                            onClick={() => handleStatusToggle(user._id, user.isActive)}
+                            disabled={isMe}
+                            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                              isMe ? 'opacity-30 cursor-not-allowed border-transparent bg-white/5 text-white' :
+                              isSuspended 
+                                ? 'bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500 hover:text-white hover:shadow-[0_0_15px_rgba(244,63,94,0.4)]' 
+                                : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                            }`}
+                          >
+                            {isSuspended ? <><UserX className="w-3.5 h-3.5" /> BANLANDI</> : <><UserCheck className="w-3.5 h-3.5" /> GÜVENLİ</>}
+                          </button>
+                          {/* Son aktiflik zamanı */}
+                          {user.lastActiveAt ? (
+                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-text-muted/70">
+                              <div className="w-1.5 h-1.5 rounded-full bg-text-muted/30"></div>
+                              Son: {(() => {
+                                const diff = Date.now() - new Date(user.lastActiveAt).getTime();
+                                const mins = Math.floor(diff / 60000);
+                                const hours = Math.floor(diff / 3600000);
+                                const days = Math.floor(diff / 86400000);
+                                if (mins < 2) return <span className="text-emerald-400">şimdi aktif</span>;
+                                if (mins < 60) return <span>{mins} dk önce</span>;
+                                if (hours < 24) return <span>{hours} saat önce</span>;
+                                if (days < 7) return <span>{days} gün önce</span>;
+                                return <span>{new Date(user.lastActiveAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })}</span>;
+                              })()}
+                            </div>
+                          ) : (
+                            <div className="text-[9px] text-text-muted/40 font-bold">Henüz giriş yok</div>
+                          )}
+                        </div>
                       </td>
 
                       {/* ACTIONS COLUMN */}
                       <td className="px-6 py-5 text-right">
                         <div className="flex items-center justify-end gap-2">
                            {user.role === 'user' && (
-                            <button 
-                              onClick={() => handleOpenStats(user._id)}
-                              className="p-2.5 bg-primary/10 border border-primary/20 text-primary-light rounded-xl hover:bg-primary hover:text-white transition-all shadow-lg"
-                              title="Detaylı Analiz Gör"
-                            >
-                              <Activity className="w-4 h-4" />
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => handleOpenNotifModal(user)}
+                                className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl hover:bg-indigo-500 hover:text-white transition-all shadow-lg"
+                                title="Bildirim Gönder"
+                              >
+                                <Bell className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={() => handleOpenStats(user._id)}
+                                className="p-2.5 bg-primary/10 border border-primary/20 text-primary-light rounded-xl hover:bg-primary hover:text-white transition-all shadow-lg"
+                                title="Detaylı Analiz Gör"
+                              >
+                                <Activity className="w-4 h-4" />
+                              </button>
+                            </>
                            )}
 
                            <button 
@@ -486,6 +611,41 @@ const AdminUsers = () => {
                             </div>
                         </div>
                      </div>
+                     
+                     {/* EARNED BADGES SECTION */}
+                     <div className="bg-black/30 border border-white/5 rounded-[24px] p-8 overflow-hidden relative group">
+                        <div className="absolute -right-10 -top-10 w-40 h-40 bg-amber-400/5 blur-[50px] rounded-full"></div>
+                        <h3 className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-8 flex items-center gap-2"><Award className="w-5 h-5" /> Kazanılan Rozetler</h3>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 relative z-10">
+                           {selectedUserStats.badges && selectedUserStats.badges.filter(b => b.isEarned).length > 0 ? (
+                             selectedUserStats.badges.filter(b => b.isEarned).map((b, idx) => (
+                               <motion.div 
+                                 key={b._id}
+                                 initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.05 }}
+                                 className="flex flex-col items-center text-center group/badge"
+                               >
+                                 <div 
+                                   className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 relative shadow-lg transition-transform group-hover/badge:scale-110"
+                                   style={{ backgroundColor: `${b.color}15`, border: `1px solid ${b.color}40` }}
+                                 >
+                                   <div className="absolute inset-0 blur-md opacity-20" style={{ backgroundColor: b.color }}></div>
+                                   <BadgeIcon name={b.icon} className="w-7 h-7" style={{ color: b.color }} />
+                                 </div>
+                                 <h4 className="text-[11px] font-black text-white leading-tight mb-1">{b.name}</h4>
+                                 <span className="text-[8px] font-bold text-text-muted uppercase tracking-tighter">
+                                   {new Date(b.earnedAt).toLocaleDateString('tr-TR')}
+                                 </span>
+                               </motion.div>
+                             ))
+                           ) : (
+                             <div className="col-span-full py-10 flex flex-col items-center justify-center opacity-30">
+                                <Award className="w-12 h-12 mb-3" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">Henüz Rozet Kazanılmamış</p>
+                             </div>
+                           )}
+                        </div>
+                     </div>
                   </div>
                 ) : (
                   <div className="text-center py-20">
@@ -495,6 +655,72 @@ const AdminUsers = () => {
                      <p className="text-text-muted font-bold">Kullanıcıya ait rapor çekilemedi veya veritabanında henüz işlem yapmamış.</p>
                   </div>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* TARGETED NOTIFICATION MODAL */}
+      <AnimatePresence>
+        {notifModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              onClick={() => setNotifModalOpen(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-bg-card border border-white/10 rounded-[32px] shadow-2xl overflow-hidden p-8"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                    <Bell className="w-6 h-6 text-primary-light" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-black text-white">Özel Bildirim Gönder</h2>
+                    <p className="text-xs text-text-secondary uppercase tracking-widest font-bold">{selectedUserIds.length} kullanıcı seçildi</p>
+                  </div>
+                </div>
+                <button onClick={() => setNotifModalOpen(false)} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
+                  <X className="w-5 h-5 text-text-muted" />
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Bildirim Başlığı</label>
+                  <input 
+                    type="text"
+                    value={notifData.title}
+                    onChange={(e) => setNotifData({...notifData, title: e.target.value})}
+                    placeholder="Örn: Sınav Hatırlatması"
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-white/20 focus:border-primary/50 outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Mesaj İçeriği</label>
+                  <textarea 
+                    value={notifData.body}
+                    onChange={(e) => setNotifData({...notifData, body: e.target.value})}
+                    placeholder="Kullanıcıya özel mesajınızı yazın..."
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-white/20 focus:border-primary/50 outline-none transition-all min-h-[120px] resize-none"
+                  />
+                </div>
+
+                <div className="pt-4">
+                  <button 
+                    onClick={handleSendNotif}
+                    disabled={sendingNotif || !notifData.title || !notifData.body}
+                    className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-primary-light transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
+                  >
+                    {sendingNotif ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Bildirimi Gönder</>}
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>

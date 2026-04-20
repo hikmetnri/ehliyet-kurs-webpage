@@ -13,6 +13,8 @@ import AdminStats from './pages/admin/AdminStats'
 import AdminSupport from './pages/admin/AdminSupport'
 import AdminFeed from './pages/admin/AdminFeed'
 import AdminSettings from './pages/admin/AdminSettings'
+import AdminReports from './pages/admin/AdminReports'
+import AdminBadges from './pages/admin/AdminBadges'
 import UserDashboard from './pages/UserDashboard'
 import useAuthStore from './store/authStore'
 
@@ -71,6 +73,8 @@ function App() {
           <Route path="stats" element={<AdminStats />} />
           <Route path="support" element={<AdminSupport />} />
           <Route path="feed" element={<AdminFeed />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="badges" element={<AdminBadges />} />
           
           <Route path="settings" element={<AdminSettings />} />
         </Route>

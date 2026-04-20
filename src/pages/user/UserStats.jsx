@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList } from 'lucide-react';
+import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame } from 'lucide-react';
+
+const ICON_MAP = { Award, Star, Trophy, Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart };
+
+const BadgeIcon = ({ name, ...props }) => {
+  const Icon = ICON_MAP[name] || Award;
+  return <Icon {...props} />;
+};
 import useAuthStore from '../../store/authStore';
 
 const UserStats = () => {
   const { user } = useAuthStore();
   const [stats, setStats] = useState(null);
   const [catStats, setCatStats] = useState([]);
+  const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [statsRes, catRes] = await Promise.all([
+        const [statsRes, catRes, badgesRes] = await Promise.all([
           api.get('/exam-results/stats'),
-          api.get('/exam-results/category-stats')
+          api.get('/exam-results/category-stats'),
+          api.get('/badges/my')
         ]);
         setStats(statsRes.data);
         setCatStats(catRes.data || []);
+        setBadges(badgesRes.data || []);
       } catch (err) {
         console.error(err);
       } finally {
@@ -148,6 +158,52 @@ const UserStats = () => {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Badges Section */}
+      <div className="glass-card p-8 rounded-[40px] border border-white/5 relative overflow-hidden group">
+         <div className="absolute -right-20 -top-20 w-64 h-64 bg-amber-400/5 blur-[80px] rounded-full"></div>
+         <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Award className="w-6 h-6 text-amber-500" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-white tracking-tight">Kazanılan Rozetler</h3>
+              <p className="text-xs text-text-muted font-bold mt-0.5">Başarılarınızın simgesi olan ödülleriniz.</p>
+            </div>
+         </div>
+
+         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 relative z-10">
+            {badges.map((badge, idx) => (
+              <motion.div 
+                key={badge._id}
+                initial={{ opacity: 0, scale: 0.8 }} 
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+                className={`flex flex-col items-center text-center group/badge ${!badge.isEarned ? 'opacity-40 grayscale' : ''}`}
+              >
+                <div 
+                  className={`w-16 h-16 rounded-[24px] flex items-center justify-center mb-3 relative shadow-2xl transition-all duration-500 ${badge.isEarned ? 'group-hover/badge:scale-110 group-hover/badge:rotate-6' : ''}`}
+                  style={{ 
+                    backgroundColor: badge.isEarned ? `${badge.color}15` : 'rgba(255,255,255,0.05)', 
+                    border: `2px solid ${badge.isEarned ? badge.color + '40' : 'rgba(255,255,255,0.1)'}` 
+                  }}
+                >
+                  {badge.isEarned && <div className="absolute inset-0 blur-xl opacity-30" style={{ backgroundColor: badge.color }}></div>}
+                  <BadgeIcon name={badge.icon} className="w-8 h-8 relative z-10" style={{ color: badge.isEarned ? badge.color : '#666' }} />
+                  {!badge.isEarned && <div className="absolute -top-1 -right-1 bg-bg-card border border-white/10 rounded-full p-1"><Clock className="w-2.5 h-2.5 text-text-muted" /></div>}
+                </div>
+                <h4 className={`text-[11px] font-black leading-tight ${badge.isEarned ? 'text-white' : 'text-text-muted'}`}>{badge.name}</h4>
+                {badge.isEarned ? (
+                   <span className="text-[8px] font-bold text-amber-400 mt-1 uppercase tracking-tighter">
+                     {new Date(badge.earnedAt).toLocaleDateString('tr-TR')}
+                   </span>
+                ) : (
+                   <span className="text-[8px] font-bold text-text-muted/50 mt-1 uppercase tracking-tighter">Kilitli</span>
+                )}
+              </motion.div>
+            ))}
+         </div>
       </div>
     </div>
   );

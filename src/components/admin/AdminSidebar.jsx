@@ -9,7 +9,9 @@ import {
   LogOut,
   Users,
   MessageCircle,
-  Share2
+  Share2,
+  ShieldAlert,
+  Award
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -41,6 +43,8 @@ const AdminSidebar = () => {
     { to: '/admin/exams', icon: FileEdit, label: 'Sınav Merkezi' },
     { to: '/admin/support', icon: MessageCircle, label: 'Destek Talepleri' },
     { to: '/admin/feed', icon: Share2, label: 'Akış Yönetimi' },
+    { to: '/admin/reports', icon: ShieldAlert, label: 'Rapor Yönetimi' },
+    { to: '/admin/badges', icon: Award, label: 'Rozetler' },
     { to: '/admin/stats', icon: BarChart, label: 'İstatistikler' },
     { to: '/admin/settings', icon: Settings, label: 'Yönetim Merkezi' },
   ];

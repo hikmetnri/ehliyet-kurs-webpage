@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -15,7 +15,7 @@ import {
   ChevronDown, Folder, Hash, AlignLeft, Code,
   Minus, UploadCloud, ZoomIn, ZoomOut, Maximize2,
   PanelLeft, PanelRight, SplitSquareVertical,
-  AlertCircle, Trash2, RefreshCw, FilePlus, ExternalLink, Activity
+  AlertCircle, Trash2, RefreshCw, FilePlus, ExternalLink, Activity, GripVertical
 } from 'lucide-react';
 
 // ─── Media URL Helpers ──────────────────────────────────────────────────────
@@ -103,57 +103,71 @@ const MarkdownToolbar = ({ onInsert, onImageUpload, uploading }) => {
 };
 
 // ─── Category Tree Item ─────────────────────────────────────────────────────
-const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, level = 0 }) => {
-  const children = allCategories.filter(c => (c.parent?._id || c.parent) === cat._id);
+const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, onReorder, level = 0 }) => {
+  const children = allCategories
+    .filter(c => (c.parent?._id || c.parent) === cat._id)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+    
   const hasChildren = children.length > 0;
   const isSelected = selectedId === cat._id;
   const [isOpen, setIsOpen] = useState(level < 1);
 
   return (
     <div className={level > 0 ? 'ml-3 border-l border-white/5 pl-2' : ''}>
-      <div
-        className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all mb-0.5
-          ${isSelected
-            ? 'bg-primary/20 border border-primary/30 text-white'
-            : 'hover:bg-white/5 text-text-secondary hover:text-white border border-transparent'}`}
-        onClick={() => {
-          onSelect(cat._id);
-          if (hasChildren) setIsOpen(o => !o);
-        }}
+      <Reorder.Item 
+        value={cat}
+        id={cat._id}
+        className="relative"
       >
-        {hasChildren ? (
-          <motion.div animate={{ rotate: isOpen ? 90 : 0 }} className="shrink-0">
-            <ChevronRight className="w-3.5 h-3.5 text-white/30" />
-          </motion.div>
-        ) : (
-          <div className="w-3.5 h-3.5 shrink-0" />
-        )}
-
         <div
-          className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-white"
-          style={{ backgroundColor: cat.color || '#6366f1' }}
+          className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all mb-0.5
+            ${isSelected
+              ? 'bg-primary/20 border border-primary/30 text-white'
+              : 'hover:bg-white/5 text-text-secondary hover:text-white border border-transparent'}`}
+          onClick={() => {
+            onSelect(cat._id);
+            if (hasChildren) setIsOpen(o => !o);
+          }}
         >
-          {hasChildren ? <Folder className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
-        </div>
+          {/* DRAG HANDLE */}
+          <div className="opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing p-1 -ml-1 hover:bg-white/10 rounded-md transition-all">
+             <GripVertical className="w-3 h-3" />
+          </div>
 
-        <span className={`flex-1 text-sm font-semibold truncate ${isSelected ? 'text-white' : ''}`}>
-          {cat.name}
-        </span>
+          {hasChildren ? (
+            <motion.div animate={{ rotate: isOpen ? 90 : 0 }} className="shrink-0">
+              <ChevronRight className="w-3.5 h-3.5 text-white/30" />
+            </motion.div>
+          ) : (
+            <div className="w-3.5 h-3.5 shrink-0" />
+          )}
 
-        {!cat.isActive && (
-          <span className="text-[9px] font-black text-danger/60 uppercase bg-danger/10 px-1.5 py-0.5 rounded-md">
-            GİZLİ
+          <div
+            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-white"
+            style={{ backgroundColor: cat.color || '#6366f1' }}
+          >
+            {hasChildren ? <Folder className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+          </div>
+
+          <span className={`flex-1 text-sm font-semibold truncate ${isSelected ? 'text-white' : ''}`}>
+            {cat.name}
           </span>
-        )}
-        {cat.isPro && <Crown className="w-3 h-3 text-warning/60 shrink-0" />}
 
-        <button
-          onClick={e => { e.stopPropagation(); onEdit(cat); }}
-          className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-white/10 text-white/30 hover:text-white transition-all shrink-0"
-        >
-          <Settings2 className="w-3 h-3" />
-        </button>
-      </div>
+          {!cat.isActive && (
+            <span className="text-[9px] font-black text-danger/60 uppercase bg-danger/10 px-1.5 py-0.5 rounded-md">
+              GİZLİ
+            </span>
+          )}
+          {cat.isPro && <Crown className="w-3 h-3 text-warning/60 shrink-0" />}
+
+          <button
+            onClick={e => { e.stopPropagation(); onEdit(cat); }}
+            className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-white/10 text-white/30 hover:text-white transition-all shrink-0"
+          >
+            <Settings2 className="w-3 h-3" />
+          </button>
+        </div>
+      </Reorder.Item>
 
       <AnimatePresence>
         {isOpen && hasChildren && (
@@ -162,17 +176,25 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, le
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
           >
-            {children.map(child => (
-              <CategoryTreeItem
-                key={child._id}
-                cat={child}
-                allCategories={allCategories}
-                selectedId={selectedId}
-                onSelect={onSelect}
-                onEdit={onEdit}
-                level={level + 1}
-              />
-            ))}
+             <Reorder.Group 
+               axis="y" 
+               values={children} 
+               onReorder={(newOrder) => onReorder(cat._id, newOrder)}
+               className="space-y-0.5"
+             >
+                {children.map(child => (
+                  <CategoryTreeItem
+                    key={child._id}
+                    cat={child}
+                    allCategories={allCategories}
+                    selectedId={selectedId}
+                    onSelect={onSelect}
+                    onEdit={onEdit}
+                    onReorder={onReorder}
+                    level={level + 1}
+                  />
+                ))}
+             </Reorder.Group>
           </motion.div>
         )}
       </AnimatePresence>
@@ -269,6 +291,30 @@ const AdminContent = () => {
       console.error('Sorular alınamadı:', err);
     } finally {
       setLoadingQuestions(false);
+    }
+  };
+
+  const handleReorder = async (parentId, newOrder) => {
+    // 1. Update local state for instant feedback
+    const updatedAll = [...allCategories];
+    newOrder.forEach((cat, index) => {
+       const foundIndex = updatedAll.findIndex(c => c._id === cat._id);
+       if (foundIndex !== -1) {
+         updatedAll[foundIndex] = { ...updatedAll[foundIndex], order: index };
+       }
+    });
+    setAllCategories(updatedAll);
+
+    // 2. Persist to backend
+    try {
+      const orders = newOrder.map((cat, index) => ({
+        id: cat._id,
+        order: index,
+        parent: parentId // usually same
+      }));
+      await api.put('/categories/reorder', { orders });
+    } catch (err) {
+      console.error('Sıralama kaydedilemedi:', err);
     }
   };
 
@@ -404,9 +450,14 @@ const AdminContent = () => {
   };
 
   // Root categories for tree
-  const rootCats = allCategories.filter(c => !c.parent?._id && !c.parent);
+  const rootCats = allCategories
+    .filter(c => !c.parent?._id && !c.parent)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
   const filteredRoots = searchTerm
-    ? allCategories.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    ? allCategories
+        .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
     : rootCats;
 
   // Custom markdown image renderer with click-to-zoom and extremely premium typography
@@ -538,17 +589,25 @@ const AdminContent = () => {
                 <p>Kategori bulunamadı.</p>
               </div>
             ) : (
-              (searchTerm ? filteredRoots : rootCats).map(cat => (
-                <CategoryTreeItem
-                  key={cat._id}
-                  cat={cat}
-                  allCategories={allCategories}
-                  selectedId={selectedCatId}
-                  onSelect={setSelectedCatId}
-                  onEdit={openCatModal}
-                  level={0}
-                />
-              ))
+              <Reorder.Group 
+                axis="y" 
+                values={searchTerm ? filteredRoots : rootCats} 
+                onReorder={(newOrder) => handleReorder(null, newOrder)}
+                className="space-y-0.5"
+              >
+                {(searchTerm ? filteredRoots : rootCats).map(cat => (
+                  <CategoryTreeItem
+                    key={cat._id}
+                    cat={cat}
+                    allCategories={allCategories}
+                    selectedId={selectedCatId}
+                    onSelect={setSelectedCatId}
+                    onEdit={openCatModal}
+                    onReorder={handleReorder}
+                    level={0}
+                  />
+                ))}
+              </Reorder.Group>
             )}
           </div>
 
