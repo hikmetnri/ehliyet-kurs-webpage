@@ -148,7 +148,8 @@ const AdminFeed = () => {
 
       {/* Posts Table / List */}
       <div className="glass-card rounded-3xl border border-white/5 overflow-hidden shadow-2xl bg-bg-card/50">
-          <table className="w-full text-left text-sm text-text-secondary border-collapse min-w-[900px]">
+          <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left text-sm text-text-secondary border-collapse min-w-[900px]">
               <thead className="bg-black/20 text-white/40 font-black uppercase text-[10px] tracking-widest border-b border-white/5">
                   <tr>
                       <th className="px-6 py-4">Kullanıcı & Tarih</th>
@@ -271,6 +272,7 @@ const AdminFeed = () => {
                   )}
               </tbody>
           </table>
+          </div>
       </div>
 
     </div>

@@ -475,7 +475,6 @@ const AdminContent = () => {
             src={resolvedSrc}
             alt={alt}
             className="w-full h-auto rounded-[24px] object-cover relative z-10"
-            onError={e => { e.target.style.display = 'none'; }}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-[24px] flex items-center justify-center z-20">
             <ZoomIn className="w-10 h-10 text-white" />
@@ -760,13 +759,12 @@ const AdminContent = () => {
                     )}
                     
                     <div className="p-6 xl:p-12 2xl:px-24">
-                      {(!isEditing || viewMode === 'preview') && selectedCat?.image && (
+                      {selectedCat?.image && (
                         <div className="mb-10 max-w-4xl mx-auto">
                           <img 
                             src={resolveMediaUrl(selectedCat.image)} 
                             alt={selectedCat.name} 
                             className="w-full h-auto rounded-[24px] object-cover shadow-2xl border border-white/10 max-h-[300px]"
-                            onError={(e) => { e.target.style.display = 'none'; }}
                           />
                         </div>
                       )}

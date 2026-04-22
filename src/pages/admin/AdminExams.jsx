@@ -592,7 +592,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           </InputField>
 
           {/* Difficulty + Coefficient */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField label="Zorluk Seviyesi" icon={Zap}>
               <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl">
                 {['easy', 'medium', 'hard'].map(d => (
@@ -949,7 +949,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-bold text-text-secondary mb-2 block flex items-center gap-1"><Clock className="w-3 h-3" /> Süre (Dakika)</label>
               <input
@@ -1154,6 +1154,8 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams }) => {
 // ─── Short Test Tab ────────────────────────────────────────────────────────────
 const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
   const [search, setSearch] = useState('');
+  const [filterDifficulty, setFilterDifficulty] = useState('all');
+  const [filterMedia, setFilterMedia] = useState('all');
   const [formModal, setFormModal] = useState({ open: false, question: null, isCopy: false, categoryId: null });
   const [examModal, setExamModal] = useState({ open: false, exam: null });
   const [openCats, setOpenCats] = useState({});
@@ -1167,9 +1169,13 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
   const collapseAll = () => setOpenCats({});
 
   const shortQuestions = questions.filter(q => q.testType === 'short_test');
-  const filtered = search
-    ? shortQuestions.filter(q => q.text.toLowerCase().includes(search.toLowerCase()))
-    : shortQuestions;
+  
+  const filtered = shortQuestions.filter(q => {
+    const matchesSearch = !search || q.text.toLowerCase().includes(search.toLowerCase());
+    const matchesDifficulty = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
+    const matchesMedia = filterMedia === 'all' || (filterMedia === 'has_media' ? !!q.media : !q.media);
+    return matchesSearch && matchesDifficulty && matchesMedia;
+  });
 
   const getQuestionsForCat = (catId) => filtered.filter(q => (q.category?._id || q.category) === catId);
 
@@ -1304,29 +1310,81 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
-          <Search className="w-4 h-4 text-text-muted mr-3" />
-          <input
-            type="text" placeholder="Soru ara..."
-            className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/30"
-            value={search} onChange={e => setSearch(e.target.value)}
-          />
-          {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted" /></button>}
+      {/* Toolbar & Filters */}
+      <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-[240px] flex items-center bg-black/40 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-accent/40 transition-all">
+            <Search className="w-4 h-4 text-text-muted mr-3" />
+            <input
+              type="text" placeholder="Soru metninde ara..."
+              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/20"
+              value={search} onChange={e => setSearch(e.target.value)}
+            />
+            {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted" /></button>}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setFormModal({ open: true, question: null, isCopy: false, categoryId: null })}
+              className="flex items-center gap-2 px-5 py-3 bg-accent text-white font-black text-sm rounded-2xl shadow-xl shadow-accent/30 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" /> Soru Ekle
+            </button>
+            <button
+              onClick={() => setExamModal({ open: true, exam: null })}
+              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" /> Test Oluştur
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => setFormModal({ open: true, question: null, isCopy: false, categoryId: null })}
-          className="flex items-center gap-2 px-5 py-3 bg-accent text-white font-black text-sm rounded-2xl shadow-xl shadow-accent/30 hover:-translate-y-0.5 transition-all whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" /> Soru Ekle
-        </button>
-        <button
-          onClick={() => setExamModal({ open: true, exam: null })}
-          className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" /> Test Oluştur
-        </button>
+
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Difficulty Filter */}
+          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
+            <span className="text-[10px] font-black text-text-muted uppercase px-2">Zorluk:</span>
+            {['all', 'easy', 'medium', 'hard'].map(d => (
+              <button
+                key={d}
+                onClick={() => setFilterDifficulty(d)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                  filterDifficulty === d ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-white'
+                }`}
+              >
+                {d === 'all' ? 'Hepsi' : d === 'easy' ? 'Kolay' : d === 'medium' ? 'Orta' : 'Zor'}
+              </button>
+            ))}
+          </div>
+
+          {/* Media Filter */}
+          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
+            <span className="text-[10px] font-black text-text-muted uppercase px-2">Görsel:</span>
+            {[
+              { id: 'all', label: 'Hepsi' },
+              { id: 'has_media', label: 'Görselli' },
+              { id: 'no_media', label: 'Görselsiz' }
+            ].map(m => (
+              <button
+                key={m.id}
+                onClick={() => setFilterMedia(m.id)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                  filterMedia === m.id ? 'bg-primary text-white shadow-lg' : 'text-text-muted hover:text-white'
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {(search || filterDifficulty !== 'all' || filterMedia !== 'all') && (
+            <button
+              onClick={() => { setSearch(''); setFilterDifficulty('all'); setFilterMedia('all'); }}
+              className="text-[10px] font-black text-danger uppercase hover:underline"
+            >
+              Filtreleri Temizle
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary & Controls */}
@@ -1394,6 +1452,9 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
 // ─── Exam Questions Tab ────────────────────────────────────────────────────────
 const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 'exam', title = 'Sınav' }) => {
   const [search, setSearch] = useState('');
+  const [filterDifficulty, setFilterDifficulty] = useState('all');
+  const [filterMedia, setFilterMedia] = useState('all');
+  const [filterSubject, setFilterSubject] = useState('all');
   const [openExams, setOpenExams] = useState({});
   const [formModal, setFormModal] = useState({ open: false, question: null, isCopy: false, examId: null });
   const [examModal, setExamModal] = useState({ open: false, exam: null });
@@ -1412,7 +1473,14 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
   const tabExams = exams.filter(e => !e.isMiniTest);
 
   const tabQuestions = questions.filter(q => q.testType === testType);
-  const filtered = search ? tabQuestions.filter(q => q.text.toLowerCase().includes(search.toLowerCase())) : tabQuestions;
+  
+  const filtered = tabQuestions.filter(q => {
+    const matchesSearch = !search || q.text.toLowerCase().includes(search.toLowerCase());
+    const matchesDifficulty = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
+    const matchesMedia = filterMedia === 'all' || (filterMedia === 'has_media' ? !!q.media : !q.media);
+    const matchesSubject = filterSubject === 'all' || q.subject === filterSubject;
+    return matchesSearch && matchesDifficulty && matchesMedia && matchesSubject;
+  });
 
   const getQuestionsForExam = (examId) => filtered.filter(q => (q.exam?._id || q.exam) === examId);
   const unassigned = filtered.filter(q => !q.exam);
@@ -1429,35 +1497,108 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex-1 min-w-[200px] flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
-          <Search className="w-4 h-4 text-text-muted mr-3" />
-          <input
-            type="text" placeholder="Soru ara..."
-            className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/30"
-            value={search} onChange={e => setSearch(e.target.value)}
-          />
-          {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted" /></button>}
+      {/* Toolbar & Filters */}
+      <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-[240px] flex items-center bg-black/40 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-primary/40 transition-all">
+            <Search className="w-4 h-4 text-text-muted mr-3" />
+            <input
+              type="text" placeholder="Soru metninde ara..."
+              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/20"
+              value={search} onChange={e => setSearch(e.target.value)}
+            />
+            {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted" /></button>}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setCsvModal(true)}
+              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
+            >
+              <UploadCloud className="w-4 h-4" /> CSV Aktar
+            </button>
+            <button
+              onClick={() => setExamModal({ open: true, exam: null })}
+              className="flex items-center gap-2 px-5 py-3 bg-warning/20 border border-warning/30 text-warning font-bold text-sm rounded-2xl hover:bg-warning/30 transition-all whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" /> Sınav Oluştur
+            </button>
+            <button
+              onClick={() => setFormModal({ open: true, question: null, isCopy: false, examId: null })}
+              className="flex items-center gap-2 px-5 py-3 bg-primary text-white font-black text-sm rounded-2xl shadow-xl shadow-primary/30 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" /> Soru Ekle
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => setCsvModal(true)}
-          className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
-        >
-          <UploadCloud className="w-4 h-4" /> CSV Aktar
-        </button>
-        <button
-          onClick={() => setExamModal({ open: true, exam: null })}
-          className="flex items-center gap-2 px-4 py-3 bg-warning/20 border border-warning/30 text-warning font-bold text-sm rounded-2xl hover:bg-warning/30 transition-all whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" /> Sınav Oluştur
-        </button>
-        <button
-          onClick={() => setFormModal({ open: true, question: null, isCopy: false, examId: null })}
-          className="flex items-center gap-2 px-4 py-3 bg-primary text-white font-black text-sm rounded-2xl shadow-xl shadow-primary/30 hover:-translate-y-0.5 transition-all whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" /> Soru Ekle
-        </button>
+
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Difficulty Filter */}
+          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
+            <span className="text-[10px] font-black text-text-muted uppercase px-2">Zorluk:</span>
+            {['all', 'easy', 'medium', 'hard'].map(d => (
+              <button
+                key={d}
+                onClick={() => setFilterDifficulty(d)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                  filterDifficulty === d ? 'bg-primary text-white shadow-lg' : 'text-text-muted hover:text-white'
+                }`}
+              >
+                {d === 'all' ? 'Hepsi' : d === 'easy' ? 'Kolay' : d === 'medium' ? 'Orta' : 'Zor'}
+              </button>
+            ))}
+          </div>
+
+          {/* Subject Filter */}
+          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
+            <span className="text-[10px] font-black text-text-muted uppercase px-2">Branş:</span>
+            {[
+              { id: 'all', label: 'Hepsi' },
+              { id: 'trafik', label: 'Trafik' },
+              { id: 'ilkyardim', label: 'İlkyardım' },
+              { id: 'motor', label: 'Motor' },
+              { id: 'adabi', label: 'Adap' }
+            ].map(s => (
+              <button
+                key={s.id}
+                onClick={() => setFilterSubject(s.id)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                  filterSubject === s.id ? 'bg-purple-600 text-white shadow-lg' : 'text-text-muted hover:text-white'
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Media Filter */}
+          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
+            <span className="text-[10px] font-black text-text-muted uppercase px-2">Görsel:</span>
+            {[
+              { id: 'all', label: 'Hepsi' },
+              { id: 'has_media', label: 'Görselli' },
+              { id: 'no_media', label: 'Görselsiz' }
+            ].map(m => (
+              <button
+                key={m.id}
+                onClick={() => setFilterMedia(m.id)}
+                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                  filterMedia === m.id ? 'bg-success text-white shadow-lg' : 'text-text-muted hover:text-white'
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+
+          {(search || filterDifficulty !== 'all' || filterMedia !== 'all' || filterSubject !== 'all') && (
+            <button
+              onClick={() => { setSearch(''); setFilterDifficulty('all'); setFilterMedia('all'); setFilterSubject('all'); }}
+              className="text-[10px] font-black text-danger uppercase hover:underline"
+            >
+              Filtreleri Temizle
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary & Controls */}

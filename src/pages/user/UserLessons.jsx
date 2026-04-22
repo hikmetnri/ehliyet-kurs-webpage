@@ -1,22 +1,37 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, ChevronRight, ChevronDown, Loader2,
-  Search, Lock, Folder, FolderOpen, FileText, X
+  Search, Lock, Folder, FolderOpen, FileText, X,
+  Zap, Play, CheckCircle2, ArrowRight
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import useAuthStore from '../../store/authStore';
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+const API_BASE = 'http://localhost:3000';
+
 const resolveMediaUrl = (src) => {
-  if (!src || src.startsWith('http')) return src;
-  if (src.startsWith('assets/content/')) return `${API_BASE}/content/${src.replace('assets/content/', '')}`;
-  if (src.startsWith('assets/images/')) return `${API_BASE}/images/${src.replace('assets/images/', '')}`;
+  if (!src) return src;
+  if (src.startsWith('http')) return src;
+  if (src.startsWith('/uploads/')) return `${API_BASE}${src}`;
+  if (src.startsWith('assets/images/signs/')) {
+    const signPath = src.replace('assets/images/signs/', '');
+    return `${API_BASE}/signs/${signPath}`;
+  }
+  if (src.startsWith('assets/images/')) {
+    const assetPath = src.replace('assets/images/', '');
+    return `${API_BASE}/images/${assetPath}`;
+  }
+  if (src.startsWith('assets/content/')) {
+    const contentPath = src.replace('assets/content/', '');
+    return `${API_BASE}/content/${contentPath}`;
+  }
   if (src.startsWith('assets/')) return `${API_BASE}/images/${src.replace('assets/', '')}`;
-  return src;
+  return `${API_BASE}/${src}`;
 };
 
 // Build a tree from a flat list
@@ -33,13 +48,28 @@ const buildTree = (items, parentId = null) => {
     }));
 };
 
+// Tamamlanan dersleri localStorage'dan oku/yaz
+const COMPLETED_KEY = 'completedLessons';
+const getCompletedLessons = () => {
+  try { return JSON.parse(localStorage.getItem(COMPLETED_KEY) || '[]'); } catch { return []; }
+};
+const toggleLessonComplete = (id) => {
+  const list = getCompletedLessons();
+  const idx = list.indexOf(id);
+  if (idx >= 0) list.splice(idx, 1);
+  else list.push(id);
+  localStorage.setItem(COMPLETED_KEY, JSON.stringify(list));
+  return list;
+};
+
 // Recursive Tree Node
-const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleExpand, user }) => {
+const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleExpand, user, completedIds }) => {
   const hasChildren = node.children && node.children.length > 0;
   const hasContent = node.content && node.content.trim().length > 0;
   const isExpanded = expandedIds.has(node._id);
   const isSelected = selectedId === node._id;
   const isLocked = node.isPro && !user?.proStatus;
+  const isCompleted = completedIds.includes(node._id);
 
   const handleClick = () => {
     if (isLocked) return;
@@ -87,9 +117,14 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
         </span>
 
         {/* Label */}
-        <span className={`text-sm font-semibold truncate flex-1 ${isSelected ? 'text-primary-light font-bold' : ''}`}>
+        <span className={`text-sm font-semibold truncate flex-1 ${isSelected ? 'text-primary-light font-bold' : ''} ${isCompleted && !isSelected ? 'text-success/70' : ''}`}>
           {node.name}
         </span>
+
+        {/* Completed badge */}
+        {isCompleted && hasContent && (
+          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+        )}
 
         {/* PRO badge */}
         {node.isPro && (
@@ -119,6 +154,7 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
                   expandedIds={expandedIds}
                   toggleExpand={toggleExpand}
                   user={user}
+                  completedIds={completedIds}
                 />
               ))}
             </div>
@@ -132,12 +168,15 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
 // ─── Main Component ───────────────────────────────────────────────────────────
 const UserLessons = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
   const [tree, setTree] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [completedIds, setCompletedIds] = useState(getCompletedLessons());
+  const [passedTestIds, setPassedTestIds] = useState([]); // Testi geçilen kategori ID'leri
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -145,8 +184,33 @@ const UserLessons = () => {
         setLoading(true);
         const res = await api.get('/categories/all');
         const cats = res.data?.data || [];
-        setAllCategories(cats);
-        setTree(buildTree(cats));
+        
+        let finalTree = buildTree(cats);
+        let finalFlat = cats;
+
+        if (user?.selectedCategoryId) {
+          const mainNode = cats.find(c => c._id === user.selectedCategoryId);
+          if (mainNode) {
+            const rootTree = buildTree(cats, user.selectedCategoryId);
+            finalTree = [{ ...mainNode, children: rootTree }];
+            
+            const flat = [];
+            const extract = (nodes) => {
+              for (const n of nodes) {
+                flat.push(n);
+                if (n.children) extract(n.children);
+              }
+            };
+            extract(finalTree);
+            finalFlat = flat;
+            
+            // Seçili ana kategoriyi ilk açılışta açık olarak (expanded) işaretle
+            setExpandedIds(prev => new Set(prev).add(mainNode._id));
+          }
+        }
+
+        setAllCategories(finalFlat);
+        setTree(finalTree);
       } catch (err) {
         console.error(err);
       } finally {
@@ -154,6 +218,39 @@ const UserLessons = () => {
       }
     };
     fetchAll();
+  }, [user?.selectedCategoryId]);
+
+  // Sınav sonuçlarını çek — hangi konularda test geçilmiş?
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const res = await api.get('/exam-results');
+        const results = res.data?.data || res.data?.results || res.data;
+        if (Array.isArray(results)) {
+          const passed = results
+            .filter(r => r.passed && r.categoryId)
+            .map(r => r.categoryId);
+          setPassedTestIds([...new Set(passed)]);
+          
+          // Otomatik tamamlama: testi geçilen dersler otomatik tamamlandı işaretlenir
+          const currentCompleted = getCompletedLessons();
+          let changed = false;
+          passed.forEach(id => {
+            if (!currentCompleted.includes(id)) {
+              currentCompleted.push(id);
+              changed = true;
+            }
+          });
+          if (changed) {
+            localStorage.setItem(COMPLETED_KEY, JSON.stringify(currentCompleted));
+            setCompletedIds([...currentCompleted]);
+          }
+        }
+      } catch (err) {
+        console.error('Sınav sonuçları alınamadı:', err);
+      }
+    };
+    fetchResults();
   }, []);
 
   const toggleExpand = useCallback((id) => {
@@ -168,6 +265,22 @@ const UserLessons = () => {
   const handleSelect = useCallback((node) => {
     setSelectedLesson(node);
   }, []);
+
+  const handleMarkComplete = useCallback(() => {
+    if (!selectedLesson) return;
+    const updated = toggleLessonComplete(selectedLesson._id);
+    setCompletedIds([...updated]);
+  }, [selectedLesson]);
+
+  // İçeriği olan tüm derslerin düz listesi (sıradaki ders için)
+  const contentLessons = allCategories.filter(c => c.content && c.content.trim().length > 0);
+
+  const getNextLesson = useCallback(() => {
+    if (!selectedLesson) return null;
+    const idx = contentLessons.findIndex(c => c._id === selectedLesson._id);
+    if (idx >= 0 && idx < contentLessons.length - 1) return contentLessons[idx + 1];
+    return null;
+  }, [selectedLesson, contentLessons]);
 
   // Filter tree based on search (returns matching nodes as flat list)
   const filteredFlat = searchTerm.trim()
@@ -243,6 +356,7 @@ const UserLessons = () => {
                 expandedIds={expandedIds}
                 toggleExpand={toggleExpand}
                 user={user}
+                completedIds={completedIds}
               />
             ))
           )}
@@ -327,6 +441,56 @@ const UserLessons = () => {
                     >
                       {selectedLesson.content}
                     </ReactMarkdown>
+
+                    {/* Konu Sonu: Kısa Teste Geçiş */}
+                    <div className="mt-16 pt-10 border-t border-white/5 flex flex-col items-center justify-center text-center pb-8 not-prose">
+                      <div className="w-20 h-20 rounded-full bg-success/10 border border-success/30 flex items-center justify-center mb-6 shadow-2xl shadow-success/10">
+                        <Zap className="w-10 h-10 text-success" />
+                      </div>
+                      <h3 className="text-2xl font-black text-white tracking-tight mb-3">Konuyu Öğrendin mi?</h3>
+                      <p className="text-sm font-medium text-text-muted max-w-sm mb-8 leading-relaxed">
+                        Konuyu pekiştirmek için sana özel hazırlanan hızlı mini teste gir. Yanlışlarını detaylı açıklamalarla anında öğren.
+                      </p>
+                      
+                      <button 
+                        onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
+                        className="flex items-center gap-3 px-8 py-4 bg-success text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-success/20 hover:scale-105 active:scale-95 transition-all group"
+                      >
+                        <Play className="w-5 h-5 group-hover:text-white/80" />
+                        Konu Testini Çöz
+                      </button>
+
+                      {/* Tamamlandı & Sıradaki Ders */}
+                      <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
+                        {passedTestIds.includes(selectedLesson._id) ? (
+                          <button
+                            onClick={handleMarkComplete}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+                              completedIds.includes(selectedLesson._id)
+                                ? 'bg-success/20 border border-success/30 text-success'
+                                : 'bg-white/5 border border-white/10 text-text-muted hover:bg-white/10 hover:text-white'
+                            }`}
+                          >
+                            <CheckCircle2 className="w-5 h-5" />
+                            {completedIds.includes(selectedLesson._id) ? 'Tamamlandı ✓' : 'Konuyu Tamamla'}
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-text-muted text-sm font-bold opacity-50 cursor-not-allowed">
+                            <Lock className="w-4 h-4" />
+                            Önce testi geçmelisiniz
+                          </div>
+                        )}
+
+                        {getNextLesson() && (
+                          <button
+                            onClick={() => handleSelect(getNextLesson())}
+                            className="flex items-center gap-2 px-6 py-3 bg-primary/10 border border-primary/20 text-primary-light rounded-xl font-bold text-sm hover:bg-primary/20 transition-all"
+                          >
+                            Sıradaki Ders <ArrowRight className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

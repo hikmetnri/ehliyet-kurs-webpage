@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Clock, ChevronLeft, ChevronRight,
   CheckCircle2, XCircle, AlertCircle, BarChart2,
-  Send, RefreshCw, Home, Flag
+  Send, RefreshCw, Home, Flag, BookOpen, Star
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 
 const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
 const resolveMedia = (src) => {
@@ -98,19 +99,29 @@ const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={onRetry}
             className="flex-1 flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
             <RefreshCw className="w-4 h-4" /> Tekrar Çöz
           </button>
-          <button
-            onClick={onHome}
-            className="flex-1 flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
-          >
-            <Home className="w-4 h-4" /> Sınav Merkezine Dön
-          </button>
+          
+          {exam?._id?.startsWith('short_test_') ? (
+            <button
+              onClick={() => onHome('/dashboard/lessons')}
+              className="flex-1 flex items-center justify-center gap-2 py-4 bg-success text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-success/20 hover:scale-[1.02] active:scale-95 transition-all"
+            >
+              <BookOpen className="w-4 h-4" /> Derslere Dön
+            </button>
+          ) : (
+            <button
+              onClick={() => onHome('/dashboard/exams')}
+              className="flex-1 flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
+            >
+              <Home className="w-4 h-4" /> Sınav Merkezine Dön
+            </button>
+          )}
         </div>
       </motion.div>
     </div>
@@ -131,6 +142,40 @@ const UserExamSolve = ({ customType }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [phase, setPhase] = useState('intro'); // 'intro' | 'solving' | 'result'
   const [submitting, setSubmitting] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState([]);
+  const [favLoading, setFavLoading] = useState(false);
+
+  useEffect(() => {
+    fetchFavorites();
+  }, []);
+
+  const fetchFavorites = async () => {
+    try {
+      const res = await api.get('/users/favorites');
+      const ids = res.data.favorites.map(f => f._id || f);
+      setFavoriteIds(ids);
+    } catch {}
+  };
+
+  const toggleFavorite = async (qId) => {
+    if (favLoading) return;
+    setFavLoading(true);
+    const isFav = favoriteIds.includes(qId);
+    try {
+      if (isFav) {
+        await api.delete(`/users/favorites/${qId}`);
+        setFavoriteIds(prev => prev.filter(id => id !== qId));
+      } else {
+        await api.post(`/users/favorites/${qId}`);
+        setFavoriteIds(prev => [...prev, qId]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setFavLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -151,6 +196,21 @@ const UserExamSolve = ({ customType }) => {
             duration: Math.max(10, Math.ceil(qs.length * 1.5)), // ~1.5 min per question
             categoryId: categoryId
           });
+        } else if (customType === 'real_test') {
+          // Real MEB Simulator
+          const qRes = await api.get('/questions');
+          let allQ = qRes.data || [];
+          // Random 50 questions
+          allQ = allQ.sort(() => 0.5 - Math.random()).slice(0, 50);
+          
+          setQuestions(allQ);
+          setExam({
+            _id: `real_test_${categoryId}`,
+            name: `E-Sınav Simülatörü`,
+            description: 'MEB formatında 50 soruluk gerçek elektronik sınav simülasyonu. Anında geri bildirim yoktur, süreyi verimli kullanın.',
+            duration: 45,
+            categoryId: categoryId
+          });
         } else {
           // Normal exam
           const [examRes, qRes] = await Promise.all([
@@ -169,6 +229,12 @@ const UserExamSolve = ({ customType }) => {
     fetchExam();
   }, [examId, categoryId, customType]);
 
+  const mode = customType === 'short_test' ? 'short' : 
+               customType === 'real_test' ? 'real' : 
+               (!exam?.categoryId ? 'mock' : 'real');
+               
+  const showFeedback = mode === 'short' || mode === 'mock';
+
   const handleExpire = useCallback(() => {
     handleSubmit(true);
   }, [answers, questions]);
@@ -176,6 +242,7 @@ const UserExamSolve = ({ customType }) => {
   const timer = useTimer(exam?.duration || 45, handleExpire);
 
   const handleAnswer = (optionIdx) => {
+    if (showFeedback && answers[currentIdx] !== undefined) return; // Kilitliyse tıklanamaz
     setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
   };
 
@@ -246,7 +313,7 @@ const UserExamSolve = ({ customType }) => {
       answers={answers}
       exam={exam}
       onRetry={() => { setAnswers({}); setCurrentIdx(0); setPhase('intro'); }}
-      onHome={() => navigate('/dashboard/exams')}
+      onHome={(path) => navigate(path || '/dashboard/exams')}
     />;
   }
 
@@ -281,9 +348,13 @@ const UserExamSolve = ({ customType }) => {
             </div>
           </div>
 
-          <div className="p-4 bg-warning/5 border border-warning/20 rounded-2xl text-xs text-warning/80 font-medium text-left mb-8 flex gap-3">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>Sınav başladığında süre geri saymaya başlar. Süre dolduğunda sınav otomatik olarak teslim edilir.</span>
+          <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-primary-light font-medium text-left mb-8 flex gap-3">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span className="leading-relaxed">
+              {mode === 'short' ? 'Bu bir pekiştirme testidir. İşaretlediğiniz an sorunun doğrusunu ve detaylı açıklamasını göreceksiniz. Seçiminiz sonradan değiştirilemez.' : 
+               mode === 'mock' ? 'Genel Deneme modundasınız. Süre tutulacak ancak işaretleme anında sorunun çözümünü ve doğrusunu görebileceksiniz. Lütfen sürenizi verimli kullanın.' :
+               'Gerçek Sınav Simülasyonu. Sınavı tamamla butonuna basana kadar cevapların doğru/yanlış olduğunu göremeyeceksiniz. Kalan sürenize dikkat edin!'}
+            </span>
           </div>
 
           <div className="flex gap-4">
@@ -321,6 +392,33 @@ const UserExamSolve = ({ customType }) => {
             <h3 className="text-sm font-black text-white truncate max-w-xs">{exam.name}</h3>
             <p className="text-[10px] font-bold text-text-muted uppercase">Soru {currentIdx + 1} / {questions.length}</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Favori Butonu */}
+          <button
+            onClick={() => toggleFavorite(q?._id)}
+            disabled={favLoading || !q?._id}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all text-xs font-bold border ${
+              favoriteIds.includes(q?._id)
+                ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
+                : 'bg-white/5 border-white/10 text-text-muted hover:text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/20'
+            }`}
+            title={favoriteIds.includes(q?._id) ? "Favorilerden çıkar" : "Favorilere ekle"}
+          >
+            <Star className={`w-3.5 h-3.5 ${favoriteIds.includes(q?._id) ? 'fill-amber-500' : ''}`} />
+            <span className="hidden sm:inline">Favori</span>
+          </button>
+
+          {/* Raporla Butonu */}
+          <button
+            onClick={() => setShowReport(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-text-muted hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all text-xs font-bold"
+            title="Bu soruyu raporla"
+          >
+            <Flag className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Raporla</span>
+          </button>
         </div>
 
         {/* Timer */}
@@ -373,31 +471,79 @@ const UserExamSolve = ({ customType }) => {
             {/* Options */}
             <div className="space-y-3">
               {q.options.map((option, idx) => {
+                const isAnswered = showFeedback && answers[currentIdx] !== undefined;
+                const isCorrectOption = idx === q.correctAnswer;
                 const selected = answers[currentIdx] === idx;
+                
+                let btnClass = 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20';
+                let iconClass = 'bg-white/5 text-text-muted border border-white/10';
+                let textClass = 'text-white/80';
+
+                if (showFeedback && isAnswered) {
+                   if (isCorrectOption) {
+                      btnClass = 'bg-success/15 border-success/40 shadow-lg shadow-success/10';
+                      iconClass = 'bg-success text-white shadow-lg shadow-success/30';
+                      textClass = 'text-white font-semibold';
+                   } else if (selected && !isCorrectOption) {
+                      btnClass = 'bg-danger/15 border-danger/40 shadow-lg shadow-danger/10';
+                      iconClass = 'bg-danger text-white shadow-lg shadow-danger/30';
+                      textClass = 'text-white font-semibold';
+                   } else {
+                      btnClass = 'bg-white/[0.01] border-white/5 opacity-50 cursor-not-allowed';
+                   }
+                } else if (selected) {
+                   btnClass = 'bg-primary/15 border-primary/40 shadow-lg shadow-primary/10';
+                   iconClass = 'bg-primary text-white shadow-lg shadow-primary/30';
+                   textClass = 'text-white font-semibold';
+                }
+
                 return (
                   <button
                     key={idx}
+                    disabled={isAnswered}
                     onClick={() => handleAnswer(idx)}
-                    className={`w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all duration-200 ${
-                      selected
-                        ? 'bg-primary/15 border-primary/40 shadow-lg shadow-primary/10'
-                        : 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20'
-                    }`}
+                    className={`w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all duration-200 ${btnClass}`}
                   >
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-all ${
-                      selected
-                        ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                        : 'bg-white/5 text-text-muted border border-white/10'
-                    }`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-all ${iconClass}`}>
                       {OPTION_LABELS[idx]}
                     </div>
-                    <span className={`text-sm leading-relaxed pt-0.5 ${selected ? 'text-white font-semibold' : 'text-white/80'}`}>
+                    <span className={`text-sm leading-relaxed pt-0.5 ${textClass}`}>
                       {option}
                     </span>
                   </button>
                 );
               })}
             </div>
+
+            {/* Instant Feedback Notice */}
+            <AnimatePresence>
+              {showFeedback && answers[currentIdx] !== undefined && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }} 
+                  animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  className="p-6 bg-white/[0.02] border border-white/10 rounded-[1.5rem] overflow-hidden"
+                >
+                   <div className="flex items-center gap-3 mb-3">
+                      {answers[currentIdx] === q.correctAnswer ? (
+                         <div className="flex items-center gap-2 px-3 py-1 bg-success/20 border border-success/30 rounded-lg text-success">
+                           <CheckCircle2 className="w-5 h-5" />
+                           <span className="font-black tracking-widest text-[10px] uppercase">DOĞRU CEVAP</span>
+                         </div>
+                      ) : (
+                         <div className="flex items-center gap-2 px-3 py-1 bg-danger/20 border border-danger/30 rounded-lg text-danger">
+                           <XCircle className="w-5 h-5" />
+                           <span className="font-black tracking-widest text-[10px] uppercase">YANLIŞ CEVAP</span>
+                         </div>
+                      )}
+                   </div>
+                   <p className="text-sm text-text-muted leading-relaxed font-medium">
+                     <strong className="text-white">Çözüm / Açıklama:</strong> <br/>
+                     {q.explanation || 'Bu soru için detaylı çözüm açıklaması girilmemiştir.'}
+                   </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -410,9 +556,13 @@ const UserExamSolve = ({ customType }) => {
             <button
               key={i}
               onClick={() => setCurrentIdx(i)}
-              className={`w-6 h-6 rounded text-[9px] font-bold transition-all ${
-                i === currentIdx ? 'bg-primary text-white' :
-                answers[i] !== undefined ? 'bg-success/30 text-success' : 'bg-white/10 text-text-muted hover:bg-white/20'
+              className={`w-6 h-6 rounded text-[9px] font-bold transition-all border ${
+                i === currentIdx ? 'bg-white text-black border-white scale-110' :
+                answers[i] !== undefined 
+                  ? (showFeedback 
+                       ? (answers[i] === questions[i].correctAnswer ? 'bg-success/20 text-success border-success/30' : 'bg-danger/20 text-danger border-danger/30')
+                       : 'bg-primary/30 text-primary-light border-primary/40') 
+                  : 'bg-white/5 text-text-muted border-white/10 hover:bg-white/10'
               }`}
             >
               {i + 1}
@@ -448,6 +598,12 @@ const UserExamSolve = ({ customType }) => {
         </div>
       </div>
 
+      {/* Report Modal */}
+      <ReportQuestionModal
+        isOpen={showReport}
+        onClose={() => setShowReport(false)}
+        question={q}
+      />
     </div>
   );
 };

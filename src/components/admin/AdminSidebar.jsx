@@ -32,7 +32,7 @@ const NavItem = ({ to, icon: Icon, label, isActive }) => (
   </Link>
 );
 
-const AdminSidebar = () => {
+const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const { pathname } = useLocation();
   const logout = useAuthStore((state) => state.logout);
 
@@ -50,7 +50,19 @@ const AdminSidebar = () => {
   ];
 
   return (
-    <aside className="w-72 bg-bg-card border-r border-white/5 h-screen flex flex-col sticky top-0">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <aside className={`
+        fixed lg:sticky top-0 h-screen z-50 flex flex-col bg-bg-card border-r border-white/5 transition-transform duration-300 w-72
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
       
       {/* Logo Area */}
       <div className="p-6 pb-8 border-b border-white/5">
@@ -90,6 +102,7 @@ const AdminSidebar = () => {
       </div>
       
     </aside>
+    </>
   );
 };
 

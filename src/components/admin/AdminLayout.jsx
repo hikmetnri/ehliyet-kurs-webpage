@@ -1,31 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import useAuthStore from '../../store/authStore';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, Menu } from 'lucide-react';
 
 const AdminLayout = () => {
   const user = useAuthStore((state) => state.user);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex bg-bg-dark min-h-screen text-text-primary overflow-hidden">
       
       {/* Sidebar */}
-      <AdminSidebar />
+      <AdminSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         
         {/* Top Navbar */}
-        <header className="h-20 bg-bg-card/50 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 sticky top-0 z-10">
+        <header className="h-16 md:h-20 bg-bg-card/50 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
           
-          <div className="flex items-center bg-bg-card2 border border-white/5 rounded-xl px-4 py-2 w-96 focus-within:border-primary/50 transition-colors">
-            <Search className="w-5 h-5 text-text-muted mr-2" />
+          <div className="flex items-center gap-4">
+            {/* Mobile Menu Button */}
+            <button 
+              className="lg:hidden p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-xl transition-colors"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+
+            <div className="hidden md:flex items-center bg-bg-card2 border border-white/5 rounded-xl px-4 py-2 w-96 focus-within:border-primary/50 transition-colors">
+              <Search className="w-5 h-5 text-text-muted mr-2" />
             <input 
               type="text" 
               placeholder="Kullanıcı, soru veya içerik ara..." 
               className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-text-muted"
             />
+            </div>
           </div>
 
           <div className="flex items-center gap-6">
@@ -54,7 +65,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-8 relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <Outlet />
         </main>
         

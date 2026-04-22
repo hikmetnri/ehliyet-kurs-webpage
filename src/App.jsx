@@ -49,7 +49,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/policy" element={<PrivacyPolicy />} />
         <Route path="/delete-account" element={<AccountDeletion />} />
-        <Route path="/settings" element={<Navigate to="/delete-account" replace />} />
+        <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
         <Route path="/privacy" element={<Navigate to="/policy" replace />} />
         <Route path="/privacy-policy" element={<Navigate to="/policy" replace />} />
         <Route path="/hesap-silme" element={<Navigate to="/delete-account" replace />} />
