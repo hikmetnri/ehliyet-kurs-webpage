@@ -1,9 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
+import api from '../api';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
+
+  const [privacy, setPrivacy] = useState('');
+  const [kvkk, setKvkk] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLegalTexts = async () => {
+      try {
+        const [privacyRes, kvkkRes] = await Promise.all([
+          api.get('/legal/privacy'),
+          api.get('/legal/kvkk')
+        ]);
+        if (privacyRes.data?.data) setPrivacy(privacyRes.data.data.content);
+        if (kvkkRes.data?.data) setKvkk(kvkkRes.data.data.content);
+      } catch (err) {
+        console.error('Hukuki metinler yüklenemedi', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLegalTexts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-bg-dark text-text-primary p-6 md:p-12 selection:bg-primary/30">
@@ -21,57 +44,30 @@ const PrivacyPolicy = () => {
 
         <h1 className="text-4xl md:text-5xl font-black mb-10 tracking-tight text-white">Gizlilik Politikası <span className="text-primary-light">ve KVKK Aydınlatma Metni</span></h1>
 
-        <div className="prose prose-invert prose-lg max-w-none prose-headings:font-black prose-headings:text-white prose-p:text-text-secondary prose-a:text-primary-light hover:prose-a:text-white prose-li:text-text-secondary">
-          
-          <p>Son Güncelleme: 10 Nisan 2026</p>
+        {loading ? (
+          <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
+        ) : (
+          <div className="prose prose-invert prose-lg max-w-none prose-headings:font-black prose-headings:text-white prose-p:text-text-secondary prose-a:text-primary-light hover:prose-a:text-white prose-li:text-text-secondary">
+            
+            {privacy ? (
+              <div dangerouslySetInnerHTML={{ __html: privacy }} />
+            ) : (
+              <p>Gizlilik politikası henüz eklenmemiş.</p>
+            )}
 
-          <p>Ehliyet Yolu olarak gizliliğinize ve kişisel verilerinizin korunmasına büyük önem veriyoruz. Bu "Gizlilik Politikası", kişisel verilerinizi nasıl topladığımızı, kullandığımızı ve koruduğumuzu açıklamaktadır.</p>
+            <hr className="border-white/10 my-10" />
 
-          <h2>1. Toplanan Bilgiler</h2>
-          <p>Hizmetlerimizi kullanırken aşağıdaki bilgileri toplayabiliriz:</p>
-          <ul>
-            <li><strong>Kayıt Bilgileri:</strong> Ad, soyad, e-posta adresi, cihaz bilgileri.</li>
-            <li><strong>Kullanım Verileri:</strong> Çözdüğünüz sınavlar, uygulama içindeki ilerlemeniz, istatistikleriniz (başarı oranı vb.).</li>
-            <li><strong>İletişim Bilgileri:</strong> Destek taleplerinde sağladığınız mesaj içerikleri.</li>
-          </ul>
+            <h2>KVKK Aydınlatma Metni</h2>
+            {kvkk ? (
+              <div dangerouslySetInnerHTML={{ __html: kvkk }} />
+            ) : (
+              <p>KVKK metni henüz eklenmemiş.</p>
+            )}
 
-          <h2>2. Bilgilerin Kullanımı</h2>
-          <p>Topladığımız kişisel verileri aşağıdaki amaçlarla kullanmaktayız:</p>
-          <ul>
-            <li>Hizmetlerimizi sunmak, sürdürmek ve iyileştirmek.</li>
-            <li>Hesabınızı oluşturmak ve yönetmek.</li>
-            <li>Size özel içerik (örn. zayıf konular belirlenmesi) sunmak.</li>
-            <li>Yükümlülüklerimizi (örn. hukuki uyuşmazlıklar) yerine getirmek.</li>
-          </ul>
-
-          <h2>3. Bilgi Paylaşımı</h2>
-          <p>Kişisel verileriniz, izniniz olmadan üçüncü taraflarla reklam amacıyla paylaşılmaz. Sadece aşağıdaki durumlarda paylaşılabilir:</p>
-          <ul>
-            <li>Sunucu barındırma hizmeti sunan altyapı sağlayıcıları (örn. Google Cloud, AWS) ile operasyonel nedenlerle gizlilik sözleşmeleri çatısı altında.</li>
-            <li>Yasalar çerçevesinde yetkili kamu kurum ve kuruluşları talep ettiğinde.</li>
-          </ul>
-
-          <h2>4. Veri Güvenliği</h2>
-          <p>Verilerinizi yetkisiz erişime, değiştirilmeye veya imha edilmeye karşı korumak için endüstri standardı güvenlik önlemleri alıyoruz. Tüm veri transferleri HTTPS ile şifrelenmektedir.</p>
-
-          <h2>5. Çerezler (Cookies) ve Cihaz İzinleri</h2>
-          <p>Kullanıcı giriş oturumunu sürdürmek ve güvenlik amacıyla gerekli çerezleri/yerel depolama özelliklerini (Local Storage) kullanıyoruz. Android Mobil Uygulamamız, bildirim gönderebilmek adına (isteğe bağlı) Bildirim izinleri isteyebilir.</p>
-
-          <h2 id="hesap-silme">6. Hesap Silme ve Veri İmhası (Account Deletion)</h2>
-          <p>Kullanıcılarımız diledikleri zaman hesaplarını ve buna bağlı tüm verilerini silme hakkına sahiptir. Verilerinizi silmek için iki yöntem bulunmaktadır:</p>
-          <ul>
-            <li><strong>Uygulama İçinden:</strong> Profil sayfanızda bulunan "Hesabımı Sil" butonu ile hesabınızı anında kapatabilir ve verilerinizin kalıcı olarak silinmesini sağlayabilirsiniz.</li>
-            <li><strong>Web/E-posta ile Talep:</strong> Uygulamayı cihazınızdan sildiyseniz veya erişemiyorsanız, <strong>destek@ehliyetyolu.com</strong> adresine kayıtlı e-posta adresinizden "Hesap Silme Talebi" konulu bir mesaj atarak verilerinizin 7 iş günü içerisinde tamamen silinmesini talep edebilirsiniz.</li>
-          </ul>
-
-          <h2>7. Haklarınız ve İletişim (KVKK 11. Madde)</h2>
-          <p>Kişisel verilerinizle ilgili olarak; verilerinizin işlenip işlenmediğini öğrenme, yanlış ise düzeltilmesini isteme hakkınız bulunmaktadır. Tüm talepleriniz için destek ekibi ile iletişime geçebilirsiniz.</p>
-
-          <p>İletişim: <strong>destek@ehliyetyolu.com</strong></p>
-
-          <hr className="border-white/10 my-10" />
-          <p className="text-sm">Bu belge, Google Play ve App Store geliştirici politikaları gereği oluşturulmuş ve yayımlanmıştır.</p>
-        </div>
+            <hr className="border-white/10 my-10" />
+            <p className="text-sm">Bu belge, Google Play ve App Store geliştirici politikaları gereği oluşturulmuş ve yayımlanmıştır.</p>
+          </div>
+        )}
 
       </div>
     </div>

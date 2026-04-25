@@ -40,14 +40,13 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const handleSave = async () => {
-    if (!selectedCat) return;
+  const handleQuickSelect = async (cat) => {
+    setSelectedCat(cat._id);
     setLoading(true);
     try {
-      const selectedObj = dbCategories.find(c => c._id === selectedCat);
       const res = await api.put('/auth/profile', {
-        selectedCategoryId: selectedObj._id,
-        selectedCategoryName: selectedObj.name
+        selectedCategoryId: cat._id,
+        selectedCategoryName: cat.name
       });
       
       if (res.data.success) {
@@ -102,17 +101,18 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
                     return (
                       <button
                         key={cat._id}
-                        onClick={() => setSelectedCat(cat._id)}
+                        onClick={() => handleQuickSelect(cat)}
+                        disabled={loading}
                         className={`
                           relative overflow-hidden p-8 rounded-[2rem] border-2 transition-all duration-300 transform group
                           ${isSelected 
-                            ? 'border-primary bg-primary/10 scale-105 shadow-xl shadow-primary/10' 
+                            ? 'border-primary bg-primary/10 scale-105 shadow-xl shadow-primary/10 opacity-70' 
                             : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20'
                           }
                         `}
                       >
                         <div className={`w-14 h-14 rounded-2xl mb-4 mx-auto flex items-center justify-center transition-all ${isSelected ? 'bg-primary text-white' : 'bg-white/5 text-text-muted group-hover:text-white'}`}>
-                          <Icon className="w-7 h-7" />
+                          {loading && isSelected ? <Loader2 className="w-7 h-7 animate-spin" /> : <Icon className="w-7 h-7" />}
                         </div>
                         <h3 className={`text-xl font-black mb-1 ${isSelected ? 'text-white' : 'text-text-primary'}`}>{cat.name}</h3>
                         <p className="text-[10px] uppercase font-black tracking-widest text-text-muted">Göz At</p>
@@ -127,16 +127,10 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
               )}
 
               <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-                <button
-                  disabled={!selectedCat || loading}
-                  onClick={handleSave}
-                  className="btn-primary w-full md:w-auto md:px-20 py-4 text-lg font-black"
-                >
-                  {loading ? <Loader2 className="w-6 h-6 animate-spin mx-auto" /> : 'Seçimi Tamamla'}
-                </button>
                 <button 
                   onClick={onClose}
-                  className="text-text-muted hover:text-white font-bold text-sm transition-colors px-6"
+                  disabled={loading}
+                  className="text-text-muted hover:text-white font-bold text-sm transition-colors px-6 py-2"
                 >
                   Kapat
                 </button>

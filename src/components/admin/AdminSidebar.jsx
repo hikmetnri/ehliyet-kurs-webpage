@@ -11,7 +11,8 @@ import {
   MessageCircle,
   Share2,
   ShieldAlert,
-  Award
+  Award,
+  QrCode
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -45,6 +46,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { to: '/admin/feed', icon: Share2, label: 'Akış Yönetimi' },
     { to: '/admin/reports', icon: ShieldAlert, label: 'Rapor Yönetimi' },
     { to: '/admin/badges', icon: Award, label: 'Rozetler' },
+    { to: '/admin/marketing', icon: QrCode, label: 'Pazarlama & Reklam' },
     { to: '/admin/stats', icon: BarChart, label: 'İstatistikler' },
     { to: '/admin/settings', icon: Settings, label: 'Yönetim Merkezi' },
   ];

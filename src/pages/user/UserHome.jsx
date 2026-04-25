@@ -24,12 +24,12 @@ const UserHome = () => {
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectingId, setSelectingId] = useState(null);
+  
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [quote, setQuote] = useState(fallbackQuotes[0]);
   const [isMockMode, setIsMockMode] = useState(false);
   
-  const [isChangingCategory, setIsChangingCategory] = useState(false);
+  
 
   useEffect(() => {
     setQuote(fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)]);
@@ -63,10 +63,8 @@ const UserHome = () => {
             const subRes = await api.get(`/categories?parent=${user.selectedCategoryId}`);
             let subData = subRes.data?.data || subRes.data?.categories || subRes.data;
             setSubCategories(Array.isArray(subData) ? subData : []);
-            setIsChangingCategory(false);
           } catch (e) { console.error("Sub categories error", e); }
         } else {
-          setIsChangingCategory(true);
           setSubCategories([]);
         }
         
@@ -92,24 +90,7 @@ const UserHome = () => {
     fetchData();
   }, [user?.selectedCategoryId]);
 
-  const handleQuickSelect = async (cat) => {
-    if (selectingId) return;
-    setSelectingId(cat._id);
-    try {
-      const res = await api.put('/auth/profile', {
-        selectedCategoryId: cat._id,
-        selectedCategoryName: cat.name
-      });
-      if (res.data.success) {
-        setAuth({ ...user, ...res.data.user }, token);
-        setIsChangingCategory(false);
-      }
-    } catch (err) {
-      console.error("Seçim güncellenemedi:", err);
-    } finally {
-      setSelectingId(null);
-    }
-  };
+
 
   return (
     <div className="space-y-8 pb-24 text-white">
@@ -222,9 +203,9 @@ const UserHome = () => {
              <div className="w-3 h-10 bg-primary rounded-full shadow-[0_0_20px_rgba(108,99,255,0.6)]"></div>
              <div>
                <h2 className="text-3xl font-black tracking-tight italic">
-                 {isChangingCategory || !user?.selectedCategoryId ? 'Eğitim Sınıfını Seç' : 'Seçili Eğitim Paketi'}
+                 {!user?.selectedCategoryId ? 'Eğitim Sınıfını Seç' : 'Seçili Eğitim Paketi'}
                </h2>
-               {!isChangingCategory && user?.selectedCategoryId && (
+               {user?.selectedCategoryId && (
                  <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">
                    Şu an <span className="text-primary-light">{user.selectedCategoryName}</span> müfredatındasın
                  </p>
@@ -232,9 +213,9 @@ const UserHome = () => {
              </div>
            </div>
            
-           {user?.selectedCategoryId && !isChangingCategory && (
+           {user?.selectedCategoryId && (
              <button 
-               onClick={() => setIsChangingCategory(true)}
+               onClick={() => setShowCategoryModal(true)}
                className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-primary/20 flex items-center justify-center text-text-muted hover:text-primary transition-all border border-white/10 group"
              >
                <RefreshCcw className="w-6 h-6 group-hover:rotate-180 transition-transform duration-700" />
@@ -243,40 +224,16 @@ const UserHome = () => {
         </div>
 
         <AnimatePresence mode="wait">
-          {isChangingCategory || !user?.selectedCategoryId ? (
-            <motion.div 
-              key="selector-grid"
-              initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {mainCategories.length > 0 ? (
-                mainCategories.map((cat) => (
-                  <motion.div
-                    key={cat._id}
-                    whileHover={{ y: -8, scale: 1.02 }}
-                    className={`glass-card p-8 rounded-[3rem] border-2 transition-all cursor-pointer group relative overflow-hidden ${user?.selectedCategoryId === cat._id ? 'border-primary bg-primary/10 shadow-2xl shadow-primary/20' : 'border-white/5 hover:border-white/20'}`}
-                    onClick={() => handleQuickSelect(cat)}
-                  >
-                    <div className="flex items-center gap-6 relative z-10">
-                      <div className={`w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-3xl transition-all ${user?.selectedCategoryId === cat._id ? 'bg-primary text-white shadow-xl shadow-primary/40' : 'bg-white/5 text-text-muted group-hover:bg-white/10 group-hover:text-white'}`}>
-                        {selectingId === cat._id ? <Loader2 className="w-8 h-8 animate-spin" /> : <ShieldCheck className="w-10 h-10" />}
-                      </div>
-                      <div>
-                        <h4 className="font-black text-2xl mb-1 tracking-tight">{cat.name}</h4>
-                        <p className="text-[11px] text-text-muted font-black uppercase tracking-widest">Giriş Yapmak İçin Tıkla</p>
-                      </div>
-                    </div>
-                    <div className="absolute right-[-20px] bottom-[-20px] opacity-[0.03] group-hover:opacity-[0.1] transition-opacity">
-                       <ShieldCheck className="w-32 h-32" />
-                    </div>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="col-span-full py-20 text-center glass-card rounded-[3rem] border border-white/5">
-                   <p className="text-text-muted font-bold">Lütfen Admin Panelden Ehliyet Sınıfı Kategori Ekleyiniz.</p>
-                </div>
-              )}
-            </motion.div>
+          {!user?.selectedCategoryId ? (
+             <div className="py-20 text-center glass-card rounded-[3rem] border border-white/5">
+                <p className="text-text-muted font-bold">Lütfen bir eğitim sınıfı seçiniz.</p>
+                <button 
+                  onClick={() => setShowCategoryModal(true)}
+                  className="mt-6 btn-primary px-8 py-3"
+                >
+                  Sınıf Seç
+                </button>
+             </div>
           ) : (
             <motion.div 
               key="selected-header"
@@ -297,7 +254,7 @@ const UserHome = () => {
                   </div>
                </div>
                <button 
-                 onClick={() => setIsChangingCategory(true)}
+                 onClick={() => setShowCategoryModal(true)}
                  className="flex items-center gap-3 px-10 py-5 bg-white/5 hover:bg-white/10 rounded-[1.5rem] text-sm font-black border border-white/10 transition-all group relative z-10"
                >
                  <Settings2 className="w-5 h-5 text-primary-light group-hover:rotate-90 transition-transform" /> 
@@ -309,7 +266,7 @@ const UserHome = () => {
 
         {/* Çalışma Müfredatı */}
         <AnimatePresence>
-          {!isChangingCategory && user?.selectedCategoryId && subCategories.length > 0 && (
+          {user?.selectedCategoryId && subCategories.length > 0 && (
             <motion.div 
               className="mt-16"
               initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
@@ -343,7 +300,7 @@ const UserHome = () => {
               </div>
             </motion.div>
           )}
-          {!isChangingCategory && user?.selectedCategoryId && subCategories.length === 0 && !loading && (
+          {user?.selectedCategoryId && subCategories.length === 0 && !loading && (
             <motion.div className="mt-16 text-center py-20 glass-card rounded-[3rem] border border-dashed border-white/10 mx-4">
                <AlertCircle className="w-12 h-12 text-text-muted mx-auto mb-4 opacity-50" />
                <p className="text-text-muted font-bold">Bu sınıfa ait çalışma konusu henüz eklenmemiş.</p>

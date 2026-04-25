@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import UserSidebar from './UserSidebar';
-import MotivationToast from './MotivationToast';
+
 import CategorySelectorModal from './CategorySelectorModal';
 import NotificationPanel from './NotificationPanel';
 import { Menu, Bell } from 'lucide-react';
@@ -51,7 +51,7 @@ const UserLayout = ({ fullscreen = false }) => {
     <div className="flex bg-bg-dark min-h-screen text-text-primary overflow-hidden">
       
       {/* Onboarding Modals */}
-      <MotivationToast />
+
       <CategorySelectorModal 
         isOpen={showCategoryModal} 
         onClose={() => setShowCategoryModal(false)} 

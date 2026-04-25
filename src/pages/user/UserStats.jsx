@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame } from 'lucide-react';
+import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search } from 'lucide-react';
+import ExamDetailModal from '../../components/user/ExamDetailModal';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
 const ICON_MAP = { Award, Star, Trophy, Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart };
 
@@ -23,6 +25,7 @@ const UserStats = () => {
   const [loading, setLoading] = useState(true);
   const [lbLoading, setLbLoading] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
+  const [selectedResult, setSelectedResult] = useState(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -126,7 +129,78 @@ const UserStats = () => {
               ))}
             </div>
 
-            {/* Pass/Fail Summary */}
+            {/* Performans Grafiği */}
+            {recentResults.length > 0 && (() => {
+              const chartData = [...recentResults]
+                .reverse()
+                .slice(-10)
+                .map((r, i) => ({
+                  name: new Date(r.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }),
+                  score: r.score || 0,
+                  passed: r.passed,
+                  label: r.examName || r.categoryName || `Sınav ${i+1}`,
+                }));
+              return (
+                <div className="glass-card p-6 rounded-3xl border border-white/5">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                      <BarChart2 className="w-5 h-5 text-primary-light" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-white tracking-tight">Performans Grafiği</h3>
+                      <p className="text-xs text-text-muted font-bold mt-0.5">Son {chartData.length} sınavdaki başarı eğrisi</p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-success inline-block"></span>Geçti</span>
+                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-danger inline-block"></span>Kaldı</span>
+                    </div>
+                  </div>
+                  <ResponsiveContainer width="100%" height={220}>
+                    <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        domain={[0, 100]}
+                        tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }}
+                        axisLine={false}
+                        tickLine={false}
+                        tickFormatter={v => `%${v}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: '#1a1a2e',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: '16px',
+                          color: '#fff',
+                          fontSize: '12px',
+                          fontWeight: 700
+                        }}
+                        formatter={(value, name, props) => [
+                          `%${value}`,
+                          props.payload.label
+                        ]}
+                        labelFormatter={() => ''}
+                      />
+                      <ReferenceLine y={70} stroke="rgba(255,255,255,0.1)" strokeDasharray="4 4" label={{ value: 'Geçme Sınırı %70', position: 'insideTopRight', fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 700 }} />
+                      <Bar dataKey="score" radius={[8, 8, 0, 0]} maxBarSize={40}>
+                        {chartData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={entry.passed ? 'rgba(34,197,94,0.8)' : 'rgba(239,68,68,0.7)'}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              );
+            })()}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="glass-card p-6 rounded-3xl border border-white/5">
                 <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest">Sınav Sonuçları</h3>
@@ -347,7 +421,8 @@ const UserStats = () => {
                         <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-center">Tarih</th>
                         <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-center">Doğru/Yanlış</th>
                         <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-center">Puan</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Durum</th>
+                        <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-center">Durum</th>
+                        <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Detay</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -388,7 +463,7 @@ const UserStats = () => {
                                 %{res.score}
                               </span>
                             </td>
-                            <td className="py-4 px-4 text-right">
+                            <td className="py-4 px-4 text-center">
                               <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${
                                 res.passed 
                                   ? 'bg-success/10 border-success/20 text-success' 
@@ -396,6 +471,15 @@ const UserStats = () => {
                               }`}>
                                 {res.passed ? 'Geçti' : 'Kaldı'}
                               </span>
+                            </td>
+                            <td className="py-4 px-4 text-right">
+                              <button
+                                onClick={() => setSelectedResult(res)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary-light text-[10px] font-black uppercase tracking-wider transition-all hover:scale-105"
+                              >
+                                <Search className="w-3 h-3" />
+                                İncele
+                              </button>
                             </td>
                           </motion.tr>
                         ))
@@ -446,7 +530,7 @@ const UserStats = () => {
                ) : (
                  <div className="divide-y divide-white/5">
                    {leaderboard.map((item, idx) => {
-                     const isMe = item.userId === user?._id;
+                     const isMe = String(item.userId) === String(user?._id);
                      return (
                        <motion.div
                          key={item.userId}
@@ -500,6 +584,14 @@ const UserStats = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Sınav Detay Modalı */}
+      {selectedResult && (
+        <ExamDetailModal
+          result={selectedResult}
+          onClose={() => setSelectedResult(null)}
+        />
+      )}
     </div>
   );
 };
