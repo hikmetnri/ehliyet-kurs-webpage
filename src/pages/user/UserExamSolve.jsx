@@ -192,6 +192,7 @@ const UserExamSolve = ({ customType }) => {
           setExam({
             _id: `short_test_${categoryId}`,
             name: `${catRes.data?.data?.name || 'Konu'} Kısa Testi`,
+            categoryName: catRes.data?.data?.name || 'Konu Testi',
             description: 'Bu kategorideki konulardan oluşan özel test.',
             duration: Math.max(10, Math.ceil(qs.length * 1.5)), // ~1.5 min per question
             categoryId: categoryId
@@ -207,6 +208,7 @@ const UserExamSolve = ({ customType }) => {
           setExam({
             _id: `real_test_${categoryId}`,
             name: `E-Sınav Simülatörü`,
+            categoryName: 'Karma Simülasyon',
             description: 'MEB formatında 50 soruluk gerçek elektronik sınav simülasyonu. Anında geri bildirim yoktur, süreyi verimli kullanın.',
             duration: 45,
             categoryId: categoryId
@@ -217,7 +219,11 @@ const UserExamSolve = ({ customType }) => {
             api.get(`/exams/${examId}`),
             api.get(`/questions?exam=${examId}`),
           ]);
-          setExam(examRes.data?.exam || examRes.data);
+          const examData = examRes.data?.exam || examRes.data;
+          setExam({
+            ...examData,
+            categoryName: examData.categoryId?.name || examData.categoryName || 'Genel Sınav'
+          });
           setQuestions(qRes.data || []);
         }
       } catch (err) {
@@ -260,7 +266,14 @@ const UserExamSolve = ({ customType }) => {
         if (ans === q.correctAnswer) correct++;
         else if (ans !== undefined) {
           wrong++;
-          wrongQuestions.push({ questionId: q._id, questionText: q.text });
+          wrongQuestions.push({ 
+            questionId: q._id, 
+            questionText: q.text,
+            options: q.options,
+            userAnswer: ans,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation
+          });
         }
       });
 
@@ -271,10 +284,11 @@ const UserExamSolve = ({ customType }) => {
       const timeSpentSecs = (exam?.duration || 45) * 60 - timer.remaining;
 
       await api.post('/exam-results', {
-        examId: customType === 'short_test' ? null : examId,
+        examId: (customType === 'short_test' || customType === 'real_test') ? null : examId,
         examName: exam?.name,
-        categoryId: exam?.categoryId,
-        categoryName: exam?.categoryId?.name || '',
+        testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
+        categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
+        categoryName: exam?.categoryName || (typeof exam?.categoryId === 'object' ? exam?.categoryId?.name : ''),
         totalQuestions: total,
         correctCount: correct,
         wrongCount: wrong,

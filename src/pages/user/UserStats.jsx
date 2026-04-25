@@ -30,18 +30,22 @@ const UserStats = () => {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [statsRes, catRes, badgesRes, resultsRes] = await Promise.all([
+        const [statsRes, catRes, badgesRes, resultsRes] = await Promise.allSettled([
           api.get('/exam-results/stats'),
           api.get('/exam-results/category-stats'),
           api.get('/badges/my'),
           api.get('/exam-results?limit=10')
         ]);
-        setStats(statsRes.data);
-        setCatStats(catRes.data || []);
-        setBadges(badgesRes.data || []);
-        setRecentResults(resultsRes.data?.data || resultsRes.data || []);
+
+        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data);
+        if (catRes.status === 'fulfilled') setCatStats(catRes.value.data || []);
+        if (badgesRes.status === 'fulfilled') setBadges(badgesRes.value.data || []);
+        if (resultsRes.status === 'fulfilled') {
+          const data = resultsRes.value.data;
+          setRecentResults(data?.data || data || []);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Fetch Error:", err);
       } finally {
         setLoading(false);
       }

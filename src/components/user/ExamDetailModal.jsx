@@ -158,7 +158,7 @@ const ExamDetailModal = ({ result, onClose }) => {
                           >
                             <div className="px-4 pb-4 space-y-2">
                               {/* Options */}
-                              {options.map((opt, oIdx) => {
+                              {options && options.length > 0 && options.map((opt, oIdx) => {
                                 const isCorrect = oIdx === correctIdx;
                                 const isUser = oIdx === userIdx;
 
@@ -183,22 +183,16 @@ const ExamDetailModal = ({ result, onClose }) => {
                                     </span>
                                     <span className="flex-1">{opt}</span>
                                     {icon}
-                                    {isUser && !isCorrect && (
-                                      <span className="text-[9px] font-black uppercase tracking-widest text-danger/70">Senin Cevabın</span>
-                                    )}
-                                    {isCorrect && (
-                                      <span className="text-[9px] font-black uppercase tracking-widest text-success/70">Doğru Cevap</span>
-                                    )}
                                   </div>
                                 );
                               })}
 
                               {/* Explanation */}
-                              {q.explanation && (
+                              {q.explanation && q.explanation.trim() !== "" && (
                                 <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl mt-3">
                                   <Info className="w-4 h-4 text-primary-light shrink-0 mt-0.5" />
                                   <p className="text-xs text-text-secondary leading-relaxed font-medium">
-                                    <span className="text-primary-light font-black uppercase tracking-widest text-[9px] block mb-1">Açıklama</span>
+                                    <span className="text-primary-light font-black uppercase tracking-widest text-[9px] block mb-1">Çözüm / Açıklama</span>
                                     {q.explanation}
                                   </p>
                                 </div>
