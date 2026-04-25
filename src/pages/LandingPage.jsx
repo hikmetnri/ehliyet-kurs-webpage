@@ -152,16 +152,16 @@ const LandingPage = () => {
       <motion.header 
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className={`flex justify-between items-center transition-all duration-500 rounded-[2.5rem] ${scrolled ? 'bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-3 pl-6' : 'bg-transparent border-transparent p-4 pl-6'}`}>
+        <div className="max-w-7xl mx-auto px-3 sm:px-6">
+          <div className={`flex justify-between items-center transition-all duration-500 rounded-2xl sm:rounded-[2.5rem] ${scrolled ? 'bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-2 sm:p-3 pl-4 sm:pl-6' : 'bg-transparent border-transparent p-3 sm:p-4 pl-4 sm:pl-6'}`}>
             
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gray-200 shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+              <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-200 shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
                 <img src="/logo.png" alt="Ehliyet Yolu Logo" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
-                <CarFront className="w-8 h-8 text-primary hidden" />
+                <CarFront className="w-6 h-6 sm:w-8 sm:h-8 text-primary hidden" />
               </div>
-              <span className="text-2xl sm:text-3xl font-black tracking-tighter text-white">
+              <span className="text-xl sm:text-3xl font-black tracking-tighter text-white">
                 Ehliyet<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-cyan-300">Yolu</span>
               </span>
             </Link>
@@ -174,10 +174,10 @@ const LandingPage = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex items-center gap-4 sm:gap-6 pr-2 sm:pr-0">
-              <Link to="/login" className="hidden sm:block text-base font-bold text-white/80 hover:text-white transition-colors px-6 py-3">Giriş Yap</Link>
-              <Link to="/register" className="bg-white hover:bg-gray-100 text-black py-4 px-8 sm:px-10 rounded-2xl flex items-center gap-3 text-base font-black shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]">
-                Kayıt Ol <ChevronRight className="w-5 h-5 hidden sm:block" />
+            <div className="flex items-center gap-3 sm:gap-6 pr-1 sm:pr-0">
+              <Link to="/login" className="text-sm sm:text-base font-bold text-white/80 hover:text-white transition-colors px-3 sm:px-6 py-2 sm:py-3">Giriş</Link>
+              <Link to="/register" className="bg-white hover:bg-gray-100 text-black py-2.5 sm:py-4 px-4 sm:px-10 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 text-xs sm:text-base font-black shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]">
+                Kayıt Ol <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 hidden xs:block" />
               </Link>
             </div>
           </div>
