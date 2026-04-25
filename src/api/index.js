@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-  // Vite proxy kullandığımız için doğrudan /api ile başlıyoruz
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  // Üretim ortamında doğrudan api subdomainine gitmesi için güncellendi
+  baseURL: import.meta.env.VITE_API_URL || 'https://api.ehliyetyolu.com/api',
   timeout: 10000,
 })
 
