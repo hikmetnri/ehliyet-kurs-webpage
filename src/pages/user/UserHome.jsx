@@ -11,13 +11,6 @@ import {
 import useAuthStore from '../../store/authStore';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 
-const fallbackQuotes = [
-  { text: "Başarı, her gün tekrarlanan küçük çabaların toplamıdır.", author: "Robert Collier" },
-  { text: "Öğrenmek akıntıya karşı kürek çekmek gibidir, durduğunuz an geriye gidersiniz.", author: "Çin Atasözü" },
-  { text: "Büyük işler güçle değil, azimle yapılır.", author: "Samuel Johnson" },
-  { text: "Zorlu yollar, usta sürücüler yetiştirir.", author: "Ehliyet Yolu" }
-];
-
 const UserHome = () => {
   const { user, setAuth, token } = useAuthStore();
   const [stats, setStats] = useState(null);
@@ -26,14 +19,12 @@ const UserHome = () => {
   const [loading, setLoading] = useState(true);
   
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [quote, setQuote] = useState(fallbackQuotes[0]);
+  const [quote, setQuote] = useState(null);
   const [isMockMode, setIsMockMode] = useState(false);
   
   
 
   useEffect(() => {
-    setQuote(fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)]);
-    
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -71,10 +62,11 @@ const UserHome = () => {
         // 4. Günün Sözü
         try {
           const quoteRes = await api.get('/quotes/random');
-          if (quoteRes.data && quoteRes.data.text) {
+          const quoteData = quoteRes.data?.data || quoteRes.data;
+          if (quoteData?.text) {
             setQuote({
-              text: quoteRes.data.text,
-              author: quoteRes.data.author || 'Sistem'
+              text: quoteData.text,
+              author: quoteData.author || ''
             });
           }
         } catch (e) { 
@@ -116,13 +108,13 @@ const UserHome = () => {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-light">Günün Sözü</span>
             </div>
             <h1 className="text-2xl md:text-4xl font-black leading-tight mb-6 italic font-display">
-              "{quote.text}"
+              {quote?.text ? `"${quote.text}"` : ''}
             </h1>
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent p-0.5 shadow-lg shadow-primary/20">
                 <div className="w-full h-full rounded-full bg-[#0a0a0f] flex items-center justify-center font-black text-xs">EH</div>
               </div>
-              <span className="text-text-muted font-bold">— {quote.author}</span>
+              {quote?.author && <span className="text-text-muted font-bold">— {quote.author}</span>}
             </div>
           </div>
         </motion.div>
