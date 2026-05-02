@@ -1876,6 +1876,22 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
   );
 };
 
+const ExamOverviewCard = ({ icon: Icon, label, value, detail, color, bg, border }) => (
+  <div className="bg-bg-card border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
+    <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${bg} blur-2xl opacity-60 group-hover:opacity-90 transition-opacity`} />
+    <div className="relative z-10 flex items-start justify-between gap-4">
+      <div>
+        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{label}</p>
+        <h3 className="text-3xl font-black text-white mt-2 leading-none">{value}</h3>
+        {detail && <p className="text-[11px] font-bold text-white/35 mt-3">{detail}</p>}
+      </div>
+      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${bg} ${color} border ${border}`}>
+        <Icon className="w-5 h-5" />
+      </div>
+    </div>
+  </div>
+);
+
 // ─── Main AdminExams Component ────────────────────────────────────────────────
 const AdminExams = () => {
   const [tab, setTab] = useState('short_test'); // 'short_test' | 'mock_exam' | 'real_exam'
@@ -1910,18 +1926,27 @@ const AdminExams = () => {
   const shortCount = questions.filter(q => q.testType === 'short_test').length;
   const mockCount = questions.filter(q => q.testType === 'mock_exam').length;
   const realCount = questions.filter(q => q.testType === 'real_exam').length;
+  const activeExamCount = exams.filter(e => e.isActive !== false).length;
+  const imageQuestionCount = questions.filter(q => q.media).length;
 
   return (
     <div className="space-y-6 pb-12">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Soru Bankası</h1>
-          <p className="text-text-secondary text-sm mt-1">Tüm soruları kategorilere ve sınavlara göre yönetin.</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">Sınav Yönetimi & Soru Bankası</h1>
+          <p className="text-text-secondary text-sm mt-1">Kısa testleri, deneme sınavlarını, gerçek sınavları ve görselli soruları tek merkezden yönetin.</p>
         </div>
         <button onClick={handleRefresh} className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm text-text-secondary hover:text-white hover:bg-white/10 transition-all self-start sm:self-auto">
           <RefreshCw className="w-4 h-4" /> Yenile
         </button>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <ExamOverviewCard icon={BookOpen} label="Kısa Test Sorusu" value={shortCount} color="text-accent" bg="bg-accent/10" border="border-accent/20" />
+        <ExamOverviewCard icon={Zap} label="Deneme Sorusu" value={mockCount} color="text-primary-light" bg="bg-primary/10" border="border-primary/20" />
+        <ExamOverviewCard icon={Shield} label="Gerçek Sınav Sorusu" value={realCount} color="text-warning" bg="bg-warning/10" border="border-warning/20" />
+        <ExamOverviewCard icon={ImageIcon} label="Görselli Soru" value={imageQuestionCount} detail={`${activeExamCount} aktif sınav`} color="text-success" bg="bg-success/10" border="border-success/20" />
       </div>
 
       {/* Tab Selector */}

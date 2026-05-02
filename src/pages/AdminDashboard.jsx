@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, FileText, CheckCircle, Clock, Loader2, AlertTriangle, 
   MessageCircle, BarChart2, ShieldAlert, Plus, Bell, Settings, 
-  Download, Edit3, Activity
+  Download, Edit3, Activity, Library, Award, QrCode, Share2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -68,6 +68,28 @@ const QuickActionCard = ({ title, description, icon: Icon, color, items, emptyTe
       )}
     </div>
   </motion.div>
+);
+
+const ModuleCard = ({ title, description, icon: Icon, color, path, metric, onOpen }) => (
+  <button
+    type="button"
+    onClick={() => onOpen(path)}
+    className="text-left bg-black/25 border border-white/5 rounded-[24px] p-5 hover:bg-white/[0.04] hover:border-white/15 transition-all group min-h-[150px]"
+  >
+    <div className="flex items-start justify-between gap-4">
+      <div className={`w-11 h-11 rounded-[16px] flex items-center justify-center border ${color.bg} ${color.text} ${color.border} shrink-0`}>
+        <Icon className="w-5 h-5" />
+      </div>
+      <span className="text-[10px] font-black uppercase tracking-widest text-white/30 group-hover:text-white/60 transition-colors">
+        Aç
+      </span>
+    </div>
+    <div className="mt-5">
+      <h3 className="text-sm font-black text-white tracking-tight">{title}</h3>
+      <p className="text-xs text-text-muted leading-relaxed mt-1 line-clamp-2">{description}</p>
+      {metric && <p className={`text-[11px] font-black mt-4 ${color.text}`}>{metric}</p>}
+    </div>
+  </button>
 );
 
 const AdminDashboard = () => {
@@ -160,6 +182,19 @@ const AdminDashboard = () => {
     { title: 'Açık Raporlar', value: stats.activeReportsCount.toString(), icon: ShieldAlert, colorClass: 'bg-red-500/20 text-red-500 border border-red-500/30', gradient: 'from-red-600 to-red-400', delay: 0.6 },
   ];
 
+  const moduleCards = [
+    { title: 'Kullanıcı Yönetimi', description: 'Hesap, yetki, PRO ve bildirim işlemleri.', icon: Users, path: '/admin/users', metric: `${stats.totalUsers.toLocaleString('tr-TR')} hesap`, color: { bg: 'bg-indigo-500/10', text: 'text-indigo-300', border: 'border-indigo-500/20' } },
+    { title: 'Sınav Yönetimi', description: 'Kısa test, deneme ve gerçek sınav soru bankası.', icon: FileText, path: '/admin/exams', metric: `${stats.totalExams.toLocaleString('tr-TR')} çözüm`, color: { bg: 'bg-blue-500/10', text: 'text-blue-300', border: 'border-blue-500/20' } },
+    { title: 'İçerik Yönetimi', description: 'Ders notları, kategoriler ve konu içerikleri.', icon: Library, path: '/admin/content', color: { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20' } },
+    { title: 'İstatistikler', description: 'Kayıt trendi, kategori başarıları ve zor sorular.', icon: BarChart2, path: '/admin/stats', metric: `%${stats.avgSuccessRate} başarı`, color: { bg: 'bg-cyan-500/10', text: 'text-cyan-300', border: 'border-cyan-500/20' } },
+    { title: 'Destek Talepleri', description: 'Öğrenci mesajlarını takip et ve yanıtla.', icon: MessageCircle, path: '/admin/support', metric: `${stats.activeSupportCount} açık talep`, color: { bg: 'bg-pink-500/10', text: 'text-pink-300', border: 'border-pink-500/20' } },
+    { title: 'Akış Yönetimi', description: 'Topluluk gönderilerini onayla veya reddet.', icon: Share2, path: '/admin/feed', metric: `${stats.pendingPostsCount} bekleyen`, color: { bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/20' } },
+    { title: 'Rapor Yönetimi', description: 'Şikayetleri ve işaretlenen içerikleri incele.', icon: ShieldAlert, path: '/admin/reports', metric: `${stats.activeReportsCount} açık rapor`, color: { bg: 'bg-red-500/10', text: 'text-red-300', border: 'border-red-500/20' } },
+    { title: 'Rozetler', description: 'Başarı rozetlerini oluştur ve düzenle.', icon: Award, path: '/admin/badges', color: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20' } },
+    { title: 'Pazarlama', description: 'QR kampanyaları ve reklam ayarları.', icon: QrCode, path: '/admin/marketing', color: { bg: 'bg-teal-500/10', text: 'text-teal-300', border: 'border-teal-500/20' } },
+    { title: 'Yönetim Merkezi', description: 'Sistem, hukuki metinler, S.S.S. ve anonslar.', icon: Settings, path: '/admin/settings', color: { bg: 'bg-slate-500/10', text: 'text-slate-300', border: 'border-slate-500/20' } },
+  ];
+
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center flex-col gap-4">
@@ -196,6 +231,18 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {statCards.map((stat, i) => <StatCard key={i} {...stat} />)}
       </div>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-xl font-black text-white tracking-tight">Yönetim Modülleri</h2>
+          <p className="text-text-muted text-sm mt-1">Admin panelindeki tüm sayfalara hızlı erişim.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+          {moduleCards.map((module) => (
+            <ModuleCard key={module.path} {...module} onOpen={navigate} />
+          ))}
+        </div>
+      </section>
 
       {/* Alt 3'lü Acil Aksiyonlar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
