@@ -87,6 +87,47 @@
         background: rgba(239, 68, 68, 0.1);
         border: 1px solid rgba(239, 68, 68, 0.24);
       }
+
+      .delete-box {
+        margin-top: 28px;
+        padding: 22px;
+        border-radius: 18px;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.24);
+      }
+
+      input {
+        width: 100%;
+        margin: 12px 0;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.24);
+        color: #fff;
+        font: inherit;
+      }
+
+      button {
+        width: 100%;
+        border: 0;
+        border-radius: 12px;
+        padding: 15px 18px;
+        background: #ef4444;
+        color: #fff;
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      #status {
+        margin: 12px 0 0;
+        font-weight: 800;
+      }
     </style>
   </head>
   <body>
@@ -114,6 +155,17 @@
           gönderebilirsiniz.
         </p>
 
+        <div class="delete-box">
+          <h2>Web Üzerinden Doğrudan Silme</h2>
+          <p id="login-info">
+            Bu tarayıcıda Ehliyet Yolu hesabınızla giriş yaptıysanız, aşağıya <strong>SIL</strong> yazarak hesabınızı
+            doğrudan silebilirsiniz. Giriş yapmadıysanız lütfen önce <a href="/login">giriş yapın</a>.
+          </p>
+          <input id="confirm-input" autocomplete="off" placeholder="SIL" />
+          <button id="delete-button" disabled>Hesabımı Kalıcı Olarak Sil</button>
+          <p id="status"></p>
+        </div>
+
         <h2>Silinen Veriler</h2>
         <p>
           Silme işlemi tamamlandığında hesap bilgileriniz, profil bilgileriniz, sınav geçmişiniz, başarı
@@ -129,5 +181,64 @@
         </div>
       </section>
     </main>
+    <script>
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      const input = document.getElementById('confirm-input');
+      const button = document.getElementById('delete-button');
+      const status = document.getElementById('status');
+      const loginInfo = document.getElementById('login-info');
+
+      try {
+        const user = storedUser ? JSON.parse(storedUser) : null;
+        if (token && user && user.email) {
+          loginInfo.innerHTML = 'Giriş yapan hesap: <strong>' + user.email + '</strong>. Silme işlemini onaylamak için aşağıya <strong>SIL</strong> yazın.';
+        }
+      } catch (_) {}
+
+      const refreshButton = () => {
+        button.disabled = !token || input.value.trim().toUpperCase() !== 'SIL';
+      };
+
+      input.addEventListener('input', refreshButton);
+
+      button.addEventListener('click', async () => {
+        if (button.disabled) return;
+        const approved = window.confirm('Hesabınız ve hesabınıza bağlı veriler kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?');
+        if (!approved) return;
+
+        button.disabled = true;
+        button.textContent = 'Hesap siliniyor...';
+        status.textContent = '';
+
+        try {
+          const response = await fetch('https://api.ehliyetyolu.com/api/auth/me', {
+            method: 'DELETE',
+            headers: {
+              Authorization: 'Bearer ' + token,
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data.error || data.message || 'Hesap silinemedi. Lütfen tekrar deneyin.');
+          }
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          status.style.color = '#86efac';
+          status.textContent = 'Hesabınız kalıcı olarak silindi. Giriş sayfasına yönlendiriliyorsunuz.';
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1200);
+        } catch (error) {
+          status.style.color = '#fca5a5';
+          status.textContent = error.message;
+          button.textContent = 'Hesabımı Kalıcı Olarak Sil';
+          refreshButton();
+        }
+      });
+
+      refreshButton();
+    </script>
   </body>
 </html>

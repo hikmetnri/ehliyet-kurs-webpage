@@ -1,9 +1,35 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Trash2, Mail, ShieldAlert, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChevronLeft, Trash2, Mail, ShieldAlert, CheckCircle, Loader2 } from 'lucide-react';
+import api from '../api';
+import useAuthStore from '../store/authStore';
 
 const AccountDeletion = () => {
   const navigate = useNavigate();
+  const { user, token, logout } = useAuthStore();
+  const [confirmText, setConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [message, setMessage] = useState('');
+  const canDelete = !!token && confirmText.trim().toUpperCase() === 'SIL';
+
+  const handleDeleteAccount = async () => {
+    if (!canDelete || deleting) return;
+    const approved = window.confirm('Hesabınız ve hesabınıza bağlı veriler kalıcı olarak silinecek. Bu işlem geri alınamaz. Devam etmek istiyor musunuz?');
+    if (!approved) return;
+
+    setDeleting(true);
+    setMessage('');
+    try {
+      await api.delete('/auth/me');
+      logout();
+      setMessage('Hesabınız kalıcı olarak silindi. Giriş sayfasına yönlendiriliyorsunuz.');
+      setTimeout(() => navigate('/login', { replace: true }), 1200);
+    } catch (err) {
+      setMessage(err.response?.data?.error || err.response?.data?.message || 'Hesap silinemedi. Lütfen tekrar deneyin.');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-bg-dark text-text-primary p-6 md:p-12 selection:bg-red-500/30">
@@ -63,6 +89,59 @@ const AccountDeletion = () => {
                 </p>
               </div>
             </div>
+          </section>
+
+          <section className="space-y-5 p-8 rounded-[2rem] bg-red-500/5 border border-red-500/20">
+            <div>
+              <h2 className="text-2xl font-black text-white">Web Üzerinden Hesabı Sil</h2>
+              <p className="text-text-secondary text-sm leading-relaxed mt-3">
+                Hesabınızla giriş yaptıysanız bu sayfadan doğrudan silme işlemini başlatabilirsiniz. Güvenlik için onay alanına <strong>SIL</strong> yazmanız gerekir.
+              </p>
+            </div>
+
+            {token ? (
+              <div className="space-y-4">
+                <div className="text-xs text-text-muted">
+                  Giriş yapan hesap: <span className="text-white font-bold">{user?.email || 'Kullanıcı'}</span>
+                </div>
+                <input
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="SIL"
+                  className="w-full bg-bg-dark/80 border border-white/10 rounded-2xl px-4 py-4 text-white placeholder:text-text-muted focus:outline-none focus:border-red-400"
+                />
+                <button
+                  type="button"
+                  onClick={handleDeleteAccount}
+                  disabled={!canDelete || deleting}
+                  className="w-full inline-flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs py-4 px-8 bg-red-500 rounded-2xl hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  {deleting ? 'Hesap Siliniyor' : 'Hesabımı Kalıcı Olarak Sil'}
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center text-white font-black uppercase tracking-widest text-xs py-4 px-8 bg-white/10 rounded-2xl hover:bg-white/20 transition-all"
+                >
+                  Giriş Yap
+                </Link>
+                <a
+                  href="mailto:destek@ehliyetyolu.com"
+                  className="inline-flex items-center justify-center gap-2 text-white font-black uppercase tracking-widest text-xs py-4 px-8 bg-red-500/20 border border-red-500/30 rounded-2xl hover:bg-red-500/30 transition-all"
+                >
+                  E-posta ile Talep <Mail className="w-4 h-4" />
+                </a>
+              </div>
+            )}
+
+            {message && (
+              <p className={`text-sm font-bold ${message.includes('silindi') ? 'text-green-400' : 'text-red-300'}`}>
+                {message}
+              </p>
+            )}
           </section>
 
           <section className="p-8 rounded-[2rem] border border-dashed border-white/20 text-center">
