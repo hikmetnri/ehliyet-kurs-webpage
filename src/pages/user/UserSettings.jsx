@@ -8,13 +8,12 @@ import useAuthStore from '../../store/authStore';
 import api from '../../api';
 
 const UserSettings = () => {
-  const { user, setAuth, token, logout } = useAuthStore();
+  const { user, setAuth, token } = useAuthStore();
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   
   // Tab 1: Profile
@@ -124,22 +123,6 @@ const UserSettings = () => {
     } finally {
       setLoading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    setLoading(true);
-    try {
-      const res = await api.delete('/auth/me');
-      if (res.data.success) {
-        logout();
-        navigate('/login');
-      }
-    } catch (error) {
-      showMessage('error', error.response?.data?.error || 'Hesap silinirken bir hata oluştu.');
-      setShowDeleteConfirm(false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -368,58 +351,23 @@ const UserSettings = () => {
                 
                 {/* Hesabı Silme Alanı */}
                 <div className="mt-12 pt-8 border-t border-white/5 relative z-10">
-                   {!showDeleteConfirm ? (
-                      <div className="bg-danger/5 border border-danger/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                           <div className="w-12 h-12 bg-danger/20 rounded-full flex items-center justify-center shrink-0">
-                              <ShieldAlert className="w-6 h-6 text-danger" />
-                           </div>
-                           <div>
-                              <h4 className="font-bold text-white mb-1">Hesabımı Kalıcı Olarak Sil</h4>
-                              <p className="text-sm text-text-muted">Bu işlem geri alınamaz. Tüm verileriniz kalıcı olarak silinir.</p>
-                           </div>
-                        </div>
-                        <button 
-                          onClick={() => setShowDeleteConfirm(true)}
-                          className="px-6 py-3 bg-danger hover:bg-red-600 text-white font-bold rounded-xl transition-colors whitespace-nowrap shrink-0 text-sm"
-                        >
-                          Hesabımı Sil
-                        </button>
+                  <div className="bg-danger/5 border border-danger/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-danger/20 rounded-full flex items-center justify-center shrink-0">
+                        <ShieldAlert className="w-6 h-6 text-danger" />
                       </div>
-                   ) : (
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-danger/10 border-2 border-danger/30 rounded-2xl p-8 text-center space-y-6"
-                      >
-                         <div className="w-16 h-16 bg-danger rounded-full flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(239,68,68,0.5)]">
-                            <ShieldAlert className="w-8 h-8 text-white" />
-                         </div>
-                         <div>
-                            <h4 className="text-xl font-black text-white mb-2">Emin Misiniz?</h4>
-                            <p className="text-sm text-text-muted max-w-md mx-auto">
-                               Hesabınızı sildiğinizde tüm sınav verileriniz, başarılarınız ve kişisel bilgileriniz <strong>kalıcı olarak</strong> yok edilecektir.
-                            </p>
-                         </div>
-                         <div className="flex items-center justify-center gap-4">
-                            <button 
-                               onClick={() => setShowDeleteConfirm(false)}
-                               disabled={loading}
-                               className="px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all"
-                            >
-                               Vazgeç
-                            </button>
-                            <button 
-                               onClick={handleDeleteAccount}
-                               disabled={loading}
-                               className="px-8 py-3 bg-danger hover:bg-red-600 text-white font-bold rounded-xl shadow-lg shadow-danger/20 transition-all flex items-center gap-2"
-                            >
-                               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                               Evet, Hesabımı Sil
-                            </button>
-                         </div>
-                      </motion.div>
-                   )}
+                      <div>
+                        <h4 className="font-bold text-white mb-1">Hesabımı Kalıcı Olarak Sil</h4>
+                        <p className="text-sm text-text-muted">Silme işlemi resmi hesap silme sayfasından yapılır. Tüm adımları ve e-posta alternatifini orada görebilirsiniz.</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => navigate('/delete-account')}
+                      className="px-6 py-3 bg-danger hover:bg-red-600 text-white font-bold rounded-xl transition-colors whitespace-nowrap shrink-0 text-sm"
+                    >
+                      Hesap Silme Sayfasına Git
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
