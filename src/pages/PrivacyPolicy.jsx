@@ -65,6 +65,19 @@ const PrivacyPolicy = () => {
             )}
 
             <hr className="border-white/10 my-10" />
+
+            <h2>Hesap ve Veri Silme</h2>
+            <p>
+              Ehliyet Yolu hesabınızı ve hesabınıza bağlı kişisel verileri silmek için mobil uygulamada <strong>Profil - Ayarlar - Hesabımı Sil</strong> adımlarını izleyebilirsiniz.
+            </p>
+            <p>
+              Uygulamaya erişemiyorsanız, kayıtlı e-posta adresinizden <a href="mailto:destek@ehliyetyolu.com">destek@ehliyetyolu.com</a> adresine hesap silme talebi gönderebilirsiniz. Ayrıca web üzerinden <Link to="/delete-account">Hesap Silme</Link> sayfasını ziyaret ederek silme adımlarını görebilirsiniz.
+            </p>
+            <p>
+              Silme talebi tamamlandığında hesap bilgileriniz, sınav geçmişiniz, başarı istatistikleriniz, favorileriniz ve uygulama kullanımınıza bağlı kişisel veriler kalıcı olarak silinir. Yasal yükümlülükler nedeniyle saklanması gereken kayıtlar, yalnızca ilgili mevzuatta belirtilen süre boyunca tutulur.
+            </p>
+
+            <hr className="border-white/10 my-10" />
             <p className="text-sm">Bu belge, Google Play ve App Store geliştirici politikaları gereği oluşturulmuş ve yayımlanmıştır.</p>
           </div>
         )}
