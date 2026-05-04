@@ -131,7 +131,6 @@ const Toast = ({ msg, type = 'success', onClose }) => (
 // ─── Ana bileşen ──────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'app',           label: 'Uygulama',         icon: AppWindow,    color: 'from-sky-500 to-blue-600' },
   { id: 'legal',         label: 'Hukuki Metinler',  icon: FileText,     color: 'from-emerald-500 to-teal-600' },
   { id: 'notifications', label: 'Bildirimler',       icon: Bell,         color: 'from-primary to-primary-dark' },
   { id: 'quotes',        label: 'Günün Sözleri',    icon: Quote,        color: 'from-amber-500 to-orange-600' },
@@ -142,7 +141,10 @@ const TABS = [
 
 const AdminSettings = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'app');
+  const requestedTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    TABS.some(tab => tab.id === requestedTab) ? requestedTab : 'legal'
+  );
 
   // Toast
   const [toast, setToast] = useState(null);
@@ -153,12 +155,6 @@ const AdminSettings = () => {
 
   // Global loading
   const [loading, setLoading] = useState(false);
-
-  // ── App Settings State ──
-  const [appSettings, setAppSettings] = useState({
-    app_version_android: '', app_version_ios: '',
-    playstore_url: '', appstore_url: '', contact_email: ''
-  });
 
   // ── Legal State ──
   const [legalSettings, setLegalSettings] = useState({ privacy_policy: '', kvkk_text: '' });
@@ -199,13 +195,6 @@ const AdminSettings = () => {
       setLoading(true);
       const res = await api.get('/admin/settings-map');
       const d = res.data;
-      setAppSettings({
-        app_version_android: d.app_version_android || '',
-        app_version_ios:     d.app_version_ios     || '',
-        playstore_url:       d.playstore_url        || '',
-        appstore_url:        d.appstore_url         || '',
-        contact_email:       d.contact_email        || '',
-      });
       setLegalSettings({
         privacy_policy: d.privacy_policy || '',
         kvkk_text:      d.kvkk_text      || '',
@@ -247,7 +236,7 @@ const AdminSettings = () => {
 
   useEffect(() => {
     setSearchParams({ tab: activeTab });
-    if (activeTab === 'app' || activeTab === 'legal') fetchSettingsMap();
+    if (activeTab === 'legal') fetchSettingsMap();
     if (activeTab === 'notifications') fetchBroadcastHistory();
     if (activeTab === 'quotes') fetchQuotes();
     if (activeTab === 'faqs') fetchFaqs();
@@ -267,20 +256,6 @@ const AdminSettings = () => {
   };
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
-
-  const handleSaveAppSettings = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      await Promise.all(
-        Object.entries(appSettings).map(([key, value]) =>
-          api.put(`/admin/settings-map/${key}`, { value })
-        )
-      );
-      showToast('Uygulama ayarları kaydedildi!');
-    } catch { showToast('Kayıt sırasında hata oluştu.', 'error'); }
-    finally { setLoading(false); }
-  };
 
   const handleSaveLegal = async (key) => {
     try {
@@ -466,48 +441,6 @@ const AdminSettings = () => {
         </div>
 
         <AnimatePresence mode="wait">
-
-          {/* ══════════ TAB: APP ══════════ */}
-          {activeTab === 'app' && (
-            <motion.div key="app" variants={contentVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
-              <SectionCard>
-                <CardHeader icon={AppWindow} iconColor="from-sky-500 to-blue-600" title="Uygulama Yapılandırması" subtitle="Versiyon kontrol, mağaza linkleri ve iletişim bilgileri" />
-                <form onSubmit={handleSaveAppSettings} className="p-6 lg:p-8 space-y-5">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <FieldLabel>Android Min. Sürüm</FieldLabel>
-                      <SemverStepper
-                        value={appSettings.app_version_android}
-                        onChange={v => setAppSettings(p => ({ ...p, app_version_android: v }))}
-                      />
-                    </div>
-                    <div>
-                      <FieldLabel>iOS Min. Sürüm</FieldLabel>
-                      <SemverStepper
-                        value={appSettings.app_version_ios}
-                        onChange={v => setAppSettings(p => ({ ...p, app_version_ios: v }))}
-                      />
-                    </div>
-                    <div>
-                      <FieldLabel>Google Play Mağaza URL</FieldLabel>
-                      <TextInput value={appSettings.playstore_url} onChange={e => setAppSettings(p => ({ ...p, playstore_url: e.target.value }))} placeholder="https://play.google.com/store/apps/..." />
-                    </div>
-                    <div>
-                      <FieldLabel>App Store URL</FieldLabel>
-                      <TextInput value={appSettings.appstore_url} onChange={e => setAppSettings(p => ({ ...p, appstore_url: e.target.value }))} placeholder="https://apps.apple.com/..." />
-                    </div>
-                    <div className="md:col-span-2">
-                      <FieldLabel>İletişim E-posta</FieldLabel>
-                      <TextInput type="email" value={appSettings.contact_email} onChange={e => setAppSettings(p => ({ ...p, contact_email: e.target.value }))} placeholder="info@ehliyetyolu.com" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end pt-2">
-                    <SaveBtn loading={loading} label="Tümünü Kaydet" />
-                  </div>
-                </form>
-              </SectionCard>
-            </motion.div>
-          )}
 
           {/* ══════════ TAB: LEGAL ══════════ */}
           {activeTab === 'legal' && (

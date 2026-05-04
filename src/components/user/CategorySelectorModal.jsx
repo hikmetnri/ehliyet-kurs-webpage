@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Car, Truck, Bike, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
@@ -64,11 +64,11 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-bg-dark/90 backdrop-blur-xl px-4"
         >
-          <motion.div
+          <Motion.div
             initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
             className="w-full max-w-3xl bg-bg-card rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden relative"
           >
@@ -118,7 +118,7 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
                         <p className="text-[10px] uppercase font-black tracking-widest text-text-muted">Göz At</p>
                         
                         {isSelected && (
-                          <motion.div layoutId="modalSelected" className="absolute top-3 right-3 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(108,99,255,0.8)]" />
+                          <Motion.div layoutId="modalSelected" className="absolute top-3 right-3 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(108,99,255,0.8)]" />
                         )}
                       </button>
                     );
@@ -136,8 +136,8 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
                 </button>
               </div>
             </div>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       )}
     </AnimatePresence>
   );

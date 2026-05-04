@@ -17,31 +17,8 @@ import {
   PanelLeft, PanelRight, SplitSquareVertical,
   AlertCircle, Trash2, RefreshCw, FilePlus, ExternalLink, Activity, GripVertical
 } from 'lucide-react';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
-// ─── Media URL Helpers ──────────────────────────────────────────────────────
-const API_BASE = 'http://localhost:3000';
-
-// AdminExams ile aynı mantık: Flutter asset yollarını tam URL'ye çevirir
-// DB'de: "assets/images/signs/Tanzim_TT/tt-1.png"
-// Web'de: "http://localhost:3000/signs/Tanzim_TT/tt-1.png"
-const resolveMediaUrl = (src) => {
-  if (!src) return src;
-  if (src.startsWith('http')) return src;                        // zaten tam URL
-  if (src.startsWith('/uploads/')) return `${API_BASE}${src}`;   // yüklenen dosya
-  if (src.startsWith('assets/images/signs/')) {                  // Flutter sign asset
-    const signPath = src.replace('assets/images/signs/', '');
-    return `${API_BASE}/signs/${signPath}`;
-  }
-  if (src.startsWith('assets/images/')) {                        // diğer Flutter asset'leri
-    const assetPath = src.replace('assets/images/', '');
-    return `${API_BASE}/images/${assetPath}`;
-  }
-  if (src.startsWith('assets/content/')) {                       // döküman içerikleri resimleri
-    const contentPath = src.replace('assets/content/', '');
-    return `${API_BASE}/content/${contentPath}`;
-  }
-  return `${API_BASE}/${src}`;
-};
 
 const uploadImage = async (file) => {
   const fd = new FormData();
@@ -342,7 +319,8 @@ const AdminContent = () => {
     setUploadingImage(true);
     try {
       const url = await uploadImage(file);
-      const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+      // url zaten '/uploads/...' formatında gelir; göreceli yol olarak kullan
+      const fullUrl = url.startsWith('http') ? url : url;
       insertMarkdown(`\n![${file.name}](${fullUrl})\n`, '');
     } catch {
       alert('Görsel yüklenemedi.');
@@ -528,14 +506,14 @@ const AdminContent = () => {
   const hasUnsaved = isEditing && editContent !== (selectedCat?.content || '');
 
   return (
-    <div className="flex flex-col h-full" style={{ minHeight: 'calc(100vh - 120px)' }}>
+    <div className="flex flex-col h-full min-h-[calc(100vh-96px)] md:min-h-[calc(100vh-120px)]">
       {/* ── Page Header ──────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-4 mb-5">
-        <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">İçerik Kütüphanesi</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">İçerik Kütüphanesi</h1>
           <p className="text-text-secondary text-sm mt-1">Ders içeriklerini ve kategori yapısını yönetin.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => fetchCategories()}
             className="p-2.5 rounded-xl hover:bg-white/5 border border-white/10 text-text-muted hover:text-white transition-all"
@@ -545,7 +523,7 @@ const AdminContent = () => {
           </button>
           <button
             onClick={() => openCatModal()}
-            className="flex items-center gap-2 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary/20"
+            className="flex flex-1 sm:flex-none items-center justify-center gap-2 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary/20"
           >
             <FilePlus className="w-4 h-4" /> Yeni Kategori
           </button>
@@ -553,10 +531,10 @@ const AdminContent = () => {
       </div>
 
       {/* ── Main Split Layout ─────────────────────────────────────────────── */}
-      <div className="flex gap-4 flex-1 overflow-hidden" style={{ minHeight: '600px' }}>
+      <div className="flex flex-col xl:flex-row gap-4 flex-1 min-h-0 overflow-visible xl:overflow-hidden">
 
         {/* LEFT: Category Tree Panel */}
-        <div className="w-64 xl:w-72 shrink-0 flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden">
+        <div className="w-full xl:w-72 shrink-0 flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden max-h-[42vh] sm:max-h-[360px] xl:max-h-none">
           {/* Search */}
           <div className="p-3 border-b border-white/5">
             <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-3 py-2 gap-2">
@@ -577,7 +555,7 @@ const AdminContent = () => {
           </div>
 
           {/* Tree */}
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 min-h-0 overflow-y-auto p-2 custom-scrollbar">
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -617,21 +595,21 @@ const AdminContent = () => {
         </div>
 
         {/* RIGHT: Content Panel */}
-        <div className="flex-1 flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden min-w-0">
+        <div className="flex-1 flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden min-w-0 min-h-[70vh] xl:min-h-0">
           {selectedCat ? (
             <>
               {/* Content Header */}
-              <div className="p-4 border-b border-white/5 flex items-center justify-between gap-3 bg-white/[0.02] shrink-0">
-                <div className="flex items-center gap-3 min-w-0">
+              <div className="p-3 sm:p-4 border-b border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/[0.02] shrink-0">
+                <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0"
                     style={{ backgroundColor: selectedCat.color || '#6366f1' }}
                   >
                     <FileText className="w-4 h-4" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <h2 className="text-sm font-black text-white truncate">{selectedCat.name}</h2>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       {selectedCat.isPro && (
                         <span className="text-[9px] font-black text-warning uppercase bg-warning/10 px-1.5 py-0.5 rounded-md border border-warning/20">PRO</span>
                       )}
@@ -650,7 +628,7 @@ const AdminContent = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 custom-scrollbar">
                   {/* View mode toggle */}
                   {isEditing && (
                     <div className="flex p-0.5 bg-white/5 border border-white/10 rounded-xl">
@@ -695,14 +673,14 @@ const AdminContent = () => {
                     <>
                       <button
                         onClick={() => { setIsEditing(false); setEditContent(selectedCat.content || ''); }}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold border border-white/10"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold border border-white/10 shrink-0"
                       >
                         <RotateCcw className="w-3.5 h-3.5" /> İptal
                       </button>
                       <button
                         onClick={handleSave}
                         disabled={saveLoading}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-black shadow-lg shadow-success/20 hover:-translate-y-0.5 transition-all disabled:opacity-60"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-black shadow-lg shadow-success/20 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
                       >
                         {saveLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                         Kaydet
@@ -711,7 +689,7 @@ const AdminContent = () => {
                   ) : (
                     <button
                       onClick={() => { setIsEditing(true); setViewMode('split'); }}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/20 text-primary-light border border-primary/30 hover:bg-primary hover:text-white text-xs font-black transition-all"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/20 text-primary-light border border-primary/30 hover:bg-primary hover:text-white text-xs font-black transition-all shrink-0"
                     >
                       <Edit3 className="w-3.5 h-3.5" /> İçeriği Düzenle
                     </button>
@@ -729,10 +707,10 @@ const AdminContent = () => {
               )}
 
               {/* Content Area */}
-              <div className="flex-1 flex overflow-hidden">
+              <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
                 {/* Editor Pane */}
                 {isEditing && (viewMode === 'editor' || viewMode === 'split') && (
-                  <div className={`flex flex-col overflow-hidden ${viewMode === 'split' ? 'w-1/2 border-r border-white/5' : 'w-full'}`}>
+                  <div className={`flex flex-col overflow-hidden min-h-[420px] lg:min-h-0 ${viewMode === 'split' ? 'w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-white/5' : 'w-full'}`}>
                     <div className="px-4 py-2 bg-black/20 border-b border-white/5 flex items-center gap-2">
                       <AlignLeft className="w-3.5 h-3.5 text-white/30" />
                       <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Markdown Editör</span>
@@ -740,7 +718,7 @@ const AdminContent = () => {
                     </div>
                     <textarea
                       ref={textareaRef}
-                      className="flex-1 bg-transparent border-none outline-none text-white font-mono text-sm leading-relaxed resize-none p-5 placeholder:text-white/20"
+                      className="flex-1 min-h-0 bg-transparent border-none outline-none text-white font-mono text-sm leading-relaxed resize-none p-4 sm:p-5 placeholder:text-white/20"
                       placeholder="# Ders başlığı&#10;&#10;İçeriğinizi buraya yazın..&#10;&#10;Görsel eklemek için toolbar'daki 📷 butonunu kullanın."
                       value={editContent}
                       onChange={e => setEditContent(e.target.value)}
@@ -750,7 +728,7 @@ const AdminContent = () => {
 
                 {/* Preview Pane / Read Mode */}
                 {(!isEditing || viewMode === 'preview' || viewMode === 'split') && (
-                  <div className={`flex flex-col overflow-y-auto custom-scrollbar ${isEditing && viewMode === 'split' ? 'w-1/2' : 'w-full'}`}>
+                  <div className={`flex flex-col min-h-0 overflow-y-auto custom-scrollbar ${isEditing && viewMode === 'split' ? 'w-full lg:w-1/2' : 'w-full'}`}>
                     {isEditing && (
                       <div className="px-4 py-2 bg-black/20 border-b border-white/5 flex items-center gap-2 sticky top-0 z-30 backdrop-blur-xl">
                         <Eye className="w-3.5 h-3.5 text-white/30" />
@@ -758,13 +736,13 @@ const AdminContent = () => {
                       </div>
                     )}
                     
-                    <div className="p-6 xl:p-12 2xl:px-24">
+                    <div className="p-4 sm:p-6 xl:p-12 2xl:px-24">
                       {selectedCat?.image && (
-                        <div className="mb-10 max-w-4xl mx-auto">
+                        <div className="mb-6 sm:mb-10 max-w-4xl mx-auto">
                           <img 
                             src={resolveMediaUrl(selectedCat.image)} 
                             alt={selectedCat.name} 
-                            className="w-full h-auto rounded-[24px] object-cover shadow-2xl border border-white/10 max-h-[300px]"
+                            className="w-full h-auto rounded-2xl sm:rounded-[24px] object-cover shadow-2xl border border-white/10 max-h-[240px] sm:max-h-[300px]"
                           />
                         </div>
                       )}
@@ -796,19 +774,19 @@ const AdminContent = () => {
 
                     {/* Konu Sonu Kısa Test Soruları */}
                     {(!isEditing || viewMode === 'preview') && selectedCat && (
-                      <div className="max-w-4xl mx-auto w-full px-6 xl:px-12 2xl:px-24 pb-12 mt-10">
-                        <div className="flex items-center gap-4 mb-6">
+                      <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 xl:px-12 2xl:px-24 pb-12 mt-8 sm:mt-10">
+                        <div className="flex items-center gap-3 sm:gap-4 mb-6">
                             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-                            <div className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-bg-dark">
+                            <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full border border-white/10 bg-bg-dark text-center">
                                 <Activity className="w-3.5 h-3.5 text-accent" />
-                                <span className="text-[10px] font-black tracking-widest uppercase text-white/50">Konu Sonu Kısa Test Soruları</span>
+                                <span className="text-[10px] font-black tracking-widest uppercase text-white/50 leading-tight">Konu Sonu Kısa Test Soruları</span>
                             </div>
                             <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                         </div>
 
-                        <div className="glass-card p-6 rounded-3xl border border-white/5 shadow-2xl bg-black/20 space-y-4">
+                        <div className="glass-card p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-white/5 shadow-2xl bg-black/20 space-y-4">
                           {/* Header row */}
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
                               <p className="text-sm font-bold text-white">
                                 {loadingQuestions ? 'Yükleniyor...' : `${shortTestQuestions.length} Soru`}
@@ -817,7 +795,7 @@ const AdminContent = () => {
                             </div>
                             <button
                               onClick={() => setShowAddQuestionModal(true)}
-                              className="flex items-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl text-xs font-black uppercase tracking-widest hover:-translate-y-0.5 transition-all shadow-lg shadow-accent/20"
+                              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl text-xs font-black uppercase tracking-widest hover:-translate-y-0.5 transition-all shadow-lg shadow-accent/20"
                             >
                               <Plus className="w-4 h-4" /> Soru Ekle
                             </button>
@@ -842,7 +820,7 @@ const AdminContent = () => {
                           ) : (
                             <div className="space-y-2">
                               {shortTestQuestions.map((q, idx) => (
-                                <div key={q._id} className="flex items-start gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
+                                <div key={q._id} className="flex items-start gap-3 p-3 sm:p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
                                   <div className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center shrink-0 text-[11px] font-black text-white/30">
                                     {idx + 1}
                                   </div>

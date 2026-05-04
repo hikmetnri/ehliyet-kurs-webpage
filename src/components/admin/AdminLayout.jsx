@@ -15,10 +15,10 @@ const AdminLayout = () => {
       <AdminSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         
         {/* Top Navbar */}
-        <header className="h-16 md:h-20 bg-bg-card/50 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10">
+        <header className="h-16 md:h-20 bg-bg-card/50 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-3 sm:px-4 md:px-8 sticky top-0 z-10">
           
           <div className="flex items-center gap-4">
             {/* Mobile Menu Button */}
@@ -39,13 +39,13 @@ const AdminLayout = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             <button className="relative text-text-muted hover:text-white transition-colors">
               <Bell className="w-6 h-6" />
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-danger rounded-full border-2 border-bg-card"></span>
             </button>
             
-            <div className="flex items-center gap-3 pl-6 border-l border-white/5">
+            <div className="flex items-center gap-3 pl-3 sm:pl-6 border-l border-white/5">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-bold text-white">{user?.firstName} {user?.lastName}</p>
                 <p className="text-xs text-primary-light font-medium uppercase tracking-wider">Super Admin</p>
@@ -65,7 +65,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 relative custom-scrollbar">
           <Outlet />
         </main>
         

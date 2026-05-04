@@ -6,17 +6,20 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, CartesianGrid
 } from 'recharts';
 import { 
-  BarChart3, TrendingUp, AlertTriangle, QrCode, 
-  Loader2, Award, BrainCircuit, Users, Activity, 
-  Target, CheckCircle, Bell, Clock, Crown, DownloadCloud
+  TrendingUp, AlertTriangle, QrCode, 
+  Loader2, BrainCircuit, Users, Activity, 
+  Target, Bell, Clock, Crown, DownloadCloud
 } from 'lucide-react';
+
+const MotionDiv = motion.div;
 
 const AdminStats = () => {
   const [overview, setOverview] = useState(null);
   const [categoryStats, setCategoryStats] = useState([]);
   const [difficultQuestions, setDifficultQuestions] = useState([]);
   const [registrationTrend, setRegistrationTrend] = useState([]);
-  const [qrCount, setQrCount] = useState(0);
+  const [qrStats, setQrStats] = useState({ count: 0, daily: {} });
+  const [dailyGoals, setDailyGoals] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,14 +34,16 @@ const AdminStats = () => {
         api.get('/admin/stats/categories'),
         api.get('/admin/stats/difficult-questions'),
         api.get('/admin/stats/qr'),
-        api.get('/admin/stats/registration-trend')
+        api.get('/admin/stats/registration-trend'),
+        api.get('/admin/stats/daily-goals')
       ]);
       
       setOverview(results[0].status === 'fulfilled' ? results[0].value.data : null);
       setCategoryStats(results[1].status === 'fulfilled' ? results[1].value.data : []);
       setDifficultQuestions(results[2].status === 'fulfilled' ? results[2].value.data : []);
-      setQrCount(results[3].status === 'fulfilled' ? results[3].value.data?.count : 0);
+      setQrStats(results[3].status === 'fulfilled' ? results[3].value.data : { count: 0, daily: {} });
       setRegistrationTrend(results[4].status === 'fulfilled' ? results[4].value.data : []);
+      setDailyGoals(results[5].status === 'fulfilled' ? results[5].value.data : []);
     } catch (err) {
       console.error('İstatistikler alınamadı:', err);
     } finally {
@@ -61,6 +66,16 @@ const AdminStats = () => {
     { name: 'PRO', value: overview?.proUsers || 0, color: '#FCD34D' },
     { name: 'Free', value: (overview?.totalUsers || 0) - (overview?.proUsers || 0), color: '#6366f1' }
   ];
+  const qrTrend = Object.entries(qrStats?.daily || {})
+    .slice(-14)
+    .map(([date, clicks]) => ({
+      date: new Date(date).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }),
+      clicks,
+    }));
+  const dailyGoalData = dailyGoals.map(item => ({
+    name: `${item.dailyGoal || 0} soru`,
+    users: item.userCount || 0,
+  }));
 
   return (
     <div className="space-y-6 pb-20">
@@ -97,8 +112,31 @@ const AdminStats = () => {
           color="text-emerald-400" bg="bg-emerald-400/20"
         />
         <StatsCard 
-          icon={QrCode} title="QR Dönüşümü" value={qrCount} 
+          icon={QrCode} title="QR Dönüşümü" value={qrStats?.count || 0} 
           trend="Aktif" trendLabel="Kampanyalar"
+          color="text-indigo-400" bg="bg-indigo-400/20"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatsCard
+          icon={Activity} title="Bugün Aktif" value={overview?.activeToday || 0}
+          trend={`%${Math.round(((overview?.activeToday || 0) / (overview?.totalUsers || 1)) * 100)}`} trendLabel="Aktif oran"
+          color="text-cyan-400" bg="bg-cyan-400/20"
+        />
+        <StatsCard
+          icon={BrainCircuit} title="Soru Havuzu" value={overview?.totalQuestions || 0}
+          trend={`${difficultQuestions.length}`} trendLabel="Kritik soru"
+          color="text-violet-400" bg="bg-violet-400/20"
+        />
+        <StatsCard
+          icon={Bell} title="Bildirim Kapalı" value={overview?.notifDisabledCount || 0}
+          trend={`%${Math.round(((overview?.notifDisabledCount || 0) / (overview?.totalUsers || 1)) * 100)}`} trendLabel="Kapalı oran"
+          color="text-rose-400" bg="bg-rose-400/20"
+        />
+        <StatsCard
+          icon={QrCode} title="QR Tıklanma" value={qrStats?.count || 0}
+          trend={qrStats?.lastScanAt ? new Date(qrStats.lastScanAt).toLocaleDateString('tr-TR') : '-'} trendLabel="Son tıklama"
           color="text-indigo-400" bg="bg-indigo-400/20"
         />
       </div>
@@ -106,7 +144,7 @@ const AdminStats = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* --- REGISTRATION TREND (MAIN CHART) --- */}
-        <motion.div 
+        <MotionDiv 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-2 glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col"
         >
@@ -154,10 +192,10 @@ const AdminStats = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </motion.div>
+        </MotionDiv>
 
         {/* --- PRO STATUS (DONUT CHART) --- */}
-        <motion.div 
+        <MotionDiv 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col items-center justify-center text-center"
         >
@@ -199,14 +237,68 @@ const AdminStats = () => {
                 <span className="text-[11px] font-black text-white/60">ÜCRETSİZ</span>
               </div>
            </div>
-        </motion.div>
+        </MotionDiv>
 
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MotionDiv
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
+        >
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+              <QrCode className="w-6 h-6 text-indigo-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-white">QR Tıklanma Grafiği</h2>
+              <p className="text-xs text-text-muted mt-0.5">Basılı QR kodun günlük tıklanma performansı.</p>
+            </div>
+          </div>
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={qrTrend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                <XAxis dataKey="date" stroke="#ffffff30" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="#ffffff30" fontSize={10} tickLine={false} axisLine={false} />
+                <RechartsTooltip contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff10', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }} />
+                <Bar dataKey="clicks" fill="#818cf8" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </MotionDiv>
+
+        <MotionDiv
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
+        >
+          <div className="flex items-center gap-4 mb-8">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+              <Target className="w-6 h-6 text-cyan-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-white">Günlük Hedef Dağılımı</h2>
+              <p className="text-xs text-text-muted mt-0.5">Öğrencilerin seçtiği günlük soru hedefleri.</p>
+            </div>
+          </div>
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dailyGoalData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                <XAxis dataKey="name" stroke="#ffffff30" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="#ffffff30" fontSize={10} tickLine={false} axisLine={false} />
+                <RechartsTooltip contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff10', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }} />
+                <Bar dataKey="users" fill="#22d3ee" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </MotionDiv>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* --- CATEGORY PROGRESS --- */}
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
         >
@@ -230,10 +322,10 @@ const AdminStats = () => {
               />
             ))}
           </div>
-        </motion.div>
+        </MotionDiv>
 
         {/* --- DIFFICULT QUESTIONS --- */}
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col"
         >
@@ -266,7 +358,7 @@ const AdminStats = () => {
                 </div>
              ))}
           </div>
-        </motion.div>
+        </MotionDiv>
 
       </div>
 
@@ -298,11 +390,11 @@ const AdminStats = () => {
 const StatsCard = ({ icon: Icon, title, value, trend, trendLabel, color, bg }) => (
     <div className="glass-card p-6 rounded-[28px] border border-white/5 relative overflow-hidden group hover:border-white/10 transition-all">
         <div className="absolute -right-2 -top-2 opacity-5 scale-150 rotate-12 group-hover:rotate-0 transition-transform">
-            <Icon className={`w-24 h-24 ${color}`} />
+            {React.createElement(Icon, { className: `w-24 h-24 ${color}` })}
         </div>
         <div className="relative z-10 flex flex-col gap-4">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${bg} border border-white/5`}>
-                <Icon className={`w-6 h-6 ${color}`} />
+                {React.createElement(Icon, { className: `w-6 h-6 ${color}` })}
             </div>
             <div>
                 <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{title}</p>
@@ -327,7 +419,7 @@ const StatProgressBar = ({ label, percentage, total }) => {
         <span className="text-[10px] font-black text-text-muted uppercase tracking-tighter">%{percentage} Başarı <span className="opacity-40">/ {total} Çözüm</span></span>
       </div>
       <div className="h-2 w-full bg-black/40 rounded-full border border-white/5 overflow-hidden">
-        <motion.div 
+        <MotionDiv 
             initial={{ width: 0 }} animate={{ width: `${percentage}%` }} transition={{ duration: 1, ease: 'easeOut' }}
             className={`h-full rounded-full ${colorClass} ${shadowClass}`}
         />
@@ -339,7 +431,7 @@ const StatProgressBar = ({ label, percentage, total }) => {
 const InsightCard = ({ icon: Icon, title, value, desc }) => (
     <div className="glass-card p-6 rounded-[28px] border border-white/5 flex items-center gap-5 hover:bg-white/[0.01] transition-colors">
         <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/5">
-            <Icon className="w-7 h-7 text-white/40" />
+            {React.createElement(Icon, { className: 'w-7 h-7 text-white/40' })}
         </div>
         <div>
             <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{title}</p>
@@ -350,4 +442,3 @@ const InsightCard = ({ icon: Icon, title, value, desc }) => (
 );
 
 export default AdminStats;
-

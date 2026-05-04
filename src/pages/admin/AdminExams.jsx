@@ -8,6 +8,7 @@ import {
   Copy, Zap, UploadCloud, Star, Shield, BookOpen, BarChart2,
   Folder, AlertTriangle, RefreshCw, Eye, EyeOff, Hash, Link,
 } from 'lucide-react';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DIFFICULTY_CONFIG = {
@@ -20,30 +21,6 @@ const CSV_EXAMPLE = `text,option1,option2,option3,option4,correctAnswer,difficul
 Emniyet şeridi nedir?,Sol şerit,Sağ şerit,Orta şerit,Acil durum şeridi,3,easy,Sağ kenardaki şerit acil durumlara ayrılmıştır.
 Hız limiti şehir içinde nedir?,30 km/h,50 km/h,70 km/h,90 km/h,1,medium,`;
 
-// ─── Media / Sign Helpers ─────────────────────────────────────────────────────
-// Backend, Flutter asset yolunu /signs/ prefix'iyle sunuyor
-// DB'de: "assets/images/signs/Tanzim_TT/tt-1.png"
-// Web'de: "http://localhost:3000/signs/Tanzim_TT/tt-1.png"
-const API_BASE = 'http://localhost:3000';
-
-const resolveMediaUrl = (media) => {
-  if (!media) return null;
-  if (media.startsWith('http')) return media;          // zaten tam URL
-  if (media.startsWith('/uploads/')) return `${API_BASE}${media}`; // yüklenen dosya
-  if (media.startsWith('assets/images/signs/')) {      // Flutter sign asset
-    const signPath = media.replace('assets/images/signs/', '');
-    return `${API_BASE}/signs/${signPath}`;
-  }
-  if (media.startsWith('assets/images/')) {            // diğer Flutter asset'leri
-    const assetPath = media.replace('assets/images/', '');
-    return `${API_BASE}/images/${assetPath}`;
-  }
-  if (media.startsWith('assets/content/')) {           // döküman içerikleri
-    const contentPath = media.replace('assets/content/', '');
-    return `${API_BASE}/content/${contentPath}`;
-  }
-  return `${API_BASE}/${media}`;
-};
 
 // 4 Levha Kategorisi + İçindeki dosyalar (backend'deki klasör yapısıyla aynı)
 const SIGN_CATEGORIES = [
@@ -54,13 +31,10 @@ const SIGN_CATEGORIES = [
 ];
 
 // Her kategorideki levha isimleri  (fetch ile backend'den alacağız)
+const MEDIA_BASE = import.meta.env.VITE_MEDIA_BASE || '';
 const fetchSignsInCategory = async (category) => {
   try {
-    // Backend'e özel bir endpoint açmak yerine,
-    // burada bilinen levha listesini hardcode edebilir veya
-    // bir signs-list endpoint'i ekleyebiliriz.
-    // Şimdilik /api/signs-list endpoint'ini çağırıyoruz:
-    const res = await fetch(`${API_BASE}/signs-list/${category}`);
+    const res = await fetch(`${MEDIA_BASE}/signs-list/${category}`);
     if (res.ok) return await res.json();
   } catch {}
   return [];

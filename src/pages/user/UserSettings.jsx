@@ -1,11 +1,22 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert
+  User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
+
+const getStoredExamDateInput = () => {
+  try {
+    const value = localStorage.getItem('exam_date');
+    if (!value) return '';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
+  } catch {
+    return '';
+  }
+};
 
 const UserSettings = () => {
   const { user, setAuth, token } = useAuthStore();
@@ -37,6 +48,7 @@ const UserSettings = () => {
     dailyGoal: user?.dailyGoal || 20,
     notifHour: user?.notifHour || 20,
     notifMinute: user?.notifMinute || 0,
+    examDate: user?.examDate ? user.examDate.slice(0, 10) : getStoredExamDateInput(),
   });
 
   const showMessage = (type, text) => {
@@ -148,7 +160,7 @@ const UserSettings = () => {
       </div>
 
       {message.text && (
-        <motion.div 
+        <Motion.div 
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
           className={`p-4 rounded-xl flex items-center gap-3 border ${
             message.type === 'success' ? 'bg-success/10 border-success/20 text-success' : 'bg-danger/10 border-danger/20 text-danger'
@@ -156,7 +168,7 @@ const UserSettings = () => {
         >
           {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
           <p className="font-medium text-sm">{message.text}</p>
-        </motion.div>
+        </Motion.div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -182,7 +194,7 @@ const UserSettings = () => {
         <div className="lg:col-span-3">
           <AnimatePresence mode="wait">
             {activeTab === 'profile' && (
-              <motion.div
+              <Motion.div
                 key="profile"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="glass-card p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden"
@@ -279,11 +291,11 @@ const UserSettings = () => {
                     </div>
                   </form>
                 </div>
-              </motion.div>
+              </Motion.div>
             )}
 
             {activeTab === 'account' && (
-              <motion.div
+              <Motion.div
                 key="account"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="glass-card p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden"
@@ -369,11 +381,11 @@ const UserSettings = () => {
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </Motion.div>
             )}
 
             {activeTab === 'notifications' && (
-              <motion.div
+              <Motion.div
                 key="notifications"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                 className="glass-card p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden"
@@ -402,6 +414,39 @@ const UserSettings = () => {
                          <option value={50}>50 Soru</option>
                          <option value={100}>100 Soru</option>
                        </select>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                       <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-start gap-4">
+                             <div className="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shrink-0">
+                                <CalendarDays className="w-5 h-5 text-success" />
+                             </div>
+                             <div>
+                                <h4 className="font-bold mb-1">Sınav Tarihi</h4>
+                                <p className="text-xs text-text-muted">Dashboardda sınava kaç gün kaldığını göstermek için tarihi girin.</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <input
+                               type="date"
+                               name="examDate"
+                               value={notifData.examDate}
+                               onChange={handleNotifChange}
+                               className="bg-bg-dark border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 font-bold"
+                             />
+                             {notifData.examDate && (
+                               <button
+                                 type="button"
+                                 onClick={() => setNotifData({ ...notifData, examDate: '' })}
+                                 className="w-10 h-10 rounded-xl border border-danger/20 bg-danger/10 text-danger flex items-center justify-center hover:bg-danger/20 transition-colors"
+                                 title="Sınav tarihini temizle"
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </button>
+                             )}
+                          </div>
+                       </div>
                     </div>
 
                     <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-between opacity-50 cursor-not-allowed" title="Bu özellik yakında mobil uygulamada aktif olacak">
@@ -454,13 +499,16 @@ const UserSettings = () => {
                                 dailyGoal: notifData.dailyGoal, 
                                 notifEnabled: notifData.notifEnabled,
                                 notifHour: notifData.notifHour,
-                                notifMinute: notifData.notifMinute
+                                notifMinute: notifData.notifMinute,
+                                examDate: notifData.examDate || null
                               });
                               if (res.data.success) {
+                                if (notifData.examDate) localStorage.setItem('exam_date', new Date(notifData.examDate).toISOString());
+                                else localStorage.removeItem('exam_date');
                                 setAuth({ ...user, ...res.data.user }, token);
                                 showMessage('success', 'Tercihleriniz başarıyla kaydedildi.');
                               }
-                            } catch (error) {
+                            } catch {
                               showMessage('error', 'Tercihler kaydedilirken hata oluştu.');
                             } finally {
                               setLoading(false);
@@ -474,7 +522,7 @@ const UserSettings = () => {
                        </button>
                     </div>
                  </div>
-              </motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
         </div>

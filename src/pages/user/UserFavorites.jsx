@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import api from '../../api';
 import { useNavigate } from 'react-router-dom';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const UserFavorites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -204,10 +205,10 @@ const UserFavorites = () => {
                   {selectedQuestion.media && (
                     <div className="max-w-xl mx-auto mb-8 bg-black/20 border border-white/5 rounded-3xl overflow-hidden p-2">
                        <img 
-                          src={selectedQuestion.media.startsWith('http') ? selectedQuestion.media : `http://localhost:3000/${selectedQuestion.media}`} 
+                          src={resolveMediaUrl(selectedQuestion.media)} 
                           alt="Soru Görseli"
                           className="w-full h-auto max-h-[300px] object-contain rounded-2xl"
-                          onError={(e) => e.target.src = 'https://via.placeholder.com/400x300?text=Görsel+Yüklenemedi'}
+                          onError={(e) => e.target.style.display = 'none'}
                        />
                     </div>
                   )}

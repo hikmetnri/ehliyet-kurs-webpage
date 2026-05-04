@@ -10,17 +10,12 @@ import api from '../../api';
 
 const UserLayout = ({ fullscreen = false }) => {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [dismissedCategoryPromptFor, setDismissedCategoryPromptFor] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const user = useAuthStore((state) => state.user);
-
-  useEffect(() => {
-    // Nếu user giriş yaptıysa ve henüz bir kategori (ehliyet türü) seçmemişse modalı göster
-    if (user && !user.selectedCategoryId) {
-      setShowCategoryModal(true);
-    }
-  }, [user]);
+  const userKey = user?.id || user?._id || user?.email || 'current-user';
+  const showCategoryModal = Boolean(user && !user.selectedCategoryId && dismissedCategoryPromptFor !== userKey);
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -35,9 +30,12 @@ const UserLayout = ({ fullscreen = false }) => {
 
   // İlk yükleme + her 60 saniyede bir güncelle
   useEffect(() => {
-    fetchUnreadCount();
+    const timeout = setTimeout(fetchUnreadCount, 0);
     const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
   }, [fetchUnreadCount]);
 
   // Panel kapatıldığında sayıyı güncelle
@@ -54,7 +52,7 @@ const UserLayout = ({ fullscreen = false }) => {
 
       <CategorySelectorModal 
         isOpen={showCategoryModal} 
-        onClose={() => setShowCategoryModal(false)} 
+        onClose={() => setDismissedCategoryPromptFor(userKey)} 
       />
 
       <UserSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
@@ -65,8 +63,8 @@ const UserLayout = ({ fullscreen = false }) => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
         
         {/* Topbar */}
-        <header className="h-16 lg:h-20 bg-bg-dark/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-5 sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-4">
+        <header className="h-16 lg:h-20 bg-bg-dark/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-3 sm:px-5 sticky top-0 z-10 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="p-2 hover:bg-white/5 rounded-xl transition-colors text-text-muted hover:text-white lg:hidden"
@@ -80,7 +78,7 @@ const UserLayout = ({ fullscreen = false }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Bildirim Butonu */}
             <div className="relative">
               <button
@@ -107,7 +105,7 @@ const UserLayout = ({ fullscreen = false }) => {
             </div>
 
             {/* User XP Badge */}
-            <div className="flex items-center gap-3 pl-4 border-l border-white/10">
+            <div className="flex items-center gap-3 pl-2 sm:pl-4 border-l border-white/10">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-bold text-white leading-none">{user?.firstName} {user?.lastName}</p>
                 <div className="flex items-center justify-end gap-1.5 mt-1">
@@ -140,7 +138,7 @@ const UserLayout = ({ fullscreen = false }) => {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto p-4 md:p-6 lg:p-8 custom-scrollbar'}`}>
+        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 custom-scrollbar'}`}>
           <Outlet />
         </main>
       </div>

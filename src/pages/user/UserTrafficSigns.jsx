@@ -11,9 +11,16 @@ const UserTrafficSigns = () => {
   const filteredSigns = trafficSignsData.filter(sign => {
     const matchesCategory = activeCategory === 'all' || sign.category === activeCategory;
     const matchesSearch = sign.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          sign.description.toLowerCase().includes(searchQuery.toLowerCase());
+                          sign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          sign.code?.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const getCategoryCount = (categoryId) => (
+    categoryId === 'all'
+      ? trafficSignsData.length
+      : trafficSignsData.filter(sign => sign.category === categoryId).length
+  );
 
   return (
     <div className="max-w-7xl mx-auto pb-16">
@@ -28,7 +35,7 @@ const UserTrafficSigns = () => {
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary-light text-xs font-black uppercase tracking-widest mb-6">
-              <TriangleAlert className="w-4 h-4" /> Eğitim Materyali
+              <TriangleAlert className="w-4 h-4" /> {trafficSignsData.length} Levha
             </div>
             <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
               Trafik İşaretleri <span className="gradient-text">Kütüphanesi</span>
@@ -69,6 +76,11 @@ const UserTrafficSigns = () => {
               }`}
             >
               {cat.label}
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
+                activeCategory === cat.id ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'
+              }`}>
+                {getCategoryCount(cat.id)}
+              </span>
             </button>
           ))}
         </div>
@@ -104,6 +116,9 @@ const UserTrafficSigns = () => {
               <h3 className="text-white font-bold text-base mb-2 group-hover:text-primary-light transition-colors line-clamp-2 min-h-[40px] flex items-center">
                 {sign.title}
               </h3>
+              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-text-muted uppercase">
+                {sign.code}
+              </span>
               <div className="mt-auto pt-4 flex items-center justify-center gap-1 text-xs font-semibold text-text-muted group-hover:text-white transition-colors">
                 Detayları Gör <ArrowRight className="w-3 h-3" />
               </div>
@@ -134,7 +149,7 @@ const UserTrafficSigns = () => {
               <h2 className="text-2xl font-black text-white mb-2">{selectedSign.title}</h2>
               
               <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-text-secondary uppercase tracking-widest mb-6">
-                {categories.find(c => c.id === selectedSign.category)?.label}
+                {categories.find(c => c.id === selectedSign.category)?.label} • {selectedSign.code}
               </div>
               
               <p className="text-text-muted leading-relaxed mb-8">
