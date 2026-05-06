@@ -1,0 +1,19 @@
+{
+  "name": "Ehliyet Yolu",
+  "short_name": "Ehliyet Yolu",
+  "description": "Ehliyet sınavı hazırlık uygulaması",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6C63FF",
+  "lang": "tr-TR",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

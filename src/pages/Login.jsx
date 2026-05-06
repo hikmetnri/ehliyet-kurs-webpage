@@ -4,7 +4,7 @@ import useAuthStore from '../store/authStore';
 import api from '../api';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { LogIn, CarFront, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
+import { LogIn, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 
@@ -99,7 +99,7 @@ const Login = () => {
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary-light to-transparent opacity-80"></div>
           
           <div className="text-center mb-10">
-            <img src="/logo.png" alt="Ehliyet Yolu Logo" className="w-20 h-20 object-contain mx-auto mb-4 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] animate-pulse" />
+            <img src="/logo/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-20 h-20 object-contain mx-auto mb-4 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] animate-pulse" />
             <h2 className="text-3xl font-black tracking-tight text-white mb-2">Hoş Geldiniz</h2>
             <p className="text-text-muted font-medium">Ehliyet Yolu eğitim platformuna giriş yapın</p>
           </div>
@@ -137,7 +137,7 @@ const Login = () => {
             <div>
               <div className="flex justify-between items-center mb-2 ml-1">
                 <label className="block text-sm font-semibold text-text-secondary">Şifre</label>
-                <a href="#" className="text-xs text-primary-light hover:text-white transition-colors">Şifremi Unuttum</a>
+                <Link to="/forgot-password" className="text-xs text-primary-light hover:text-white transition-colors">Şifremi Unuttum</Link>
               </div>
               <input
                 type="password"

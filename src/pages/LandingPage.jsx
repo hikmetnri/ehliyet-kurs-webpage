@@ -7,7 +7,6 @@ import {
   Star, ShieldCheck, Map, PlayCircle, BarChart3, Clock, 
   Users, Award, ArrowRight, Quote, Check, BookOpen, User
 } from 'lucide-react';
-import api from '../api';
 
 const FALLBACK_FAQS = [
   { _id: '1', question: "Ehliyet sınavına hazırlık için bu sistem yeterli mi?", answer: "Kesinlikle! MEB'in güncel 2026 müfredatına %100 uyumlu, daha önce çıkmış ve çıkma ihtimali yüksek sorulardan oluşan yapay zeka destekli havuzumuz tek başına yeterlidir." },
@@ -105,10 +104,13 @@ const LandingPage = () => {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchStats = async () => {
       try {
+        const { default: api } = await import('../api');
         const res = await api.get('/admin/stats/public-overview');
-        if (res.data) {
+        if (!cancelled && res.data) {
           const formatNumber = (num) => num >= 1000 ? (num/1000).toFixed(1).replace('.0','') + 'K+' : num + '+';
           setStats({
             totalUsers: formatNumber(res.data.totalUsers || 5240),
@@ -124,8 +126,9 @@ const LandingPage = () => {
 
     const fetchFaqs = async () => {
       try {
+        const { default: api } = await import('../api');
         const res = await api.get('/faqs');
-        if (res.data && res.data.length > 0) {
+        if (!cancelled && res.data && res.data.length > 0) {
           setFaqList(res.data);
         }
       } catch (err) {
@@ -133,14 +136,28 @@ const LandingPage = () => {
       }
     };
 
-    fetchStats();
-    fetchFaqs();
+    const runDeferred = () => {
+      fetchStats();
+      fetchFaqs();
+    };
+
+    const idleId = window.requestIdleCallback
+      ? window.requestIdleCallback(runDeferred, { timeout: 2500 })
+      : window.setTimeout(runDeferred, 1200);
+
+    return () => {
+      cancelled = true;
+      if (window.cancelIdleCallback && typeof idleId === 'number') {
+        window.cancelIdleCallback(idleId);
+      } else {
+        window.clearTimeout(idleId);
+      }
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-[#050508] relative w-full font-sans text-white selection:bg-primary/30 overflow-x-hidden">
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] pointer-events-none mix-blend-overlay z-50"></div>
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
       
       {/* Dynamic Glows */}
@@ -158,7 +175,7 @@ const LandingPage = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
               <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-200 shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
-                <img src="/logo.png" alt="Ehliyet Yolu Logo" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+                <img src="/logo-small.png" alt="Ehliyet Yolu Logo" width="64" height="64" decoding="async" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                 <CarFront className="w-6 h-6 sm:w-8 sm:h-8 text-primary hidden" />
               </div>
               <span className="text-xl sm:text-3xl font-black tracking-tighter text-white">
@@ -348,7 +365,7 @@ const LandingPage = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-primary/20 blur-[100px] rounded-full"></div>
               <div className="relative rounded-[3rem] border border-white/10 bg-[#0a0a0f] shadow-2xl p-4 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-cyan-400"></div>
-                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=1200&h=1600" alt="App Dashboard Mockup" className="rounded-[2.5rem] w-full h-auto opacity-80" />
+                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=1200&h=1600" alt="App Dashboard Mockup" width="1200" height="1600" loading="lazy" decoding="async" className="rounded-[2.5rem] w-full h-auto opacity-80" />
                 
                 {/* Floating Elements */}
                 <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -left-10 top-20 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
@@ -457,7 +474,6 @@ const LandingPage = () => {
         <div className="rounded-[3rem] p-10 sm:p-16 border border-white/10 bg-gradient-to-br from-[#101017] via-primary/10 to-[#0a0a0f] text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-16 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           {/* Decorative Background Elements */}
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/10 blur-[120px] rounded-full pointer-events-none z-0 translate-x-1/3 -translate-y-1/3"></div>
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] pointer-events-none mix-blend-overlay z-0"></div>
           
           <div className="flex-1 relative z-10 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs uppercase tracking-widest mb-8">
@@ -503,7 +519,7 @@ const LandingPage = () => {
                     <div className="text-white font-black">Ayşe Yılmaz</div>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-gray-200 shadow-lg flex items-center justify-center overflow-hidden">
-                    <img src="/logo.png" className="w-full h-full object-contain scale-[1.3]" alt="Logo" />
+                    <img src="/logo-small.png" className="w-full h-full object-contain scale-[1.3]" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
                   </div>
                 </div>
 
@@ -557,7 +573,7 @@ const LandingPage = () => {
             <div className="md:col-span-2">
               <Link to="/" className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center overflow-hidden">
-                    <img src="/logo.png" alt="Ehliyet Yolu" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; }} />
+                    <img src="/logo-small.png" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; }} />
                 </div>
                 <span className="font-black text-white text-2xl tracking-tighter">Ehliyet<span className="text-primary-light">Yolu</span></span>
               </Link>
@@ -565,8 +581,8 @@ const LandingPage = () => {
                 Ehliyet sınavına hazırlıkta yeni nesil yapay zeka destekli eğitim platformu. Sınavı ilk seferde, stressiz ve kolayca geçmeniz için tasarlandı.
               </p>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors text-white/50"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.084-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
-                <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors text-white/50"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+                <a href="#" aria-label="X hesabı" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors text-white/50"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.084-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg></a>
+                <a href="#" aria-label="Instagram hesabı" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors text-white/50"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
               </div>
             </div>
             
