@@ -6,6 +6,7 @@ import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { UserPlus, CarFront, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -84,11 +85,10 @@ const Register = () => {
       }
     } catch (err) {
       console.error('Google auth error:', err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setErrorObj('Google ile işlem iptal edildi.');
-      } else {
-        setErrorObj(err.response?.data?.error || 'Google ile işlem başarısız oldu. Lütfen ayarlarınızı kontrol edin.');
-      }
+      setErrorObj(getFirebaseAuthErrorMessage(
+        err,
+        'Google ile işlem başarısız oldu. Lütfen ayarlarınızı kontrol edin.',
+      ));
     } finally {
       setLoading(false);
     }

@@ -6,6 +6,7 @@ import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { LogIn, CarFront, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -65,12 +66,10 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Google login error:', err);
-      // Firebase specific errors
-      if (err.code === 'auth/popup-closed-by-user') {
-        setErrorObj('Google ile giriş iptal edildi.');
-      } else {
-        setErrorObj(err.response?.data?.error || 'Google ile giriş başarısız oldu. Lütfen ayarlarınızı kontrol edin.');
-      }
+      setErrorObj(getFirebaseAuthErrorMessage(
+        err,
+        'Google ile giriş başarısız oldu. Lütfen ayarlarınızı kontrol edin.',
+      ));
     } finally {
       setLoading(false);
     }
