@@ -6,7 +6,7 @@ import {
   Trash2, Mail, Phone, Calendar, RefreshCw, 
   CheckCircle2, XCircle, AlertTriangle, UserX, UserCheck,
   BarChart2, X, Target, TrendingUp, PieChart, Activity, Flame, Bell, Send, Award,
-  Trophy, Zap, Gem, Medal, Rocket, Heart
+  Trophy, Zap, Gem, Medal, Rocket, Heart, ArrowUpDown
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -22,6 +22,7 @@ const AdminUsers = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'admin', 'user'
+  const [sortMode, setSortMode] = useState('newest');
   
   // Analytics Modal States
   const [statsModalOpen, setStatsModalOpen] = useState(false);
@@ -38,13 +39,13 @@ const AdminUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [sortMode]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
       // Backend'deki varsayılan 20 limit sınırını aşıp eski kullanıcıları (Admin/PRO) görebilmek için limit=1000 eklendi.
-      const res = await api.get('/users?limit=1000');
+      const res = await api.get(`/users?limit=1000&sort=${sortMode}`);
       if (res.data.success) {
         setUsers(res.data.users);
       }
@@ -170,10 +171,12 @@ const AdminUsers = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedUserIds.length === filteredUsers.length) {
-      setSelectedUserIds([]);
+    if (sortedUsers.length === 0) return;
+    if (selectedVisibleCount === sortedUsers.length) {
+      const visibleIds = new Set(sortedUsers.map(u => u._id));
+      setSelectedUserIds(prev => prev.filter(id => !visibleIds.has(id)));
     } else {
-      setSelectedUserIds(filteredUsers.map(u => u._id));
+      setSelectedUserIds(prev => [...new Set([...prev, ...sortedUsers.map(u => u._id)])]);
     }
   };
 
@@ -188,6 +191,69 @@ const AdminUsers = () => {
     else if (roleFilter === 'online') matchesRole = u.isOnline === true;
     return matchesSearch && matchesRole;
   });
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    const fullName = (user) => `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || '';
+    const dateValue = (value) => value ? new Date(value).getTime() || 0 : 0;
+    const boolValue = (value) => value ? 1 : 0;
+    const onlineValue = (user) => {
+      const lastActive = dateValue(user.lastActiveAt);
+      return lastActive && Date.now() - lastActive < 2 * 60 * 1000 ? 1 : 0;
+    };
+    const numberValue = (value) => Number(value || 0);
+
+    if (sortMode === 'lastActive' || sortMode === 'onlineFirst') {
+      if (sortMode === 'onlineFirst') {
+        const onlineDiff = onlineValue(b) - onlineValue(a);
+        if (onlineDiff !== 0) return onlineDiff;
+      }
+      return dateValue(b.lastActiveAt) - dateValue(a.lastActiveAt);
+    }
+
+    if (sortMode === 'alphabetical') {
+      return fullName(a).localeCompare(fullName(b), 'tr', { sensitivity: 'base' });
+    }
+
+    if (sortMode === 'oldest') {
+      return dateValue(a.createdAt) - dateValue(b.createdAt);
+    }
+
+    if (sortMode === 'highestScore') {
+      return numberValue(b.totalScore) - numberValue(a.totalScore);
+    }
+
+    if (sortMode === 'highestLevel') {
+      return numberValue(b.level) - numberValue(a.level);
+    }
+
+    if (sortMode === 'proFirst') {
+      return boolValue(b.proStatus) - boolValue(a.proStatus) || dateValue(b.createdAt) - dateValue(a.createdAt);
+    }
+
+    if (sortMode === 'adminFirst') {
+      return boolValue(b.role === 'admin') - boolValue(a.role === 'admin') || dateValue(b.createdAt) - dateValue(a.createdAt);
+    }
+
+    if (sortMode === 'suspendedFirst') {
+      return boolValue(b.isActive === false) - boolValue(a.isActive === false) || dateValue(b.createdAt) - dateValue(a.createdAt);
+    }
+
+    return dateValue(b.createdAt) - dateValue(a.createdAt);
+  });
+
+  const sortOptions = [
+    { value: 'newest', label: 'En Yeni Kayıt' },
+    { value: 'lastActive', label: 'Son Aktif' },
+    { value: 'alphabetical', label: 'Alfabetik' },
+    { value: 'highestScore', label: 'En Yüksek Puan' },
+    { value: 'highestLevel', label: 'En Yüksek Seviye' },
+    { value: 'proFirst', label: 'PRO Öncelikli' },
+    { value: 'adminFirst', label: 'Yönetici Öncelikli' },
+    { value: 'suspendedFirst', label: 'Askıya Alınanlar' },
+    { value: 'onlineFirst', label: 'Çevrimiçi Öncelikli' },
+    { value: 'oldest', label: 'En Eski Kayıt' },
+  ];
+  const selectedVisibleCount = sortedUsers.filter(u => selectedUserIds.includes(u._id)).length;
 
   const totalUsers = users.length;
   const adminCount = users.filter(u => u.role === 'admin').length;
@@ -230,7 +296,7 @@ const AdminUsers = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="p-2 bg-bg-card border border-white/5 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center gap-2">
+      <div className="p-2 bg-bg-card border border-white/5 rounded-3xl shadow-2xl flex flex-col xl:flex-row items-center gap-2">
         <div className="flex-1 flex items-center bg-black/40 rounded-2xl px-5 py-3 w-full border border-white/5 transition-all focus-within:border-primary/50 focus-within:bg-black/60">
           <Search className="w-5 h-5 text-primary-light mr-3" />
           <input 
@@ -262,6 +328,22 @@ const AdminUsers = () => {
             </button>
           ))}
         </div>
+
+        <div className="flex items-center gap-2 bg-black/40 border border-white/5 p-1.5 rounded-2xl w-full xl:w-auto shrink-0">
+          <ArrowUpDown className="w-4 h-4 text-primary-light ml-2 shrink-0" />
+          <select
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value)}
+            className="h-9 min-w-[170px] bg-transparent text-xs font-black uppercase tracking-widest text-white outline-none cursor-pointer"
+            aria-label="Kullanıcı sıralaması"
+          >
+            {sortOptions.map(option => (
+              <option key={option.value} value={option.value} className="bg-bg-card text-white">
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Main Table */}
@@ -276,7 +358,7 @@ const AdminUsers = () => {
                 <th className="px-6 py-5 rounded-tl-[32px] border-b border-white/5 w-10">
                   <input 
                     type="checkbox" 
-                    checked={filteredUsers.length > 0 && selectedUserIds.length === filteredUsers.length}
+                    checked={sortedUsers.length > 0 && selectedVisibleCount === sortedUsers.length}
                     onChange={handleSelectAll}
                     className="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-0 cursor-pointer"
                   />
@@ -292,14 +374,14 @@ const AdminUsers = () => {
             <tbody className="divide-y divide-white/[0.02]">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-32 text-center relative overflow-hidden">
+                  <td colSpan="6" className="px-6 py-32 text-center relative overflow-hidden">
                     <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
                     <span className="text-text-muted font-bold text-xs uppercase tracking-widest">Sistem Ağacı Taranıyor...</span>
                   </td>
                 </tr>
-              ) : filteredUsers.length === 0 ? (
+              ) : sortedUsers.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-32 text-center">
+                  <td colSpan="6" className="px-6 py-32 text-center">
                     <div className="w-20 h-20 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center mx-auto mb-6 bg-white/[0.01]">
                       <User className="w-8 h-8 text-white/20" />
                     </div>
@@ -307,7 +389,7 @@ const AdminUsers = () => {
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => {
+                sortedUsers.map((user) => {
                   const isSuspended = user.isActive === false;
                   const isMe = user._id === currentUser?._id;
                   
@@ -478,9 +560,9 @@ const AdminUsers = () => {
           </table>
         </div>
         
-        {!loading && filteredUsers.length > 0 && (
+        {!loading && sortedUsers.length > 0 && (
           <div className="px-6 py-4 border-t border-white/5 bg-black/40 flex justify-between items-center text-[10px] font-black text-text-muted uppercase tracking-widest">
-            <span>Toplam {filteredUsers.length} Bağlantı Tespiti</span>
+            <span>Toplam {sortedUsers.length} Bağlantı Tespiti • {sortOptions.find(option => option.value === sortMode)?.label}</span>
             <span className="px-2 py-1 bg-white/5 rounded-lg border border-white/10">Engine v2.1</span>
           </div>
         )}

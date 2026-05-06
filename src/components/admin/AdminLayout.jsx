@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
+import AdminNotifications from './AdminNotifications';
 import useAuthStore from '../../store/authStore';
-import { Bell, Search, Menu } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 
 const AdminLayout = () => {
   const user = useAuthStore((state) => state.user);
@@ -40,17 +41,14 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-6">
-            <button className="relative text-text-muted hover:text-white transition-colors">
-              <Bell className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-danger rounded-full border-2 border-bg-card"></span>
-            </button>
+            <AdminNotifications />
             
-            <div className="flex items-center gap-3 pl-3 sm:pl-6 border-l border-white/5">
+            <Link to="/admin/profile" className="flex items-center gap-3 pl-3 sm:pl-6 border-l border-white/5 group">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-white">{user?.firstName} {user?.lastName}</p>
-                <p className="text-xs text-primary-light font-medium uppercase tracking-wider">Super Admin</p>
+                <p className="text-sm font-bold text-white group-hover:text-primary-light transition-colors">{user?.firstName} {user?.lastName}</p>
+                <p className="text-xs text-primary-light font-medium uppercase tracking-wider">Profili Düzenle</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center p-0.5">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center p-0.5 group-hover:shadow-lg group-hover:shadow-primary/20 transition-shadow">
                 <div className="w-full h-full bg-bg-card rounded-full flex items-center justify-center overflow-hidden">
                   {user?.avatarUrl ? (
                     <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -59,7 +57,7 @@ const AdminLayout = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
           
         </header>

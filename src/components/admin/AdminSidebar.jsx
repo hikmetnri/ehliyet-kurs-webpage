@@ -12,7 +12,8 @@ import {
   Share2,
   ShieldAlert,
   Award,
-  QrCode
+  QrCode,
+  UserCircle
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -48,6 +49,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { to: '/admin/badges', icon: Award, label: 'Rozetler' },
     { to: '/admin/marketing', icon: QrCode, label: 'Pazarlama & Reklam' },
     { to: '/admin/stats', icon: BarChart, label: 'İstatistikler' },
+    { to: '/admin/profile', icon: UserCircle, label: 'Profilim' },
     { to: '/admin/settings', icon: Settings, label: 'Yönetim Merkezi' },
   ];
 
@@ -67,14 +69,22 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
       `}>
       
       {/* Logo Area */}
-      <div className="p-6 pb-8 border-b border-white/5">
-        <Link to="/admin" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 p-2">
-            <img src="/logo.png" alt="Ehliyet Yolu" className="w-full h-full object-contain filter drop-shadow-md brightness-200 contrast-200 invert" />
+      <div className="p-5 pb-6 border-b border-white/5">
+        <Link to="/admin" className="flex items-center gap-3.5 group">
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center shadow-lg shadow-black/20 p-1.5 overflow-hidden transition-all group-hover:border-primary/30 group-hover:bg-primary/5">
+            <img
+              src="/logo/logo.png"
+              alt="Ehliyet Yolu"
+              className="w-full h-full object-contain drop-shadow-md"
+            />
           </div>
-          <div>
-            <h1 className="text-xl font-black text-white tracking-tight leading-none">Ehliyet<span className="text-primary-light">Yolu</span></h1>
-            <span className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Admin Panel</span>
+          <div className="min-w-0">
+            <h1 className="text-xl font-black text-white tracking-tight leading-none">
+              Ehliyet <span className="text-primary-light">Yolu</span>
+            </h1>
+            <span className="mt-1 block text-[10px] uppercase tracking-widest text-text-muted font-bold">
+              Admin Panel
+            </span>
           </div>
         </Link>
       </div>

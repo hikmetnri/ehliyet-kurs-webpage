@@ -1,8 +1,8 @@
 /**
  * Resolves a media asset path to a full URL.
  *
- * - In development: relative paths are forwarded by the Vite dev proxy to localhost:3000
- * - In production:  VITE_MEDIA_BASE (e.g. https://api.ehliyetyolu.com) is prepended
+ * - Uploaded files are served from the API/media host.
+ * - Bundled Flutter assets copied into public/ are served by the web app itself.
  *
  * Supported formats stored in DB:
  *   /uploads/...                    → uploaded files
@@ -11,34 +11,53 @@
  *   assets/content/...             → Flutter lesson content images
  *   http://...                      → already absolute, returned as-is
  */
-// Sadece production build alındığında (veya PROD modunda) VITE_MEDIA_BASE kullanılır.
-// Geliştirme (dev) ortamında boş kalır, böylece Vite proxy istekleri backend'e iletir.
-const MEDIA_BASE = import.meta.env.PROD ? (import.meta.env.VITE_MEDIA_BASE || '') : '';
+const MEDIA_BASE = (import.meta.env.VITE_MEDIA_BASE || '').replace(/\/$/, '');
+
+const IMAGE_FILE_RE = /\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
+
+const localPublicUrl = (path) => `/${path.replace(/^\/+/, '').normalize('NFC')}`;
 
 export const resolveMediaUrl = (src) => {
   if (!src) return src;
-  if (src.startsWith('http')) return src;                          // already absolute
+  const value = src.trim().normalize('NFC');
+  if (!value) return value;
+  if (value.startsWith('http')) return value;                       // already absolute
+  if (value.startsWith('//')) return `https:${value}`;
 
-  if (src.startsWith('/uploads/')) return `${MEDIA_BASE}${src}`;  // uploaded files
+  const assetPath = value.replace(/^\/+/, '');
 
-  if (src.startsWith('assets/images/signs/')) {
-    const signPath = src.replace('assets/images/signs/', '');
-    return `${MEDIA_BASE}/signs/${signPath}`;
+  if (assetPath.startsWith('uploads/')) return `${MEDIA_BASE}/${assetPath}`;  // uploaded files
+
+  if (assetPath.startsWith('assets/images/signs/')) {
+    const signPath = assetPath.replace('assets/images/signs/', '');
+    return localPublicUrl(`images/signs/${signPath}`);
   }
 
-  if (src.startsWith('assets/images/')) {
-    const assetPath = src.replace('assets/images/', '');
-    return `${MEDIA_BASE}/images/${assetPath}`;
+  if (assetPath.startsWith('images/signs/')) {
+    return localPublicUrl(assetPath);
   }
 
-  if (src.startsWith('assets/content/')) {
-    const contentPath = src.replace('assets/content/', '');
-    return `${MEDIA_BASE}/content/${contentPath}`;
+  if (assetPath.startsWith('assets/content/')) {
+    const contentPath = assetPath.replace('assets/content/', '');
+    return localPublicUrl(`content/${contentPath}`);
   }
 
-  if (src.startsWith('assets/')) {
-    return `${MEDIA_BASE}/images/${src.replace('assets/', '')}`;
+  if (assetPath.startsWith('content/')) {
+    return localPublicUrl(assetPath);
   }
 
-  return `${MEDIA_BASE}/${src}`;
+  if (!assetPath.includes('/') && IMAGE_FILE_RE.test(assetPath)) {
+    return localPublicUrl(`content/${assetPath}`);
+  }
+
+  if (assetPath.startsWith('assets/images/')) {
+    const imagePath = assetPath.replace('assets/images/', '');
+    return `${MEDIA_BASE}/images/${imagePath}`;
+  }
+
+  if (assetPath.startsWith('assets/')) {
+    return `${MEDIA_BASE}/images/${assetPath.replace('assets/', '')}`;
+  }
+
+  return `${MEDIA_BASE}/${assetPath}`;
 };

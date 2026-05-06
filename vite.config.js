@@ -23,6 +23,15 @@ const copyStaticFiles = () => ({
       fs.cpSync(signsSrc, signsDest, { recursive: true })
       console.log('✓ traffic signs copied to dist/')
     }
+
+    const contentSrc = path.resolve(__dirname, 'public/content')
+    const contentDest = path.resolve(__dirname, 'dist/content')
+    if (fs.existsSync(contentSrc)) {
+      fs.rmSync(contentDest, { recursive: true, force: true })
+      fs.mkdirSync(path.dirname(contentDest), { recursive: true })
+      fs.cpSync(contentSrc, contentDest, { recursive: true })
+      console.log('✓ lesson content images copied to dist/')
+    }
   }
 })
 
@@ -30,6 +39,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), copyStaticFiles()],
   base: './',
   server: {
+    host: '127.0.0.1',
+    port: 5173,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -37,16 +49,6 @@ export default defineConfig({
         secure: false,
       },
       '/images': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/signs': {
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/content': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,

@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const StatCard = ({ icon: Icon, label, value, detail, tone = 'primary', delay = 0 }) => {
   const toneClass = {
@@ -520,14 +521,27 @@ const UserHome = () => {
                 >
                   <Link
                     to={`/dashboard/lessons?category=${category._id}`}
-                    className="group flex h-full min-h-56 flex-col rounded-2xl border border-white/5 bg-white/[0.025] p-5 transition hover:-translate-y-1 hover:border-primary/25 hover:bg-primary/5"
+                    className="group relative flex h-full min-h-56 flex-col rounded-2xl border border-white/5 bg-white/[0.025] p-5 transition hover:-translate-y-1 hover:border-primary/25 hover:bg-primary/5"
                   >
-                    <div className="mb-6 flex items-start justify-between gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                        <BookOpen className="h-6 w-6 text-primary-light" />
+                    {category.image ? (
+                      <div className="mb-5 h-28 overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                        <img
+                          src={resolveMediaUrl(category.image)}
+                          alt={category.name}
+                          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        />
                       </div>
-                      <ArrowRight className="h-5 w-5 text-text-muted transition group-hover:translate-x-1 group-hover:text-primary-light" />
-                    </div>
+                    ) : (
+                      <div className="mb-6 flex items-start justify-between gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+                          <BookOpen className="h-6 w-6 text-primary-light" />
+                        </div>
+                        <ArrowRight className="h-5 w-5 text-text-muted transition group-hover:translate-x-1 group-hover:text-primary-light" />
+                      </div>
+                    )}
+                    {category.image && (
+                      <ArrowRight className="absolute right-5 top-5 h-5 w-5 text-white/70 drop-shadow transition group-hover:translate-x-1 group-hover:text-white" />
+                    )}
                     <h4 className="text-lg font-black leading-tight tracking-tight transition group-hover:text-primary-light">
                       {category.name}
                     </h4>

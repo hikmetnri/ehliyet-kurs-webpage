@@ -9,15 +9,7 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import ReportQuestionModal from '../../components/user/ReportQuestionModal';
-
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
-const resolveMedia = (src) => {
-  if (!src || src.startsWith('http')) return src;
-  if (src.startsWith('assets/content/')) return `${API_BASE}/content/${src.replace('assets/content/', '')}`;
-  if (src.startsWith('assets/images/')) return `${API_BASE}/images/${src.replace('assets/images/', '')}`;
-  if (src.startsWith('assets/')) return `${API_BASE}/images/${src.replace('assets/', '')}`;
-  return `${API_BASE}/images/${src}`;
-};
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 
@@ -474,7 +466,7 @@ const UserExamSolve = ({ customType }) => {
               {q.media && (
                 <div className="mt-5">
                   <img
-                    src={resolveMedia(q.media)}
+                    src={resolveMediaUrl(q.media)}
                     alt="Soru görseli"
                     className="max-h-56 rounded-2xl border border-white/10 shadow-xl object-contain mx-auto"
                   />

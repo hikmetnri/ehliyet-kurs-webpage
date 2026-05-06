@@ -53,6 +53,7 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
   const isCompleted = completedIds.includes(node._id);
   const statusLabel = hasContent ? 'Ders içeriği' : `${node.children?.length || 0} alt konu`;
   const visualLevel = Math.min(level, 2);
+  const imageUrl = node.image ? resolveMediaUrl(node.image) : '';
 
   const handleClick = () => {
     if (isLocked) return;
@@ -82,6 +83,8 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
         }`}>
           {isLocked ? (
             <Lock className="w-4 h-4 text-warning" />
+          ) : imageUrl ? (
+            <img src={imageUrl} alt="" className="w-full h-full rounded-xl object-cover" />
           ) : hasContent ? (
             <FileText className="w-4 h-4" />
           ) : isExpanded ? (
@@ -274,6 +277,12 @@ const UserLessons = () => {
     : null;
   const mobileLessons = (filteredFlat ?? contentLessons).filter(c => c.content && c.content.trim().length > 0);
   const completedContentCount = contentLessons.filter(c => completedIds.includes(c._id)).length;
+  const selectedLessonImage = selectedLesson?.image ? resolveMediaUrl(selectedLesson.image) : '';
+  const selectedLessonImageFile = selectedLesson?.image?.split('/').pop()?.normalize('NFC') || '';
+  const contentIncludesSelectedImage = Boolean(
+    selectedLessonImageFile &&
+    selectedLesson?.content?.normalize('NFC').includes(selectedLessonImageFile)
+  );
 
   return (
     <div className="flex flex-col xl:flex-row min-h-[calc(100vh-88px)] xl:h-[calc(100vh-128px)] gap-0 overflow-visible xl:overflow-hidden rounded-2xl xl:rounded-3xl border border-white/5 shadow-2xl glass-card bg-bg-card/60">
@@ -329,6 +338,7 @@ const UserLessons = () => {
                 const isSelected = selectedLesson?._id === cat._id;
                 const isCompleted = completedIds.includes(cat._id);
                 const isLocked = cat.isPro && !user?.proStatus;
+                const imageUrl = cat.image ? resolveMediaUrl(cat.image) : '';
 
                 return (
                   <button
@@ -345,7 +355,13 @@ const UserLessons = () => {
                       <span className={`w-11 h-11 rounded-2xl flex items-center justify-center border ${
                         isSelected ? 'bg-primary/20 border-primary/30 text-primary-light' : 'bg-black/20 border-white/10 text-text-muted'
                       }`}>
-                        {isLocked ? <Lock className="w-5 h-5 text-warning" /> : <FileText className="w-5 h-5" />}
+                        {isLocked ? (
+                          <Lock className="w-5 h-5 text-warning" />
+                        ) : imageUrl ? (
+                          <img src={imageUrl} alt="" className="w-full h-full rounded-2xl object-cover" />
+                        ) : (
+                          <FileText className="w-5 h-5" />
+                        )}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-[10px] font-black uppercase tracking-widest text-text-muted">
@@ -392,7 +408,11 @@ const UserLessons = () => {
                   `}
                 >
                   <span className="w-9 h-9 rounded-xl bg-black/20 border border-white/5 flex items-center justify-center shrink-0">
-                    <FileText className="w-4 h-4 text-text-muted" />
+                    {cat.image ? (
+                      <img src={resolveMediaUrl(cat.image)} alt="" className="w-full h-full rounded-xl object-cover" />
+                    ) : (
+                      <FileText className="w-4 h-4 text-text-muted" />
+                    )}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-black leading-snug line-clamp-2">{cat.name}</span>
@@ -436,11 +456,7 @@ const UserLessons = () => {
               {/* Content Header */}
               <div className="px-4 sm:px-6 xl:px-8 py-4 xl:py-5 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent flex items-start gap-3 sm:gap-5 shrink-0">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center shrink-0">
-                  {selectedLesson.image ? (
-                    <img src={resolveMediaUrl(selectedLesson.image)} alt="" className="w-7 h-7 sm:w-8 sm:h-8 object-contain" />
-                  ) : (
-                    <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary-light" />
-                  )}
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary-light" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h2 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug sm:truncate break-words">{selectedLesson.name}</h2>
@@ -499,6 +515,16 @@ const UserLessons = () => {
                     >
                       {selectedLesson.content}
                     </ReactMarkdown>
+
+                    {selectedLessonImage && !contentIncludesSelectedImage && (
+                      <div className="not-prose mt-8 sm:mt-10">
+                        <img
+                          src={selectedLessonImage}
+                          alt={selectedLesson.name}
+                          className="mx-auto w-full max-w-2xl rounded-2xl border border-white/10 bg-black/20 object-contain shadow-2xl"
+                        />
+                      </div>
+                    )}
 
                     {/* Konu Sonu: Kısa Teste Geçiş */}
                     <div className="mt-10 sm:mt-16 pt-8 sm:pt-10 border-t border-white/5 flex flex-col items-center justify-center text-center pb-6 sm:pb-8 not-prose">

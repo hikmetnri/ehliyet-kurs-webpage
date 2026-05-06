@@ -16,6 +16,7 @@ import AdminSettings from './pages/admin/AdminSettings'
 import AdminReports from './pages/admin/AdminReports'
 import AdminBadges from './pages/admin/AdminBadges'
 import AdminMarketing from './pages/admin/AdminMarketing'
+import AdminProfile from './pages/admin/AdminProfile'
 import UserDashboard from './pages/UserDashboard'
 import useAuthStore from './store/authStore'
 
@@ -77,6 +78,7 @@ function App() {
           <Route path="reports" element={<AdminReports />} />
           <Route path="badges" element={<AdminBadges />} />
           <Route path="marketing" element={<AdminMarketing />} />
+          <Route path="profile" element={<AdminProfile />} />
           
           <Route path="settings" element={<AdminSettings />} />
         </Route>
