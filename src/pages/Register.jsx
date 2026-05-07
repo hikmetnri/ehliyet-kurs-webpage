@@ -117,7 +117,9 @@ const Register = () => {
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-accent-light to-transparent opacity-80"></div>
           
           <div className="text-center mb-8">
-            <img src="/logo/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-16 h-16 object-contain mx-auto mb-3 drop-shadow-[0_0_15px_rgba(6,182,212,0.5)] animate-pulse" />
+            <div className="w-20 h-20 mx-auto mb-3 rounded-3xl bg-white shadow-2xl shadow-accent/20 ring-1 ring-white/70 flex items-center justify-center overflow-hidden">
+              <img src="/logo/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-16 h-16 object-contain drop-shadow-sm animate-pulse" />
+            </div>
             <h2 className="text-3xl font-black tracking-tight text-white mb-2">Hemen Katılın</h2>
             <p className="text-text-muted font-medium">Ehliyet Yolu ile başarıya ilk adımı atın</p>
           </div>
