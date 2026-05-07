@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import AdminSidebar from './AdminSidebar';
 import AdminNotifications from './AdminNotifications';
+import AdminBottomNav from './AdminBottomNav';
 import useAuthStore from '../../store/authStore';
 import { Search, Menu } from 'lucide-react';
 
@@ -63,9 +64,10 @@ const AdminLayout = () => {
         </header>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 relative custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-3 pb-24 sm:p-4 sm:pb-24 md:p-8 lg:pb-8 relative custom-scrollbar">
           <Outlet />
         </main>
+        <AdminBottomNav />
         
       </div>
     </div>

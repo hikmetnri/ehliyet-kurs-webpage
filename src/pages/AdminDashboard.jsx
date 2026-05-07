@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Users, FileText, CheckCircle2, Clock, Loader2, AlertTriangle, 
   MessageCircle, BarChart2, ShieldAlert, Plus, Bell, Settings, 
-  Edit3, Activity, Library, Award, QrCode, Share2, XCircle
+  Edit3, Activity, Library, Award, QrCode, Share2, XCircle, AlertCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -103,12 +103,37 @@ const ModuleCard = ({ title, description, icon, color, path, metric, onOpen }) =
   </button>
 );
 
+const HealthCard = ({ title, value, detail, icon, tone, path, onOpen, delay }) => (
+  <MotionDiv
+    initial={{ opacity: 0, y: 14 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay }}
+    className="group relative overflow-hidden rounded-2xl border border-white/5 bg-black/30 p-4 text-left transition-all hover:border-white/15 hover:bg-white/[0.035]"
+  >
+    <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full blur-3xl ${tone.glow}`} />
+    <button type="button" onClick={() => onOpen(path)} className="relative z-10 flex w-full items-center gap-3 text-left">
+      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${tone.bg} ${tone.text} ${tone.border}`}>
+        {React.createElement(icon, { className: 'h-5 w-5' })}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[10px] font-black uppercase tracking-widest text-text-muted">{title}</span>
+        <span className="mt-1 block text-2xl font-black leading-none text-white">{value}</span>
+        <span className="mt-1.5 block truncate text-xs font-semibold text-text-muted">{detail}</span>
+      </span>
+      <span className="text-[10px] font-black uppercase tracking-widest text-white/30 transition group-hover:text-white/70">
+        Aç
+      </span>
+    </button>
+  </MotionDiv>
+);
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [stats, setStats] = useState({
     totalUsers: 0, totalExams: 0, avgSuccessRate: 0, pendingPostsCount: 0, activeSupportCount: 0, activeReportsCount: 0
   });
+  const [contentHealth, setContentHealth] = useState({ missingContentCount: 0, totalContentCategories: 0 });
   
   const [pendingPosts, setPendingPosts] = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
@@ -127,14 +152,15 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      const [overviewRes, postsRes, ticketsRes, reportsRes, logsRes, regTrendRes, catStatsRes] = await Promise.all([
+      const [overviewRes, postsRes, ticketsRes, reportsRes, logsRes, regTrendRes, catStatsRes, categoriesRes] = await Promise.all([
         api.get('/admin/stats/overview').catch(() => ({ data: { totalUsers: 0, totalExams: 0, avgSuccessRate: 0 } })),
         api.get('/posts/admin/pending').catch(() => ({ data: { data: [] } })),
         api.get('/contact').catch(() => ({ data: { data: [] } })),
         api.get('/reports').catch(() => ({ data: { data: [] } })),
         api.get('/admin/logs').catch(() => ({ data: [] })),
         api.get('/admin/stats/registration-trend').catch(() => ({ data: [] })),
-        api.get('/admin/stats/categories').catch(() => ({ data: [] }))
+        api.get('/admin/stats/categories').catch(() => ({ data: [] })),
+        api.get('/categories/all').catch(() => ({ data: { data: [] } }))
       ]);
 
       const overviewData = overviewRes.data || {};
@@ -142,6 +168,7 @@ const AdminDashboard = () => {
       const ticketsData = readList(ticketsRes.data);
       const reportsData = readList(reportsRes.data);
       const logsData = readList(logsRes.data);
+      const categoriesData = readList(categoriesRes.data);
       
       // Update chart states
       setRegData(readList(regTrendRes.data));
@@ -155,6 +182,11 @@ const AdminDashboard = () => {
 
       const activeTickets = ticketsData.filter(t => !['closed', 'kapalı'].includes(String(t.status || '').toLowerCase()));
       const activeReports = reportsData.filter(r => !['closed', 'resolved', 'rejected', 'dismissed'].includes(String(r.status || '').toLowerCase()));
+      const contentCategories = categoriesData.filter(c => {
+        const hasChildren = categoriesData.some(child => String(child.parent?._id || child.parent || '') === String(c._id));
+        return !hasChildren;
+      });
+      const missingContentCount = contentCategories.filter(c => !c.content || !c.content.trim()).length;
 
       setStats({
         totalUsers: overviewData.totalUsers || 0,
@@ -164,6 +196,7 @@ const AdminDashboard = () => {
         activeSupportCount: activeTickets.length,
         activeReportsCount: activeReports.length
       });
+      setContentHealth({ missingContentCount, totalContentCategories: contentCategories.length });
 
       setPendingPosts(postsData.slice(0, 5));
       setSupportTickets(activeTickets.slice(0, 5)); 
@@ -243,6 +276,41 @@ const AdminDashboard = () => {
     { title: 'Yönetim Merkezi', description: 'Sistem, hukuki metinler, S.S.S. ve anonslar.', icon: Settings, path: '/admin/settings', color: { bg: 'bg-slate-500/10', text: 'text-slate-300', border: 'border-slate-500/20' } },
   ];
 
+  const healthCards = [
+    {
+      title: 'Açık Destek',
+      value: stats.activeSupportCount,
+      detail: 'Yanıt bekleyen destek talepleri',
+      icon: MessageCircle,
+      path: '/admin/support',
+      tone: { bg: 'bg-cyan-500/10', text: 'text-cyan-300', border: 'border-cyan-500/20', glow: 'bg-cyan-500/15' },
+    },
+    {
+      title: 'Açık Rapor',
+      value: stats.activeReportsCount,
+      detail: 'İnceleme bekleyen şikayetler',
+      icon: ShieldAlert,
+      path: '/admin/reports',
+      tone: { bg: 'bg-rose-500/10', text: 'text-rose-300', border: 'border-rose-500/20', glow: 'bg-rose-500/15' },
+    },
+    {
+      title: 'Akış Onayı',
+      value: stats.pendingPostsCount,
+      detail: 'Yayınlanmayı bekleyen gönderiler',
+      icon: Share2,
+      path: '/admin/feed',
+      tone: { bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/20', glow: 'bg-amber-500/15' },
+    },
+    {
+      title: 'Eksik İçerik',
+      value: contentHealth.missingContentCount,
+      detail: `${contentHealth.totalContentCategories} konu içinde boş içerik`,
+      icon: AlertCircle,
+      path: '/admin/content',
+      tone: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20', glow: 'bg-violet-500/15' },
+    },
+  ];
+
   if (loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center flex-col gap-4">
@@ -256,14 +324,14 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6 sm:space-y-8 pb-10 w-full px-0 sm:px-2 2xl:px-8">
       
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 sm:gap-6">
-        <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight sm:leading-none mb-2">Sistem <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-indigo-400">Komuta Merkezi</span></h1>
-          <p className="text-text-muted text-[13px] font-medium tracking-wide leading-relaxed">Tüm ağ analizlerini ve operasyonel metrikleri tek bir vizyondan yönetin.</p>
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 sm:gap-6 min-w-0 overflow-hidden">
+        <div className="min-w-0 max-w-full">
+          <h1 className="text-[clamp(1.55rem,8vw,2rem)] sm:text-3xl font-black text-white tracking-tight leading-tight sm:leading-none mb-2 break-words">Sistem <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-indigo-400">Komuta Merkezi</span></h1>
+          <p className="text-text-muted text-[13px] font-medium tracking-wide leading-relaxed max-w-xl">Tüm ağ analizlerini ve operasyonel metrikleri tek bir vizyondan yönetin.</p>
         </div>
         
         {/* Hızlı İşlem Butonları (Header) */}
-        <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 xl:pb-0 custom-scrollbar shrink-0 -mx-3 px-3 sm:mx-0 sm:px-0">
+        <div className="flex flex-wrap gap-2 sm:gap-3 pb-1 xl:pb-0 shrink-0 max-w-full">
           <button onClick={() => navigate('/admin/content')} className="flex items-center gap-2.5 px-4 sm:px-6 py-3 bg-primary/10 text-primary border border-primary/20 hover:border-primary/50 hover:bg-primary/20 rounded-[16px] font-black uppercase tracking-widest text-[10px] transition-all whitespace-nowrap shadow-lg shadow-primary/5">
             <Plus className="w-4 h-4" /> İçerik Üret
           </button>
@@ -279,6 +347,27 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         {statCards.map((stat, i) => <StatCard key={i} {...stat} />)}
       </div>
+
+      <section className="space-y-4">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">Bugün Bekleyenler</h2>
+            <p className="text-text-muted text-sm mt-1">Admin girince ilk bakılması gereken operasyon sinyalleri.</p>
+          </div>
+          <button
+            type="button"
+            onClick={fetchData}
+            className="mt-2 w-fit rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-text-muted transition hover:bg-white/10 hover:text-white sm:mt-0"
+          >
+            Yenile
+          </button>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {healthCards.map((card, index) => (
+            <HealthCard key={card.title} {...card} delay={index * 0.05} onOpen={navigate} />
+          ))}
+        </div>
+      </section>
 
       <section className="space-y-4">
         <div>
