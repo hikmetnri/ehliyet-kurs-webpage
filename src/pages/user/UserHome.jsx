@@ -188,6 +188,61 @@ const UserHome = () => {
     { label: 'Günlük hedef', detail: `${dailyGoal} soruluk hedef`, icon: Target, done: todayQuestions >= dailyGoal },
   ];
 
+  const wrongCount = stats?.totalWrong || stats?.wrongCount || 0;
+  const recommendation = (() => {
+    if (!user?.selectedCategoryId) {
+      return {
+        title: 'Bugün sınıfını seç',
+        detail: 'Ders, sınav ve hedef önerilerini kişiselleştirmek için ehliyet sınıfını belirle.',
+        action: 'Sınıf Seç',
+        onClick: () => setShowCategoryModal(true),
+        icon: ShieldCheck,
+        tone: 'primary',
+      };
+    }
+
+    if (remainingQuestions > 0) {
+      const suggestedQuestions = Math.min(Math.max(remainingQuestions, 10), 20);
+      return {
+        title: `Bugün ${suggestedQuestions} soru + 1 konu tekrarı`,
+        detail: wrongCount > 0
+          ? `${wrongCount} yanlışın var. Önce kısa tekrar, sonra hedefini tamamlayacak mini test iyi gider.`
+          : 'Hedefe düzenli ilerlemek için kısa bir konu okuması ve mini test yeterli.',
+        action: 'Teste Başla',
+        to: '/dashboard/exams',
+        icon: Target,
+        tone: 'success',
+      };
+    }
+
+    if (wrongCount > 0) {
+      return {
+        title: 'Bugün yanlışlarını temizle',
+        detail: 'Günlük hedef tamam. Şimdi zorlandığın konuları tekrar edip bir deneme daha çözebilirsin.',
+        action: 'İstatistiklere Git',
+        to: '/dashboard/stats',
+        icon: RefreshCcw,
+        tone: 'warning',
+      };
+    }
+
+    return {
+      title: 'Bugün hafif tekrar yeterli',
+      detail: 'Hedef tamam ve performans iyi görünüyor. Kısa ders tekrarıyla ritmi koru.',
+      action: 'Derslere Git',
+      to: '/dashboard/lessons',
+      icon: BookOpen,
+      tone: 'accent',
+    };
+  })();
+
+  const recommendationTone = {
+    primary: 'border-primary/20 bg-primary/10 text-primary-light',
+    success: 'border-success/20 bg-success/10 text-success',
+    warning: 'border-warning/20 bg-warning/10 text-warning',
+    accent: 'border-accent/20 bg-accent/10 text-accent-light',
+  }[recommendation.tone];
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
@@ -368,6 +423,37 @@ const UserHome = () => {
           )}
 
           <div className="mt-7 space-y-2.5">
+            <div className="mb-4 rounded-2xl border border-white/10 bg-black/20 p-4">
+              <div className="flex items-start gap-3">
+                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${recommendationTone}`}>
+                  <recommendation.icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün Ne Yapmalıyım?</p>
+                  <h3 className="mt-1 text-base font-black leading-tight text-white">{recommendation.title}</h3>
+                  <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">{recommendation.detail}</p>
+                </div>
+              </div>
+              {recommendation.to ? (
+                <Link
+                  to={recommendation.to}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                >
+                  {recommendation.action}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={recommendation.onClick}
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+                >
+                  {recommendation.action}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
             {studyPlan.map((item) => (
               <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/[0.025] p-3 transition hover:bg-white/[0.045]">
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.done ? 'bg-success/10 text-success' : 'bg-white/5 text-text-muted'}`}>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Clock, ChevronLeft, ChevronRight,
   CheckCircle2, XCircle, AlertCircle, BarChart2,
-  Send, RefreshCw, Home, Flag, BookOpen, Star
+  Send, RefreshCw, Home, Flag, BookOpen, Star, ListChecks, X
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import ReportQuestionModal from '../../components/user/ReportQuestionModal';
@@ -135,6 +135,7 @@ const UserExamSolve = ({ customType }) => {
   const [phase, setPhase] = useState('intro'); // 'intro' | 'solving' | 'result'
   const [submitting, setSubmitting] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showQuestionList, setShowQuestionList] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [favLoading, setFavLoading] = useState(false);
 
@@ -383,6 +384,7 @@ const UserExamSolve = ({ customType }) => {
   // ─── SOLVING ───────────────────────────────────────────────────────
   const q = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
+  const emptyCount = questions.length - answeredCount;
   const progressPct = ((currentIdx) / questions.length) * 100;
 
   return (
@@ -578,6 +580,14 @@ const UserExamSolve = ({ customType }) => {
 
         <div className="flex items-center gap-2 sm:gap-3 ml-auto w-full sm:w-auto">
           <button
+            type="button"
+            onClick={() => setShowQuestionList(true)}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/10 sm:flex-none md:hidden"
+          >
+            <ListChecks className="h-4 w-4" /> Soru Listesi
+          </button>
+
+          <button
             onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
             disabled={currentIdx === 0}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-white/10 transition-all disabled:opacity-30"
@@ -610,6 +620,80 @@ const UserExamSolve = ({ customType }) => {
         onClose={() => setShowReport(false)}
         question={q}
       />
+
+      <AnimatePresence>
+        {showQuestionList && (
+          <div className="fixed inset-0 z-[90] md:hidden">
+            <motion.button
+              type="button"
+              aria-label="Soru listesini kapat"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowQuestionList(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 260 }}
+              className="absolute inset-x-0 bottom-0 max-h-[78vh] overflow-hidden rounded-t-[28px] border border-white/10 bg-bg-card shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-3 border-b border-white/5 p-4">
+                <div>
+                  <h3 className="text-base font-black text-white">Soru Listesi</h3>
+                  <p className="mt-1 text-xs font-bold text-text-muted">
+                    {answeredCount} işaretli, {emptyCount} boş soru var.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowQuestionList(false)}
+                  className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted transition hover:bg-white/10 hover:text-white"
+                  title="Kapat"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="grid max-h-[54vh] grid-cols-5 gap-2 overflow-y-auto p-4 custom-scrollbar">
+                {questions.map((question, i) => {
+                  const answered = answers[i] !== undefined;
+                  const current = i === currentIdx;
+                  const statusClass = current
+                    ? 'border-white bg-white text-black scale-105'
+                    : answered
+                      ? (showFeedback && answers[i] !== question.correctAnswer
+                        ? 'border-danger/40 bg-danger/15 text-danger'
+                        : 'border-primary/40 bg-primary/20 text-primary-light')
+                      : 'border-white/10 bg-white/5 text-text-muted';
+
+                  return (
+                    <button
+                      key={question._id || i}
+                      type="button"
+                      onClick={() => {
+                        setCurrentIdx(i);
+                        setShowQuestionList(false);
+                      }}
+                      className={`h-12 rounded-2xl border text-xs font-black transition-all ${statusClass}`}
+                    >
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 border-t border-white/5 p-4 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded bg-primary/40" /> İşaretli</span>
+                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded bg-white/10" /> Boş</span>
+                <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded bg-white" /> Aktif</span>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

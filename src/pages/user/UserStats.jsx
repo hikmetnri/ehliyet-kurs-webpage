@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search } from 'lucide-react';
+import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search, BookOpen, PlayCircle } from 'lucide-react';
 import ExamDetailModal from '../../components/user/ExamDetailModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
@@ -12,6 +13,23 @@ const BadgeIcon = ({ name, ...props }) => {
   return <Icon {...props} />;
 };
 import useAuthStore from '../../store/authStore';
+
+const EmptyAction = ({ icon: Icon, title, text, action, to }) => (
+  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-4 py-8 text-center">
+    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+      <Icon className="h-5 w-5 text-primary-light" />
+    </div>
+    <h4 className="text-sm font-black text-white">{title}</h4>
+    <p className="mt-2 max-w-xs text-xs font-semibold leading-relaxed text-text-muted">{text}</p>
+    <Link
+      to={to}
+      className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+    >
+      {action}
+      <ChevronRight className="h-3.5 w-3.5" />
+    </Link>
+  </div>
+);
 
 const UserStats = () => {
   const { user } = useAuthStore();
@@ -264,7 +282,13 @@ const UserStats = () => {
               <div className="glass-card p-6 rounded-3xl border border-white/5">
                 <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest">Konu Bazlı Başarı</h3>
                 {catStats.length === 0 ? (
-                  <p className="text-text-muted text-sm italic text-center py-8">Henüz konu bazlı istatistiğiniz yok.</p>
+                  <EmptyAction
+                    icon={BookOpen}
+                    title="Konu verisi oluşmadı"
+                    text="Bir konu testi çözdüğünde güçlü ve zayıf alanların burada görünür."
+                    action="Konu Testi Çöz"
+                    to="/dashboard/lessons"
+                  />
                 ) : (
                   <div className="space-y-4 max-h-56 overflow-y-auto custom-scrollbar pr-2">
                     {catStats.map((c, i) => (
@@ -432,7 +456,15 @@ const UserStats = () => {
                     <tbody className="divide-y divide-white/5">
                       {recentResults.length === 0 ? (
                         <tr>
-                          <td colSpan="5" className="py-12 text-center text-text-muted text-sm italic">Henüz bir sınav sonucu bulunmuyor.</td>
+                          <td colSpan="6" className="py-8">
+                            <EmptyAction
+                              icon={PlayCircle}
+                              title="Henüz sınav sonucun yok"
+                              text="İlk denemeni çözdükten sonra puan, doğru-yanlış ve detaylar burada listelenir."
+                              action="Sınavlara Git"
+                              to="/dashboard/exams"
+                            />
+                          </td>
                         </tr>
                       ) : (
                         recentResults.map((res, i) => (
@@ -530,7 +562,15 @@ const UserStats = () => {
                    <p className="text-xs font-bold text-text-muted uppercase tracking-widest">Sıralama Güncelleniyor...</p>
                  </div>
                ) : leaderboard.length === 0 ? (
-                 <div className="py-20 text-center text-text-muted text-sm italic">Bu dönem için henüz veri yok.</div>
+                 <div className="p-6">
+                   <EmptyAction
+                     icon={Trophy}
+                     title="Bu dönem sıralama boş"
+                     text="Sınav çözen öğrenciler oldukça liderlik tablosu burada hareketlenir."
+                     action="Sınav Çöz"
+                     to="/dashboard/exams"
+                   />
+                 </div>
                ) : (
                  <div className="divide-y divide-white/5">
                    {leaderboard.map((item, idx) => {
