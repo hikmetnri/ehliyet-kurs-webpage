@@ -95,17 +95,17 @@ export default function UserSupport() {
   const replied = tickets.filter(t => t.status === 'replied').length;
 
   return (
-    <div className="max-w-3xl mx-auto pb-24">
+    <div className="mx-auto max-w-3xl pb-24">
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
           {(view === 'detail' || view === 'new') && (
             <button onClick={goBack} className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-text-muted hover:text-white transition-all">
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <div>
+          <div className="min-w-0">
             <h1 className="text-2xl font-black text-white tracking-tight">
               {view === 'list' ? 'Destek Merkezi' : view === 'new' ? 'Yeni Talep' : (selected?.subject || 'Talep Detayı')}
             </h1>
@@ -117,7 +117,7 @@ export default function UserSupport() {
         {view === 'list' && (
           <button
             onClick={() => setView('new')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-white text-sm font-bold shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95 sm:w-auto"
             style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
           >
             <Plus className="w-4 h-4" />
@@ -210,7 +210,7 @@ export default function UserSupport() {
             <div className="bg-bg-card border border-white/5 rounded-3xl overflow-hidden">
               {/* Top accent */}
               <div className="h-1" style={{ background: 'linear-gradient(90deg, #6366f1, #06b6d4)' }} />
-              <div className="p-8">
+              <div className="p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-2xl bg-primary/15 flex items-center justify-center">
                     <HeadphonesIcon className="w-5 h-5 text-primary-light" />
@@ -267,11 +267,11 @@ export default function UserSupport() {
           <motion.div key="detail" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
             <div className="bg-bg-card border border-white/5 rounded-3xl overflow-hidden flex flex-col shadow-2xl">
               {/* Chat Header */}
-              <div className="px-6 py-4 border-b border-white/5 bg-gradient-to-r from-primary/5 to-transparent">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-black text-white mb-1.5">{selected.subject}</h2>
-                    <div className="flex items-center gap-3">
+              <div className="border-b border-white/5 bg-gradient-to-r from-primary/5 to-transparent px-4 py-4 sm:px-6">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <h2 className="mb-1.5 truncate font-black text-white">{selected.subject}</h2>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       <StatusBadge status={selected.status} />
                       <span className="text-xs text-text-muted">{formatDate(selected.createdAt)}</span>
                     </div>
@@ -283,7 +283,7 @@ export default function UserSupport() {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 p-6 space-y-4 max-h-[460px] overflow-y-auto custom-scrollbar">
+              <div className="max-h-[60vh] flex-1 space-y-4 overflow-y-auto p-4 custom-scrollbar sm:max-h-[460px] sm:p-6">
                 {(!selected.messages || selected.messages.length === 0) ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <AlertCircle className="w-10 h-10 text-white/10 mb-3" />
@@ -299,7 +299,7 @@ export default function UserSupport() {
                         }`}>
                           {isAdmin ? <HeadphonesIcon className="w-4 h-4" /> : 'S'}
                         </div>
-                        <div className={`max-w-[78%] flex flex-col ${isAdmin ? 'items-start' : 'items-end'}`}>
+                        <div className={`flex max-w-[84%] flex-col sm:max-w-[78%] ${isAdmin ? 'items-start' : 'items-end'}`}>
                           <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                             isAdmin
                               ? 'bg-bg-card2 border border-white/5 text-white/90 rounded-tl-sm'
@@ -335,7 +335,7 @@ export default function UserSupport() {
                     <input
                       type="text" value={replyText} onChange={e => setReplyText(e.target.value)}
                       placeholder="Yanıtınızı yazın..."
-                      className="flex-1 bg-bg-card border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary/50 transition-colors"
+                      className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-bg-card px-4 py-3 text-sm text-white transition-colors focus:border-primary/50 focus:outline-none"
                     />
                     <button
                       type="submit" disabled={!replyText.trim() || sending}

@@ -76,15 +76,15 @@ const UserStats = () => {
   );
 
   return (
-    <div className="space-y-8 pb-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="space-y-6 pb-10 sm:space-y-8">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">İstatistiklerim</h1>
           <p className="text-text-secondary text-sm mt-1">Çalışma performansınızı ve ilerlemenizi takip edin.</p>
         </div>
         
         {/* Tabs */}
-        <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl w-fit">
+        <div className="flex w-full overflow-x-auto rounded-2xl border border-white/10 bg-white/5 p-1 custom-scrollbar sm:w-fit">
           {[
             { id: 'stats', label: 'Genel Özet', icon: BarChart2 },
             { id: 'leaderboard', label: 'Liderlik Tablosu', icon: Trophy }
@@ -92,7 +92,7 @@ const UserStats = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-black uppercase tracking-widest transition-all sm:px-4 sm:text-xs ${
                 activeTab === tab.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-text-muted hover:text-white'
               }`}
             >
@@ -111,7 +111,7 @@ const UserStats = () => {
             className="space-y-8"
           >
             {/* Main stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-4 sm:gap-4">
               {[
                 { label: 'Toplam Sınav', value: stats?.totalExams || 0, icon: ClipboardList, color: 'text-primary-light', bg: 'bg-primary/10', border: 'border-primary/20' },
                 { label: 'Başarı Oranı', value: `%${stats?.successRate || 0}`, icon: Target, color: 'text-success', bg: 'bg-success/10', border: 'border-success/20' },
@@ -145,8 +145,8 @@ const UserStats = () => {
                   label: r.examName || r.categoryName || `Sınav ${i+1}`,
                 }));
               return (
-                <div className="glass-card p-6 rounded-3xl border border-white/5">
-                  <div className="flex items-center gap-3 mb-6">
+                <div className="glass-card rounded-3xl border border-white/5 p-4 sm:p-6">
+                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                       <BarChart2 className="w-5 h-5 text-primary-light" />
                     </div>
@@ -154,7 +154,7 @@ const UserStats = () => {
                       <h3 className="text-xl font-black text-white tracking-tight">Performans Grafiği</h3>
                       <p className="text-xs text-text-muted font-bold mt-0.5">Son {chartData.length} sınavdaki başarı eğrisi</p>
                     </div>
-                    <div className="ml-auto flex items-center gap-4 text-[10px] font-black uppercase tracking-widest">
+                    <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest sm:ml-auto">
                       <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-success inline-block"></span>Geçti</span>
                       <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-danger inline-block"></span>Kaldı</span>
                     </div>
@@ -289,9 +289,9 @@ const UserStats = () => {
             </div>
 
             {/* Badges Section */}
-            <div className="glass-card p-8 rounded-[40px] border border-white/5 relative overflow-hidden group">
+            <div className="glass-card group relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[40px]">
               <div className="absolute -right-20 -top-20 w-64 h-64 bg-amber-400/5 blur-[80px] rounded-full"></div>
-              <div className="flex items-center gap-3 mb-8">
+              <div className="mb-8 flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                     <Award className="w-6 h-6 text-amber-500" />
                   </div>
@@ -301,7 +301,7 @@ const UserStats = () => {
                   </div>
               </div>
 
-              <div className="grid grid-cols-3 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 relative z-10">
+              <div className="relative z-10 grid grid-cols-2 gap-4 xs:grid-cols-3 sm:grid-cols-4 sm:gap-6 md:grid-cols-6 lg:grid-cols-8">
                   {badges.map((badge, idx) => (
                     <motion.div 
                       key={badge._id}
@@ -350,7 +350,7 @@ const UserStats = () => {
                     exit={{ opacity: 0, scale: 0.9, y: 20 }}
                     className="relative w-full max-w-sm bg-bg-card border border-white/10 rounded-[40px] overflow-hidden shadow-2xl shadow-black/50"
                   >
-                    <div className="p-8 text-center flex flex-col items-center">
+                    <div className="flex max-h-[90vh] flex-col items-center overflow-y-auto p-6 text-center custom-scrollbar sm:p-8">
                       <div 
                         className="w-24 h-24 rounded-[32px] flex items-center justify-center mb-6 relative shadow-2xl"
                         style={{ 
@@ -407,8 +407,8 @@ const UserStats = () => {
             </AnimatePresence>
 
             {/* Exam History Section */}
-            <div className="glass-card p-6 rounded-3xl border border-white/5">
-                <div className="flex items-center justify-between mb-6">
+            <div className="glass-card rounded-3xl border border-white/5 p-4 sm:p-6">
+                <div className="mb-6 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                       <ClipboardList className="w-5 h-5 text-primary-light" />
@@ -417,8 +417,8 @@ const UserStats = () => {
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
+                <div className="overflow-x-auto custom-scrollbar">
+                  <table className="w-full min-w-[720px] text-left">
                     <thead>
                       <tr className="border-b border-white/5">
                         <th className="pb-4 px-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Sınav / Konu</th>
@@ -502,7 +502,7 @@ const UserStats = () => {
             {/* Leaderboard Header & Period Switcher */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="text-sm font-black text-white uppercase tracking-widest">En Başarılı Sürücü Adayları</h3>
-              <div className="flex p-1 bg-white/5 border border-white/10 rounded-xl w-fit">
+              <div className="flex w-full overflow-x-auto rounded-xl border border-white/10 bg-white/5 p-1 custom-scrollbar sm:w-fit">
                 {[
                   { id: 'all', label: 'Genel' },
                   { id: 'monthly', label: 'Aylık' },
@@ -512,7 +512,7 @@ const UserStats = () => {
                   <button
                     key={p.id}
                     onClick={() => setLbPeriod(p.id)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
+                    className={`shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase transition-all ${
                       lbPeriod === p.id ? 'bg-white/10 text-white' : 'text-text-muted hover:text-white'
                     }`}
                   >
@@ -539,7 +539,7 @@ const UserStats = () => {
                        <motion.div
                          key={item.userId}
                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
-                         className={`flex items-center gap-4 p-5 transition-colors ${isMe ? 'bg-primary/5' : 'hover:bg-white/[0.02]'}`}
+                         className={`flex items-center gap-3 p-4 transition-colors sm:gap-4 sm:p-5 ${isMe ? 'bg-primary/5' : 'hover:bg-white/[0.02]'}`}
                        >
                          {/* Rank */}
                          <div className="w-8 text-center shrink-0">
@@ -569,7 +569,7 @@ const UserStats = () => {
                          </div>
 
                          {/* Stats */}
-                         <div className="flex items-center gap-8 pr-4">
+                         <div className="flex items-center gap-3 pr-0 sm:gap-8 sm:pr-4">
                             <div className="hidden sm:block text-center">
                                <p className="text-xs font-black text-white">{item.examCount || 0}</p>
                                <p className="text-[8px] font-bold text-text-muted uppercase">Sınav</p>

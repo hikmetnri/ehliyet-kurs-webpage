@@ -100,10 +100,10 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="absolute right-0 top-full mt-2 w-[420px] max-h-[70vh] glass-card border border-white/10 rounded-2xl shadow-2xl shadow-black/40 z-50 flex flex-col overflow-hidden"
+          className="fixed inset-x-3 top-16 z-50 flex max-h-[calc(100vh-5rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101017] shadow-2xl shadow-black/70 ring-1 ring-black/40 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[420px] sm:max-h-[70vh]"
         >
           {/* Header */}
-          <div className="p-5 border-b border-white/5 flex items-center justify-between shrink-0">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/5 bg-black/20 p-4 sm:p-5">
             <div className="flex items-center gap-3">
               <h3 className="font-black text-lg">Bildirimler</h3>
               {unreadCount > 0 && (
@@ -133,7 +133,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 overflow-y-auto bg-[#101017] custom-scrollbar">
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />

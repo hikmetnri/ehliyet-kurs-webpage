@@ -119,28 +119,28 @@ export default function UserFeed() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto pb-24">
+    <div className="mx-auto max-w-3xl pb-24">
 
       {/* ── Hero Banner ── */}
-      <div className="relative overflow-hidden rounded-3xl mb-8 p-8"
+      <div className="relative mb-8 overflow-hidden rounded-3xl p-5 sm:p-8"
         style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(6,182,212,0.12) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}>
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ background: 'radial-gradient(circle, #6366f1, transparent)' }} />
           <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-15" style={{ background: 'radial-gradient(circle, #06b6d4, transparent)' }} />
         </div>
-        <div className="relative z-10 flex items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-5 h-5 text-primary-light" />
               <span className="text-xs font-bold uppercase tracking-widest text-primary-light">Topluluk</span>
             </div>
-            <h1 className="text-3xl font-black text-white mb-2 leading-tight">
+            <h1 className="mb-2 text-2xl font-black leading-tight text-white sm:text-3xl">
               Birlikte <span className="gradient-text">öğrenelim!</span>
             </h1>
             <p className="text-text-secondary text-sm leading-relaxed max-w-xs">
               Diğer adaylarla bilgi paylaş, soru sor, deneyimlerini aktар.
             </p>
-            <div className="flex items-center gap-4 mt-4">
+            <div className="mt-4 flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-1.5 text-xs text-text-muted">
                 <Flame className="w-3.5 h-3.5 text-orange-400" />
                 <span><b className="text-white">{posts.length}</b> gönderi</span>
@@ -153,7 +153,7 @@ export default function UserFeed() {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="shrink-0 flex flex-col items-center gap-2 px-6 py-4 rounded-2xl text-white font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/30"
+            className="flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-4 font-bold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 sm:w-auto sm:flex-col"
             style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
           >
             <Plus className="w-6 h-6" />
@@ -239,14 +239,14 @@ export default function UserFeed() {
                 transition={{ delay: idx * 0.04 }}
                 className="bg-bg-card border border-white/5 rounded-3xl overflow-hidden hover:border-white/10 transition-colors"
               >
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {/* Header */}
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-3">
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${grad} flex items-center justify-center text-white font-black text-sm shadow-lg`}>
                         {(post.userName || 'U').charAt(0).toUpperCase()}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-bold text-white text-sm">{post.userName || 'Kullanıcı'}</p>
                         <div className="flex items-center gap-1 text-xs text-text-muted mt-0.5">
                           <Clock className="w-3 h-3" />
@@ -254,7 +254,7 @@ export default function UserFeed() {
                         </div>
                       </div>
                     </div>
-                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${cfg.bg} ${cfg.tw} border ${cfg.border}`}>
+                    <div className={`flex w-fit items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold ${cfg.bg} ${cfg.tw} ${cfg.border}`}>
                       <TypeIcon className="w-3.5 h-3.5" />
                       {cfg.label}
                     </div>
@@ -324,7 +324,7 @@ export default function UserFeed() {
                                   <div className={`w-7 h-7 rounded-xl bg-gradient-to-br ${getAvatarGrad(c.userName)} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
                                     {(c.userName || 'U').charAt(0).toUpperCase()}
                                   </div>
-                                  <div className={`max-w-[75%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
+                                  <div className={`flex max-w-[84%] flex-col sm:max-w-[75%] ${isMe ? 'items-end' : 'items-start'}`}>
                                     <div className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                                       isMe
                                         ? 'bg-primary text-white rounded-tr-sm'
@@ -344,14 +344,14 @@ export default function UserFeed() {
                         </div>
 
                         {/* Reply Box */}
-                        <div className="p-3 border-t border-white/5 flex gap-2">
+                        <div className="flex gap-2 border-t border-white/5 p-3">
                           <input
                             type="text"
                             value={commentTexts[post._id] || ''}
                             onChange={e => setCommentTexts(prev => ({ ...prev, [post._id]: e.target.value }))}
                             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) handleComment(post._id); }}
                             placeholder="Yorum yaz, Enter ile gönder..."
-                            className="flex-1 bg-bg-card border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-text-muted focus:outline-none focus:border-primary/50 transition-colors"
+                            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-bg-card px-4 py-2.5 text-sm text-white placeholder-text-muted transition-colors focus:border-primary/50 focus:outline-none"
                           />
                           <button
                             onClick={() => handleComment(post._id)}
@@ -374,7 +374,7 @@ export default function UserFeed() {
       {/* ── Create Post Modal ── */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4">
+          <div className="fixed inset-0 z-[60] flex items-end justify-center p-3 sm:items-center sm:p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -386,7 +386,7 @@ export default function UserFeed() {
               initial={{ opacity: 0, y: 40, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.97 }}
-              className="relative w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl"
+              className="relative max-h-[92vh] w-full max-w-lg overflow-hidden rounded-3xl shadow-2xl"
               style={{ background: '#101017', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               {/* Modal Header */}
@@ -402,7 +402,7 @@ export default function UserFeed() {
                 </button>
               </div>
 
-              <div className="p-6 space-y-5">
+              <div className="max-h-[calc(92vh-73px)] space-y-5 overflow-y-auto p-4 custom-scrollbar sm:p-6">
                 {submitSuccess ? (
                   <div className="flex flex-col items-center py-8 gap-3">
                     <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center">

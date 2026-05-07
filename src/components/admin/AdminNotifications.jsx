@@ -213,9 +213,9 @@ const AdminNotifications = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.96 }}
             transition={{ duration: 0.18 }}
-            className="absolute right-0 top-full mt-3 w-[min(92vw,440px)] max-h-[74vh] glass-card border border-white/10 rounded-2xl shadow-2xl shadow-black/40 z-50 flex flex-col overflow-hidden"
+            className="absolute right-0 top-full z-50 mt-3 flex max-h-[74vh] w-[min(92vw,440px)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101017] shadow-2xl shadow-black/70 ring-1 ring-black/40"
           >
-            <div className="p-5 border-b border-white/5 flex items-start justify-between gap-4 shrink-0">
+            <div className="flex shrink-0 items-start justify-between gap-4 border-b border-white/5 bg-black/20 p-5">
               <div>
                 <div className="flex items-center gap-3">
                   <h3 className="font-black text-lg text-white">Admin Bildirimleri</h3>
@@ -249,7 +249,7 @@ const AdminNotifications = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 p-3 border-b border-white/5 bg-black/20">
+            <div className="grid grid-cols-3 gap-2 border-b border-white/5 bg-black/30 p-3">
               {summaryItems.map((item) => (
                 <button
                   key={item.key}
@@ -263,7 +263,7 @@ const AdminNotifications = () => {
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 overflow-y-auto bg-[#101017] custom-scrollbar">
               {loading && notifications.length === 0 ? (
                 <div className="flex items-center justify-center py-16">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />

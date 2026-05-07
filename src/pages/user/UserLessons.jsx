@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BookOpen, ChevronRight, ChevronDown, Loader2,
   Search, Lock, Folder, FolderOpen, FileText, X,
-  Zap, Play, CheckCircle2, ArrowRight
+  Zap, Play, CheckCircle2, ArrowRight, ZoomIn
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -166,6 +166,7 @@ const UserLessons = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [completedIds, setCompletedIds] = useState(getCompletedLessons());
   const [passedTestIds, setPassedTestIds] = useState([]); // Testi geçilen kategori ID'leri
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -262,7 +263,16 @@ const UserLessons = () => {
   }, [selectedLesson]);
 
   // İçeriği olan tüm derslerin düz listesi (sıradaki ders için)
-  const contentLessons = allCategories.filter(c => c.content && c.content.trim().length > 0);
+  const contentLessons = useMemo(
+    () => allCategories.filter(c => c.content && c.content.trim().length > 0),
+    [allCategories]
+  );
+
+  useEffect(() => {
+    if (loading || contentLessons.length === 0) return;
+    if (selectedLesson && contentLessons.some((lesson) => lesson._id === selectedLesson._id)) return;
+    setSelectedLesson(contentLessons[0]);
+  }, [contentLessons, loading, selectedLesson]);
 
   const getNextLesson = useCallback(() => {
     if (!selectedLesson) return null;
@@ -285,14 +295,14 @@ const UserLessons = () => {
   );
 
   return (
-    <div className="flex flex-col xl:flex-row min-h-[calc(100vh-88px)] xl:h-[calc(100vh-128px)] gap-0 overflow-visible xl:overflow-hidden rounded-2xl xl:rounded-3xl border border-white/5 shadow-2xl glass-card bg-bg-card/60">
+    <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-3xl xl:border xl:border-white/5 xl:bg-bg-card/60 xl:shadow-2xl xl:glass-card">
       
       {/* ─── LEFT: Category Tree Sidebar ─────────────────────────── */}
-      <div className="w-full xl:w-[420px] 2xl:w-[440px] shrink-0 flex flex-col border-b xl:border-b-0 xl:border-r border-white/5 xl:max-h-none xl:h-full">
+      <div className="flex w-full shrink-0 flex-col rounded-2xl border border-white/5 bg-bg-card/80 xl:h-full xl:max-h-none xl:w-[420px] xl:rounded-none xl:border-0 xl:border-r xl:border-white/5 xl:bg-transparent 2xl:w-[440px]">
         
         {/* Sidebar header */}
-        <div className="px-4 py-3 xl:py-4 border-b border-white/5 bg-white/[0.02]">
-          <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="border-b border-white/5 bg-white/[0.02] px-3 py-3 sm:px-4 xl:py-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
                 <BookOpen className="w-4 h-4 text-primary-light" />
@@ -307,7 +317,7 @@ const UserLessons = () => {
             </span>
           </div>
           {/* Search */}
-          <div className="flex items-center bg-black/30 border border-white/10 rounded-2xl px-3 py-2.5 focus-within:border-primary/40 focus-within:bg-primary/5 transition-colors">
+          <div className="flex items-center rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 transition-colors focus-within:border-primary/40 focus-within:bg-primary/5 sm:rounded-2xl">
             <Search className="w-3.5 h-3.5 text-text-muted mr-2 shrink-0" />
             <input
               type="text"
@@ -325,7 +335,7 @@ const UserLessons = () => {
         </div>
 
         {/* Mobile horizontal lesson rail */}
-        <div className="xl:hidden p-3">
+        <div className="xl:hidden p-2.5 sm:p-3">
           {loading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -333,7 +343,7 @@ const UserLessons = () => {
           ) : mobileLessons.length === 0 ? (
             <p className="text-xs text-text-muted italic text-center py-5">Sonuç bulunamadı.</p>
           ) : (
-            <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory custom-scrollbar">
+            <div className="flex gap-2 overflow-x-auto pb-1.5 snap-x snap-mandatory custom-scrollbar">
               {mobileLessons.map((cat, index) => {
                 const isSelected = selectedLesson?._id === cat._id;
                 const isCompleted = completedIds.includes(cat._id);
@@ -345,39 +355,32 @@ const UserLessons = () => {
                     key={cat._id}
                     disabled={isLocked}
                     onClick={() => handleSelect(cat)}
-                    className={`snap-start w-[82vw] max-w-[360px] min-h-[132px] shrink-0 rounded-2xl sm:rounded-3xl border p-4 text-left transition-all ${
+                    className={`snap-start flex w-[72vw] max-w-[290px] shrink-0 items-center gap-3 rounded-2xl border p-3 text-left transition-all sm:w-[46vw] sm:max-w-[330px] ${
                       isSelected
                         ? 'bg-gradient-to-br from-primary/25 via-primary/10 to-accent/10 border-primary/35 shadow-xl shadow-primary/10'
                         : 'bg-white/[0.035] border-white/10 hover:bg-white/[0.06]'
                     } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    <div className="flex items-start gap-3">
-                      <span className={`w-11 h-11 rounded-2xl flex items-center justify-center border ${
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
                         isSelected ? 'bg-primary/20 border-primary/30 text-primary-light' : 'bg-black/20 border-white/10 text-text-muted'
                       }`}>
                         {isLocked ? (
-                          <Lock className="w-5 h-5 text-warning" />
+                          <Lock className="h-4 w-4 text-warning" />
                         ) : imageUrl ? (
-                          <img src={imageUrl} alt="" className="w-full h-full rounded-2xl object-cover" />
+                          <img src={imageUrl} alt="" className="h-full w-full rounded-xl object-cover" />
                         ) : (
-                          <FileText className="w-5 h-5" />
+                          <FileText className="h-4 w-4" />
                         )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[9px] font-black uppercase tracking-widest text-text-muted">
+                        Ders {String(index + 1).padStart(2, '0')}
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[10px] font-black uppercase tracking-widest text-text-muted">
-                          Ders {String(index + 1).padStart(2, '0')}
-                        </span>
-                        <span className="mt-1 block text-[15px] font-black text-white leading-snug line-clamp-3">
-                          {cat.name}
-                        </span>
+                      <span className="mt-0.5 block text-sm font-black leading-snug text-white line-clamp-2">
+                        {cat.name}
                       </span>
-                      {isCompleted && <CheckCircle2 className="w-5 h-5 text-success shrink-0" />}
-                    </div>
-                    {cat.description && (
-                      <p className="mt-3 text-xs font-medium text-text-secondary line-clamp-2 leading-relaxed">
-                        {cat.description}
-                      </p>
-                    )}
+                    </span>
+                    {isCompleted && <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />}
                   </button>
                 );
               })}
@@ -442,7 +445,7 @@ const UserLessons = () => {
       </div>
 
       {/* ─── RIGHT: Content Reader ────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-h-[62vh] xl:h-full overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/5 bg-bg-card/70 xl:h-full xl:min-h-[62vh] xl:rounded-none xl:border-0 xl:bg-transparent">
         <AnimatePresence mode="wait">
           {selectedLesson ? (
             <MotionDiv
@@ -451,15 +454,16 @@ const UserLessons = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.25 }}
-              className="flex flex-col h-full min-h-[62vh]"
+              className="flex h-full min-h-[62vh] flex-col"
             >
               {/* Content Header */}
-              <div className="px-4 sm:px-6 xl:px-8 py-4 xl:py-5 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent flex items-start gap-3 sm:gap-5 shrink-0">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary/20 border-2 border-primary/30 flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary-light" />
+              <div className="flex shrink-0 items-start gap-3 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-4 py-3 sm:gap-5 sm:px-6 sm:py-4 xl:px-8 xl:py-5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border-2 border-primary/30 bg-primary/20 sm:h-12 sm:w-12">
+                  <FileText className="h-5 w-5 text-primary-light sm:h-6 sm:w-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug sm:truncate break-words">{selectedLesson.name}</h2>
+                  <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-primary-light xl:hidden">Okunan Ders</p>
+                  <h2 className="text-base font-black leading-snug tracking-tight text-white sm:text-lg sm:truncate break-words">{selectedLesson.name}</h2>
                   {selectedLesson.description && (
                     <p className="text-xs text-text-muted mt-1 line-clamp-2 sm:line-clamp-1">{selectedLesson.description}</p>
                   )}
@@ -472,7 +476,7 @@ const UserLessons = () => {
               </div>
 
               {/* Markdown Body */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 xl:px-8 py-5 sm:py-7 xl:py-8 custom-scrollbar">
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 custom-scrollbar sm:px-6 sm:py-7 xl:px-8 xl:py-8">
                 {selectedLesson.isPro && !user?.proStatus ? (
                   <div className="flex flex-col items-center justify-center h-full text-center gap-5">
                     <div className="w-24 h-24 rounded-[32px] border-2 border-dashed border-warning/30 flex items-center justify-center">
@@ -486,13 +490,13 @@ const UserLessons = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="prose prose-invert prose-sm sm:prose-base max-w-none xl:max-w-3xl mx-auto
+                  <div className="prose prose-invert prose-sm mx-auto max-w-none sm:prose-base xl:max-w-3xl
                     prose-headings:font-black prose-headings:tracking-tight prose-headings:text-white
                     prose-h1:text-xl sm:prose-h1:text-2xl prose-h2:text-lg sm:prose-h2:text-xl prose-h2:border-b prose-h2:border-white/10 prose-h2:pb-3
-                    prose-p:text-white/85 prose-p:leading-relaxed
+                    prose-p:text-white/85 prose-p:leading-7 sm:prose-p:leading-relaxed
                     prose-strong:text-white prose-strong:font-black
                     prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-white/10 prose-img:mx-auto prose-img:max-h-[320px] sm:prose-img:max-h-[460px] prose-img:object-contain
-                    prose-li:text-white/85 prose-ul:space-y-1
+                    prose-li:text-white/85 prose-li:leading-7 prose-ul:space-y-1
                     prose-a:text-primary-light hover:prose-a:text-white prose-a:no-underline prose-a:font-semibold
                     prose-blockquote:border-l-primary prose-blockquote:text-text-secondary
                     prose-code:bg-white/5 prose-code:border prose-code:border-white/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-primary-light
@@ -505,11 +509,20 @@ const UserLessons = () => {
                       remarkPlugins={[remarkGfm]}
                       components={{
                         img: ({ src, alt }) => (
-                          <img
-                            src={resolveMediaUrl(src)}
-                            alt={alt || ''}
-                            className="rounded-2xl shadow-xl border border-white/10 max-w-full max-h-[320px] sm:max-h-[460px] object-contain my-5 sm:my-6 mx-auto"
-                          />
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImage({ src: resolveMediaUrl(src), alt: alt || selectedLesson.name })}
+                            className="not-prose group relative mx-auto my-5 block overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-xl sm:my-6"
+                          >
+                            <img
+                              src={resolveMediaUrl(src)}
+                              alt={alt || ''}
+                              className="max-h-[320px] max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02] sm:max-h-[460px]"
+                            />
+                            <span className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/70 text-white shadow-lg opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+                              <ZoomIn className="h-4 w-4" />
+                            </span>
+                          </button>
                         ),
                       }}
                     >
@@ -518,11 +531,20 @@ const UserLessons = () => {
 
                     {selectedLessonImage && !contentIncludesSelectedImage && (
                       <div className="not-prose mt-8 sm:mt-10">
-                        <img
-                          src={selectedLessonImage}
-                          alt={selectedLesson.name}
-                          className="mx-auto w-full max-w-2xl rounded-2xl border border-white/10 bg-black/20 object-contain shadow-2xl"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setPreviewImage({ src: selectedLessonImage, alt: selectedLesson.name })}
+                          className="group relative mx-auto block w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-2xl"
+                        >
+                          <img
+                            src={selectedLessonImage}
+                            alt={selectedLesson.name}
+                            className="w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                          />
+                          <span className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/70 text-white shadow-lg opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+                            <ZoomIn className="h-4 w-4" />
+                          </span>
+                        </button>
                       </div>
                     )}
 
@@ -583,19 +605,59 @@ const UserLessons = () => {
             <MotionDiv
               key="empty"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="flex-1 flex flex-col items-center justify-center text-center p-6 sm:p-12 min-h-[58vh]"
+              className="flex min-h-[46vh] flex-1 flex-col items-center justify-center p-6 text-center sm:min-h-[58vh] sm:p-12"
             >
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-[32px] sm:rounded-[36px] bg-white/[0.03] border-2 border-dashed border-white/10 flex items-center justify-center mb-6">
-                <BookOpen className="w-12 h-12 sm:w-14 sm:h-14 text-white/10" />
+              <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-[28px] border-2 border-dashed border-white/10 bg-white/[0.03] sm:mb-6 sm:h-28 sm:w-28 sm:rounded-[36px]">
+                <BookOpen className="h-10 w-10 text-white/10 sm:h-14 sm:w-14" />
               </div>
-              <h3 className="text-xl font-black text-white/60 tracking-tight">Bir ders seçin</h3>
+              <h3 className="text-lg font-black tracking-tight text-white/70 sm:text-xl">Bir ders seçin</h3>
               <p className="text-text-muted text-sm max-w-xs mt-2 font-medium leading-relaxed">
-                Sol taraftaki menüden bir kategori veya ders seçerek okumaya başlayabilirsiniz.
+                Üstteki ders listesinden bir konu seçerek okumaya başlayabilirsiniz.
               </p>
             </MotionDiv>
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {previewImage && (
+          <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/90 p-3 backdrop-blur-md sm:p-6">
+            <MotionDiv
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0"
+              onClick={() => setPreviewImage(null)}
+            />
+            <MotionDiv
+              initial={{ opacity: 0, scale: 0.94, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 18 }}
+              transition={{ duration: 0.2 }}
+              className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-bg-card shadow-2xl shadow-black/70"
+            >
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-black/30 px-4 py-3">
+                <p className="min-w-0 truncate text-sm font-black text-white">{previewImage.alt || 'Görsel'}</p>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImage(null)}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 text-text-muted transition hover:bg-white/10 hover:text-white"
+                  aria-label="Görseli kapat"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black/40 p-2 custom-scrollbar sm:p-4">
+                <img
+                  src={previewImage.src}
+                  alt={previewImage.alt || ''}
+                  className="max-h-[78vh] max-w-full object-contain"
+                />
+              </div>
+            </MotionDiv>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

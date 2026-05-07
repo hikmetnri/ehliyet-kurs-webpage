@@ -145,13 +145,13 @@ const UserSettings = () => {
   ];
 
   return (
-    <div className="space-y-8 pb-24 text-white">
+    <div className="space-y-6 pb-24 text-white sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-6 flex items-center justify-between sm:mb-8">
         <div className="flex items-center gap-4">
           <div className="w-3 h-10 bg-primary rounded-full shadow-[0_0_20px_rgba(99,102,241,0.6)]"></div>
           <div>
-            <h2 className="text-3xl font-black tracking-tight italic">Ayarlar</h2>
+            <h2 className="text-2xl font-black italic tracking-tight sm:text-3xl">Ayarlar</h2>
             <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">
               Hesap detaylarını ve tercihlerini yönet
             </p>
@@ -171,14 +171,14 @@ const UserSettings = () => {
         </Motion.div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 lg:gap-8">
         {/* Sidebar Tabs */}
-        <div className="lg:col-span-1 space-y-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar lg:col-span-1 lg:block lg:space-y-2 lg:overflow-visible lg:pb-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl transition-all duration-300 font-bold ${
+              className={`flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300 lg:w-full lg:px-5 lg:py-4 ${
                 activeTab === tab.id 
                 ? 'bg-primary/20 text-primary-light border border-primary/30 shadow-[0_0_20px_rgba(99,102,241,0.15)]' 
                 : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white border border-transparent'
@@ -197,7 +197,7 @@ const UserSettings = () => {
               <Motion.div
                 key="profile"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                className="glass-card p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden"
+                className="glass-card relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[2.5rem]"
               >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
                 <h3 className="text-2xl font-black mb-8 relative z-10">Kişisel Bilgiler</h3>
@@ -234,7 +234,7 @@ const UserSettings = () => {
 
                   {/* Form */}
                   <form onSubmit={saveProfile} className="flex-1 space-y-6 w-full">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Adınız</label>
                         <input
@@ -284,7 +284,7 @@ const UserSettings = () => {
                     </div>
 
                     <div className="flex justify-end pt-4">
-                      <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
+                      <button type="submit" disabled={loading} className="btn-primary flex w-full items-center justify-center gap-2 sm:w-auto">
                         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         Değişiklikleri Kaydet
                       </button>
@@ -298,7 +298,7 @@ const UserSettings = () => {
               <Motion.div
                 key="account"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                className="glass-card p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden"
+                className="glass-card relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[2.5rem]"
               >
                 <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none rounded-full" />
                 <h3 className="text-2xl font-black mb-8 relative z-10 flex items-center gap-3">
@@ -306,10 +306,10 @@ const UserSettings = () => {
                   Güvenlik & Şifre
                 </h3>
 
-                <div className="mb-10 bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between relative z-10">
-                  <div>
+                <div className="relative z-10 mb-10 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">E-Posta Adresi</p>
-                    <p className="font-medium">{user?.email}</p>
+                    <p className="break-all font-medium">{user?.email}</p>
                   </div>
                   <div className="px-3 py-1 bg-success/20 text-success text-[10px] font-black uppercase tracking-widest rounded-full border border-success/30">
                     Doğrulandı
@@ -354,7 +354,7 @@ const UserSettings = () => {
                     />
                   </div>
                   <div className="flex justify-start pt-4">
-                    <button type="submit" disabled={loading} className="btn-primary bg-gradient-to-r from-accent to-accent-light shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] flex items-center gap-2">
+                    <button type="submit" disabled={loading} className="btn-primary flex w-full items-center justify-center gap-2 bg-gradient-to-r from-accent to-accent-light shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] sm:w-auto">
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
                       Şifreyi Güncelle
                     </button>
@@ -363,7 +363,7 @@ const UserSettings = () => {
                 
                 {/* Hesabı Silme Alanı */}
                 <div className="mt-12 pt-8 border-t border-white/5 relative z-10">
-                  <div className="bg-danger/5 border border-danger/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex flex-col items-stretch justify-between gap-6 rounded-2xl border border-danger/20 bg-danger/5 p-5 sm:p-6 md:flex-row md:items-center">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-danger/20 rounded-full flex items-center justify-center shrink-0">
                         <ShieldAlert className="w-6 h-6 text-danger" />
@@ -388,7 +388,7 @@ const UserSettings = () => {
               <Motion.div
                 key="notifications"
                 initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                className="glass-card p-8 rounded-[2.5rem] border border-white/5 relative overflow-hidden"
+                className="glass-card relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[2.5rem]"
               >
                  <div className="absolute top-0 right-0 w-64 h-64 bg-success/5 blur-[100px] pointer-events-none rounded-full" />
                  <h3 className="text-2xl font-black mb-8 relative z-10 flex items-center gap-3">
@@ -397,7 +397,7 @@ const UserSettings = () => {
                  </h3>
 
                  <div className="space-y-8 relative z-10 max-w-xl">
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-between">
+                    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                        <div>
                           <h4 className="font-bold mb-1">Günlük Çalışma Hedefi</h4>
                           <p className="text-xs text-text-muted">Günlük çözmeniz gereken soru sayısını belirleyin.</p>
@@ -427,13 +427,13 @@ const UserSettings = () => {
                                 <p className="text-xs text-text-muted">Dashboardda sınava kaç gün kaldığını göstermek için tarihi girin.</p>
                              </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex w-full items-center gap-2 sm:w-auto">
                              <input
                                type="date"
                                name="examDate"
                                value={notifData.examDate}
                                onChange={handleNotifChange}
-                               className="bg-bg-dark border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 font-bold"
+                               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-bg-dark px-3 py-2 font-bold text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 sm:flex-none sm:px-4"
                              />
                              {notifData.examDate && (
                                <button
@@ -449,7 +449,7 @@ const UserSettings = () => {
                        </div>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-between opacity-50 cursor-not-allowed" title="Bu özellik yakında mobil uygulamada aktif olacak">
+                    <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 opacity-50 sm:p-6 cursor-not-allowed" title="Bu özellik yakında mobil uygulamada aktif olacak">
                        <div>
                           <h4 className="font-bold mb-1">E-Posta Bildirimleri</h4>
                           <p className="text-xs text-text-muted">Önemli güncellemeler ve sınav hatırlatıcıları (Yakında).</p>
@@ -460,7 +460,7 @@ const UserSettings = () => {
                        </label>
                     </div>
 
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-between">
+                    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                        <div>
                           <h4 className="font-bold mb-1">Hatırlatıcı Saati</h4>
                           <p className="text-xs text-text-muted">Günlük çalışmanı hatırlatmamız için bir saat seç.</p>
@@ -515,7 +515,7 @@ const UserSettings = () => {
                             }
                          }} 
                          disabled={loading}
-                         className="btn-primary bg-gradient-to-r from-success to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] flex items-center gap-2"
+                         className="btn-primary flex w-full items-center justify-center gap-2 bg-gradient-to-r from-success to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] sm:w-auto"
                        >
                          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                          Değişiklikleri Kaydet

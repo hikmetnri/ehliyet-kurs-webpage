@@ -67,23 +67,23 @@ const UserFavorites = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-128px)] gap-6">
+    <div className="flex min-h-[calc(100vh-128px)] flex-col gap-6 pb-20 lg:h-[calc(100vh-128px)] lg:pb-0">
       
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+      <div className="flex shrink-0 flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
-            <Star className="w-8 h-8 text-amber-500 fill-amber-500" />
+          <h1 className="flex items-center gap-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
+            <Star className="h-7 w-7 fill-amber-500 text-amber-500 sm:h-8 sm:w-8" />
             Favori Sorularım
           </h1>
           <p className="text-text-secondary text-sm mt-1">Tekrar çalışmak için yıldızladığınız tüm sorular burada listelenir.</p>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row flex-1 gap-6 min-h-0">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
         
         {/* Left Side: Question List */}
-        <div className="md:w-96 w-full flex flex-col gap-4 shrink-0">
+        <div className="flex w-full shrink-0 flex-col gap-4 lg:w-96">
           
           <div className="glass-card p-4 rounded-[24px] border border-white/5 space-y-4">
             <div className="flex items-center bg-black/40 rounded-[18px] px-4 py-3 w-full border border-white/5 transition-all focus-within:border-amber-500/50">
@@ -104,7 +104,7 @@ const UserFavorites = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+          <div className="max-h-[55vh] flex-1 space-y-3 overflow-y-auto pr-1 custom-scrollbar lg:max-h-none">
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-32 bg-bg-card border border-white/5 rounded-[24px]">
                     <Loader2 className="w-10 h-10 animate-spin text-amber-500 mb-4" />
@@ -180,26 +180,26 @@ const UserFavorites = () => {
                 className="flex flex-col h-full"
               >
                 {/* Detail Header */}
-                <div className="px-8 py-5 border-b border-white/5 bg-black/40 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col gap-4 border-b border-white/5 bg-black/40 px-4 py-4 sm:px-8 sm:py-5 md:flex-row md:items-center md:justify-between">
+                  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                     <div className="w-12 h-12 rounded-[18px] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                       <HelpCircle className="w-6 h-6 text-amber-500" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="text-lg font-black text-white leading-none">Soru Detayı</h2>
                       <p className="text-[10px] text-text-muted font-bold mt-1 uppercase tracking-widest">{selectedQuestion.subject || 'Genel Kategori'}</p>
                     </div>
                   </div>
                   <button 
                     onClick={(e) => handleRemoveFavorite(selectedQuestion._id, e)}
-                    className="flex items-center gap-2 px-4 py-2 bg-danger/10 text-danger border border-danger/20 rounded-xl text-xs font-bold hover:bg-danger hover:text-white transition-all"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/10 px-4 py-2 text-xs font-bold text-danger transition-all hover:bg-danger hover:text-white md:w-auto"
                   >
                     <Star className="w-4 h-4 fill-current" /> Favoriden Çıkar
                   </button>
                 </div>
 
                 {/* Detail Content */}
-                <div className="flex-1 overflow-y-auto p-10 space-y-8 custom-scrollbar">
+                <div className="flex-1 space-y-8 overflow-y-auto p-4 custom-scrollbar sm:p-8 lg:p-10">
                   
                   {/* Question Media if exists */}
                   {selectedQuestion.media && (
@@ -215,7 +215,7 @@ const UserFavorites = () => {
 
                   {/* Question Text */}
                   <div className="max-w-2xl mx-auto">
-                    <p className="text-lg font-bold text-white leading-relaxed text-center">
+                    <p className="text-base font-bold leading-relaxed text-white sm:text-lg md:text-center">
                       {selectedQuestion.text}
                     </p>
                   </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import UserSidebar from './UserSidebar';
+import UserBottomNav from './UserBottomNav';
 
 import CategorySelectorModal from './CategorySelectorModal';
 import NotificationPanel from './NotificationPanel';
@@ -138,9 +139,10 @@ const UserLayout = ({ fullscreen = false }) => {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 custom-scrollbar'}`}>
+        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto p-3 pb-24 sm:p-4 sm:pb-24 md:p-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
           <Outlet />
         </main>
+        {!fullscreen && <UserBottomNav />}
       </div>
     </div>
   );

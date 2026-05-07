@@ -66,20 +66,20 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
       {isOpen && (
         <Motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-bg-dark/90 backdrop-blur-xl px-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-bg-dark/90 px-3 py-4 backdrop-blur-xl sm:px-4 sm:py-6"
         >
           <Motion.div
             initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-            className="w-full max-w-3xl bg-bg-card rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden relative"
+            className="relative my-auto w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-bg-card shadow-2xl sm:rounded-[2.5rem]"
           >
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-primary/20 blur-[100px]" />
             
-            <div className="p-8 md:p-12 relative z-10 text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/20 transform rotate-3">
-                <ShieldCheck className="w-10 h-10 text-white" />
+            <div className="relative z-10 max-h-[calc(100vh-2rem)] overflow-y-auto p-5 text-center custom-scrollbar sm:p-8 md:p-12">
+              <div className="mx-auto mb-5 flex h-16 w-16 rotate-3 items-center justify-center rounded-3xl bg-gradient-to-br from-primary to-accent shadow-xl shadow-primary/20 sm:mb-6 sm:h-20 sm:w-20">
+                <ShieldCheck className="h-8 w-8 text-white sm:h-10 sm:w-10" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">Eğitim Türünü Belirle</h2>
-              <p className="text-text-muted font-medium mb-12 max-w-md mx-auto leading-relaxed">
+              <h2 className="mb-3 text-2xl font-black tracking-tight text-white sm:text-3xl md:text-4xl">Eğitim Türünü Belirle</h2>
+              <p className="mx-auto mb-7 max-w-md text-sm font-medium leading-relaxed text-text-muted sm:mb-12 sm:text-base">
                 Platformu sana özel hale getirebilmemiz için hazırlık yaptığın ehliyet sınıfını seçmelisin.
               </p>
 
@@ -94,7 +94,7 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
                    <p className="font-bold">Henüz kategori eklenmemiş!</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
+                <div className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-5 lg:grid-cols-3 sm:mb-12">
                   {dbCategories.map((cat) => {
                     const isSelected = selectedCat === cat._id;
                     const Icon = iconMap[cat.icon] || ShieldCheck;
@@ -104,7 +104,7 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
                         onClick={() => handleQuickSelect(cat)}
                         disabled={loading}
                         className={`
-                          relative overflow-hidden p-8 rounded-[2rem] border-2 transition-all duration-300 transform group
+                          relative overflow-hidden rounded-3xl border-2 p-5 transition-all duration-300 transform group sm:p-8
                           ${isSelected 
                             ? 'border-primary bg-primary/10 scale-105 shadow-xl shadow-primary/10 opacity-70' 
                             : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20'

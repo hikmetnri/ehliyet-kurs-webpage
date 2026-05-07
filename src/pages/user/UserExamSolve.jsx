@@ -52,12 +52,12 @@ const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
   const passed = score >= 70;
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center p-6">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', duration: 0.6 }}
-        className="w-full max-w-2xl glass-card p-10 rounded-3xl border border-white/10 shadow-2xl text-center"
+        className="w-full max-w-2xl glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
       >
         {/* Score Circle */}
         <div className={`w-32 h-32 rounded-full mx-auto mb-8 flex flex-col items-center justify-center border-4 shadow-xl ${
@@ -75,7 +75,7 @@ const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
         </p>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="mb-8 grid grid-cols-3 gap-2 sm:gap-4">
           <div className="bg-success/10 border border-success/20 rounded-2xl p-4">
             <p className="text-2xl font-black text-success">{correct}</p>
             <p className="text-[10px] font-bold text-success/70 uppercase tracking-widest mt-1">Doğru</p>
@@ -326,10 +326,10 @@ const UserExamSolve = ({ customType }) => {
   // ─── INTRO ─────────────────────────────────────────────────────────
   if (phase === 'intro') {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-6">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
         <motion.div
           initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-          className="w-full max-w-lg glass-card p-10 rounded-3xl border border-white/10 shadow-2xl text-center"
+          className="w-full max-w-lg glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
         >
           <div className="w-20 h-20 rounded-[28px] bg-primary/20 border-2 border-primary/30 flex items-center justify-center mx-auto mb-6">
             <BarChart2 className="w-10 h-10 text-primary-light" />
@@ -337,7 +337,7 @@ const UserExamSolve = ({ customType }) => {
           <h2 className="text-2xl font-black text-white mb-2 tracking-tight">{exam.name}</h2>
           {exam.description && <p className="text-text-muted text-sm mb-6 font-medium">{exam.description}</p>}
 
-          <div className="flex justify-center gap-6 mb-8">
+          <div className="mb-8 grid grid-cols-3 gap-3 sm:flex sm:justify-center sm:gap-6">
             <div className="text-center">
               <p className="text-2xl font-black text-white">{questions.length}</p>
               <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Soru</p>
@@ -363,7 +363,7 @@ const UserExamSolve = ({ customType }) => {
             </span>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <button onClick={() => navigate(-1)} className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
               <ChevronLeft className="w-4 h-4 inline mr-1" /> Geri
             </button>
@@ -386,26 +386,26 @@ const UserExamSolve = ({ customType }) => {
   const progressPct = ((currentIdx) / questions.length) * 100;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-128px)] overflow-hidden">
+    <div className="flex min-h-[calc(100vh-96px)] flex-col overflow-hidden sm:h-[calc(100vh-128px)]">
 
       {/* Header Bar */}
-      <div className="shrink-0 flex items-center justify-between px-6 py-4 bg-bg-card border-b border-white/5">
-        <div className="flex items-center gap-4">
+      <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 px-3 sm:px-6 py-4 bg-bg-card border-b border-white/5">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
           <button onClick={() => { if (window.confirm('Sınavdan çıkmak istiyor musunuz? İlerlemeniz kaydedilmez.')) navigate('/dashboard/exams'); }} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
             <ChevronLeft className="w-5 h-5 text-text-muted" />
           </button>
-          <div>
-            <h3 className="text-sm font-black text-white truncate max-w-xs">{exam.name}</h3>
+          <div className="min-w-0">
+            <h3 className="text-sm font-black text-white truncate max-w-[52vw] sm:max-w-xs">{exam.name}</h3>
             <p className="text-[10px] font-bold text-text-muted uppercase">Soru {currentIdx + 1} / {questions.length}</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {/* Favori Butonu */}
           <button
             onClick={() => toggleFavorite(q?._id)}
             disabled={favLoading || !q?._id}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition-all text-xs font-bold border ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl transition-all text-xs font-bold border ${
               favoriteIds.includes(q?._id)
                 ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
                 : 'bg-white/5 border-white/10 text-text-muted hover:text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/20'
@@ -419,7 +419,7 @@ const UserExamSolve = ({ customType }) => {
           {/* Raporla Butonu */}
           <button
             onClick={() => setShowReport(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-text-muted hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all text-xs font-bold"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-text-muted hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all text-xs font-bold"
             title="Bu soruyu raporla"
           >
             <Flag className="w-3.5 h-3.5" />
@@ -428,7 +428,7 @@ const UserExamSolve = ({ customType }) => {
         </div>
 
         {/* Timer */}
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black text-sm transition-all ${
+        <div className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl border font-black text-sm transition-all ${
           timer.isDanger ? 'bg-danger/10 border-danger/30 text-danger animate-pulse' :
           timer.isWarning ? 'bg-warning/10 border-warning/30 text-warning' :
           'bg-white/5 border-white/10 text-white'
@@ -453,7 +453,7 @@ const UserExamSolve = ({ customType }) => {
             key={currentIdx}
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.2 }}
-            className="p-8 max-w-3xl mx-auto"
+            className="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8"
           >
             {/* Question */}
             <div className="mb-8">
@@ -508,7 +508,7 @@ const UserExamSolve = ({ customType }) => {
                     key={idx}
                     disabled={isAnswered}
                     onClick={() => handleAnswer(idx)}
-                    className={`w-full flex items-start gap-4 p-4 rounded-2xl border text-left transition-all duration-200 ${btnClass}`}
+                    className={`w-full flex items-start gap-3 rounded-2xl border p-3 text-left transition-all duration-200 sm:gap-4 sm:p-4 ${btnClass}`}
                   >
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-all ${iconClass}`}>
                       {OPTION_LABELS[idx]}
@@ -555,7 +555,7 @@ const UserExamSolve = ({ customType }) => {
       </div>
 
       {/* Footer Navigation */}
-      <div className="shrink-0 px-6 py-4 bg-bg-card border-t border-white/5 flex items-center justify-between gap-4">
+      <div className="shrink-0 px-3 sm:px-6 py-4 bg-bg-card border-t border-white/5 flex items-center justify-between gap-3 sm:gap-4">
         {/* Question Nav dots (minimap) */}
         <div className="hidden md:flex items-center gap-1 flex-wrap max-w-xs">
           {questions.map((_, i) => (
@@ -576,11 +576,11 @@ const UserExamSolve = ({ customType }) => {
           ))}
         </div>
 
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center gap-2 sm:gap-3 ml-auto w-full sm:w-auto">
           <button
             onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
             disabled={currentIdx === 0}
-            className="flex items-center gap-1.5 px-5 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-white/10 transition-all disabled:opacity-30"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-white/10 transition-all disabled:opacity-30"
           >
             <ChevronLeft className="w-4 h-4" /> Önceki
           </button>
@@ -588,7 +588,7 @@ const UserExamSolve = ({ customType }) => {
           {currentIdx < questions.length - 1 ? (
             <button
               onClick={() => setCurrentIdx(i => i + 1)}
-              className="flex items-center gap-1.5 px-5 py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
             >
               Sonraki <ChevronRight className="w-4 h-4" />
             </button>
@@ -596,7 +596,7 @@ const UserExamSolve = ({ customType }) => {
             <button
               onClick={() => handleSubmit(false)}
               disabled={submitting}
-              className="flex items-center gap-1.5 px-5 py-3 bg-success text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-success/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-success text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-success/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
             >
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Sınavı Teslim Et</>}
             </button>
