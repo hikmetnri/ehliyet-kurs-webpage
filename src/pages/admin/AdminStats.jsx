@@ -78,17 +78,17 @@ const AdminStats = () => {
   }));
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-5 sm:space-y-6 pb-20">
       
       {/* --- HEADER --- */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Merkezi Analitik Dashboard</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">Merkezi Analitik Dashboard</h1>
           <p className="text-text-secondary text-sm mt-1">Sistemin performans verileri ve kullanıcı davranış analizleri.</p>
         </div>
         <button 
           onClick={fetchStats}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all"
+          className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all"
         >
           <Activity className="w-4 h-4 text-primary-light" /> Verileri Tazele
         </button>
@@ -146,9 +146,9 @@ const AdminStats = () => {
         {/* --- REGISTRATION TREND (MAIN CHART) --- */}
         <MotionDiv 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-2 glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col"
+            className="lg:col-span-2 glass-card rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-white/5 shadow-2xl flex flex-col"
         >
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 sm:mb-8">
             <div>
               <h2 className="text-lg font-black text-white">Grafiksel Kayıt Akışı</h2>
               <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Son 7 Günlük Kayıtlar</p>
@@ -158,7 +158,7 @@ const AdminStats = () => {
             </div>
           </div>
           
-          <div className="h-[300px] w-full">
+          <div className="h-[240px] sm:h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={registrationTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
@@ -197,7 +197,7 @@ const AdminStats = () => {
         {/* --- PRO STATUS (DONUT CHART) --- */}
         <MotionDiv 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col items-center justify-center text-center"
+            className="glass-card rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-white/5 shadow-2xl flex flex-col items-center justify-center text-center"
         >
            <h2 className="text-lg font-black text-white mb-1">Üyelik Dağılımı</h2>
            <p className="text-xs text-text-muted mb-6 uppercase tracking-widest font-bold">Gelir Modeli Yapısı</p>
@@ -244,7 +244,7 @@ const AdminStats = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MotionDiv
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
+          className="glass-card rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-white/5 shadow-2xl"
         >
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
@@ -255,7 +255,7 @@ const AdminStats = () => {
               <p className="text-xs text-text-muted mt-0.5">Basılı QR kodun günlük tıklanma performansı.</p>
             </div>
           </div>
-          <div className="h-[260px]">
+          <div className="h-[220px] sm:h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={qrTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
@@ -270,7 +270,7 @@ const AdminStats = () => {
 
         <MotionDiv
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
+          className="glass-card rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-white/5 shadow-2xl"
         >
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
@@ -281,7 +281,7 @@ const AdminStats = () => {
               <p className="text-xs text-text-muted mt-0.5">Öğrencilerin seçtiği günlük soru hedefleri.</p>
             </div>
           </div>
-          <div className="h-[260px]">
+          <div className="h-[220px] sm:h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyGoalData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
@@ -300,7 +300,7 @@ const AdminStats = () => {
         {/* --- CATEGORY PROGRESS --- */}
         <MotionDiv 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl"
+          className="glass-card rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-white/5 shadow-2xl"
         >
           <div className="flex items-center gap-4 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -327,7 +327,7 @@ const AdminStats = () => {
         {/* --- DIFFICULT QUESTIONS --- */}
         <MotionDiv 
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          className="glass-card rounded-[32px] p-8 border border-white/5 shadow-2xl flex flex-col"
+          className="glass-card rounded-[24px] sm:rounded-[32px] p-4 sm:p-8 border border-white/5 shadow-2xl flex flex-col"
         >
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">

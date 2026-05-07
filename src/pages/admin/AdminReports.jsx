@@ -106,19 +106,19 @@ const AdminReports = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] gap-6">
+    <div className="flex flex-col md:h-[calc(100vh-120px)] gap-5 sm:gap-6">
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Rapor & Şikayet Merkezi</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">Rapor & Şikayet Merkezi</h1>
           <p className="text-text-secondary text-sm mt-1">Soru hataları veya topluluk kurallarını ihlal eden içerikleri denetleyin.</p>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row flex-1 gap-6 min-h-0">
+      <div className="flex flex-col md:flex-row flex-1 gap-5 sm:gap-6 md:min-h-0">
         
         {/* Left Side: Report List */}
-        <div className="md:w-96 w-full flex flex-col gap-4 shrink-0">
+        <div className="md:w-96 w-full flex flex-col gap-4 shrink-0 md:min-h-0">
           
           <div className="glass-card p-2 rounded-[24px] border border-white/5 flex flex-col gap-2">
             <div className="flex items-center bg-black/40 rounded-[18px] px-4 py-3 w-full border border-white/5 transition-all focus-within:border-primary/50">
@@ -153,7 +153,7 @@ const AdminReports = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+          <div className="md:flex-1 max-h-[48vh] md:max-h-none overflow-y-auto pr-1 space-y-3 custom-scrollbar">
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-32 bg-bg-card border border-white/5 rounded-[24px]">
                     <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
@@ -210,18 +210,18 @@ const AdminReports = () => {
         </div>
 
         {/* Right Side: Detail Area */}
-        <div className="flex-1 glass-card rounded-[32px] border border-white/5 flex flex-col overflow-hidden shadow-2xl">
+        <div className="flex-1 min-h-[560px] md:min-h-0 glass-card rounded-[24px] sm:rounded-[32px] border border-white/5 flex flex-col overflow-hidden shadow-2xl">
           {selectedReport ? (
             <>
-              <div className="px-8 py-5 border-b border-white/5 bg-black/40 flex items-center justify-between">
-                <div className="flex items-center gap-5">
+              <div className="px-4 sm:px-8 py-5 border-b border-white/5 bg-black/40 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 sm:gap-5 min-w-0">
                   <div className="w-14 h-14 rounded-[20px] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center relative overflow-hidden group">
                     <div className="absolute inset-0 bg-rose-500/20 blur-xl opacity-50"></div>
                     <AlertTriangle className="w-6 h-6 text-rose-400 relative z-10" />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black text-white leading-none tracking-tight">{selectedReport.reason}</h2>
-                    <div className="flex items-center gap-3 mt-2 text-xs">
+                  <div className="min-w-0">
+                    <h2 className="text-lg sm:text-xl font-black text-white leading-tight tracking-tight truncate">{selectedReport.reason}</h2>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-xs">
                         <span className="text-text-muted font-semibold flex items-center gap-1.5"><User className="w-3.5 h-3.5 opacity-50" /> {selectedReport.reporter?.firstName} {selectedReport.reporter?.lastName}</span>
                         <div className="w-1 h-1 rounded-full bg-white/20"></div>
                         <span className="text-[10px] font-black text-primary-light/70 uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-md">
@@ -242,10 +242,10 @@ const AdminReports = () => {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-12 space-y-8 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 lg:p-12 space-y-6 sm:space-y-8 custom-scrollbar">
                 
                 {/* Status Update */}
-                <div className="bg-black/30 rounded-[32px] border border-white/5 p-8">
+                <div className="bg-black/30 rounded-[24px] sm:rounded-[32px] border border-white/5 p-4 sm:p-8">
                     <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-6">Operasyonel Durum</h3>
                     <div className="flex flex-wrap gap-2">
                         {[
@@ -258,7 +258,7 @@ const AdminReports = () => {
                                 key={st.id}
                                 disabled={updating}
                                 onClick={() => handleUpdateStatus(selectedReport._id, st.id)}
-                                className={`flex items-center gap-2.5 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border ${
+                                className={`flex-1 sm:flex-none justify-center flex items-center gap-2.5 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all border ${
                                     selectedReport.status === st.id 
                                     ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]'
                                     : `bg-white/5 text-white/50 border-white/10 ${st.color} hover:text-white`
@@ -271,18 +271,18 @@ const AdminReports = () => {
                 </div>
 
                 {/* Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8">
                     <div className="space-y-6">
                         <div>
                             <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-3">Şikayet Detayı</h3>
-                            <div className="bg-white/5 border border-white/10 rounded-[28px] p-6 text-sm text-white/90 leading-relaxed italic">
+                            <div className="bg-white/5 border border-white/10 rounded-[22px] sm:rounded-[28px] p-4 sm:p-6 text-sm text-white/90 leading-relaxed italic">
                                 "{selectedReport.details}"
                             </div>
                         </div>
                         
                         <div>
                             <h3 className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-3">Şikayet Edilen İçerik</h3>
-                            <div className="bg-primary/5 border border-primary/20 rounded-[28px] p-6 flex flex-col gap-4">
+                            <div className="bg-primary/5 border border-primary/20 rounded-[22px] sm:rounded-[28px] p-4 sm:p-6 flex flex-col gap-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary-light">
                                         {getTargetIcon(selectedReport.targetType)}
@@ -299,7 +299,7 @@ const AdminReports = () => {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-bg-card to-black rounded-[32px] border border-white/5 p-8 flex flex-col justify-center items-center text-center">
+                    <div className="bg-gradient-to-br from-bg-card to-black rounded-[24px] sm:rounded-[32px] border border-white/5 p-6 sm:p-8 flex flex-col justify-center items-center text-center">
                         <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/5 flex items-center justify-center mb-6">
                             <Clock className="w-10 h-10 text-white/20" />
                         </div>

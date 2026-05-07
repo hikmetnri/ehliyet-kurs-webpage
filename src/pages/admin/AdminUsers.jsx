@@ -261,26 +261,26 @@ const AdminUsers = () => {
   const inactiveCount = users.filter(u => u.isActive === false).length;
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-5 sm:space-y-6 pb-20">
       
       {/* Header Area */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Kullanıcı & Hesap Yönetimi</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">Kullanıcı & Hesap Yönetimi</h1>
           <p className="text-text-secondary text-sm mt-1">Öğrenci hesaplarını, yetkilerini ve abonelik durumlarını tek merkezden yönet.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           {selectedUserIds.length > 0 && (
             <button 
               onClick={() => handleOpenNotifModal()}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
             >
               <Bell className="w-4 h-4" /> {selectedUserIds.length} Seçiliye Bildirim
             </button>
           )}
           <button 
             onClick={() => fetchUsers()} 
-            className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all shadow-lg"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all shadow-lg"
           >
             <RefreshCw className="w-4 h-4 text-primary-light" /> Canlı Veri Yenile
           </button>
@@ -351,7 +351,7 @@ const AdminUsers = () => {
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
         className="glass-card rounded-[32px] border border-white/5 overflow-hidden shadow-2xl"
       >
-        <div className="overflow-x-auto custom-scrollbar">
+        <div className="hidden md:block overflow-x-auto custom-scrollbar">
           <table className="w-full text-left text-sm text-text-secondary min-w-[900px]">
             <thead className="bg-black/40 text-white/40 font-black uppercase text-[10px] tracking-widest">
               <tr>
@@ -558,6 +558,89 @@ const AdminUsers = () => {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="md:hidden divide-y divide-white/5">
+          {loading ? (
+            <div className="px-6 py-20 text-center">
+              <Loader2 className="w-9 h-9 animate-spin text-primary mx-auto mb-4" />
+              <span className="text-text-muted font-bold text-xs uppercase tracking-widest">Kullanıcılar yükleniyor...</span>
+            </div>
+          ) : sortedUsers.length === 0 ? (
+            <div className="px-6 py-20 text-center">
+              <User className="w-10 h-10 text-white/20 mx-auto mb-4" />
+              <p className="text-text-muted font-bold">Eşleşen kullanıcı bulunamadı.</p>
+            </div>
+          ) : (
+            sortedUsers.map((user) => {
+              const isSuspended = user.isActive === false;
+              const isMe = user._id === currentUser?._id;
+
+              return (
+                <div key={user._id} className={`p-4 space-y-4 ${selectedUserIds.includes(user._id) ? 'bg-primary/[0.04]' : ''}`}>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(user._id)}
+                      onChange={() => handleToggleSelect(user._id)}
+                      className="mt-4 w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-0 cursor-pointer shrink-0"
+                    />
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border shrink-0 ${
+                      isSuspended ? 'border-rose-500/30 bg-rose-500/10' :
+                      user.role === 'admin' ? 'border-emerald-500/30 bg-emerald-500/10' :
+                      'border-white/10 bg-white/5'
+                    }`}>
+                      {user.role === 'admin' ? <Shield className="w-5 h-5 text-emerald-400" /> : <User className="w-5 h-5 text-white/70" />}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <p className={`font-black text-sm truncate ${isSuspended ? 'text-rose-400' : 'text-white'}`}>
+                          {user.firstName || user.lastName ? `${user.firstName} ${user.lastName}` : 'İsimsiz Öğrenci'}
+                        </p>
+                        {user.proStatus && <Crown className="w-4 h-4 text-amber-400 shrink-0" />}
+                        {user.isOnline && <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />}
+                      </div>
+                      <p className="text-xs text-text-muted truncate mt-1">{user.email}</p>
+                      {user.phone && <p className="text-[11px] text-text-muted/80 truncate mt-0.5">{user.phone}</p>}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => handleRoleToggle(user._id, user.role)} className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
+                      user.role === 'admin' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-text-muted border-white/10'
+                    }`}>
+                      {user.role === 'admin' ? 'Yönetici' : 'Yönetici Yap'}
+                    </button>
+                    <button onClick={() => handleProToggle(user._id)} className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
+                      user.proStatus ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-white/5 text-text-muted border-white/10'
+                    }`}>
+                      {user.proStatus ? 'PRO İptal' : 'PRO Ver'}
+                    </button>
+                    <button onClick={() => handleStatusToggle(user._id, user.isActive)} disabled={isMe} className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
+                      isMe ? 'opacity-40 bg-white/5 text-white/40 border-white/5' :
+                      isSuspended ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                    }`}>
+                      {isSuspended ? 'Banlandı' : 'Güvenli'}
+                    </button>
+                    <div className="flex justify-end gap-2">
+                      {user.role === 'user' && (
+                        <>
+                          <button onClick={() => handleOpenNotifModal(user)} className="p-2.5 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl" title="Bildirim Gönder">
+                            <Bell className="w-4 h-4" />
+                          </button>
+                          <button onClick={() => handleOpenStats(user._id)} className="p-2.5 bg-primary/10 border border-primary/20 text-primary-light rounded-xl" title="Analiz Gör">
+                            <Activity className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                      <button onClick={() => handleDelete(user._id)} disabled={isMe} className={`p-2.5 rounded-xl border ${isMe ? 'opacity-40 border-transparent text-text-muted' : 'bg-rose-500/10 text-rose-400 border-rose-500/30'}`} title="Hesabı Sil">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
         
         {!loading && sortedUsers.length > 0 && (

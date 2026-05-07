@@ -390,20 +390,20 @@ const AdminSettings = () => {
   const activeTabMeta = TABS.find(t => t.id === activeTab);
 
   return (
-    <div className="flex gap-6 pb-20 min-h-[80vh]">
+    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 pb-20 min-h-[80vh]">
       {/* Toast */}
       <Toast msg={toast?.msg} type={toast?.type} onClose={() => setToast(null)} />
 
       {/* ── Sidebar ── */}
-      <aside className="w-56 shrink-0 flex flex-col gap-1 sticky top-6 self-start">
-        <p className="text-[9px] font-black uppercase text-text-muted tracking-widest px-3 mb-2">Kategoriler</p>
+      <aside className="w-full lg:w-56 shrink-0 flex lg:flex-col gap-1 lg:sticky top-6 self-start overflow-x-auto custom-scrollbar pb-1 lg:pb-0">
+        <p className="hidden lg:block text-[9px] font-black uppercase text-text-muted tracking-widest px-3 mb-2">Kategoriler</p>
         {TABS.map(tab => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all w-full text-left group relative ${
+              className={`flex-none lg:flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all lg:w-full text-left group relative ${
                 isActive
                   ? 'bg-white/10 text-white shadow-sm'
                   : 'text-text-muted hover:text-white hover:bg-white/5'
@@ -422,7 +422,7 @@ const AdminSettings = () => {
                 <tab.icon className="w-3.5 h-3.5 text-white" />
               </div>
               <span className="relative z-10 truncate">{tab.label}</span>
-              {isActive && <ChevronRight className="w-3 h-3 ml-auto relative z-10 opacity-50" />}
+              {isActive && <ChevronRight className="hidden lg:block w-3 h-3 ml-auto relative z-10 opacity-50" />}
             </button>
           );
         })}
@@ -435,8 +435,8 @@ const AdminSettings = () => {
           <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${activeTabMeta?.color} flex items-center justify-center shadow-lg`}>
             {activeTabMeta && <activeTabMeta.icon className="w-4 h-4 text-white" />}
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-white tracking-tight leading-none">{activeTabMeta?.label}</h1>
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">{activeTabMeta?.label}</h1>
           </div>
         </div>
 
@@ -464,7 +464,7 @@ const AdminSettings = () => {
                     </button>
                   }
                 />
-                <div className="p-6 lg:p-8">
+                <div className="p-4 sm:p-6 lg:p-8">
                   <textarea
                     rows={14}
                     value={legalSettings.privacy_policy}
@@ -496,7 +496,7 @@ const AdminSettings = () => {
                     </button>
                   }
                 />
-                <div className="p-6 lg:p-8">
+                <div className="p-4 sm:p-6 lg:p-8">
                   <textarea
                     rows={14}
                     value={legalSettings.kvkk_text}
@@ -518,7 +518,7 @@ const AdminSettings = () => {
                 <div className="xl:col-span-7">
                   <SectionCard>
                     <CardHeader icon={Send} iconColor="from-primary to-primary-dark" title="Toplu Bildirim Gönder" subtitle="Cihazlara anlık Push Notification gönderin" />
-                    <form onSubmit={handleSendBroadcast} className="p-6 lg:p-8 space-y-5">
+                    <form onSubmit={handleSendBroadcast} className="p-4 sm:p-6 lg:p-8 space-y-5">
                       {/* Target */}
                       <div>
                         <FieldLabel>Hedef Kitle</FieldLabel>

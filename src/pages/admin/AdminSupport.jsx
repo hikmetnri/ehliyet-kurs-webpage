@@ -112,20 +112,20 @@ const AdminSupport = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] gap-6">
+    <div className="flex flex-col md:h-[calc(100vh-120px)] gap-5 sm:gap-6">
       
       {/* Header Area */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
-        <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Destek & Bilet Merkezi</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">Destek & Bilet Merkezi</h1>
           <p className="text-text-secondary text-sm mt-1">Öğrencilerden gelen sorunları sıraya alın ve anında çözün.</p>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row flex-1 gap-6 min-h-0">
+      <div className="flex flex-col md:flex-row flex-1 gap-5 sm:gap-6 md:min-h-0">
         
         {/* Left Side: Ticket List */}
-        <div className="md:w-96 w-full flex flex-col gap-4 shrink-0">
+        <div className="md:w-96 w-full flex flex-col gap-4 shrink-0 md:min-h-0">
           
           {/* Search & Filter */}
           <div className="glass-card p-2 rounded-[24px] border border-white/5 flex flex-col gap-2">
@@ -158,7 +158,7 @@ const AdminSupport = () => {
           </div>
 
           {/* Ticket List */}
-          <div className="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar">
+          <div className="md:flex-1 max-h-[48vh] md:max-h-none overflow-y-auto pr-1 space-y-3 custom-scrollbar">
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-32 bg-bg-card border border-white/5 rounded-[24px]">
                     <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
@@ -221,19 +221,19 @@ const AdminSupport = () => {
         </div>
 
         {/* Right Side: Chat Area */}
-        <div className="flex-1 glass-card rounded-[32px] border border-white/5 flex flex-col overflow-hidden shadow-2xl">
+        <div className="flex-1 min-h-[560px] md:min-h-0 glass-card rounded-[24px] sm:rounded-[32px] border border-white/5 flex flex-col overflow-hidden shadow-2xl">
           {selectedTicket ? (
             <>
               {/* Active Chat Header */}
-              <div className="px-8 py-5 border-b border-white/5 bg-black/40 flex items-center justify-between">
-                <div className="flex items-center gap-5">
+              <div className="px-4 sm:px-8 py-5 border-b border-white/5 bg-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4 sm:gap-5 min-w-0">
                   <div className="w-14 h-14 rounded-[20px] bg-primary/10 border border-primary/20 flex items-center justify-center relative overflow-hidden group">
                     <div className="absolute inset-0 bg-primary/20 blur-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
                     <MessageSquare className="w-6 h-6 text-primary-light relative z-10" />
                   </div>
-                  <div>
-                    <h2 className="text-xl font-black text-white leading-none tracking-tight">{selectedTicket.subject}</h2>
-                    <div className="flex items-center gap-3 mt-2 text-xs">
+                  <div className="min-w-0">
+                    <h2 className="text-lg sm:text-xl font-black text-white leading-tight tracking-tight truncate">{selectedTicket.subject}</h2>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-xs">
                         <span className="text-text-muted font-semibold flex items-center gap-1.5"><User className="w-3.5 h-3.5 opacity-50" /> {selectedTicket.userId?.firstName} {selectedTicket.userId?.lastName}</span>
                         <div className="w-1 h-1 rounded-full bg-white/20"></div>
                         <span className="text-[10px] font-black text-primary-light/70 uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-md">
@@ -243,7 +243,7 @@ const AdminSupport = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 shrink-0">
                     {selectedTicket.status !== 'closed' && (
                         <button 
                             onClick={() => handleCloseTicket(selectedTicket._id)}
@@ -256,7 +256,7 @@ const AdminSupport = () => {
               </div>
 
               {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-black to-black">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-5 sm:space-y-6 custom-scrollbar bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-black to-black">
                 {selectedTicket.messages.map((m, idx) => {
                     const isAdmin = m.sender === 'admin';
                     return (
@@ -265,7 +265,7 @@ const AdminSupport = () => {
                             initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
                             className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}
                         >
-                            <div className={`max-w-[70%] flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
+                            <div className={`max-w-[88%] sm:max-w-[70%] flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}>
                                 <div className="text-[10px] text-text-muted font-black mb-1.5 uppercase tracking-widest opacity-60">
                                     {isAdmin ? 'YÖNETİCİ' : selectedTicket.userId?.firstName || 'ÖĞRENCİ'} • {new Date(m.sentAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                                 </div>
@@ -285,14 +285,14 @@ const AdminSupport = () => {
               </div>
 
               {/* Input Area */}
-              <div className="p-5 bg-black/60 border-t border-white/5 backdrop-blur-md">
+              <div className="p-4 sm:p-5 bg-black/60 border-t border-white/5 backdrop-blur-md">
                 {selectedTicket.status === 'closed' ? (
                     <div className="p-5 bg-rose-500/5 rounded-[20px] border border-dashed border-rose-500/20 flex items-center justify-center gap-3">
                         <AlertCircle className="w-5 h-5 text-rose-400" />
                         <span className="text-sm font-bold text-rose-400">Bu bilet kalıcı olarak kapatıldı.</span>
                     </div>
                 ) : (
-                    <form onSubmit={handleSendReply} className="flex gap-4">
+                    <form onSubmit={handleSendReply} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         <div className="flex-1 relative">
                             <input 
                                 type="text" 
@@ -305,7 +305,7 @@ const AdminSupport = () => {
                         <button 
                             type="submit"
                             disabled={!replyText.trim() || sending}
-                            className={`flex items-center justify-center gap-3 w-[140px] rounded-[20px] font-black uppercase tracking-widest text-xs transition-all ${
+                            className={`flex items-center justify-center gap-3 w-full sm:w-[140px] min-h-12 rounded-[20px] font-black uppercase tracking-widest text-xs transition-all ${
                                 !replyText.trim() || sending 
                                 ? 'bg-white/5 text-white/20 cursor-not-allowed border border-white/5' 
                                 : 'bg-primary text-white shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] hover:scale-105 active:scale-95 border border-primary/50'
