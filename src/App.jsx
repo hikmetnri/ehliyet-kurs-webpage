@@ -20,6 +20,7 @@ const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'))
 const AdminBadges = lazy(() => import('./pages/admin/AdminBadges'))
 const AdminMarketing = lazy(() => import('./pages/admin/AdminMarketing'))
+const AdminDrivingSchools = lazy(() => import('./pages/admin/AdminDrivingSchools'))
 const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
 const UserDashboard = lazy(() => import('./pages/UserDashboard'))
 
@@ -87,6 +88,7 @@ function App() {
             <Route path="reports" element={<AdminReports />} />
             <Route path="badges" element={<AdminBadges />} />
             <Route path="marketing" element={<AdminMarketing />} />
+            <Route path="driving-schools" element={<AdminDrivingSchools />} />
             <Route path="profile" element={<AdminProfile />} />
             
             <Route path="settings" element={<AdminSettings />} />

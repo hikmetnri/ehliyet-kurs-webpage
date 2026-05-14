@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, BookOpen, ClipboardList, BarChart2, 
-  MessageCircle, ChevronRight, LogOut, Settings, Star, TriangleAlert
+  MessageCircle, ChevronRight, LogOut, Settings, Star, TriangleAlert, MapPinned
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -15,13 +15,14 @@ const navItems = [
   { to: '/dashboard/feed', icon: MessageCircle, label: 'Topluluk' },
   { to: '/dashboard/support', icon: MessageCircle, label: 'Destek Talepleri' },
   { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: 'Trafik İşaretleri' },
+  { to: '/dashboard/driving-schools', icon: MapPinned, label: 'Sürücü Kursları' },
   { to: '/dashboard/settings', icon: Settings, label: 'Ayarlar' },
 ];
 
 const UserSidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAuthStore();
+  const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = () => {
     logout();

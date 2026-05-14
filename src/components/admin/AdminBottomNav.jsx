@@ -7,7 +7,7 @@ const items = [
   { to: '/admin/users', label: 'Kullanıcı', icon: Users },
   { to: '/admin/content', label: 'İçerik', icon: Library },
   { to: '/admin/support', label: 'Destek', icon: MessageCircle, match: ['/admin/support', '/admin/reports', '/admin/feed'] },
-  { to: '/admin/settings', label: 'Yönetim', icon: Settings, match: ['/admin/settings', '/admin/stats', '/admin/exams', '/admin/badges', '/admin/marketing', '/admin/profile'] },
+  { to: '/admin/settings', label: 'Yönetim', icon: Settings, match: ['/admin/settings', '/admin/stats', '/admin/exams', '/admin/badges', '/admin/marketing', '/admin/driving-schools', '/admin/profile'] },
 ];
 
 const AdminBottomNav = () => {

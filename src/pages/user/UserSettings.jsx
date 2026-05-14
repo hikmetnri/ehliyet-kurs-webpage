@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2
+  User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2, MapPinned, ArrowRight
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
+import { TURKEY_CITIES, getDistrictsForCity } from '../../data/turkeyLocations';
 
 const getStoredExamDateInput = () => {
   try {
@@ -32,6 +33,8 @@ const UserSettings = () => {
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     phone: user?.phone || '',
+    city: TURKEY_CITIES.includes(user?.city) ? user.city : '',
+    district: getDistrictsForCity(user?.city).includes(user?.district) ? user.district : '',
     bio: user?.bio || '',
   });
 
@@ -58,6 +61,15 @@ const UserSettings = () => {
 
   const handleProfileChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
+  };
+
+  const handleProfileCityChange = (e) => {
+    const city = e.target.value;
+    setProfileData((current) => ({
+      ...current,
+      city,
+      district: getDistrictsForCity(city).includes(current.district) ? current.district : '',
+    }));
   };
 
   const handlePasswordChange = (e) => {
@@ -144,6 +156,8 @@ const UserSettings = () => {
     { id: 'notifications', icon: Bell, label: 'Tercihler' },
   ];
 
+  const profileDistrictOptions = getDistrictsForCity(profileData.city);
+
   return (
     <div className="space-y-6 pb-24 text-white sm:space-y-8">
       {/* Header */}
@@ -170,6 +184,29 @@ const UserSettings = () => {
           <p className="font-medium text-sm">{message.text}</p>
         </Motion.div>
       )}
+
+      <Link
+        to="/dashboard/driving-schools"
+        className="group relative block overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/15 via-white/[0.035] to-primary/10 p-5 transition-all hover:-translate-y-0.5 hover:border-accent/35 sm:p-6"
+      >
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/20" />
+        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+              <MapPinned className="h-6 w-6 text-accent-light" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-white">Yakındaki Sürücü Kursları</h3>
+              <p className="mt-1 text-sm font-semibold text-text-secondary">
+                Profil şehrine göre kurs, telefon, konum ve kayıt linklerini gör.
+              </p>
+            </div>
+          </div>
+          <div className="inline-flex items-center gap-2 text-sm font-black text-accent-light">
+            Kursları Gör <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+          </div>
+        </div>
+      </Link>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 lg:gap-8">
         {/* Sidebar Tabs */}
@@ -259,16 +296,47 @@ const UserSettings = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Telefon</label>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={profileData.phone}
-                        onChange={handleProfileChange}
-                        className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
-                        placeholder="555 555 55 55"
-                      />
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Telefon</label>
+                        <input
+                          type="text"
+                          name="phone"
+                          value={profileData.phone}
+                          onChange={handleProfileChange}
+                          className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
+                          placeholder="555 555 55 55"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Şehir</label>
+                        <select
+                          name="city"
+                          value={profileData.city}
+                          onChange={handleProfileCityChange}
+                          className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
+                        >
+                          <option value="" className="bg-bg-card">Şehir seç</option>
+                          {TURKEY_CITIES.map((city) => (
+                            <option key={city} value={city} className="bg-bg-card">{city}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">İlçe</label>
+                        <select
+                          name="district"
+                          value={profileData.district}
+                          onChange={handleProfileChange}
+                          disabled={!profileData.city}
+                          className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
+                        >
+                          <option value="" className="bg-bg-card">{profileData.city ? 'İlçe seç' : 'Önce şehir seç'}</option>
+                          {profileDistrictOptions.map((district) => (
+                            <option key={district} value={district} className="bg-bg-card">{district}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     <div className="space-y-2">

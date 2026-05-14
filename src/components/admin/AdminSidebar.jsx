@@ -13,11 +13,12 @@ import {
   ShieldAlert,
   Award,
   QrCode,
-  UserCircle
+  UserCircle,
+  MapPinned
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
-const NavItem = ({ to, icon: Icon, label, isActive }) => (
+const NavItem = ({ to, icon, label, isActive }) => (
   <Link 
     to={to} 
     className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group relative ${
@@ -29,7 +30,9 @@ const NavItem = ({ to, icon: Icon, label, isActive }) => (
     {isActive && (
       <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-md shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
     )}
-    <Icon className={`w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-primary' : ''}`} />
+    {React.createElement(icon, {
+      className: `w-5 h-5 transition-transform group-hover:scale-110 ${isActive ? 'text-primary' : ''}`,
+    })}
     <span className="font-medium">{label}</span>
   </Link>
 );
@@ -48,6 +51,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
     { to: '/admin/reports', icon: ShieldAlert, label: 'Rapor Yönetimi' },
     { to: '/admin/badges', icon: Award, label: 'Rozetler' },
     { to: '/admin/marketing', icon: QrCode, label: 'Pazarlama & Reklam' },
+    { to: '/admin/driving-schools', icon: MapPinned, label: 'Sürücü Kursları' },
     { to: '/admin/stats', icon: BarChart, label: 'İstatistikler' },
     { to: '/admin/profile', icon: UserCircle, label: 'Profilim' },
     { to: '/admin/settings', icon: Settings, label: 'Yönetim Merkezi' },

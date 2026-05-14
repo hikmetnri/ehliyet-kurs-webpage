@@ -7,7 +7,7 @@ const items = [
   { to: '/dashboard/lessons', label: 'Dersler', icon: BookOpen },
   { to: '/dashboard/exams', label: 'Sınavlar', icon: ClipboardList },
   { to: '/dashboard/feed', label: 'Akış', icon: Users },
-  { to: '/dashboard/settings', label: 'Profil', icon: User, match: ['/dashboard/settings', '/dashboard/stats', '/dashboard/favorites', '/dashboard/support'] },
+  { to: '/dashboard/settings', label: 'Profil', icon: User, match: ['/dashboard/settings', '/dashboard/stats', '/dashboard/favorites', '/dashboard/support', '/dashboard/driving-schools'] },
 ];
 
 const UserBottomNav = () => {
