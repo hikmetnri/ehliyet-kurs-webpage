@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bell, X, Check, CheckCheck, Trash2, Loader2,
@@ -27,6 +28,7 @@ const timeAgo = (date) => {
 };
 
 const NotificationPanel = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null);
@@ -91,6 +93,19 @@ const NotificationPanel = ({ isOpen, onClose }) => {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  const getPostId = (notif) => notif?.data?.postId || notif?.postId || '';
+
+  const openNotificationTarget = async (notif) => {
+    const postId = getPostId(notif);
+    if (!postId) return;
+
+    if (!notif.isRead) {
+      await markAsRead(notif._id);
+    }
+    onClose();
+    navigate(`/dashboard/feed/${postId}`);
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -151,6 +166,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                 {notifications.map((notif) => {
                   const config = typeConfig[notif.type] || typeConfig.system;
                   const IconComp = config.icon;
+                  const postId = getPostId(notif);
                   return (
                     <motion.div
                       key={notif._id}
@@ -158,9 +174,18 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0, height: 0 }}
+                      onClick={() => openNotificationTarget(notif)}
+                      role={postId ? 'button' : undefined}
+                      tabIndex={postId ? 0 : undefined}
+                      onKeyDown={(e) => {
+                        if (postId && (e.key === 'Enter' || e.key === ' ')) {
+                          e.preventDefault();
+                          openNotificationTarget(notif);
+                        }
+                      }}
                       className={`p-4 flex gap-3 transition-colors group ${
                         notif.isRead ? 'opacity-60 hover:opacity-80' : 'bg-primary/[0.02] hover:bg-white/[0.03]'
-                      }`}
+                      } ${postId ? 'cursor-pointer' : ''}`}
                     >
                       {/* Icon */}
                       <div className={`w-10 h-10 rounded-xl ${config.bg} border ${config.border} flex items-center justify-center shrink-0`}>

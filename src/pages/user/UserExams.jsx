@@ -15,6 +15,7 @@ const UserExams = () => {
   const [exams, setExams] = useState([]);
   const [validCategories, setValidCategories] = useState([]);
   const [latestResults, setLatestResults] = useState({});
+  const [reviewDueCount, setReviewDueCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('short_tests'); // 'short_tests' | 'general' | 'real_sim_cat'
   const [activeShortGroup, setActiveShortGroup] = useState('all');
@@ -61,12 +62,14 @@ const UserExams = () => {
         }));
 
         // Tüm sınavları ve kullanıcının son sonuçlarını getir
-        const [examRes, resultRes] = await Promise.all([
+        const [examRes, resultRes, reviewRes] = await Promise.all([
           api.get('/exams'),
           api.get('/exam-results').catch(() => ({ data: [] })),
+          api.get('/wrong-answers/review-due?limit=1').catch(() => ({ data: { count: 0 } })),
         ]);
         const allExams = examRes.data?.exams || examRes.data || [];
         const resultRows = resultRes.data?.results || resultRes.data || [];
+        setReviewDueCount(Number(reviewRes.data?.count || 0));
         const resultMap = {};
 
         resultRows.forEach((result) => {
@@ -228,6 +231,45 @@ const UserExams = () => {
             <p className="text-2xl font-black tracking-tighter leading-none">{generalExams.length}</p>
             <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Genel Deneme</p>
           </div>
+        </div>
+      </div>
+
+      {/* Wrong Review Quick Entry */}
+      <div className={`rounded-2xl border p-4 sm:p-5 ${
+        reviewDueCount > 0
+          ? 'border-primary/25 bg-primary/10'
+          : 'border-white/10 bg-white/[0.03]'
+      }`}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${
+              reviewDueCount > 0
+                ? 'border-primary/30 bg-primary/15 text-primary-light'
+                : 'border-white/10 bg-black/10 text-text-muted'
+            }`}>
+              <ListChecks className="h-6 w-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
+              <p className="mt-1 text-xs font-semibold text-text-muted">
+                {reviewDueCount > 0
+                  ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
+                  : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
+              </p>
+            </div>
+          </div>
+          <button
+            disabled={reviewDueCount === 0}
+            onClick={() => navigate('/dashboard/exams/wrong-review')}
+            className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+              reviewDueCount > 0
+                ? 'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95'
+                : 'cursor-not-allowed border border-white/10 bg-white/5 text-text-muted'
+            }`}
+          >
+            <Play className="h-4 w-4" />
+            {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
+          </button>
         </div>
       </div>
 

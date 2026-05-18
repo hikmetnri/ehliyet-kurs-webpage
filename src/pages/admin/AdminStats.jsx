@@ -10,8 +10,16 @@ import {
   Loader2, BrainCircuit, Users, Activity, 
   Target, Bell, Clock, Crown, DownloadCloud
 } from 'lucide-react';
+import { hasChartValue, normalizeCategoryStats, normalizeRegistrationTrend } from '../../utils/statsData';
 
 const MotionDiv = motion.div;
+
+const ChartEmptyState = ({ text }) => (
+  <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-3xl border border-white/5 bg-white/[0.02] px-6 text-center">
+    <Activity className="mb-3 h-8 w-8 text-white/25" />
+    <p className="text-xs font-bold leading-relaxed text-text-muted">{text}</p>
+  </div>
+);
 
 const AdminStats = () => {
   const [overview, setOverview] = useState(null);
@@ -39,10 +47,10 @@ const AdminStats = () => {
       ]);
       
       setOverview(results[0].status === 'fulfilled' ? results[0].value.data : null);
-      setCategoryStats(results[1].status === 'fulfilled' ? results[1].value.data : []);
+      setCategoryStats(results[1].status === 'fulfilled' ? normalizeCategoryStats(results[1].value.data) : []);
       setDifficultQuestions(results[2].status === 'fulfilled' ? results[2].value.data : []);
       setQrStats(results[3].status === 'fulfilled' ? results[3].value.data : { count: 0, daily: {} });
-      setRegistrationTrend(results[4].status === 'fulfilled' ? results[4].value.data : []);
+      setRegistrationTrend(results[4].status === 'fulfilled' ? normalizeRegistrationTrend(results[4].value.data) : []);
       setDailyGoals(results[5].status === 'fulfilled' ? results[5].value.data : []);
     } catch (err) {
       console.error('İstatistikler alınamadı:', err);
@@ -76,6 +84,8 @@ const AdminStats = () => {
     name: `${item.dailyGoal || 0} soru`,
     users: item.userCount || 0,
   }));
+  const hasRegistrationData = hasChartValue(registrationTrend, 'users');
+  const hasCategoryData = categoryStats.length > 0;
 
   return (
     <div className="space-y-5 sm:space-y-6 pb-20">
@@ -159,38 +169,43 @@ const AdminStats = () => {
           </div>
           
           <div className="h-[240px] sm:h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={registrationTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                <XAxis 
-                    dataKey="name" 
-                    stroke="#ffffff30" 
-                    fontSize={10} 
-                    tickLine={false} 
-                    axisLine={false} 
-                    dy={10}
-                />
-                <YAxis 
-                    stroke="#ffffff30" 
-                    fontSize={10} 
-                    tickLine={false} 
-                    axisLine={false}
-                    dx={-10}
-                />
-                <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff10', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}
-                    itemStyle={{ color: '#6366f1' }}
-                />
-                <Line 
-                    type="monotone" 
-                    dataKey="users" 
-                    stroke="#6366f1" 
-                    strokeWidth={4} 
-                    dot={{ fill: '#6366f1', strokeWidth: 2, r: 4, stroke: '#000' }}
-                    activeDot={{ r: 6, strokeWidth: 0 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {hasRegistrationData ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={registrationTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                  <XAxis 
+                      dataKey="name" 
+                      stroke="#ffffff30" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      axisLine={false} 
+                      dy={10}
+                  />
+                  <YAxis 
+                      stroke="#ffffff30" 
+                      fontSize={10} 
+                      tickLine={false} 
+                      axisLine={false}
+                      allowDecimals={false}
+                      dx={-10}
+                  />
+                  <RechartsTooltip 
+                      contentStyle={{ backgroundColor: '#000000dd', border: '1px solid #ffffff10', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold' }}
+                      itemStyle={{ color: '#6366f1' }}
+                  />
+                  <Line 
+                      type="monotone" 
+                      dataKey="users" 
+                      stroke="#6366f1" 
+                      strokeWidth={4} 
+                      dot={{ fill: '#6366f1', strokeWidth: 2, r: 4, stroke: '#000' }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <ChartEmptyState text="Seçili aralıkta yeni kayıt yok. Yeni öğrenciler geldikçe akış burada çizilecek." />
+            )}
           </div>
         </MotionDiv>
 
@@ -313,14 +328,18 @@ const AdminStats = () => {
           </div>
 
           <div className="space-y-6">
-            {categoryStats.slice(0, 6).map((stat, i) => (
-              <StatProgressBar 
-                key={i}
-                label={stat.categoryName}
-                percentage={stat.avgSuccessRate}
-                total={stat.totalAttempts}
-              />
-            ))}
+            {hasCategoryData ? (
+              categoryStats.slice(0, 6).map((stat, i) => (
+                <StatProgressBar 
+                  key={i}
+                  label={stat.categoryName}
+                  percentage={stat.avgSuccessRate}
+                  total={stat.totalAttempts}
+                />
+              ))
+            ) : (
+              <ChartEmptyState text="Kategori performansı için henüz yeterli sınav sonucu yok." />
+            )}
           </div>
         </MotionDiv>
 

@@ -1,44 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  MessageSquare, HelpCircle, FileText, Lightbulb,
+  MessageSquare,
   ThumbsUp, MessageCircle, Clock, Plus, X, Tag, Send,
   Flame, TrendingUp, Sparkles, ChevronDown, Users, Search
 } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
-
-const POST_TYPES = {
-  discussion: { label: 'Tartışma', icon: MessageSquare, color: '#3b82f6', tw: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/40' },
-  question:   { label: 'Soru',     icon: HelpCircle,    color: '#f97316', tw: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/40' },
-  exam_share: { label: 'Sınav',    icon: FileText,      color: '#a855f7', tw: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/40' },
-  tip:        { label: 'İpucu',    icon: Lightbulb,     color: '#10b981', tw: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/40' },
-};
-
-const AVATAR_COLORS = [
-  'from-violet-500 to-indigo-500',
-  'from-blue-500 to-cyan-500',
-  'from-emerald-500 to-teal-500',
-  'from-orange-500 to-amber-500',
-  'from-pink-500 to-rose-500',
-];
-
-function getAvatarGrad(name = '') {
-  const code = name.charCodeAt(0) || 0;
-  return AVATAR_COLORS[code % AVATAR_COLORS.length];
-}
-
-function timeAgo(dateString) {
-  const diff = (Date.now() - new Date(dateString)) / 1000;
-  if (diff < 60) return 'Az önce';
-  if (diff < 3600) return `${Math.floor(diff / 60)} dk önce`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} sa önce`;
-  return `${Math.floor(diff / 86400)} gün önce`;
-}
+import { getAvatarGrad, getPostTypeConfig, normalizeUserId, POST_TYPES, timeAgo } from '../../utils/feedUtils';
 
 export default function UserFeed() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
-  const userId = user?.id || user?._id;
+  const userId = normalizeUserId(user);
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -225,7 +200,7 @@ export default function UserFeed() {
           </div>
         ) : (
           filtered.map((post, idx) => {
-            const cfg = POST_TYPES[post.type] || POST_TYPES.discussion;
+            const cfg = getPostTypeConfig(post.type);
             const TypeIcon = cfg.icon;
             const isLiked = post.likes?.includes(userId);
             const isExpanded = expandedPostId === post._id;
@@ -261,10 +236,14 @@ export default function UserFeed() {
                   </div>
 
                   {/* Content */}
-                  <div className="mb-4 pl-1">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/dashboard/feed/${post._id}`)}
+                    className="mb-4 block w-full rounded-2xl pl-1 text-left transition-colors hover:bg-white/[0.02] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
                     <h3 className="text-base font-bold text-white mb-2 leading-snug">{post.title}</h3>
-                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">{post.content}</p>
-                  </div>
+                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap line-clamp-3">{post.content}</p>
+                  </button>
 
                   {/* Tags */}
                   {post.tags?.length > 0 && (
@@ -297,6 +276,13 @@ export default function UserFeed() {
                       <MessageCircle className="w-4 h-4" />
                       <span>{post.comments?.length || 0} Yorum</span>
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/dashboard/feed/${post._id}`)}
+                      className="ml-auto rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest text-text-muted transition-all hover:bg-white/5 hover:text-white"
+                    >
+                      Aç
                     </button>
                   </div>
                 </div>

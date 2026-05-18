@@ -4,6 +4,16 @@ import {
   X, CheckCircle2, XCircle, AlertCircle,
   ClipboardList, ChevronDown, ChevronUp, Info, Award
 } from 'lucide-react';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
+
+const optionLabels = ['A', 'B', 'C', 'D', 'E'];
+
+const cleanOptionText = (option, index) => {
+  if (typeof option !== 'string') return option;
+  const label = optionLabels[index];
+  if (!label) return option.trim();
+  return option.replace(new RegExp(`^\\s*${label}\\s*[).:\\-]\\s*`, 'i'), '').trim();
+};
 
 const ExamDetailModal = ({ result, onClose }) => {
   const [expandedIdx, setExpandedIdx] = useState(null);
@@ -22,8 +32,6 @@ const ExamDetailModal = ({ result, onClose }) => {
         day: '2-digit', month: 'long', year: 'numeric'
       })
     : '';
-
-  const optionLabels = ['A', 'B', 'C', 'D', 'E'];
 
   return (
     <AnimatePresence>
@@ -138,7 +146,7 @@ const ExamDetailModal = ({ result, onClose }) => {
                         <span className="shrink-0 w-7 h-7 rounded-lg bg-danger/10 border border-danger/20 flex items-center justify-center text-[10px] font-black text-danger mt-0.5">
                           {idx + 1}
                         </span>
-                        <p className="flex-1 text-sm font-bold text-white leading-relaxed">
+                          <p className="flex-1 text-sm font-bold text-white leading-relaxed">
                           {q.questionText || q.text || 'Soru metni mevcut değil.'}
                         </p>
                         <span className="shrink-0 ml-2 text-text-muted">
@@ -157,6 +165,16 @@ const ExamDetailModal = ({ result, onClose }) => {
                             className="overflow-hidden"
                           >
                             <div className="px-4 pb-4 space-y-2">
+                              {q.media && (
+                                <div className="mb-3 rounded-2xl border border-white/10 bg-black/20 p-3">
+                                  <img
+                                    src={resolveMediaUrl(q.media)}
+                                    alt="Soru görseli"
+                                    className="mx-auto max-h-52 max-w-full rounded-xl object-contain"
+                                  />
+                                </div>
+                              )}
+
                               {/* Options */}
                               {options && options.length > 0 && options.map((opt, oIdx) => {
                                 const isCorrect = oIdx === correctIdx;
@@ -181,7 +199,7 @@ const ExamDetailModal = ({ result, onClose }) => {
                                     <span className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-black border border-current/30 bg-current/10">
                                       {optionLabels[oIdx] || oIdx}
                                     </span>
-                                    <span className="flex-1">{opt}</span>
+                                    <span className="flex-1">{cleanOptionText(opt, oIdx)}</span>
                                     {icon}
                                   </div>
                                 );

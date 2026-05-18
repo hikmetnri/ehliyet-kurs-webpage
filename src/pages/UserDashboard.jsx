@@ -8,6 +8,7 @@ import UserExamSolve from './user/UserExamSolve';
 import UserStats from './user/UserStats';
 import UserSupport from './user/UserSupport';
 import UserFeed from './user/UserFeed';
+import UserFeedDetail from './user/UserFeedDetail';
 import UserSettings from './user/UserSettings';
 import UserFavorites from './user/UserFavorites';
 import UserTrafficSigns from './user/UserTrafficSigns';
@@ -17,6 +18,9 @@ const UserDashboard = () => {
   return (
     <Routes>
       {/* Exam Solve has its own full-screen layout (no outer padding) */}
+      <Route path="exams/wrong-review" element={<UserLayout fullscreen />}>
+        <Route index element={<UserExamSolve customType="wrong_review" />} />
+      </Route>
       <Route path="exams/:examId" element={<UserLayout fullscreen />}>
         <Route index element={<UserExamSolve />} />
       </Route>
@@ -34,6 +38,7 @@ const UserDashboard = () => {
         <Route path="exams" element={<UserExams />} />
         <Route path="stats" element={<UserStats />} />
         <Route path="feed" element={<UserFeed />} />
+        <Route path="feed/:postId" element={<UserFeedDetail />} />
         <Route path="support" element={<UserSupport />} />
         <Route path="settings" element={<UserSettings />} />
         <Route path="favorites" element={<UserFavorites />} />

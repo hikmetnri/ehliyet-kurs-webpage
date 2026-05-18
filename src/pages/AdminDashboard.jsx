@@ -11,17 +11,9 @@ import {
   BarChart, Bar
 } from 'recharts';
 import api from '../api';
+import { hasChartValue, normalizeCategoryStats, normalizeRegistrationTrend, readList } from '../utils/statsData';
 
 const MotionDiv = motion.div;
-
-const readList = (body) => {
-  if (Array.isArray(body)) return body;
-  if (!body || typeof body !== 'object') return [];
-  for (const key of ['data', 'items', 'results', 'reports', 'posts']) {
-    if (Array.isArray(body[key])) return body[key];
-  }
-  return [];
-};
 
 const StatCard = ({ title, value, icon, colorClass, gradient, delay }) => (
   <MotionDiv 
@@ -127,6 +119,13 @@ const HealthCard = ({ title, value, detail, icon, tone, path, onOpen, delay }) =
   </MotionDiv>
 );
 
+const ChartEmptyState = ({ text }) => (
+  <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-2xl border border-white/5 bg-white/[0.02] px-6 text-center">
+    <AlertCircle className="mb-3 h-8 w-8 text-white/25" />
+    <p className="text-xs font-bold leading-relaxed text-text-muted">{text}</p>
+  </div>
+);
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
@@ -170,15 +169,8 @@ const AdminDashboard = () => {
       const logsData = readList(logsRes.data);
       const categoriesData = readList(categoriesRes.data);
       
-      // Update chart states
-      setRegData(readList(regTrendRes.data));
-
-      // Map category stats correctly for Recharts (BarChart uses dataKey="oran")
-      const catData = readList(catStatsRes.data).map(c => ({
-        name: c.categoryName || 'Bilinmiyor',
-        oran: c.avgSuccessRate || 0
-      }));
-      setCategoryStats(catData);
+      setRegData(normalizeRegistrationTrend(regTrendRes.data));
+      setCategoryStats(normalizeCategoryStats(catStatsRes.data));
 
       const activeTickets = ticketsData.filter(t => !['closed', 'kapalı'].includes(String(t.status || '').toLowerCase()));
       const activeReports = reportsData.filter(r => !['closed', 'resolved', 'rejected', 'dismissed'].includes(String(r.status || '').toLowerCase()));
@@ -310,6 +302,8 @@ const AdminDashboard = () => {
       tone: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20', glow: 'bg-violet-500/15' },
     },
   ];
+  const hasRegistrationData = hasChartValue(regData, 'users');
+  const hasCategoryData = categoryStats.length > 0;
 
   if (loading) {
     return (
@@ -486,34 +480,42 @@ const AdminDashboard = () => {
         <MotionDiv className="glass-card p-4 sm:p-6 rounded-2xl border border-white/5 bg-black/20 min-w-0" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}}>
           <h3 className="text-white font-black mb-4 text-sm sm:text-base">Yeni Kayıt Trendi (Son 7 Gün)</h3>
           <div className="h-56 sm:h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={regData} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} />
-                <RechartsTooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} itemStyle={{ color: '#a5b4fc' }} />
-                <Area type="monotone" dataKey="users" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {hasRegistrationData ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={regData} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} itemStyle={{ color: '#a5b4fc' }} />
+                  <Area type="monotone" dataKey="users" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <ChartEmptyState text="Seçili aralıkta yeni kayıt yok. Veri geldikçe trend burada çizilecek." />
+            )}
           </div>
         </MotionDiv>
 
         <MotionDiv className="glass-card p-4 sm:p-6 rounded-2xl border border-white/5 bg-black/20 min-w-0" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.1}}>
           <h3 className="text-white font-black mb-4 text-sm sm:text-base">Kategori Başarı Oranları (%)</h3>
           <div className="h-56 sm:h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={categoryStats} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
-                <XAxis dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} interval={0} tickFormatter={(value) => String(value).slice(0, 8)} />
-                <YAxis stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} />
-                <RechartsTooltip cursor={{fill: '#27272a', opacity: 0.4}} contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} />
-                <Bar dataKey="oran" fill="#10b981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {hasCategoryData ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={categoryStats} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
+                  <XAxis dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} interval={0} tickFormatter={(value) => String(value).slice(0, 8)} />
+                  <YAxis stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} domain={[0, 100]} />
+                  <RechartsTooltip cursor={{fill: '#27272a', opacity: 0.4}} contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} />
+                  <Bar dataKey="oran" fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <ChartEmptyState text="Kategori bazlı sınav sonucu oluşunca başarı oranları burada görünecek." />
+            )}
           </div>
         </MotionDiv>
       </div>

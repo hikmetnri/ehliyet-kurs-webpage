@@ -12,27 +12,46 @@ import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
+const REVIEW_SESSION_LIMIT = 20;
+
+const cleanOptionText = (option, index) => {
+  if (typeof option !== 'string') return option;
+  const label = OPTION_LABELS[index];
+  if (!label) return option.trim();
+  return option.replace(new RegExp(`^\\s*${label}\\s*[).:\\-]\\s*`, 'i'), '').trim();
+};
 
 // ─── Timer Hook ──────────────────────────────────────────────────────────────
-const useTimer = (durationMinutes, onExpire) => {
-  const [remaining, setRemaining] = useState(durationMinutes * 60);
+const useTimer = (durationMinutes, onExpire, active = false) => {
+  const durationSeconds = Math.max(1, durationMinutes || 45) * 60;
+  const [remaining, setRemaining] = useState(durationSeconds);
   const intervalRef = useRef(null);
+  const onExpireRef = useRef(onExpire);
 
   useEffect(() => {
-    if (remaining <= 0) { onExpire?.(); return; }
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
+
+  useEffect(() => {
+    if (!active) setRemaining(durationSeconds);
+  }, [active, durationSeconds]);
+
+  useEffect(() => {
+    if (!active) return undefined;
+    if (remaining <= 0) { onExpireRef.current?.(); return undefined; }
     intervalRef.current = setInterval(() => {
       setRemaining(prev => {
-        if (prev <= 1) { clearInterval(intervalRef.current); onExpire?.(); return 0; }
+        if (prev <= 1) { clearInterval(intervalRef.current); onExpireRef.current?.(); return 0; }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(intervalRef.current);
-  }, []);
+  }, [active, remaining]);
 
   const stop = () => clearInterval(intervalRef.current);
 
   const formatted = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
-  const pct = ((durationMinutes * 60 - remaining) / (durationMinutes * 60)) * 100;
+  const pct = ((durationSeconds - remaining) / durationSeconds) * 100;
   const isWarning = remaining < 300; // < 5 min
   const isDanger = remaining < 60;
 
@@ -40,7 +59,7 @@ const useTimer = (durationMinutes, onExpire) => {
 };
 
 // ─── Result Screen ────────────────────────────────────────────────────────────
-const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
+const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome }) => {
   let correct = 0, wrong = 0, empty = 0;
   questions.forEach((q, i) => {
     if (answers[i] === undefined || answers[i] === null) empty++;
@@ -50,6 +69,14 @@ const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
   const total = questions.length;
   const score = total > 0 ? Math.round((correct / total) * 100) : 0;
   const passed = score >= 70;
+  const isReview = exam?.testType === 'wrong_review' || exam?._id === 'wrong_review_today';
+  const reviewSummary = reviewSync?.summary || {};
+  const resultTone = isReview ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
+  const toneClasses = {
+    success: 'border-success bg-success/10 shadow-success/20 text-success',
+    primary: 'border-primary bg-primary/10 shadow-primary/20 text-primary-light',
+    danger: 'border-danger bg-danger/10 shadow-danger/20 text-danger',
+  }[resultTone];
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
@@ -60,18 +87,20 @@ const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
         className="w-full max-w-2xl glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
       >
         {/* Score Circle */}
-        <div className={`w-32 h-32 rounded-full mx-auto mb-8 flex flex-col items-center justify-center border-4 shadow-xl ${
-          passed ? 'border-success bg-success/10 shadow-success/20' : 'border-danger bg-danger/10 shadow-danger/20'
-        }`}>
-          <span className={`text-4xl font-black ${passed ? 'text-success' : 'text-danger'}`}>{score}</span>
-          <span className="text-xs text-white/50 font-bold">PUAN</span>
+        <div className={`w-32 h-32 rounded-full mx-auto mb-8 flex flex-col items-center justify-center border-4 shadow-xl ${toneClasses}`}>
+          <span className="text-4xl font-black">{score}</span>
+          <span className="text-xs text-white/50 font-bold">{isReview ? 'BAŞARI' : 'PUAN'}</span>
         </div>
 
-        <h2 className={`text-2xl font-black tracking-tight mb-2 ${passed ? 'text-success' : 'text-danger'}`}>
-          {passed ? '🎉 Tebrikler, Geçtiniz!' : '😕 Maalesef Kaldınız'}
+        <h2 className={`text-2xl font-black tracking-tight mb-2 ${
+          isReview ? 'text-primary-light' : passed ? 'text-success' : 'text-danger'
+        }`}>
+          {isReview ? 'Tekrar Tamamlandı' : passed ? 'Tebrikler, Geçtiniz!' : 'Maalesef Kaldınız'}
         </h2>
         <p className="text-text-muted text-sm mb-8 font-medium">
-          {exam?.name} sınavı sonuçlandı. {passed ? 'Harika bir performans!' : 'Bir sonraki denemede başarılar!'}
+          {isReview
+            ? `Bugünkü tekrar testi bitti. 4 kez doğru yapılan sorular tamamlandı; diğer doğrular ileriki bir güne bırakıldı.`
+            : `${exam?.name} sınavı sonuçlandı. ${passed ? 'Harika bir performans!' : 'Bir sonraki denemede başarılar!'}`}
         </p>
 
         {/* Stats Row */}
@@ -90,16 +119,57 @@ const ResultScreen = ({ questions, answers, exam, onRetry, onHome }) => {
           </div>
         </div>
 
+        {reviewSync?.status && reviewSync.status !== 'idle' && (
+          <div className={`mb-8 flex items-start gap-3 rounded-2xl border p-4 text-left ${
+            reviewSync.status === 'success'
+              ? 'border-primary/20 bg-primary/10 text-primary-light'
+              : 'border-warning/20 bg-warning/10 text-warning'
+          }`}>
+            {reviewSync.status === 'success' ? (
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
+            ) : (
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+            )}
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest">
+                {reviewSync.status === 'success'
+                  ? isReview ? 'Tekrar Sonuçları Kaydedildi' : 'Yanlışlar Kaydedildi'
+                  : 'Yanlışlar Kaydedilemedi'}
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-relaxed text-white/80">
+                {reviewSync.status === 'success'
+                  ? isReview
+                    ? [
+                        reviewSummary.masteredCount > 0 ? `${reviewSummary.masteredCount} soru tamamlandı ve artık tekrar listesinde görünmeyecek.` : '',
+                        reviewSummary.postponedCount > 0 ? `${reviewSummary.postponedCount} doğru soru ileriki bir güne bırakıldı.` : '',
+                        reviewSummary.wrongCount > 0 ? `${reviewSummary.wrongCount} yanlış soru tekrar listesinde kaldı.` : '',
+                      ].filter(Boolean).join(' ') || 'Tekrar sonuçların kaydedildi.'
+                    : reviewSync.wrongCount > 0
+                      ? `${reviewSync.wrongCount} yanlış cevap tekrar listene eklendi.`
+                      : 'Bu sınavda yeni yanlış yok; tekrar listen güncellendi.'
+                  : 'Sonuç ekranı kaydedildi, ancak yanlış cevaplar şu an tekrar listesine eklenemedi.'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={onRetry}
             className="flex-1 flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
-            <RefreshCw className="w-4 h-4" /> Tekrar Çöz
+            <RefreshCw className="w-4 h-4" /> {isReview ? 'Kalanları Göster' : 'Tekrar Çöz'}
           </button>
           
-          {exam?._id?.startsWith('short_test_') ? (
+          {isReview ? (
+            <button
+              onClick={() => onHome('/dashboard')}
+              className="flex-1 flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
+            >
+              <Home className="w-4 h-4" /> Ana Sayfaya Dön
+            </button>
+          ) : exam?._id?.startsWith('short_test_') ? (
             <button
               onClick={() => onHome('/dashboard/lessons')}
               className="flex-1 flex items-center justify-center gap-2 py-4 bg-success text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-success/20 hover:scale-[1.02] active:scale-95 transition-all"
@@ -138,6 +208,8 @@ const UserExamSolve = ({ customType }) => {
   const [showQuestionList, setShowQuestionList] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [favLoading, setFavLoading] = useState(false);
+  const [reviewSync, setReviewSync] = useState({ status: 'idle', wrongCount: 0 });
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     fetchFavorites();
@@ -206,6 +278,43 @@ const UserExamSolve = ({ customType }) => {
             duration: 45,
             categoryId: categoryId
           });
+        } else if (customType === 'wrong_review') {
+          const reviewRes = await api.get(`/wrong-answers/review-due?limit=${REVIEW_SESSION_LIMIT}`);
+          const reviewItems = reviewRes.data?.data || [];
+          const reviewTotalCount = reviewRes.data?.count ?? reviewItems.length;
+          const reviewIds = reviewItems.map((item) => item.questionId).filter(Boolean);
+          const sourceQuestions = reviewIds.length > 0
+            ? await api.get(`/questions?ids=${reviewIds.join(',')}`)
+                .then((res) => res.data || [])
+                .catch(() => [])
+            : [];
+          const sourceQuestionMap = new Map(sourceQuestions.map((question) => [question._id, question]));
+          const qs = reviewItems.map((item) => ({
+            _id: item.questionId,
+            text: sourceQuestionMap.get(item.questionId)?.text || item.questionText,
+            options: sourceQuestionMap.get(item.questionId)?.options || item.options || [],
+            correctAnswer: sourceQuestionMap.get(item.questionId)?.correctAnswer ?? item.correctAnswer,
+            explanation: sourceQuestionMap.get(item.questionId)?.explanation || item.explanation,
+            media: sourceQuestionMap.get(item.questionId)?.media || item.media || '',
+            category: sourceQuestionMap.get(item.questionId)?.category || item.categoryId,
+            categoryName: sourceQuestionMap.get(item.questionId)?.category?.name || item.categoryName,
+            testType: sourceQuestionMap.get(item.questionId)?.testType || item.testType || 'wrong_review',
+            subject: sourceQuestionMap.get(item.questionId)?.subject || item.subject || '',
+            wrongCount: item.wrongCount || 1,
+          })).filter((question) => question._id && question.text && question.options.length > 0);
+
+          setQuestions(qs);
+          setExam({
+            _id: 'wrong_review_today',
+            name: 'Bugün Çözülecek Yanlışlar',
+            categoryName: 'Yanlış Tekrarı',
+            description: 'Bugün yeniden çözmen gereken yanlış sorulardan oluşan kişisel çalışma testi.',
+            duration: Math.max(10, Math.ceil(qs.length * 1.5)),
+            categoryId: user?.selectedCategoryId || null,
+            reviewTotalCount,
+            reviewSessionLimit: REVIEW_SESSION_LIMIT,
+            testType: 'wrong_review',
+          });
         } else {
           // Normal exam
           const [examRes, qRes] = await Promise.all([
@@ -226,19 +335,22 @@ const UserExamSolve = ({ customType }) => {
       }
     };
     fetchExam();
-  }, [examId, categoryId, customType]);
+  }, [examId, categoryId, customType, user?.selectedCategoryId, reloadKey]);
 
-  const mode = customType === 'short_test' ? 'short' : 
-               customType === 'real_test' ? 'real' : 
+  const mode = customType === 'short_test' ? 'short' :
+               customType === 'wrong_review' ? 'review' :
+               customType === 'real_test' ? 'real' :
                (!exam?.categoryId ? 'mock' : 'real');
                
-  const showFeedback = mode === 'short' || mode === 'mock';
+  const showFeedback = mode === 'short' || mode === 'mock' || mode === 'review';
+  const reviewTotalCount = exam?.reviewTotalCount || questions.length;
+  const reviewPendingAfterSession = Math.max(0, reviewTotalCount - questions.length);
 
   const handleExpire = useCallback(() => {
     handleSubmit(true);
   }, [answers, questions]);
 
-  const timer = useTimer(exam?.duration || 45, handleExpire);
+  const timer = useTimer(exam?.duration || 45, handleExpire, phase === 'solving');
 
   const handleAnswer = (optionIdx) => {
     if (showFeedback && answers[currentIdx] !== undefined) return; // Kilitliyse tıklanamaz
@@ -249,14 +361,19 @@ const UserExamSolve = ({ customType }) => {
     if (!forced && !window.confirm('Sınavı bitirmek istediğinize emin misiniz?')) return;
     timer.stop();
     setSubmitting(true);
+    setReviewSync({ status: 'idle', wrongCount: 0 });
 
     try {
       let correct = 0, wrong = 0;
       const wrongQuestions = [];
+      const correctQuestionIds = [];
 
       questions.forEach((q, i) => {
         const ans = answers[i];
-        if (ans === q.correctAnswer) correct++;
+        if (ans === q.correctAnswer) {
+          correct++;
+          correctQuestionIds.push(q._id);
+        }
         else if (ans !== undefined) {
           wrong++;
           wrongQuestions.push({ 
@@ -265,7 +382,12 @@ const UserExamSolve = ({ customType }) => {
             options: q.options,
             userAnswer: ans,
             correctAnswer: q.correctAnswer,
-            explanation: q.explanation
+            explanation: q.explanation,
+            media: q.media || '',
+            categoryId: typeof q.category === 'object' ? q.category?._id : q.category,
+            categoryName: typeof q.category === 'object' ? q.category?.name : '',
+            testType: q.testType,
+            subject: q.subject || '',
           });
         }
       });
@@ -275,8 +397,9 @@ const UserExamSolve = ({ customType }) => {
       const score = total > 0 ? parseFloat(((correct / total) * 100).toFixed(1)) : 0;
       const passed = score >= 70;
       const timeSpentSecs = (exam?.duration || 45) * 60 - timer.remaining;
+      const isReviewMode = customType === 'wrong_review';
 
-      await api.post('/exam-results', {
+      const resultPayload = {
         examId: (customType === 'short_test' || customType === 'real_test') ? null : examId,
         examName: exam?.name,
         testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
@@ -290,7 +413,36 @@ const UserExamSolve = ({ customType }) => {
         passed,
         duration: Math.round(timeSpentSecs / 60),
         wrongQuestions,
+      };
+
+      const wrongAnswerPayload = {
+        wrongQuestions,
+        correctQuestionIds,
+        categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
+        categoryName: exam?.categoryName || (typeof exam?.categoryId === 'object' ? exam?.categoryId?.name : ''),
+        testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
+      };
+
+      const syncWrongAnswers = async () => api.post('/wrong-answers/bulk', wrongAnswerPayload).then((res) => {
+        setReviewSync({
+          status: 'success',
+          wrongCount: wrongQuestions.length,
+          summary: res.data?.summary || null,
+        });
+      }).catch((err) => {
+        console.warn('Yanlış cevap listesi güncellenemedi:', err);
+        setReviewSync({ status: 'error', wrongCount: wrongQuestions.length });
       });
+
+      if (isReviewMode) {
+        await syncWrongAnswers();
+        await api.post('/exam-results', resultPayload).catch((err) => {
+          console.warn('Tekrar testi sonucu geçmişe kaydedilemedi:', err);
+        });
+      } else {
+        await api.post('/exam-results', resultPayload);
+        await syncWrongAnswers();
+      }
     } catch (err) {
       console.error('Sonuç kaydedilemedi:', err);
     } finally {
@@ -313,13 +465,59 @@ const UserExamSolve = ({ customType }) => {
     </div>
   );
 
+  if (mode === 'review' && phase === 'intro' && questions.length === 0) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="w-full max-w-lg glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
+        >
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[28px] border-2 border-success/30 bg-success/10">
+            <CheckCircle2 className="h-10 w-10 text-success" />
+          </div>
+          <h2 className="mb-2 text-2xl font-black tracking-tight text-white">Bugün Çözülecek Yanlış Kalmadı</h2>
+          <p className="mb-8 text-sm font-medium leading-relaxed text-text-muted">
+            Şu anda yeniden çözmen gereken yanlış soru yok. Yeni test çözdükçe veya eski yanlışların günü geldikçe bu alan yeniden dolacak.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-4 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
+            >
+              <Home className="mr-1 inline h-4 w-4" /> Ana Sayfa
+            </button>
+            <button
+              onClick={() => navigate('/dashboard/exams')}
+              className="flex-1 rounded-2xl bg-primary py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] hover:bg-primary-light active:scale-95"
+            >
+              Yeni Test Çöz →
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   // ─── RESULT ────────────────────────────────────────────────────────
   if (phase === 'result') {
     return <ResultScreen
       questions={questions}
       answers={answers}
       exam={exam}
-      onRetry={() => { setAnswers({}); setCurrentIdx(0); setPhase('intro'); }}
+      reviewSync={reviewSync}
+      onRetry={() => {
+        setAnswers({});
+        setCurrentIdx(0);
+        setReviewSync({ status: 'idle', wrongCount: 0 });
+        if (customType === 'wrong_review') {
+          setLoading(true);
+          setQuestions([]);
+          setExam(null);
+        }
+        setPhase('intro');
+        if (customType === 'wrong_review') setReloadKey((key) => key + 1);
+      }}
       onHome={(path) => navigate(path || '/dashboard/exams')}
     />;
   }
@@ -338,27 +536,47 @@ const UserExamSolve = ({ customType }) => {
           <h2 className="text-2xl font-black text-white mb-2 tracking-tight">{exam.name}</h2>
           {exam.description && <p className="text-text-muted text-sm mb-6 font-medium">{exam.description}</p>}
 
-          <div className="mb-8 grid grid-cols-3 gap-3 sm:flex sm:justify-center sm:gap-6">
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">{questions.length}</p>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Soru</p>
+          {mode === 'review' ? (
+            <div className="mb-8 grid grid-cols-3 gap-3 sm:flex sm:justify-center sm:gap-6">
+              <div className="text-center">
+                <p className="text-2xl font-black text-white">{questions.length}</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Şimdi Çözülecek</p>
+              </div>
+              <div className="w-px bg-white/10" />
+              <div className="text-center">
+                <p className="text-2xl font-black text-primary-light">{reviewTotalCount}</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Bugünkü Toplam</p>
+              </div>
+              <div className="w-px bg-white/10" />
+              <div className="text-center">
+                <p className="text-2xl font-black text-white">{exam.duration || 45}</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Dakika</p>
+              </div>
             </div>
-            <div className="w-px bg-white/10" />
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">{exam.duration || 45}</p>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Dakika</p>
+          ) : (
+            <div className="mb-8 grid grid-cols-3 gap-3 sm:flex sm:justify-center sm:gap-6">
+              <div className="text-center">
+                <p className="text-2xl font-black text-white">{questions.length}</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Soru</p>
+              </div>
+              <div className="w-px bg-white/10" />
+              <div className="text-center">
+                <p className="text-2xl font-black text-white">{exam.duration || 45}</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Dakika</p>
+              </div>
+              <div className="w-px bg-white/10" />
+              <div className="text-center">
+                <p className="text-2xl font-black text-success">70</p>
+                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Geçme Puanı</p>
+              </div>
             </div>
-            <div className="w-px bg-white/10" />
-            <div className="text-center">
-              <p className="text-2xl font-black text-success">70</p>
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Geçme Puanı</p>
-            </div>
-          </div>
+          )}
 
           <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-primary-light font-medium text-left mb-8 flex gap-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span className="leading-relaxed">
-              {mode === 'short' ? 'Bu bir pekiştirme testidir. İşaretlediğiniz an sorunun doğrusunu ve detaylı açıklamasını göreceksiniz. Seçiminiz sonradan değiştirilemez.' : 
+              {mode === 'short' ? 'Bu bir pekiştirme testidir. İşaretlediğiniz an sorunun doğrusunu ve detaylı açıklamasını göreceksiniz. Seçiminiz sonradan değiştirilemez.' :
+               mode === 'review' ? `Bugünün tekrar testindesiniz. Şimdi ${questions.length} soru çözülecek${reviewPendingAfterSession > 0 ? `, kalan ${reviewPendingAfterSession} soru daha sonra çözülecek` : ''}. Bir soru 4 kez doğru yapılınca tamamlanır ve listeden çıkar.` :
                mode === 'mock' ? 'Genel Deneme modundasınız. Süre tutulacak ancak işaretleme anında sorunun çözümünü ve doğrusunu görebileceksiniz. Lütfen sürenizi verimli kullanın.' :
                'Gerçek Sınav Simülasyonu. Sınavı tamamla butonuna basana kadar cevapların doğru/yanlış olduğunu göremeyeceksiniz. Kalan sürenize dikkat edin!'}
             </span>
@@ -373,7 +591,7 @@ const UserExamSolve = ({ customType }) => {
               disabled={questions.length === 0}
               className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
             >
-              Sınava Başla →
+              {mode === 'review' ? 'Tekrar Testini Başlat →' : 'Sınava Başla →'}
             </button>
           </div>
         </motion.div>
@@ -516,7 +734,7 @@ const UserExamSolve = ({ customType }) => {
                       {OPTION_LABELS[idx]}
                     </div>
                     <span className={`text-sm leading-relaxed pt-0.5 ${textClass}`}>
-                      {option}
+                      {cleanOptionText(option, idx)}
                     </span>
                   </button>
                 );

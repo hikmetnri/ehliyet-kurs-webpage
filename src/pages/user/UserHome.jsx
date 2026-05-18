@@ -93,6 +93,7 @@ const UserHome = () => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [quote, setQuote] = useState(null);
   const [isMockMode, setIsMockMode] = useState(false);
+  const [reviewDue, setReviewDue] = useState({ count: 0, items: [] });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,6 +142,18 @@ const UserHome = () => {
           }
         } catch (err) {
           console.error('Quotes error', err);
+        }
+
+        try {
+          const reviewRes = await api.get('/wrong-answers/review-due?limit=3');
+          const reviewItems = reviewRes.data?.data || [];
+          setReviewDue({
+            count: reviewRes.data?.count ?? reviewItems.length,
+            items: Array.isArray(reviewItems) ? reviewItems : [],
+          });
+        } catch (err) {
+          console.error('Review due error', err);
+          setReviewDue({ count: 0, items: [] });
         }
       } catch (err) {
         console.error('Global fetch error:', err);
@@ -452,6 +465,54 @@ const UserHome = () => {
                   <ArrowRight className="h-4 w-4" />
                 </button>
               )}
+            </div>
+
+            <div className={`mb-3 rounded-2xl border p-3 ${
+              reviewDue.count > 0
+                ? 'border-primary/20 bg-primary/10'
+                : 'border-white/10 bg-black/20'
+            }`}>
+              <div className="flex items-center gap-3">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
+                  reviewDue.count > 0
+                    ? 'border-primary/20 bg-primary/10 text-primary-light'
+                    : 'border-white/10 bg-white/5 text-text-muted'
+                }`}>
+                  <RefreshCcw className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün Çözülecek Yanlışlar</p>
+                    {reviewDue.count > 0 && (
+                      <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-black text-white">
+                        {reviewDue.count}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 truncate text-xs font-semibold text-text-muted">
+                    {reviewDue.count > 0
+                      ? 'Daha önce yanlış yaptığın sorular hazır.'
+                      : 'Bugün yeniden çözmen gereken soru yok.'}
+                  </p>
+                </div>
+                {reviewDue.count > 0 ? (
+                  <Link
+                    to="/dashboard/exams/wrong-review"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-primary-light"
+                  >
+                    Yanlışları Çöz
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                ) : (
+                  <Link
+                    to="/dashboard/exams"
+                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                  >
+                    Test
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                )}
+              </div>
             </div>
 
             {studyPlan.map((item) => (
