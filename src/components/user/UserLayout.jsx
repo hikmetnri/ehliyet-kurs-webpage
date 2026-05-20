@@ -61,17 +61,26 @@ const UserLayout = ({ fullscreen = false }) => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         {/* Dekoratif Işıklar - Sayfa Geneli */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
+        <div className="absolute top-0 right-0 hidden w-96 h-96 bg-primary/5 blur-[100px] pointer-events-none rounded-full lg:block" />
         
         {/* Topbar */}
-        <header className="h-16 lg:h-20 bg-bg-dark/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-3 sm:px-5 sticky top-0 z-10 shrink-0">
+        <header className="h-14 sm:h-16 lg:h-20 bg-[#121212]/95 lg:bg-bg-dark/80 backdrop-blur-xl border-b border-white/10 lg:border-white/5 flex items-center justify-between px-4 sm:px-5 sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-2 hover:bg-white/5 rounded-xl transition-colors text-text-muted hover:text-white lg:hidden"
+              className="p-2 rounded-xl border border-white/5 bg-white/[0.03] text-text-muted transition-colors hover:bg-white/5 hover:text-white lg:hidden"
+              aria-label="Menüyü aç"
             >
               <Menu className="w-5 h-5" />
             </button>
+            <div className="lg:hidden">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-light">
+                Ehliyet Yolu
+              </p>
+              <h2 className="text-base font-black leading-tight tracking-tight text-white">
+                Öğrenci Paneli
+              </h2>
+            </div>
             <div className="hidden lg:block">
               <h2 className="text-xl font-bold bg-gradient-to-r from-white to-text-secondary bg-clip-text text-transparent">
                 Merhaba, {user?.firstName}! 👋
@@ -84,7 +93,7 @@ const UserLayout = ({ fullscreen = false }) => {
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className={`relative w-10 h-10 flex items-center justify-center rounded-xl border transition-all group ${
+                className={`relative w-10 h-10 flex items-center justify-center rounded-[14px] border transition-all group ${
                   showNotifications
                     ? 'bg-primary/10 border-primary/30 text-primary-light'
                     : 'bg-white/[0.02] border-white/5 text-text-muted hover:text-white hover:bg-white/[0.05]'
@@ -117,8 +126,8 @@ const UserLayout = ({ fullscreen = false }) => {
                 </div>
               </div>
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20">
-                  <div className="w-full h-full bg-bg-dark rounded-[10px] flex items-center justify-center overflow-hidden">
+                <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20">
+                  <div className="w-full h-full bg-bg-dark rounded-[12px] flex items-center justify-center overflow-hidden">
                     {user?.avatarUrl ? (
                       <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -139,7 +148,7 @@ const UserLayout = ({ fullscreen = false }) => {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto p-3 pb-24 sm:p-4 sm:pb-24 md:p-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
+        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto px-4 py-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:p-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
           <Outlet />
         </main>
         {!fullscreen && <UserBottomNav />}

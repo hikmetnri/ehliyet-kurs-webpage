@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import api from '../api';
@@ -7,6 +7,10 @@ import { signInWithPopup } from 'firebase/auth';
 import { UserPlus, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
+import { getAcquisitionContext } from '../utils/analytics';
+import MaintenanceScreen from '../components/MaintenanceScreen';
+
+const MotionDiv = motion.div;
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,10 +21,29 @@ const Register = () => {
     passwordConfirm: ''
   });
   const [loading, setLoading] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
   const [errorObj, setErrorObj] = useState(null);
   
   const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let active = true;
+
+    api.get('/status')
+      .then((res) => {
+        if (active) setMaintenanceActive(Boolean(res.data?.maintenance));
+      })
+      .catch(() => {
+        if (active) setMaintenanceActive(false);
+      })
+      .finally(() => {
+        if (active) setCheckingMaintenance(false);
+      });
+
+    return () => { active = false; };
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,12 +61,16 @@ const Register = () => {
     }
 
     try {
+      const acquisition = getAcquisitionContext();
       // Backend api endpoint to register
       const response = await api.post('/auth/register', {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        source: acquisition.source,
+        platform: 'web',
+        analytics: acquisition,
       });
 
       const { user, token } = response.data;
@@ -58,7 +85,11 @@ const Register = () => {
       }
     } catch (err) {
       console.error('Register error:', err);
-      const message = err.response?.data?.message || 'Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.';
+      if (err.response?.status === 503 || err.response?.data?.maintenance) {
+        setMaintenanceActive(true);
+        return;
+      }
+      const message = err.response?.data?.message || err.response?.data?.error || 'Kayıt işlemi başarısız oldu. Lütfen tekrar deneyin.';
       setErrorObj(message);
     } finally {
       setLoading(false);
@@ -72,8 +103,14 @@ const Register = () => {
       
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
+      const acquisition = getAcquisitionContext();
       
-      const response = await api.post('/auth/google', { idToken });
+      const response = await api.post('/auth/google', {
+        idToken,
+        source: acquisition.source,
+        platform: 'web',
+        analytics: acquisition,
+      });
       const { user, token } = response.data;
       
       setAuth(user, token);
@@ -85,7 +122,12 @@ const Register = () => {
       }
     } catch (err) {
       console.error('Google auth error:', err);
-      setErrorObj(getFirebaseAuthErrorMessage(
+      if (err.response?.status === 503 || err.response?.data?.maintenance) {
+        setMaintenanceActive(true);
+        return;
+      }
+      const backendMessage = err.response?.data?.message || err.response?.data?.error;
+      setErrorObj(backendMessage || getFirebaseAuthErrorMessage(
         err,
         'Google ile işlem başarısız oldu. Lütfen ayarlarınızı kontrol edin.',
       ));
@@ -93,6 +135,14 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  if (checkingMaintenance) {
+    return <div className="min-h-screen bg-bg-dark" aria-label="Sayfa yükleniyor" />;
+  }
+
+  if (maintenanceActive) {
+    return <MaintenanceScreen onAdminAccess={() => navigate('/login?admin=1')} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-dark relative overflow-hidden px-4 text-text-primary py-12">
@@ -107,7 +157,7 @@ const Register = () => {
         <ChevronLeft className="w-5 h-5" />Giriş Ekranına Dön
       </Link>
 
-      <motion.div 
+      <MotionDiv
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -126,7 +176,7 @@ const Register = () => {
 
           <AnimatePresence>
             {errorObj && (
-              <motion.div 
+              <MotionDiv
                 initial={{ opacity: 0, y: -10, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
                 exit={{ opacity: 0, y: -10, height: 0 }}
@@ -136,7 +186,7 @@ const Register = () => {
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   <p>{errorObj}</p>
                 </div>
-              </motion.div>
+              </MotionDiv>
             )}
           </AnimatePresence>
 
@@ -256,7 +306,7 @@ const Register = () => {
         <p className="text-center mt-8 text-sm text-text-muted font-medium">
           Zaten bir hesabınız var mı? <Link to="/login" className="text-accent-light hover:text-white transition-colors">Giriş Yapın</Link>
         </p>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };

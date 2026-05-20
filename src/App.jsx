@@ -1,6 +1,8 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import useAuthStore from './store/authStore'
+import api from './api'
+import MaintenanceScreen from './components/MaintenanceScreen'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const Login = lazy(() => import('./pages/Login'))
@@ -43,9 +45,56 @@ const AdminRoute = ({ children }) => {
 const UserRoute = ({ children }) => {
   const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
+  const logout = useAuthStore((state) => state.logout)
+  const shouldCheckMaintenance = Boolean(token && user && user.role !== 'admin')
+  const maintenanceKey = shouldCheckMaintenance ? `${token}:${user.role}` : 'skip'
+  const [maintenanceStatus, setMaintenanceStatus] = useState({
+    key: 'init',
+    maintenance: false,
+  })
+
+  useEffect(() => {
+    if (!shouldCheckMaintenance) return undefined
+
+    let active = true
+
+    api.get('/status')
+      .then((res) => {
+        if (active) {
+          setMaintenanceStatus({
+            key: maintenanceKey,
+            maintenance: Boolean(res.data?.maintenance),
+          })
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setMaintenanceStatus({
+            key: maintenanceKey,
+            maintenance: false,
+          })
+        }
+      })
+
+    return () => { active = false }
+  }, [maintenanceKey, shouldCheckMaintenance])
+
+  const checkingMaintenance = shouldCheckMaintenance && maintenanceStatus.key !== maintenanceKey
+  const maintenance = shouldCheckMaintenance && maintenanceStatus.key === maintenanceKey && maintenanceStatus.maintenance
   
   if (!token || !user) return <Navigate to="/login" replace />
   if (user.role === 'admin') return <Navigate to="/admin" replace />
+  if (checkingMaintenance) return <RouteFallback />
+  if (maintenance) {
+    return (
+      <MaintenanceScreen
+        onLogout={() => {
+          logout()
+          window.location.href = '/login'
+        }}
+      />
+    )
+  }
   
   return children
 }

@@ -9,10 +9,8 @@ import {
   BookMarked,
   BookOpen,
   CalendarDays,
-  CalendarClock,
   CheckCircle2,
   ClipboardList,
-  Flame,
   LayoutGrid,
   Loader2,
   PlayCircle,
@@ -26,35 +24,6 @@ import {
 import useAuthStore from '../../store/authStore';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
-
-const StatCard = ({ icon: Icon, label, value, detail, tone = 'primary', delay = 0 }) => {
-  const toneClass = {
-    primary: 'bg-primary/10 border-primary/20 text-primary-light',
-    accent: 'bg-accent/10 border-accent/20 text-accent-light',
-    success: 'bg-success/10 border-success/20 text-success',
-    warning: 'bg-warning/10 border-warning/20 text-warning',
-  }[tone];
-
-  return (
-    <Motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="group rounded-2xl border border-white/5 bg-white/[0.035] p-4 transition hover:-translate-y-0.5 hover:border-white/10 hover:bg-white/[0.055] sm:p-5"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</p>
-          <p className="mt-2 text-2xl font-black tracking-tight text-white sm:text-3xl">{value}</p>
-        </div>
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition group-hover:scale-105 sm:h-11 sm:w-11 ${toneClass}`}>
-          {React.createElement(Icon, { className: 'h-5 w-5' })}
-        </div>
-      </div>
-      <p className="mt-3 text-xs font-semibold leading-relaxed text-text-secondary sm:mt-4">{detail}</p>
-    </Motion.div>
-  );
-};
 
 const getStoredExamDate = () => {
   try {
@@ -84,9 +53,30 @@ const getExamCountdown = (dateValue) => {
   };
 };
 
+const planIconByType = {
+  select_category: ShieldCheck,
+  wrong_review: RefreshCcw,
+  weak_topic: BookOpen,
+  lesson: BookOpen,
+  daily_goal: Target,
+  short_test: ClipboardList,
+  mock_exam: ClipboardList,
+};
+
+const planRouteByAction = {
+  wrong_review: '/dashboard/exams/wrong-review',
+  weak_topic: '/dashboard/lessons',
+  lesson: '/dashboard/lessons',
+  daily_goal: '/dashboard/exams',
+  short_test: '/dashboard/exams',
+  mock_exam: '/dashboard/exams',
+  stats: '/dashboard/stats',
+};
+
 const UserHome = () => {
   const { user } = useAuthStore();
   const [stats, setStats] = useState(null);
+  const [dailyPlan, setDailyPlan] = useState(null);
   const [mainCategories, setMainCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +96,15 @@ const UserHome = () => {
           if (statsRes.data && !statsRes.data.error) setStats(statsRes.data);
         } catch (err) {
           console.error('Stats error', err);
+        }
+
+        try {
+          const planRes = await api.get('/stats/daily-plan');
+          const planData = planRes.data?.data || planRes.data;
+          setDailyPlan(planData?.tasks ? planData : null);
+        } catch (err) {
+          console.error('Daily plan error', err);
+          setDailyPlan(null);
         }
 
         try {
@@ -165,11 +164,19 @@ const UserHome = () => {
     fetchData();
   }, [user?.selectedCategoryId]);
 
-  const dailyGoal = stats?.dailyGoal || 20;
-  const todayQuestions = stats?.todayQuestions || 0;
-  const dailyProgress = Math.min(100, Math.round((todayQuestions / dailyGoal) * 100));
+  const planProgress = dailyPlan?.progress || {};
+  const dailyGoal = planProgress.dailyGoal || stats?.dailyGoal || 20;
+  const todayQuestions = planProgress.todayQuestions ?? stats?.todayQuestions ?? 0;
+  const dailyProgress = dailyGoal > 0
+    ? Math.min(100, Math.round((todayQuestions / dailyGoal) * 100))
+    : 0;
   const examCountdown = getExamCountdown(user?.examDate || getStoredExamDate());
-  const remainingQuestions = Math.max(0, dailyGoal - todayQuestions);
+  const remainingQuestions = planProgress.remainingQuestions ?? Math.max(0, dailyGoal - todayQuestions);
+  const totalScore = Number(user?.totalScore || user?.totalPoints || stats?.totalScore || 0);
+  const level = Number(user?.level || stats?.level || 1);
+  const nextLevelTarget = Math.max(100, Math.ceil((totalScore + 1) / 500) * 500);
+  const levelProgress = Math.min(100, Math.round((totalScore / nextLevelTarget) * 100));
+  const selectedPackage = user?.selectedCategoryName || 'Sınıf seçilmedi';
 
   const actionCards = useMemo(() => ([
     {
@@ -195,14 +202,42 @@ const UserHome = () => {
     },
   ]), []);
 
-  const studyPlan = [
-    { label: 'Konu tekrarı', detail: '15 dakika okuma', icon: BookOpen, done: Boolean(user?.selectedCategoryId) },
-    { label: 'Mini test', detail: '10 soru çöz', icon: ClipboardList, done: todayQuestions >= 10 },
-    { label: 'Günlük hedef', detail: `${dailyGoal} soruluk hedef`, icon: Target, done: todayQuestions >= dailyGoal },
-  ];
+  const studyPlan = dailyPlan?.tasks?.length
+    ? dailyPlan.tasks.slice(0, 3).map((task) => ({
+      label: task.title,
+      detail: task.detail,
+      icon: planIconByType[task.type] || ClipboardList,
+      done: Boolean(task.completed),
+    }))
+    : [
+      { label: 'Konu tekrarı', detail: '15 dakika okuma', icon: BookOpen, done: Boolean(user?.selectedCategoryId) },
+      { label: 'Mini test', detail: '10 soru çöz', icon: ClipboardList, done: todayQuestions >= 10 },
+      { label: 'Günlük hedef', detail: `${dailyGoal} soruluk hedef`, icon: Target, done: todayQuestions >= dailyGoal },
+    ];
 
   const wrongCount = stats?.totalWrong || stats?.wrongCount || 0;
   const recommendation = (() => {
+    if (dailyPlan?.title) {
+      const action = dailyPlan.primaryAction || {};
+      const actionType = action.type || dailyPlan.tasks?.find((task) => !task.completed)?.type || 'short_test';
+      const to = actionType === 'select_category'
+        ? undefined
+        : action.target || planRouteByAction[actionType] || '/dashboard/exams';
+      return {
+        title: dailyPlan.title,
+        detail: dailyPlan.subtitle || 'Bugünkü çalışma planın hazır.',
+        action: action.label || 'Başla',
+        to,
+        onClick: actionType === 'select_category' ? () => setShowCategoryModal(true) : undefined,
+        icon: planIconByType[actionType] || Target,
+        tone: dailyPlan.dueWrong?.count > 0
+          ? 'warning'
+          : dailyPlan.progress?.completed
+            ? 'accent'
+            : 'success',
+      };
+    }
+
     if (!user?.selectedCategoryId) {
       return {
         title: 'Bugün sınıfını seç',
@@ -303,266 +338,280 @@ const UserHome = () => {
         </div>
       </Motion.div>
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(330px,420px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(380px,460px)]">
+      <section className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,460px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(420px,520px)]">
         <Motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[radial-gradient(circle_at_15%_15%,rgba(99,102,241,0.24),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.075),rgba(255,255,255,0.025)_45%,rgba(6,182,212,0.10))] p-5 shadow-2xl shadow-black/20 sm:p-7 lg:p-8"
+          className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(circle_at_18%_15%,rgba(99,102,241,0.18),transparent_30%),linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.025)_52%,rgba(6,182,212,0.08))] p-4 shadow-xl shadow-black/10 sm:p-5 lg:p-6"
         >
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-accent/10 blur-[80px]" />
-          <div className="relative z-10 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-[80px]" />
+          <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-2xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-primary-light" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-primary-light">
                   Öğrenci Paneli
                 </span>
               </div>
-              <h1 className="max-w-[12ch] text-3xl font-black leading-[0.98] tracking-tight text-white sm:max-w-none sm:text-4xl lg:text-5xl">
+              <h1 className="text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
                 Merhaba {user?.firstName || 'sürücü adayı'}
               </h1>
-              <p className="mt-4 max-w-xl text-sm font-semibold leading-relaxed text-text-secondary sm:text-base">
-                Bugün hedefe odaklan: kısa konu tekrarı, mini test ve sınav tarihine göre düzenli ilerleme.
+              <p className="mt-2 max-w-xl text-sm font-semibold leading-relaxed text-text-secondary">
+                Bugünkü hedefin, aktif paketin ve sınav hazırlığın tek ekranda. Önce kısa planı tamamla, sonra denemeye geç.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
+            <div className="flex flex-wrap gap-2 lg:justify-end">
               <Link
                 to="/dashboard/exams"
-                className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 transition hover:bg-primary-light sm:px-5 sm:py-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition hover:bg-primary-light"
               >
-                <PlayCircle className="h-5 w-5" />
-                Teste Başla
+                <PlayCircle className="h-4 w-4" />
+                Test Çöz
               </Link>
               <Link
                 to="/dashboard/lessons"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10 sm:px-5 sm:py-4 sm:text-sm"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
               >
-                <BookOpen className="h-5 w-5 text-accent-light" />
+                <BookOpen className="h-4 w-4 text-accent-light" />
                 Dersler
               </Link>
             </div>
           </div>
 
-          <div className="relative z-10 mt-7 grid grid-cols-1 gap-3 sm:grid-cols-[1.2fr_0.9fr_0.9fr] lg:mt-8">
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Günlük Hedef</p>
-              <div className="mt-3 flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-3xl font-black">{dailyProgress}%</p>
-                  <p className="mt-1 text-xs font-bold text-text-secondary">{remainingQuestions === 0 ? 'Hedef tamamlandı' : `${remainingQuestions} soru kaldı`}</p>
-                </div>
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[conic-gradient(var(--color-primary)_0%,var(--color-accent)_var(--progress),rgba(255,255,255,0.08)_var(--progress))] p-1" style={{ '--progress': `${dailyProgress}%` }}>
-                  <div className="flex h-full w-full items-center justify-center rounded-full bg-bg-card text-[10px] font-black text-white">
-                    {todayQuestions}/{dailyGoal}
+          <div className="relative z-10 mt-5 grid gap-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-4 md:col-span-2 xl:col-span-1">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                    <ShieldCheck className="h-4 w-4 text-primary-light" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Aktif Paket</p>
+                    <p className="mt-1 truncate text-sm font-black text-white">{selectedPackage}</p>
+                    <p className="mt-1 truncate text-xs font-semibold text-text-muted">
+                      {dailyPlan?.primaryAction?.label || 'Bugünkü plana devam et'}
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
-                <Motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${dailyProgress}%` }}
-                  className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-                />
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Toplam Sınav</p>
+                    <p className="mt-1 text-2xl font-black text-white">{stats?.totalExams || 0}</p>
+                  </div>
+                  <ClipboardList className="h-5 w-5 text-primary-light" />
+                </div>
+                <p className="mt-2 truncate text-xs font-semibold text-text-muted">Çözdüğün deneme sayısı</p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Doğru Cevap</p>
+                    <p className="mt-1 text-2xl font-black text-white">{stats?.totalCorrect || 0}</p>
+                  </div>
+                  <CheckCircle2 className="h-5 w-5 text-success" />
+                </div>
+                <p className="mt-2 truncate text-xs font-semibold text-text-muted">Tüm sınavlardaki doğru</p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Seri</p>
+                    <p className="mt-1 text-2xl font-black text-white">
+                      {stats?.streak || 0}
+                      <span className="text-sm font-black text-text-muted"> gün</span>
+                    </p>
+                  </div>
+                  <CalendarDays className="h-5 w-5 text-warning" />
+                </div>
+                <p className="mt-2 truncate text-xs font-semibold text-text-muted">Düzenli çalışma takibi</p>
               </div>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Çalışma Serisi</p>
-              <div className="mt-3 flex items-center gap-3">
-                <Flame className="h-8 w-8 text-warning" />
-                <p className="text-3xl font-black">{stats?.streak || 0} gün</p>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
-              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sınav Tarihi</p>
-              <div className="mt-3 flex items-center gap-3">
-                <CalendarClock className="h-8 w-8 text-success" />
-                <p className="text-2xl font-black">
-                  {examCountdown
-                    ? examCountdown.isToday
-                      ? 'Bugün'
-                      : `${examCountdown.days} gün`
-                    : 'Eklenmedi'}
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Bugünkü Soru</p>
+                    <p className="mt-1 text-2xl font-black text-white">
+                      {todayQuestions}
+                      <span className="text-sm font-black text-text-muted">/{dailyGoal}</span>
+                    </p>
+                  </div>
+                  <Activity className="h-5 w-5 text-accent-light" />
+                </div>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                  <Motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${dailyProgress}%` }}
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+                  />
+                </div>
+                <p className="mt-3 text-xs font-semibold text-text-muted">
+                  {remainingQuestions === 0 ? 'Bugünkü hedef tamamlandı.' : `${remainingQuestions} soru daha çözmen yeterli.`}
                 </p>
               </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Seviye</p>
+                    <p className="mt-1 text-2xl font-black text-white">{level}</p>
+                  </div>
+                  <Star className="h-5 w-5 text-warning" />
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                  <Motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${levelProgress}%` }}
+                    className="h-full rounded-full bg-gradient-to-r from-warning to-primary-light"
+                  />
+                </div>
+                <p className="mt-2 truncate text-xs font-semibold text-text-muted">{totalScore} XP</p>
+              </div>
+
+              <div className={`rounded-2xl border p-4 ${
+                examCountdown
+                  ? examCountdown.isPast
+                    ? 'border-danger/20 bg-danger/10'
+                    : 'border-success/20 bg-success/10'
+                  : 'border-white/10 bg-black/20'
+              }`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sınav</p>
+                    <p className="mt-1 text-2xl font-black text-white">
+                      {examCountdown ? (examCountdown.isToday ? 0 : examCountdown.days) : '-'}
+                      <span className="text-sm font-black text-text-muted"> gün</span>
+                    </p>
+                  </div>
+                  <CalendarDays className="h-5 w-5 text-success" />
+                </div>
+                <p className="mt-2 truncate text-xs font-semibold text-text-muted">
+                  {examCountdown?.formatted || 'Tarih eklenmedi'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-auto pt-4">
+            <div className="grid gap-3 md:grid-cols-3">
+              {actionCards.map((card) => (
+                <Link
+                  key={card.to}
+                  to={card.to}
+                  className={`group flex min-h-[92px] items-center justify-between gap-3 rounded-2xl border border-white/10 bg-gradient-to-br ${card.tone} p-4 transition hover:-translate-y-0.5 hover:border-primary/30`}
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20">
+                      <card.icon className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-black tracking-tight text-white">{card.label}</h3>
+                      <p className="mt-1 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted">{card.text}</p>
+                    </div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-text-muted transition group-hover:translate-x-1 group-hover:text-white" />
+                </Link>
+              ))}
             </div>
           </div>
         </Motion.div>
 
         <Motion.aside
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 shadow-xl shadow-black/10 sm:p-6"
+          transition={{ delay: 0.04 }}
+          className="rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-5 shadow-xl shadow-black/10"
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-success">Sınav Geri Sayımı</p>
-              <h2 className="mt-2 text-xl font-black tracking-tight">Sınav Tarihi</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-success">Bugünkü Plan</p>
+              <h2 className="mt-2 text-xl font-black tracking-tight">Çalışma Sırası</h2>
             </div>
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-success/20 bg-success/10 shadow-lg shadow-success/5">
-              <CalendarDays className="h-5 w-5 text-success" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-success/20 bg-success/10">
+              <Target className="h-5 w-5 text-success" />
             </div>
           </div>
 
-          {examCountdown ? (
-            <div className={`mt-6 rounded-2xl border p-5 ${examCountdown.isPast ? 'border-danger/20 bg-danger/10' : 'border-success/20 bg-success/10'}`}>
-              <p className={`text-[10px] font-black uppercase tracking-widest ${examCountdown.isPast ? 'text-danger' : 'text-success'}`}>
-                {examCountdown.isPast ? 'Sınav tarihi geçti' : examCountdown.isToday ? 'Sınav bugün' : 'Sınava kalan süre'}
-              </p>
-              <div className="mt-3 flex items-end gap-2">
-                <span className="text-5xl font-black tracking-tight">
-                  {examCountdown.isToday ? 0 : examCountdown.days}
-                </span>
-                <span className="pb-2 text-sm font-black uppercase tracking-widest text-text-secondary">
-                  {examCountdown.isToday ? 'gün' : examCountdown.isPast ? 'gün önce' : 'gün kaldı'}
-                </span>
+          <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="flex items-start gap-3">
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${recommendationTone}`}>
+                {React.createElement(recommendation.icon, { className: 'h-5 w-5' })}
               </div>
-              <p className="mt-4 text-sm font-bold text-text-secondary">{examCountdown.formatted}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün Ne Yapmalıyım?</p>
+                <h3 className="mt-1 text-base font-black leading-tight text-white">{recommendation.title}</h3>
+                <p className="mt-2 line-clamp-3 text-xs font-semibold leading-relaxed text-text-muted">{recommendation.detail}</p>
+              </div>
             </div>
-          ) : (
-            <div className="mt-6 rounded-2xl border border-white/5 bg-white/[0.025] p-5">
-              <p className="text-sm font-bold leading-relaxed text-text-secondary">
-                Sınav tarihini tercihlerden eklersen burada kaç gün kaldığını göstereceğiz.
-              </p>
+            {recommendation.to ? (
               <Link
-                to="/dashboard/settings"
-                className="mt-5 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-white transition hover:border-success/30 hover:bg-success/10"
+                to={recommendation.to}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
               >
-                Tarih Ekle
+                {recommendation.action}
                 <ArrowRight className="h-4 w-4" />
               </Link>
-            </div>
-          )}
+            ) : (
+              <button
+                type="button"
+                onClick={recommendation.onClick}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+              >
+                {recommendation.action}
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
+          </div>
 
-          <div className="mt-7 space-y-2.5">
-            <div className="mb-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-              <div className="flex items-start gap-3">
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${recommendationTone}`}>
-                  <recommendation.icon className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün Ne Yapmalıyım?</p>
-                  <h3 className="mt-1 text-base font-black leading-tight text-white">{recommendation.title}</h3>
-                  <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">{recommendation.detail}</p>
-                </div>
+          <div className={`mt-3 rounded-2xl border p-3 ${
+            reviewDue.count > 0
+              ? 'border-primary/20 bg-primary/10'
+              : 'border-white/10 bg-black/20'
+          }`}>
+            <div className="flex items-center gap-3">
+              <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
+                reviewDue.count > 0
+                  ? 'border-primary/20 bg-primary/10 text-primary-light'
+                  : 'border-white/10 bg-white/5 text-text-muted'
+              }`}>
+                <RefreshCcw className="h-4 w-4" />
               </div>
-              {recommendation.to ? (
-                <Link
-                  to={recommendation.to}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
-                >
-                  {recommendation.action}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={recommendation.onClick}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
-                >
-                  {recommendation.action}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-
-            <div className={`mb-3 rounded-2xl border p-3 ${
-              reviewDue.count > 0
-                ? 'border-primary/20 bg-primary/10'
-                : 'border-white/10 bg-black/20'
-            }`}>
-              <div className="flex items-center gap-3">
-                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
-                  reviewDue.count > 0
-                    ? 'border-primary/20 bg-primary/10 text-primary-light'
-                    : 'border-white/10 bg-white/5 text-text-muted'
-                }`}>
-                  <RefreshCcw className="h-4 w-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün Çözülecek Yanlışlar</p>
-                    {reviewDue.count > 0 && (
-                      <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-black text-white">
-                        {reviewDue.count}
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 truncate text-xs font-semibold text-text-muted">
-                    {reviewDue.count > 0
-                      ? 'Daha önce yanlış yaptığın sorular hazır.'
-                      : 'Bugün yeniden çözmen gereken soru yok.'}
-                  </p>
-                </div>
-                {reviewDue.count > 0 ? (
-                  <Link
-                    to="/dashboard/exams/wrong-review"
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-primary-light"
-                  >
-                    Yanlışları Çöz
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                ) : (
-                  <Link
-                    to="/dashboard/exams"
-                    className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
-                  >
-                    Test
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün Çözülecek Yanlışlar</p>
+                <p className="mt-1 truncate text-xs font-semibold text-text-muted">
+                  {reviewDue.count > 0 ? `${reviewDue.count} soru tekrar bekliyor.` : 'Bugün yeniden çözmen gereken soru yok.'}
+                </p>
               </div>
+              <Link
+                to={reviewDue.count > 0 ? '/dashboard/exams/wrong-review' : '/dashboard/exams'}
+                className="inline-flex shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+              >
+                {reviewDue.count > 0 ? 'Çöz' : 'Test'}
+              </Link>
             </div>
+          </div>
 
+          <div className="mt-3 space-y-2.5">
             {studyPlan.map((item) => (
               <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/5 bg-white/[0.025] p-3 transition hover:bg-white/[0.045]">
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.done ? 'bg-success/10 text-success' : 'bg-white/5 text-text-muted'}`}>
-                  {item.done ? <CheckCircle2 className="h-5 w-5" /> : <item.icon className="h-5 w-5" />}
+                  {item.done ? <CheckCircle2 className="h-5 w-5" /> : React.createElement(item.icon, { className: 'h-5 w-5' })}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-black text-white">{item.label}</p>
-                  <p className="text-xs font-semibold text-text-muted">{item.detail}</p>
+                  <p className="truncate text-sm font-black text-white">{item.label}</p>
+                  <p className="truncate text-xs font-semibold text-text-muted">{item.detail}</p>
                 </div>
               </div>
             ))}
           </div>
         </Motion.aside>
-      </section>
-
-      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard icon={ClipboardList} label="Toplam Sınav" value={stats?.totalExams || 0} detail="Çözdüğün deneme sayısı" tone="primary" />
-        <StatCard icon={Target} label="Doğru Cevap" value={stats?.totalCorrect || 0} detail="Tüm sınavlardaki toplam doğru" tone="success" delay={0.03} />
-        <StatCard icon={Activity} label="Bugünkü Soru" value={todayQuestions} detail="Günlük hedefe giden ilerleme" tone="accent" delay={0.06} />
-        <StatCard icon={CalendarDays} label="Seri" value={`${stats?.streak || 0} gün`} detail="Düzenli çalışma takibi" tone="warning" delay={0.09} />
-      </section>
-
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-        {actionCards.map((card, index) => (
-          <Motion.div
-            key={card.to}
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.04 }}
-          >
-            <Link
-              to={card.to}
-              className={`group flex min-h-28 flex-row items-center justify-between gap-4 rounded-2xl border border-white/5 bg-gradient-to-br ${card.tone} p-4 transition hover:-translate-y-1 hover:border-primary/30 sm:min-h-36 sm:flex-col sm:items-stretch sm:p-5`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/20 sm:h-12 sm:w-12">
-                  <card.icon className="h-6 w-6 text-white" />
-                </div>
-                <ArrowRight className="hidden h-5 w-5 text-text-muted transition group-hover:translate-x-1 group-hover:text-white sm:block" />
-              </div>
-              <div className="min-w-0 flex-1 sm:flex-none">
-                <h3 className="text-lg font-black tracking-tight">{card.label}</h3>
-                <p className="mt-2 text-sm font-medium leading-relaxed text-text-secondary">{card.text}</p>
-              </div>
-              <ArrowRight className="h-5 w-5 shrink-0 text-text-muted transition group-hover:translate-x-1 group-hover:text-white sm:hidden" />
-            </Link>
-          </Motion.div>
-        ))}
       </section>
 
       <section className="space-y-5">

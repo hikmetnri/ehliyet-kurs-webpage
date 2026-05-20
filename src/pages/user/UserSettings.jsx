@@ -22,6 +22,7 @@ const getStoredExamDateInput = () => {
 const UserSettings = () => {
   const { user, setAuth, token } = useAuthStore();
   const fileInputRef = useRef(null);
+  const examDateInputRef = useRef(null);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('profile');
@@ -79,6 +80,23 @@ const UserSettings = () => {
   const handleNotifChange = (e) => {
     const { name, value, type, checked } = e.target;
     setNotifData({ ...notifData, [name]: type === 'checkbox' ? checked : value });
+  };
+
+  const openExamDatePicker = () => {
+    const input = examDateInputRef.current;
+    if (!input) return;
+
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // Bazı tarayıcılar showPicker çağrısını kısıtlayabiliyor; focus/click fallback yeterli.
+      }
+    }
+
+    input.focus();
+    input.click();
   };
 
   const saveProfile = async (e) => {
@@ -497,12 +515,23 @@ const UserSettings = () => {
                           </div>
                           <div className="flex w-full items-center gap-2 sm:w-auto">
                              <input
+                               ref={examDateInputRef}
                                type="date"
                                name="examDate"
                                value={notifData.examDate}
                                onChange={handleNotifChange}
-                               className="min-w-0 flex-1 rounded-xl border border-white/10 bg-bg-dark px-3 py-2 font-bold text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 sm:flex-none sm:px-4"
+                               onClick={openExamDatePicker}
+                               className="min-w-0 flex-1 cursor-pointer rounded-xl border border-white/10 bg-bg-dark px-3 py-2 font-bold text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 sm:flex-none sm:px-4"
                              />
+                             <button
+                               type="button"
+                               onClick={openExamDatePicker}
+                               className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-success/20 bg-success/10 px-3 text-xs font-black uppercase tracking-widest text-success transition-colors hover:bg-success/20"
+                               title="Takvimi aç"
+                             >
+                               <CalendarDays className="h-4 w-4" />
+                               <span className="hidden sm:inline">Takvim</span>
+                             </button>
                              {notifData.examDate && (
                                <button
                                  type="button"

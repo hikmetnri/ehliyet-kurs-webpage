@@ -10,9 +10,12 @@ import {
 import useAuthStore from '../../store/authStore';
 import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { trackEvent } from '../../utils/analytics';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 const REVIEW_SESSION_LIMIT = 20;
+const MotionDiv = motion.div;
+const MotionButton = motion.button;
 
 const cleanOptionText = (option, index) => {
   if (typeof option !== 'string') return option;
@@ -24,17 +27,34 @@ const cleanOptionText = (option, index) => {
 // ─── Timer Hook ──────────────────────────────────────────────────────────────
 const useTimer = (durationMinutes, onExpire, active = false) => {
   const durationSeconds = Math.max(1, durationMinutes || 45) * 60;
-  const [remaining, setRemaining] = useState(durationSeconds);
+  const [timerState, setTimerState] = useState({
+    durationSeconds,
+    remaining: durationSeconds,
+  });
   const intervalRef = useRef(null);
   const onExpireRef = useRef(onExpire);
+  const remaining = timerState.durationSeconds === durationSeconds
+    ? timerState.remaining
+    : durationSeconds;
+
+  const setRemaining = useCallback((updater) => {
+    setTimerState((prev) => {
+      const current = prev.durationSeconds === durationSeconds
+        ? prev.remaining
+        : durationSeconds;
+      const nextRemaining = typeof updater === 'function'
+        ? updater(current)
+        : updater;
+      return {
+        durationSeconds,
+        remaining: nextRemaining,
+      };
+    });
+  }, [durationSeconds]);
 
   useEffect(() => {
     onExpireRef.current = onExpire;
   }, [onExpire]);
-
-  useEffect(() => {
-    if (!active) setRemaining(durationSeconds);
-  }, [active, durationSeconds]);
 
   useEffect(() => {
     if (!active) return undefined;
@@ -46,7 +66,7 @@ const useTimer = (durationMinutes, onExpire, active = false) => {
       });
     }, 1000);
     return () => clearInterval(intervalRef.current);
-  }, [active, remaining]);
+  }, [active, remaining, setRemaining]);
 
   const stop = () => clearInterval(intervalRef.current);
 
@@ -80,7 +100,7 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
-      <motion.div
+      <MotionDiv
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: 'spring', duration: 0.6 }}
@@ -185,7 +205,7 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
             </button>
           )}
         </div>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };
@@ -199,7 +219,6 @@ const UserExamSolve = ({ customType }) => {
   const [exam, setExam] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [started, setStarted] = useState(false);
   const [answers, setAnswers] = useState({}); // { questionIndex: optionIndex }
   const [currentIdx, setCurrentIdx] = useState(0);
   const [phase, setPhase] = useState('intro'); // 'intro' | 'solving' | 'result'
@@ -220,7 +239,9 @@ const UserExamSolve = ({ customType }) => {
       const res = await api.get('/users/favorites');
       const ids = res.data.favorites.map(f => f._id || f);
       setFavoriteIds(ids);
-    } catch {}
+    } catch {
+      // Favori listesi yüklenemezse sınav akışı devam edebilir.
+    }
   };
 
   const toggleFavorite = async (qId) => {
@@ -357,6 +378,20 @@ const UserExamSolve = ({ customType }) => {
     setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
   };
 
+  const handleStartExam = () => {
+    trackEvent(mode === 'review' ? 'wrong_review_started' : 'test_started', {
+      examId: exam?._id,
+      examName: exam?.name,
+      mode,
+      testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
+      categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
+      categoryName: exam?.categoryName || '',
+      questionCount: questions.length,
+      duration: exam?.duration || 45,
+    });
+    setPhase('solving');
+  };
+
   const handleSubmit = async (forced = false) => {
     if (!forced && !window.confirm('Sınavı bitirmek istediğinize emin misiniz?')) return;
     timer.stop();
@@ -468,7 +503,7 @@ const UserExamSolve = ({ customType }) => {
   if (mode === 'review' && phase === 'intro' && questions.length === 0) {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
-        <motion.div
+        <MotionDiv
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className="w-full max-w-lg glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
@@ -494,7 +529,7 @@ const UserExamSolve = ({ customType }) => {
               Yeni Test Çöz →
             </button>
           </div>
-        </motion.div>
+        </MotionDiv>
       </div>
     );
   }
@@ -526,7 +561,7 @@ const UserExamSolve = ({ customType }) => {
   if (phase === 'intro') {
     return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
-        <motion.div
+        <MotionDiv
           initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
           className="w-full max-w-lg glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
         >
@@ -587,14 +622,14 @@ const UserExamSolve = ({ customType }) => {
               <ChevronLeft className="w-4 h-4 inline mr-1" /> Geri
             </button>
             <button
-              onClick={() => setPhase('solving')}
+              onClick={handleStartExam}
               disabled={questions.length === 0}
               className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
             >
               {mode === 'review' ? 'Tekrar Testini Başlat →' : 'Sınava Başla →'}
             </button>
           </div>
-        </motion.div>
+        </MotionDiv>
       </div>
     );
   }
@@ -603,8 +638,6 @@ const UserExamSolve = ({ customType }) => {
   const q = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
   const emptyCount = questions.length - answeredCount;
-  const progressPct = ((currentIdx) / questions.length) * 100;
-
   return (
     <div className="flex min-h-[calc(100vh-96px)] flex-col overflow-hidden sm:h-[calc(100vh-128px)]">
 
@@ -659,7 +692,7 @@ const UserExamSolve = ({ customType }) => {
 
       {/* Progress Bar */}
       <div className="w-full h-1 bg-black/30 shrink-0">
-        <motion.div
+        <MotionDiv
           className="h-full bg-primary"
           animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
           transition={{ duration: 0.3 }}
@@ -669,7 +702,7 @@ const UserExamSolve = ({ customType }) => {
       {/* Question Area */}
       <div className="flex-1 overflow-y-auto">
         <AnimatePresence mode="wait">
-          <motion.div
+          <MotionDiv
             key={currentIdx}
             initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.2 }}
@@ -744,7 +777,7 @@ const UserExamSolve = ({ customType }) => {
             {/* Instant Feedback Notice */}
             <AnimatePresence>
               {showFeedback && answers[currentIdx] !== undefined && (
-                <motion.div 
+                <MotionDiv
                   initial={{ opacity: 0, height: 0, marginTop: 0 }} 
                   animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
                   exit={{ opacity: 0, height: 0, marginTop: 0 }}
@@ -767,10 +800,10 @@ const UserExamSolve = ({ customType }) => {
                      <strong className="text-white">Çözüm / Açıklama:</strong> <br/>
                      {q.explanation || 'Bu soru için detaylı çözüm açıklaması girilmemiştir.'}
                    </p>
-                </motion.div>
+                </MotionDiv>
               )}
             </AnimatePresence>
-          </motion.div>
+          </MotionDiv>
         </AnimatePresence>
       </div>
 
@@ -842,7 +875,7 @@ const UserExamSolve = ({ customType }) => {
       <AnimatePresence>
         {showQuestionList && (
           <div className="fixed inset-0 z-[90] md:hidden">
-            <motion.button
+            <MotionButton
               type="button"
               aria-label="Soru listesini kapat"
               initial={{ opacity: 0 }}
@@ -851,7 +884,7 @@ const UserExamSolve = ({ customType }) => {
               onClick={() => setShowQuestionList(false)}
               className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             />
-            <motion.div
+            <MotionDiv
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -908,7 +941,7 @@ const UserExamSolve = ({ customType }) => {
                 <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded bg-white/10" /> Boş</span>
                 <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded bg-white" /> Aktif</span>
               </div>
-            </motion.div>
+            </MotionDiv>
           </div>
         )}
       </AnimatePresence>

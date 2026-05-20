@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import api from '../api';
@@ -7,15 +7,39 @@ import { signInWithPopup } from 'firebase/auth';
 import { LogIn, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
+import { getAcquisitionContext } from '../utils/analytics';
+import MaintenanceScreen from '../components/MaintenanceScreen';
+
+const MotionDiv = motion.div;
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
+  const [maintenanceActive, setMaintenanceActive] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(() => new URLSearchParams(window.location.search).get('admin') === '1');
   const [errorObj, setErrorObj] = useState(null);
   
   const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let active = true;
+
+    api.get('/status')
+      .then((res) => {
+        if (active) setMaintenanceActive(Boolean(res.data?.maintenance));
+      })
+      .catch(() => {
+        if (active) setMaintenanceActive(false);
+      })
+      .finally(() => {
+        if (active) setCheckingMaintenance(false);
+      });
+
+    return () => { active = false; };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,8 +47,15 @@ const Login = () => {
     setErrorObj(null);
 
     try {
+      const acquisition = getAcquisitionContext();
       // Backend API'ye gerçek istek atıyoruz
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', {
+        email,
+        password,
+        source: acquisition.source,
+        platform: 'web',
+        analytics: acquisition,
+      });
       const { user, token } = response.data;
       
       // Zustand Store'a kaydet (Aynı zamanda localStorage'a yazılır)
@@ -38,8 +69,13 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
+      if (err.response?.status === 503 || err.response?.data?.maintenance) {
+        setMaintenanceActive(true);
+        setShowAdminLogin(false);
+        return;
+      }
       // Backend'den dönen hata mesajı varsa göster, yoksa varsayılan hata.
-      const message = err.response?.data?.message || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.';
+      const message = err.response?.data?.message || err.response?.data?.error || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.';
       setErrorObj(message);
     } finally {
       setLoading(false);
@@ -53,8 +89,14 @@ const Login = () => {
       
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
+      const acquisition = getAcquisitionContext();
       
-      const response = await api.post('/auth/google', { idToken });
+      const response = await api.post('/auth/google', {
+        idToken,
+        source: acquisition.source,
+        platform: 'web',
+        analytics: acquisition,
+      });
       const { user, token } = response.data;
       
       setAuth(user, token);
@@ -66,7 +108,13 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Google login error:', err);
-      setErrorObj(getFirebaseAuthErrorMessage(
+      if (err.response?.status === 503 || err.response?.data?.maintenance) {
+        setMaintenanceActive(true);
+        setShowAdminLogin(false);
+        return;
+      }
+      const backendMessage = err.response?.data?.message || err.response?.data?.error;
+      setErrorObj(backendMessage || getFirebaseAuthErrorMessage(
         err,
         'Google ile giriş başarısız oldu. Lütfen ayarlarınızı kontrol edin.',
       ));
@@ -74,6 +122,14 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (checkingMaintenance) {
+    return <div className="min-h-screen bg-bg-dark" aria-label="Sayfa yükleniyor" />;
+  }
+
+  if (maintenanceActive && !showAdminLogin) {
+    return <MaintenanceScreen onAdminAccess={() => setShowAdminLogin(true)} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-dark relative overflow-hidden px-4 text-text-primary">
@@ -88,7 +144,7 @@ const Login = () => {
         <ChevronLeft className="w-5 h-5" /> Ana Sayfaya Dön
       </Link>
 
-      <motion.div 
+      <MotionDiv
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -109,7 +165,7 @@ const Login = () => {
           {/* Hata Mesajı Gösterimi */}
           <AnimatePresence>
             {errorObj && (
-              <motion.div 
+              <MotionDiv
                 initial={{ opacity: 0, y: -10, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
                 exit={{ opacity: 0, y: -10, height: 0 }}
@@ -119,7 +175,7 @@ const Login = () => {
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   <p>{errorObj}</p>
                 </div>
-              </motion.div>
+              </MotionDiv>
             )}
           </AnimatePresence>
 
@@ -193,7 +249,7 @@ const Login = () => {
         <p className="text-center mt-8 text-sm text-text-muted font-medium">
           Hesabınız yok mu? <Link to="/register" className="text-primary-light hover:text-white transition-colors">Hemen Kayıt Olun</Link>
         </p>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };

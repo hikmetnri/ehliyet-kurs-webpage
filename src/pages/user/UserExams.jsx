@@ -1,24 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   ClipboardList, Clock, Lock,
   Loader2, BookOpen, Target, FileQuestion,
   Play, ListChecks, AlertCircle, GraduationCap, CheckCircle2, XCircle
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
+import { trackEvent } from '../../utils/analytics';
+
+const examTabIds = ['short_tests', 'general', 'real_sim_cat'];
+const MotionDiv = motion.div;
 
 const UserExams = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
   const { user } = useAuthStore();
   const [exams, setExams] = useState([]);
   const [validCategories, setValidCategories] = useState([]);
   const [latestResults, setLatestResults] = useState({});
   const [reviewDueCount, setReviewDueCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('short_tests'); // 'short_tests' | 'general' | 'real_sim_cat'
+  const [activeTab, setActiveTab] = useState(
+    examTabIds.includes(tabParam) ? tabParam : 'short_tests'
+  ); // 'short_tests' | 'general' | 'real_sim_cat'
   const [activeShortGroup, setActiveShortGroup] = useState('all');
+
+  useEffect(() => {
+    const nextTab = examTabIds.includes(tabParam) ? tabParam : 'short_tests';
+    if (nextTab === activeTab) return;
+    setActiveTab(nextTab);
+    if (nextTab !== 'short_tests') setActiveShortGroup('all');
+  }, [activeTab, tabParam]);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    if (tabId !== 'short_tests') setActiveShortGroup('all');
+    setSearchParams(tabId === 'short_tests' ? {} : { tab: tabId }, {
+      replace: true,
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,7 +151,6 @@ const UserExams = () => {
     return pCat?.name || 'Diğer Ana Konular';
   };
 
-  const categoryExams = exams.filter(e => e.categoryId);
   const generalExams = exams.filter(e => !e.categoryId);
   const shortTests = exams.filter(e => e._isSynthetic);
   const realSimExams = exams.filter(e => e._isRealMeb);
@@ -151,6 +173,20 @@ const UserExams = () => {
     
     return false;
   });
+  const lockedExamIds = displayedExams
+    .filter((exam) => exam.isPro && !user?.proStatus)
+    .map((exam) => exam._id)
+    .join(',');
+
+  useEffect(() => {
+    if (!lockedExamIds) return;
+    trackEvent('paywall_seen', {
+      surface: 'exam_list',
+      tab: activeTab,
+      lockedExamCount: lockedExamIds.split(',').length,
+      lockedExamIds,
+    });
+  }, [lockedExamIds, activeTab]);
 
   const tabs = [
     {
@@ -281,8 +317,7 @@ const UserExams = () => {
           <button
             key={tab.id}
             onClick={() => {
-              setActiveTab(tab.id);
-              if (tab.id !== 'short_tests') setActiveShortGroup('all');
+              handleTabChange(tab.id);
             }}
             className={`group flex min-h-[82px] items-center gap-4 rounded-2xl border p-4 text-left transition-all ${
               activeTab === tab.id
@@ -374,9 +409,27 @@ const UserExams = () => {
           const score = Number(lastResult?.score || 0);
           const completed = Boolean(lastResult);
           const passed = Boolean(lastResult?.passed);
+          const handleExamAction = () => {
+            if (isLocked) {
+              trackEvent('pro_clicked', {
+                surface: 'exam_card',
+                contentType: 'exam',
+                examId: exam._id,
+                examName: exam.name,
+                tab: activeTab,
+              });
+              return;
+            }
+
+            navigate(
+              isSimulation ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` :
+              isShort ? `/dashboard/exams/short-test/${exam._realCategoryId}` :
+              `/dashboard/exams/${exam._id}`
+            );
+          };
 
           return (
-            <motion.div
+            <MotionDiv
               layout
               key={exam._id}
               initial={{ opacity: 0, y: 8 }}
@@ -471,31 +524,26 @@ const UserExams = () => {
 
               {/* CTA */}
               <button
-                disabled={isLocked}
-                onClick={() => navigate(
-                   isSimulation ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` :
-                   isShort ? `/dashboard/exams/short-test/${exam._realCategoryId}` : 
-                   `/dashboard/exams/${exam._id}`
-                )}
+                onClick={handleExamAction}
                 className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
                   isLocked
-                    ? 'bg-white/5 text-text-muted cursor-not-allowed border border-white/5'
+                    ? 'bg-white/5 text-text-muted border border-white/5 hover:bg-warning/10 hover:text-warning hover:border-warning/20'
                     : 'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95'
                 }`}
               >
                 <Play className="w-5 h-5" />
                 {isLocked ? 'KİLİDİ AÇ' : 'TESTİ BAŞLAT'}
               </button>
-            </motion.div>
+            </MotionDiv>
           );
         };
  
         return (
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <MotionDiv layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             <AnimatePresence>
               {displayedExams.map((exam, i) => renderExamCard(exam, i))}
             </AnimatePresence>
-          </motion.div>
+          </MotionDiv>
         );
       })()}
     </div>

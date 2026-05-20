@@ -12,6 +12,7 @@ import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { trackEvent } from '../../utils/analytics';
 
 const MotionDiv = motion.div;
 
@@ -294,6 +295,26 @@ const UserLessons = () => {
     selectedLesson?.content?.normalize('NFC').includes(selectedLessonImageFile)
   );
 
+  useEffect(() => {
+    if (!selectedLesson?.isPro || user?.proStatus) return;
+    trackEvent('paywall_seen', {
+      surface: 'lesson_reader',
+      contentType: 'lesson',
+      contentId: selectedLesson._id,
+      contentName: selectedLesson.name,
+    });
+  }, [selectedLesson?._id, selectedLesson?.isPro, selectedLesson?.name, user?.proStatus]);
+
+  const handleProInterest = useCallback(() => {
+    if (!selectedLesson) return;
+    trackEvent('pro_clicked', {
+      surface: 'lesson_lock',
+      contentType: 'lesson',
+      contentId: selectedLesson._id,
+      contentName: selectedLesson.name,
+    });
+  }, [selectedLesson]);
+
   return (
     <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-3xl xl:border xl:border-white/5 xl:bg-bg-card/60 xl:shadow-2xl xl:glass-card">
       
@@ -488,6 +509,13 @@ const UserLessons = () => {
                         Bu ders içeriği yalnızca PRO üyelere açıktır. Mobil uygulamamız üzerinden premium üyelik edinebilirsiniz.
                       </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={handleProInterest}
+                      className="rounded-2xl bg-warning px-6 py-3 text-xs font-black uppercase tracking-widest text-black shadow-xl shadow-warning/10 transition-all hover:scale-[1.02] active:scale-95"
+                    >
+                      PRO'ya Geç
+                    </button>
                   </div>
                 ) : (
                   <div className="prose prose-invert prose-sm mx-auto max-w-none sm:prose-base xl:max-w-3xl
