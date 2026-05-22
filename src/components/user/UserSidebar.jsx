@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, BookOpen, ClipboardList, BarChart2, 
-  MessageCircle, ChevronRight, LogOut, Settings, Star, TriangleAlert, MapPinned
+  MessagesSquare, Headphones, ChevronRight, LogOut, Settings, Star, TriangleAlert, MapPinned, PlayCircle
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -12,9 +12,10 @@ const navItems = [
   { to: '/dashboard/exams', icon: ClipboardList, label: 'Sınav Merkezi' },
   { to: '/dashboard/favorites', icon: Star, label: 'Favori Sorular' },
   { to: '/dashboard/stats', icon: BarChart2, label: 'İstatistiklerim' },
-  { to: '/dashboard/feed', icon: MessageCircle, label: 'Topluluk' },
-  { to: '/dashboard/support', icon: MessageCircle, label: 'Destek Talepleri' },
+  { to: '/dashboard/feed', icon: MessagesSquare, label: 'Topluluk' },
+  { to: '/dashboard/support', icon: Headphones, label: 'Destek Talepleri' },
   { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: 'Trafik İşaretleri' },
+  { to: '/dashboard/videos', icon: PlayCircle, label: 'Video Dersler' },
   { to: '/dashboard/driving-schools', icon: MapPinned, label: 'Sürücü Kursları' },
   { to: '/dashboard/settings', icon: Settings, label: 'Ayarlar' },
 ];
@@ -57,7 +58,11 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
           <div className="relative">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20">
               <div className="w-full h-full bg-bg-dark rounded-[14px] flex items-center justify-center">
-                <span className="text-transparent bg-clip-text bg-gradient-to-br from-white to-white/70 font-black text-xl">E</span>
+                <img
+                  src="/logo/logo.png"
+                  alt="Ehliyet Yolu"
+                  className="w-[86%] h-[86%] object-contain drop-shadow-md"
+                />
               </div>
             </div>
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-bg-dark" />

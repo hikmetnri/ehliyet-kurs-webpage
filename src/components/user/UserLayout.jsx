@@ -17,6 +17,7 @@ const UserLayout = ({ fullscreen = false }) => {
   const user = useAuthStore((state) => state.user);
   const userKey = user?.id || user?._id || user?.email || 'current-user';
   const showCategoryModal = Boolean(user && !user.selectedCategoryId && dismissedCategoryPromptFor !== userKey);
+  const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Öğrenci';
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -64,8 +65,8 @@ const UserLayout = ({ fullscreen = false }) => {
         <div className="absolute top-0 right-0 hidden w-96 h-96 bg-primary/5 blur-[100px] pointer-events-none rounded-full lg:block" />
         
         {/* Topbar */}
-        <header className="h-14 sm:h-16 lg:h-20 bg-[#121212]/95 lg:bg-bg-dark/80 backdrop-blur-xl border-b border-white/10 lg:border-white/5 flex items-center justify-between px-4 sm:px-5 sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-2 sm:gap-4">
+        <header className="h-14 lg:h-16 bg-[#121212]/95 lg:bg-bg-dark/80 backdrop-blur-xl border-b border-white/10 lg:border-white/5 flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-10 shrink-0">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setCollapsed(!collapsed)}
               className="p-2 rounded-xl border border-white/5 bg-white/[0.03] text-text-muted transition-colors hover:bg-white/5 hover:text-white lg:hidden"
@@ -73,22 +74,23 @@ const UserLayout = ({ fullscreen = false }) => {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="lg:hidden">
+            <div className="min-w-0 lg:hidden">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-accent-light">
                 Ehliyet Yolu
               </p>
-              <h2 className="text-base font-black leading-tight tracking-tight text-white">
+              <h2 className="truncate text-sm font-black leading-tight tracking-tight text-white">
                 Öğrenci Paneli
               </h2>
             </div>
-            <div className="hidden lg:block">
-              <h2 className="text-xl font-bold bg-gradient-to-r from-white to-text-secondary bg-clip-text text-transparent">
-                Merhaba, {user?.firstName}! 👋
+            <div className="hidden min-w-0 lg:block">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Merhaba,</p>
+              <h2 className="max-w-[34vw] truncate text-base font-black leading-tight text-white">
+                {fullName}
               </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {/* Bildirim Butonu */}
             <div className="relative">
               <button
@@ -115,9 +117,9 @@ const UserLayout = ({ fullscreen = false }) => {
             </div>
 
             {/* User XP Badge */}
-            <div className="flex items-center gap-3 pl-2 sm:pl-4 border-l border-white/10">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm font-bold text-white leading-none">{user?.firstName} {user?.lastName}</p>
+            <div className="flex items-center gap-2 border-l border-white/10 pl-2 sm:gap-3 sm:pl-3">
+              <div className="hidden max-w-[180px] text-right sm:block lg:max-w-[220px]">
+                <p className="truncate text-xs font-bold leading-none text-white">{fullName}</p>
                 <div className="flex items-center justify-end gap-1.5 mt-1">
                   <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   <p className="text-[10px] text-accent-light font-bold uppercase tracking-wider">
@@ -126,7 +128,7 @@ const UserLayout = ({ fullscreen = false }) => {
                 </div>
               </div>
               <div className="relative">
-                <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20">
+                <div className="h-9 w-9 rounded-[13px] bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 sm:h-10 sm:w-10 sm:rounded-[14px]">
                   <div className="w-full h-full bg-bg-dark rounded-[12px] flex items-center justify-center overflow-hidden">
                     {user?.avatarUrl ? (
                       <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />

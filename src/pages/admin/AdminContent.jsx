@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -14,10 +14,21 @@ import {
   ChevronDown, Folder, Hash, AlignLeft, Code,
   Minus, UploadCloud, ZoomIn,
   SplitSquareVertical,
-  Trash2, RefreshCw, FilePlus, ExternalLink, Activity, GripVertical
+  Trash2, RefreshCw, FilePlus, ExternalLink, Activity, GripVertical,
+  Video, PlayCircle, History, Clock3, Send
 } from 'lucide-react';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import {
+  getVideoNotes,
+  getVideoUrl,
+  isVideoCategory,
+  isVideoCourse,
+  isVideoRecord,
+  VIDEO_CATEGORY_MARKER,
+} from '../../utils/categoryContent';
 
+const MotionDiv = motion.div;
+const MotionImg = motion.img;
 
 const uploadImage = async (file) => {
   const fd = new FormData();
@@ -111,9 +122,9 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
           </div>
 
           {hasChildren ? (
-            <motion.div animate={{ rotate: isOpen ? 90 : 0 }} className="shrink-0">
+            <MotionDiv animate={{ rotate: isOpen ? 90 : 0 }} className="shrink-0">
               <ChevronRight className="w-3.5 h-3.5 text-white/30" />
-            </motion.div>
+            </MotionDiv>
           ) : (
             <div className="w-3.5 h-3.5 shrink-0" />
           )}
@@ -134,6 +145,11 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
               GİZLİ
             </span>
           )}
+          {categoryHasDraft(cat) && (
+            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border ${getPublicationMeta(cat).badge}`}>
+              {getPublicationMeta(cat).shortLabel}
+            </span>
+          )}
           {cat.isPro && <Crown className="w-3 h-3 text-warning/60 shrink-0" />}
 
           <button
@@ -147,7 +163,7 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
 
       <AnimatePresence>
         {isOpen && hasChildren && (
-          <motion.div
+          <MotionDiv
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
@@ -171,7 +187,7 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
                   />
                 ))}
              </Reorder.Group>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </div>
@@ -181,7 +197,7 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
 // ─── Image Preview Modal ────────────────────────────────────────────────────
 const ImagePreviewModal = ({ src, onClose }) => (
   <div className="fixed inset-0 z-[500] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-8" onClick={onClose}>
-    <motion.img
+    <MotionImg
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0.8, opacity: 0 }}
@@ -233,6 +249,43 @@ const DifficultyPill = ({ difficulty }) => {
       {meta.label}
     </span>
   );
+};
+
+const PUBLICATION_META = {
+  draft: {
+    label: 'TASLAK',
+    shortLabel: 'Taslak',
+    badge: 'border-warning/20 bg-warning/10 text-warning',
+  },
+  published: {
+    label: 'YAYINDA',
+    shortLabel: 'Yayında',
+    badge: 'border-success/20 bg-success/10 text-success',
+  },
+  published_with_draft: {
+    label: 'TASLAK VAR',
+    shortLabel: 'Taslak',
+    badge: 'border-primary/20 bg-primary/10 text-primary-light',
+  },
+};
+
+const getPublicationStatus = (category) => category?.publicationStatus || 'published';
+const categoryHasDraft = (category) => ['draft', 'published_with_draft'].includes(getPublicationStatus(category));
+const getEditableCategoryContent = (category) => {
+  if (!category) return '';
+  return categoryHasDraft(category) ? (category.draftContent || '') : (category.content || '');
+};
+const getPublicationMeta = (category) => PUBLICATION_META[getPublicationStatus(category)] || PUBLICATION_META.published;
+const getContentVersions = (category) => (category?.contentVersions || []).filter(version => (version?.content || '').trim());
+const formatContentDate = (value) => {
+  if (!value) return 'Tarih yok';
+  return new Intl.DateTimeFormat('tr-TR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(value));
 };
 
 const TopicQuestionCard = ({ question, index, active, onEdit, onDuplicate, onDelete }) => {
@@ -624,6 +677,398 @@ const TopicQuestionsWorkspace = ({
   );
 };
 
+const createVideoCategoryPayload = (form) => ({
+  name: form.name.trim(),
+  description: form.description.trim(),
+  content: VIDEO_CATEGORY_MARKER,
+  icon: 'video_library',
+  color: form.color || '#E040FB',
+  isPro: Boolean(form.isPro),
+  isActive: form.isActive !== false,
+  parent: null,
+});
+
+const createVideoPayload = (form, category) => {
+  const notes = form.notes.trim();
+  const url = form.url.trim();
+  return {
+    name: form.title.trim(),
+    description: form.description.trim(),
+    parent: form.categoryId || null,
+    content: notes ? `@[video](${url})\n\n${notes}` : `@[video](${url})`,
+    icon: 'play_circle',
+    color: category?.color || '#6C63FF',
+    isPro: Boolean(form.isPro),
+    isActive: true,
+  };
+};
+
+const VideoManagementWorkspace = ({ allCategories, onRefresh }) => {
+  const [categoryModal, setCategoryModal] = useState(null);
+  const [videoModal, setVideoModal] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  const videos = useMemo(
+    () => allCategories.filter(isVideoCourse).sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name, 'tr')),
+    [allCategories]
+  );
+  const videoCategories = useMemo(() => {
+    const parentIds = new Set(videos.map((video) => video.parent?._id || video.parent).filter(Boolean));
+    return allCategories
+      .filter((category) => isVideoCategory(category) || parentIds.has(category._id))
+      .sort((a, b) => (a.order || 0) - (b.order || 0) || a.name.localeCompare(b.name, 'tr'));
+  }, [allCategories, videos]);
+  const videoCategoryIds = new Set(videoCategories.map((category) => category._id));
+  const uncategorizedVideos = videos.filter((video) => !videoCategoryIds.has(video.parent?._id || video.parent));
+
+  const saveCategory = async (form) => {
+    if (!form.name.trim()) return;
+    setSaving(true);
+    try {
+      const payload = createVideoCategoryPayload(form);
+      if (form._id) await api.put(`/categories/${form._id}`, payload);
+      else await api.post('/categories', payload);
+      setCategoryModal(null);
+      await onRefresh();
+    } catch (err) {
+      alert('Video kategorisi kaydedilemedi: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveVideo = async (form) => {
+    if (!form.title.trim() || !form.url.trim()) return;
+    setSaving(true);
+    try {
+      const selectedCategory = videoCategories.find((category) => category._id === form.categoryId);
+      const payload = createVideoPayload(form, selectedCategory);
+      if (form._id) await api.put(`/categories/${form._id}`, payload);
+      else await api.post('/categories', payload);
+      setVideoModal(null);
+      await onRefresh();
+    } catch (err) {
+      alert('Video kaydedilemedi: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteCategory = async (category) => {
+    if (!window.confirm(`"${category.name}" video kategorisini silmek istiyor musunuz?`)) return;
+    try {
+      await api.delete(`/categories/${category._id}`);
+      await onRefresh();
+    } catch (err) {
+      alert('Kategori silinemedi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const deleteVideo = async (video) => {
+    if (!window.confirm(`"${video.name}" videosunu silmek istiyor musunuz?`)) return;
+    try {
+      await api.delete(`/categories/${video._id}`);
+      await onRefresh();
+    } catch (err) {
+      alert('Video silinemedi: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const openCategoryModal = (category = null) => setCategoryModal({
+    _id: category?._id || '',
+    name: category?.name || '',
+    description: category?.description || '',
+    color: category?.color || '#E040FB',
+    isPro: Boolean(category?.isPro),
+    isActive: category?.isActive !== false,
+  });
+
+  const openVideoModal = (video = null, categoryId = '') => setVideoModal({
+    _id: video?._id || '',
+    title: video?.name || '',
+    description: video?.description || '',
+    categoryId: video ? (video.parent?._id || video.parent || '') : categoryId,
+    url: video ? getVideoUrl(video) : '',
+    notes: video ? getVideoNotes(video) : '',
+    isPro: Boolean(video?.isPro),
+  });
+
+  return (
+    <div className="flex-1 overflow-y-auto rounded-2xl border border-white/5 bg-bg-card p-4 custom-scrollbar sm:p-5">
+      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-widest text-accent">Video Yönetimi</p>
+          <h2 className="mt-1 text-xl font-black text-white">Video Dersler</h2>
+          <p className="mt-1 text-sm text-text-secondary">Online video bağlantılarını kategori altında yayınlayın.</p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => openCategoryModal()}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+          >
+            <Folder className="h-4 w-4" /> Kategori Oluştur
+          </button>
+          <button
+            type="button"
+            onClick={() => openVideoModal()}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-accent-light"
+          >
+            <Video className="h-4 w-4" /> Video Ekle
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-primary/15 bg-primary/10 p-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Kategori</p>
+          <p className="mt-1 text-2xl font-black text-white">{videoCategories.length}</p>
+        </div>
+        <div className="rounded-2xl border border-accent/15 bg-accent/10 p-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Video</p>
+          <p className="mt-1 text-2xl font-black text-white">{videos.length}</p>
+        </div>
+      </div>
+
+      {videoCategories.length === 0 && videos.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-16 text-center">
+          <Video className="mx-auto mb-4 h-14 w-14 text-white/15" />
+          <h3 className="text-lg font-black text-white">Henüz video içeriği yok</h3>
+          <p className="mt-2 text-sm text-text-muted">Önce kategori oluşturabilir veya doğrudan video bağlantısı ekleyebilirsiniz.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {videoCategories.map((category) => {
+            const categoryVideos = videos.filter((video) => (video.parent?._id || video.parent) === category._id);
+            return (
+              <div key={category._id} className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+                <div className="flex flex-col gap-3 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                      <Folder className="h-5 w-5 text-primary-light" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-black text-white">{category.name}</h3>
+                      <p className="mt-1 truncate text-xs font-semibold text-text-muted">
+                        {category.description || `${categoryVideos.length} video`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => openVideoModal(null, category._id)} className="rounded-lg bg-accent/10 p-2 text-accent-light hover:bg-accent/20"><Video className="h-4 w-4" /></button>
+                    <button onClick={() => openCategoryModal(category)} className="rounded-lg bg-white/5 p-2 text-text-muted hover:text-white"><Edit3 className="h-4 w-4" /></button>
+                    <button onClick={() => deleteCategory(category)} className="rounded-lg bg-danger/10 p-2 text-danger hover:bg-danger hover:text-white"><Trash2 className="h-4 w-4" /></button>
+                  </div>
+                </div>
+                {categoryVideos.length === 0 ? (
+                  <p className="p-4 text-sm font-semibold text-text-muted">Bu kategoriye henüz video eklenmedi.</p>
+                ) : (
+                  <div className="divide-y divide-white/5">
+                    {categoryVideos.map((video) => (
+                      <VideoRow key={video._id} video={video} onEdit={openVideoModal} onDelete={deleteVideo} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {uncategorizedVideos.length > 0 && (
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
+              <div className="border-b border-white/10 p-4">
+                <h3 className="text-sm font-black text-white">Kategorisiz Videolar ({uncategorizedVideos.length})</h3>
+              </div>
+              <div className="divide-y divide-white/5">
+                {uncategorizedVideos.map((video) => (
+                  <VideoRow key={video._id} video={video} onEdit={openVideoModal} onDelete={deleteVideo} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {categoryModal && (
+          <VideoCategoryModal
+            form={categoryModal}
+            saving={saving}
+            onChange={setCategoryModal}
+            onClose={() => setCategoryModal(null)}
+            onSave={saveCategory}
+          />
+        )}
+        {videoModal && (
+          <VideoFormModal
+            form={videoModal}
+            categories={videoCategories}
+            saving={saving}
+            onChange={setVideoModal}
+            onClose={() => setVideoModal(null)}
+            onSave={saveVideo}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const VideoRow = ({ video, onEdit, onDelete }) => {
+  const url = getVideoUrl(video);
+  return (
+    <div className="flex items-center gap-3 p-4">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
+        <PlayCircle className="h-5 w-5 text-accent-light" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <p className="truncate text-sm font-black text-white">{video.name}</p>
+          {video.isPro && <span className="rounded-full bg-warning/10 px-2 py-0.5 text-[9px] font-black text-warning">PRO</span>}
+        </div>
+        <p className="mt-1 truncate text-xs font-semibold text-text-muted">{url || video.description}</p>
+      </div>
+      {url && (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="hidden rounded-lg bg-white/5 p-2 text-text-muted hover:text-white sm:block">
+          <ExternalLink className="h-4 w-4" />
+        </a>
+      )}
+      <button onClick={() => onEdit(video)} className="rounded-lg bg-white/5 p-2 text-text-muted hover:text-white"><Edit3 className="h-4 w-4" /></button>
+      <button onClick={() => onDelete(video)} className="rounded-lg bg-danger/10 p-2 text-danger hover:bg-danger hover:text-white"><Trash2 className="h-4 w-4" /></button>
+    </div>
+  );
+};
+
+const VideoCategoryModal = ({ form, saving, onChange, onClose, onSave }) => (
+  <ModalShell title={form._id ? 'Video Kategorisini Düzenle' : 'Video Kategorisi Oluştur'} onClose={onClose}>
+    <div className="space-y-4">
+      <FormField label="Kategori adı">
+        <input value={form.name} onChange={(e) => onChange({ ...form, name: e.target.value })} className="input-field py-3" />
+      </FormField>
+      <FormField label="Açıklama">
+        <textarea rows={3} value={form.description} onChange={(e) => onChange({ ...form, description: e.target.value })} className="input-field resize-none py-3" />
+      </FormField>
+      <FormField label="Renk">
+        <input type="color" value={form.color} onChange={(e) => onChange({ ...form, color: e.target.value })} className="h-11 w-20 rounded-xl bg-transparent" />
+      </FormField>
+      <ToggleField label="PRO kategori" checked={form.isPro} onClick={() => onChange({ ...form, isPro: !form.isPro })} />
+      <button disabled={saving || !form.name.trim()} onClick={() => onSave(form)} className="btn-primary w-full py-3 disabled:translate-y-0">
+        {saving ? 'Kaydediliyor...' : 'Kaydet'}
+      </button>
+    </div>
+  </ModalShell>
+);
+
+const VideoFormModal = ({ form, categories, saving, onChange, onClose, onSave }) => (
+  <ModalShell title={form._id ? 'Videoyu Düzenle' : 'Video Ekle'} onClose={onClose}>
+    <div className="space-y-4">
+      <FormField label="Kategori">
+        <select value={form.categoryId} onChange={(e) => onChange({ ...form, categoryId: e.target.value })} className="input-field py-3">
+          <option value="" className="bg-bg-card">Kategorisiz</option>
+          {categories.map((category) => (
+            <option key={category._id} value={category._id} className="bg-bg-card">{category.name}</option>
+          ))}
+        </select>
+      </FormField>
+      <FormField label="Video başlığı">
+        <input value={form.title} onChange={(e) => onChange({ ...form, title: e.target.value })} className="input-field py-3" />
+      </FormField>
+      <FormField label="Video bağlantısı">
+        <input value={form.url} onChange={(e) => onChange({ ...form, url: e.target.value })} placeholder="YouTube, Vimeo, MP4 veya HLS bağlantısı" className="input-field py-3" />
+      </FormField>
+      <FormField label="Kısa açıklama">
+        <textarea rows={2} value={form.description} onChange={(e) => onChange({ ...form, description: e.target.value })} className="input-field resize-none py-3" />
+      </FormField>
+      <FormField label="Ders notları">
+        <textarea rows={4} value={form.notes} onChange={(e) => onChange({ ...form, notes: e.target.value })} className="input-field resize-none py-3" />
+      </FormField>
+      <ToggleField label="PRO içerik" checked={form.isPro} onClick={() => onChange({ ...form, isPro: !form.isPro })} />
+      <button disabled={saving || !form.title.trim() || !form.url.trim()} onClick={() => onSave(form)} className="btn-primary w-full py-3 disabled:translate-y-0">
+        {saving ? 'Kaydediliyor...' : 'Kaydet'}
+      </button>
+    </div>
+  </ModalShell>
+);
+
+const ModalShell = ({ title, children, onClose }) => (
+  <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl">
+    <MotionDiv
+      initial={{ scale: 0.96, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.96, opacity: 0 }}
+      className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-white/10 bg-bg-card p-5 shadow-2xl custom-scrollbar"
+    >
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <h2 className="text-lg font-black text-white">{title}</h2>
+        <button onClick={onClose} className="rounded-xl bg-white/5 p-2 text-text-muted hover:text-white"><X className="h-5 w-5" /></button>
+      </div>
+      {children}
+    </MotionDiv>
+  </div>
+);
+
+const FormField = ({ label, children }) => (
+  <label className="block">
+    <span className="mb-2 block text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</span>
+    {children}
+  </label>
+);
+
+const ToggleField = ({ label, checked, onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-black transition ${
+      checked ? 'border-warning/30 bg-warning/10 text-warning' : 'border-white/10 bg-white/5 text-text-secondary'
+    }`}
+  >
+    {label}
+    <span>{checked ? 'Açık' : 'Kapalı'}</span>
+  </button>
+);
+
+const ContentVersionHistory = ({ category, onLoadVersion }) => {
+  const versions = getContentVersions(category).slice(0, 6);
+  if (versions.length === 0) return null;
+
+  return (
+    <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 xl:px-12 2xl:px-24 pb-12">
+      <div className="rounded-2xl border border-white/5 bg-black/20 p-4 sm:p-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <History className="h-4 w-4 text-primary-light" />
+            <p className="text-sm font-black text-white">Sürüm Geçmişi</p>
+          </div>
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-black text-text-muted">
+            {versions.length}
+          </span>
+        </div>
+        <div className="space-y-2">
+          {versions.map((version, index) => (
+            <div key={version._id || `${version.savedAt}-${index}`} className="flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-[11px] font-bold text-text-muted">
+                  <Clock3 className="h-3.5 w-3.5" />
+                  {formatContentDate(version.savedAt || version.publishedAt)}
+                </div>
+                <p className="mt-1 line-clamp-1 text-xs font-semibold text-text-secondary">
+                  {(version.content || '').replace(/\s+/g, ' ').slice(0, 140) || 'Boş içerik'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onLoadVersion(version.content || '')}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary hover:text-white"
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> Yükle
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Main AdminContent Component ────────────────────────────────────────────
 const AdminContent = () => {
   const [allCategories, setAllCategories] = useState([]);
@@ -637,7 +1082,7 @@ const AdminContent = () => {
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
-  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
   // View mode
@@ -660,26 +1105,34 @@ const AdminContent = () => {
 
   const textareaRef = useRef(null);
 
-  const selectedCat = allCategories.find(c => c._id === selectedCatId);
+  const contentCategories = allCategories.filter((category) => !isVideoRecord(category));
+  const selectedCat = contentCategories.find(c => c._id === selectedCatId);
 
   useEffect(() => { fetchCategories(); }, []);
 
   useEffect(() => {
-    if (selectedCat) {
-      setEditContent(selectedCat.content || '');
+    const currentCategory = allCategories.find(category => category._id === selectedCatId && !isVideoRecord(category));
+    if (currentCategory) {
+      setEditContent(getEditableCategoryContent(currentCategory));
       setIsEditing(false);
       setEditingQuestionId(null);
       setQuestionForm(createQuestionForm());
       setQuestionSearch('');
       setQuestionDifficultyFilter('all');
-      fetchShortTestQuestions(selectedCat._id);
+      fetchShortTestQuestions(currentCategory._id);
     }
   }, [selectedCatId, allCategories]);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const catRes = await api.get('/categories/all');
+      let catRes;
+      try {
+        catRes = await api.get('/categories/admin/all');
+      } catch (adminErr) {
+        if (adminErr.response?.status !== 404) throw adminErr;
+        catRes = await api.get('/categories/all');
+      }
       setAllCategories(catRes.data.data || []);
     } catch (err) {
       console.error('Kategoriler alınamadı:', err);
@@ -761,19 +1214,48 @@ const AdminContent = () => {
     }
   };
 
-  // ── Save content ─────────────────────────────────────────────────────────
-  const handleSave = async () => {
+  // ── Draft / publish content ─────────────────────────────────────────────
+  const handleSaveDraft = async () => {
     if (!selectedCatId) return;
-    setSaveLoading(true);
+    setSaveLoading('draft');
     try {
-      await api.put(`/categories/${selectedCatId}`, { ...selectedCat, content: editContent });
+      await api.put(`/categories/${selectedCatId}`, {
+        publicationAction: 'save_draft',
+        draftContent: editContent,
+      });
       await fetchCategories();
       setIsEditing(false);
-    } catch {
-      alert('İçerik kaydedilemedi.');
+    } catch (err) {
+      alert('Taslak kaydedilemedi: ' + (err.response?.data?.error || err.response?.data?.message || err.message));
     } finally {
-      setSaveLoading(false);
+      setSaveLoading(null);
     }
+  };
+
+  const handlePublish = async (contentOverride) => {
+    if (!selectedCatId) return;
+    const contentToPublish = typeof contentOverride === 'string' ? contentOverride : editContent;
+    setSaveLoading('publish');
+    try {
+      await api.put(`/categories/${selectedCatId}`, {
+        publicationAction: 'publish',
+        content: contentToPublish,
+      });
+      await fetchCategories();
+      setEditContent(contentToPublish);
+      setIsEditing(false);
+    } catch (err) {
+      alert('İçerik yayınlanamadı: ' + (err.response?.data?.error || err.response?.data?.message || err.message));
+    } finally {
+      setSaveLoading(null);
+    }
+  };
+
+  const handleLoadVersion = (content) => {
+    setActivePanel('content');
+    setEditContent(content);
+    setIsEditing(true);
+    setViewMode('split');
   };
 
   // ── Short Test Question Handlers ─────────────────────────────────────────
@@ -923,17 +1405,17 @@ const AdminContent = () => {
   };
 
   const handleToggleActive = async (cat) => {
-    await api.put(`/categories/${cat._id}`, { ...cat, isActive: !cat.isActive });
+    await api.put(`/categories/${cat._id}`, { isActive: !cat.isActive });
     setAllCategories(prev => prev.map(c => c._id === cat._id ? { ...c, isActive: !cat.isActive } : c));
   };
 
   // Root categories for tree
-  const rootCats = allCategories
+  const rootCats = contentCategories
     .filter(c => !c.parent?._id && !c.parent)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const filteredRoots = searchTerm
-    ? allCategories
+    ? contentCategories
         .filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
         .sort((a, b) => (a.order || 0) - (b.order || 0))
     : rootCats;
@@ -1015,7 +1497,12 @@ const AdminContent = () => {
     td: ({ children }) => <td className="border-b border-white/5 px-6 py-4 text-text-secondary font-medium align-middle">{children}</td>,
   };
 
-  const hasUnsaved = isEditing && editContent !== (selectedCat?.content || '');
+  const selectedEditableContent = getEditableCategoryContent(selectedCat);
+  const selectedDisplayContent = isEditing ? editContent : selectedEditableContent;
+  const selectedPublicationMeta = getPublicationMeta(selectedCat);
+  const selectedHasDraft = categoryHasDraft(selectedCat);
+  const selectedVersions = getContentVersions(selectedCat);
+  const hasUnsaved = isEditing && editContent !== selectedEditableContent;
 
   return (
     <div className="flex flex-col h-full min-h-[calc(100vh-96px)] md:min-h-[calc(100vh-120px)]">
@@ -1025,7 +1512,27 @@ const AdminContent = () => {
           <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">İçerik Kütüphanesi</h1>
           <p className="text-text-secondary text-sm mt-1">Ders içeriklerini ve kategori yapısını yönetin.</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center">
+          <div className="flex rounded-xl border border-white/10 bg-white/5 p-1">
+            {[
+              { id: 'content', label: 'Dersler', icon: BookOpen },
+              { id: 'videos', label: 'Videolar', icon: Video },
+            ].map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActivePanel(item.id)}
+                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-black uppercase tracking-widest transition ${
+                  (item.id === 'content' ? activePanel !== 'videos' : activePanel === item.id)
+                    ? 'bg-primary/20 text-primary-light'
+                    : 'text-text-muted hover:text-white'
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => fetchCategories()}
             className="p-2.5 rounded-xl hover:bg-white/5 border border-white/10 text-text-muted hover:text-white transition-all"
@@ -1033,16 +1540,21 @@ const AdminContent = () => {
           >
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button
-            onClick={() => openCatModal()}
-            className="flex flex-1 sm:flex-none items-center justify-center gap-2 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary/20"
-          >
-            <FilePlus className="w-4 h-4" /> Yeni Kategori
-          </button>
+          {activePanel !== 'videos' && (
+            <button
+              onClick={() => openCatModal()}
+              className="flex flex-1 sm:flex-none items-center justify-center gap-2 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary/20"
+            >
+              <FilePlus className="w-4 h-4" /> Yeni Kategori
+            </button>
+          )}
         </div>
       </div>
 
       {/* ── Main Split Layout ─────────────────────────────────────────────── */}
+      {activePanel === 'videos' ? (
+        <VideoManagementWorkspace allCategories={allCategories} onRefresh={fetchCategories} />
+      ) : (
       <div className="flex flex-col xl:flex-row gap-4 flex-1 min-h-0 overflow-visible xl:overflow-hidden">
 
         {/* LEFT: Category Tree Panel */}
@@ -1088,7 +1600,7 @@ const AdminContent = () => {
                   <CategoryTreeItem
                     key={cat._id}
                     cat={cat}
-                    allCategories={allCategories}
+                    allCategories={contentCategories}
                     selectedId={selectedCatId}
                     onSelect={setSelectedCatId}
                     onEdit={openCatModal}
@@ -1102,7 +1614,7 @@ const AdminContent = () => {
 
           {/* Footer */}
           <div className="p-3 border-t border-white/5 text-[10px] text-text-muted font-bold uppercase tracking-widest text-center">
-            {allCategories.length} Kategori
+            {contentCategories.length} Kategori
           </div>
         </div>
 
@@ -1130,6 +1642,9 @@ const AdminContent = () => {
                           ? 'text-success bg-success/10 border-success/20'
                           : 'text-danger bg-danger/10 border-danger/20'}`}>
                         {selectedCat.isActive ? 'AKTİF' : 'GİZLİ'}
+                      </span>
+                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border ${selectedPublicationMeta.badge}`}>
+                        {selectedPublicationMeta.label}
                       </span>
                       {hasUnsaved && (
                         <span className="text-[9px] font-black text-warning uppercase bg-warning/10 px-1.5 py-0.5 rounded-md border border-warning/20 animate-pulse">
@@ -1208,27 +1723,47 @@ const AdminContent = () => {
                   {activePanel === 'content' && (isEditing ? (
                     <>
                       <button
-                        onClick={() => { setIsEditing(false); setEditContent(selectedCat.content || ''); }}
+                        onClick={() => { setIsEditing(false); setEditContent(selectedEditableContent); }}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold border border-white/10 shrink-0"
                       >
                         <RotateCcw className="w-3.5 h-3.5" /> İptal
                       </button>
                       <button
-                        onClick={handleSave}
-                        disabled={saveLoading}
+                        onClick={handleSaveDraft}
+                        disabled={Boolean(saveLoading)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-warning/30 bg-warning/10 text-warning text-xs font-black hover:bg-warning hover:text-white transition-all disabled:opacity-60 shrink-0"
+                      >
+                        {saveLoading === 'draft' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                        Taslak
+                      </button>
+                      <button
+                        onClick={() => handlePublish()}
+                        disabled={Boolean(saveLoading)}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-black shadow-lg shadow-success/20 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
                       >
-                        {saveLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                        Kaydet
+                        {saveLoading === 'publish' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                        Yayınla
                       </button>
                     </>
                   ) : (
-                    <button
-                      onClick={() => { setIsEditing(true); setViewMode('split'); }}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/20 text-primary-light border border-primary/30 hover:bg-primary hover:text-white text-xs font-black transition-all shrink-0"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" /> İçeriği Düzenle
-                    </button>
+                    <>
+                      {selectedHasDraft && (
+                        <button
+                          onClick={() => handlePublish(selectedEditableContent)}
+                          disabled={Boolean(saveLoading) || !selectedEditableContent.trim()}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-black shadow-lg shadow-success/20 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
+                        >
+                          {saveLoading === 'publish' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                          Yayınla
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { setIsEditing(true); setViewMode('split'); }}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/20 text-primary-light border border-primary/30 hover:bg-primary hover:text-white text-xs font-black transition-all shrink-0"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" /> {selectedHasDraft ? 'Taslağı Düzenle' : 'İçeriği Düzenle'}
+                      </button>
+                    </>
                   ))}
                 </div>
               </div>
@@ -1298,14 +1833,32 @@ const AdminContent = () => {
                     )}
                     
                     <div className="p-4 sm:p-6 xl:p-12 2xl:px-24">
-                      {(isEditing ? editContent : selectedCat?.content) ? (
+                      {!isEditing && selectedHasDraft && (
+                        <div className="max-w-4xl mx-auto mb-6 rounded-2xl border border-primary/20 bg-primary/10 p-4">
+                          <div className="flex items-start gap-3">
+                            <Save className="mt-0.5 h-4 w-4 shrink-0 text-primary-light" />
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-widest text-primary-light">
+                                {getPublicationStatus(selectedCat) === 'draft' ? 'Yayınlanmamış taslak' : 'Taslak değişiklik'}
+                              </p>
+                              <p className="mt-1 text-xs font-semibold leading-relaxed text-text-secondary">
+                                {getPublicationStatus(selectedCat) === 'draft'
+                                  ? 'Bu içerik yayınlanana kadar kullanıcı tarafında görünmez.'
+                                  : 'Bu önizleme taslak metni gösterir; kullanıcılar son yayınlanan sürümü görür.'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedDisplayContent ? (
                         <div className="max-w-4xl mx-auto w-full">
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
                             rehypePlugins={[rehypeRaw]}
                             components={markdownComponents}
                           >
-                            {isEditing ? editContent : (selectedCat?.content || '')}
+                            {selectedDisplayContent}
                           </ReactMarkdown>
                         </div>
                       ) : (
@@ -1350,6 +1903,10 @@ const AdminContent = () => {
                       </div>
                     )}
 
+                    {(!isEditing || viewMode === 'preview') && selectedVersions.length > 0 && (
+                      <ContentVersionHistory category={selectedCat} onLoadVersion={handleLoadVersion} />
+                    )}
+
                   </div>
                 )}
               </div>
@@ -1369,12 +1926,13 @@ const AdminContent = () => {
           )}
         </div>
       </div>
+      )}
 
       {/* ── Category Settings Modal ─────────────────────────────────────────── */}
       <AnimatePresence>
         {catModal.open && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
-            <motion.div
+            <MotionDiv
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -1438,7 +1996,7 @@ const AdminContent = () => {
                     onChange={e => setCatForm(f => ({ ...f, parent: e.target.value || null }))}
                   >
                     <option value="" className="bg-bg-card">(Root — Ana Dizin)</option>
-                    {allCategories.filter(c => c._id !== catModal.cat?._id).map(c => (
+                    {contentCategories.filter(c => c._id !== catModal.cat?._id).map(c => (
                       <option key={c._id} value={c._id} className="bg-bg-card">{c.name}</option>
                     ))}
                   </select>
@@ -1494,7 +2052,7 @@ const AdminContent = () => {
                   {catModal.cat ? 'Güncelle' : 'Oluştur'}
                 </button>
               </div>
-            </motion.div>
+            </MotionDiv>
           </div>
         )}
       </AnimatePresence>

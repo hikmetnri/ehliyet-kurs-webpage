@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import api from '../api';
 import { hasChartValue, normalizeCategoryStats, normalizeRegistrationTrend, readList } from '../utils/statsData';
+import { isVideoRecord } from '../utils/categoryContent';
 
 const MotionDiv = motion.div;
 
@@ -167,7 +168,7 @@ const AdminDashboard = () => {
       const ticketsData = readList(ticketsRes.data);
       const reportsData = readList(reportsRes.data);
       const logsData = readList(logsRes.data);
-      const categoriesData = readList(categoriesRes.data);
+      const categoriesData = readList(categoriesRes.data).filter((category) => !isVideoRecord(category));
       
       setRegData(normalizeRegistrationTrend(regTrendRes.data));
       setCategoryStats(normalizeCategoryStats(catStatsRes.data));

@@ -11,6 +11,8 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
+  FileQuestion,
+  GraduationCap,
   LayoutGrid,
   Loader2,
   PlayCircle,
@@ -24,6 +26,7 @@ import {
 import useAuthStore from '../../store/authStore';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { isVideoRecord, limitQuoteText } from '../../utils/categoryContent';
 
 const getStoredExamDate = () => {
   try {
@@ -59,8 +62,8 @@ const planIconByType = {
   weak_topic: BookOpen,
   lesson: BookOpen,
   daily_goal: Target,
-  short_test: ClipboardList,
-  mock_exam: ClipboardList,
+  short_test: FileQuestion,
+  mock_exam: GraduationCap,
 };
 
 const planRouteByAction = {
@@ -110,7 +113,8 @@ const UserHome = () => {
         try {
           const mainRes = await api.get('/categories');
           const mainData = mainRes.data?.data || mainRes.data?.categories || mainRes.data;
-          const filteredMain = (Array.isArray(mainData) ? mainData : []).filter((category) => !category.parent);
+          const filteredMain = (Array.isArray(mainData) ? mainData : [])
+            .filter((category) => !category.parent && !isVideoRecord(category));
           setMainCategories(filteredMain);
           if (filteredMain.length === 0) setIsMockMode(true);
         } catch (err) {
@@ -122,7 +126,7 @@ const UserHome = () => {
           try {
             const subRes = await api.get(`/categories?parent=${user.selectedCategoryId}`);
             const subData = subRes.data?.data || subRes.data?.categories || subRes.data;
-            setSubCategories(Array.isArray(subData) ? subData : []);
+            setSubCategories((Array.isArray(subData) ? subData : []).filter((category) => !isVideoRecord(category)));
           } catch (err) {
             console.error('Sub categories error', err);
           }
@@ -135,7 +139,7 @@ const UserHome = () => {
           const quoteData = quoteRes.data?.data || quoteRes.data;
           if (quoteData?.text) {
             setQuote({
-              text: quoteData.text,
+              text: limitQuoteText(quoteData.text),
               author: quoteData.author || '',
             });
           }
@@ -199,6 +203,13 @@ const UserHome = () => {
       label: 'Trafik İşaretleri',
       text: 'Sınavda sık çıkan işaretleri tekrar et.',
       tone: 'from-accent/15 to-white/[0.02]',
+    },
+    {
+      to: '/dashboard/videos',
+      icon: PlayCircle,
+      label: 'Video Dersler',
+      text: 'Online video anlatımlarını kategori kategori izle.',
+      tone: 'from-warning/15 to-primary/10',
     },
   ]), []);
 
@@ -290,6 +301,9 @@ const UserHome = () => {
     warning: 'border-warning/20 bg-warning/10 text-warning',
     accent: 'border-accent/20 bg-accent/10 text-accent-light',
   }[recommendation.tone];
+  const quoteText = limitQuoteText(quote?.text || 'Bugün kısa bir tekrar, yarın daha sakin bir sınav.');
+  const quoteAuthor = quote?.author || 'Ehliyet Yolu';
+  const quoteDuration = `${Math.max(22, Math.min(58, Math.round(quoteText.length / 7)))}s`;
 
   if (loading) {
     return (
@@ -320,18 +334,19 @@ const UserHome = () => {
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-r from-primary/10 via-white/[0.035] to-accent/10 py-3"
       >
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-bg-dark to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-bg-dark to-transparent" />
-        <div className="flex w-max animate-[quoteMarquee_42s_linear_infinite] items-center gap-40 whitespace-nowrap px-6">
+        <div
+          className="quote-marquee-track flex w-max items-center whitespace-nowrap"
+          style={{ '--quote-duration': quoteDuration }}
+        >
           {[0, 1].map((item) => (
-            <div key={item} className="flex min-w-[100vw] items-center justify-center gap-3">
+            <div key={item} className="flex items-center gap-3 px-10">
               <Sparkles className="h-4 w-4 text-primary-light" />
               <span className="text-[10px] font-black uppercase tracking-widest text-primary-light">Günün Sözü</span>
               <span className="text-sm font-bold text-white sm:text-base">
-                {quote?.text || 'Bugün kısa bir tekrar, yarın daha sakin bir sınav.'}
+                {quoteText}
               </span>
               <span className="text-xs font-black uppercase tracking-widest text-text-muted">
-                {quote?.author || 'Ehliyet Yolu'}
+                {quoteAuthor}
               </span>
             </div>
           ))}
@@ -433,7 +448,7 @@ const UserHome = () => {
               </div>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>

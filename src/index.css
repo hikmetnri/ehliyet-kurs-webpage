@@ -117,6 +117,10 @@
   100% { transform: translateX(-50%); }
 }
 
+.quote-marquee-track {
+  animation: quoteMarquee var(--quote-duration, 34s) linear infinite;
+}
+
 /* ── Shine Effect ── */
 @keyframes shine {
   0%   { left: -100%; }

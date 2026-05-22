@@ -3,15 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bell, X, Check, CheckCheck, Trash2, Loader2,
-  Megaphone, MessageCircle, Trophy, AlertTriangle, BookOpen, ClipboardList
+  Megaphone, MessageCircle, MessagesSquare, Trophy, AlertTriangle, BookOpen, ClipboardList
 } from 'lucide-react';
 import api from '../../api';
+
+const MotionDiv = motion.div;
 
 const typeConfig = {
   system:      { icon: Bell,           color: 'text-primary-light', bg: 'bg-primary/10',  border: 'border-primary/20' },
   broadcast:   { icon: Megaphone,      color: 'text-warning',       bg: 'bg-warning/10',  border: 'border-warning/20' },
   social:      { icon: MessageCircle,  color: 'text-accent-light',  bg: 'bg-accent/10',   border: 'border-accent/20' },
-  feed:        { icon: MessageCircle,  color: 'text-accent-light',  bg: 'bg-accent/10',   border: 'border-accent/20' },
+  feed:        { icon: MessagesSquare, color: 'text-accent-light',  bg: 'bg-accent/10',   border: 'border-accent/20' },
   achievement: { icon: Trophy,         color: 'text-warning',       bg: 'bg-warning/10',  border: 'border-warning/20' },
   alert:       { icon: AlertTriangle,  color: 'text-danger',        bg: 'bg-danger/10',   border: 'border-danger/20' },
   exam:        { icon: ClipboardList,  color: 'text-success',       bg: 'bg-success/10',  border: 'border-success/20' },
@@ -109,7 +111,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <MotionDiv
           ref={panelRef}
           initial={{ opacity: 0, y: -10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -168,7 +170,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                   const IconComp = config.icon;
                   const postId = getPostId(notif);
                   return (
-                    <motion.div
+                    <MotionDiv
                       key={notif._id}
                       layout
                       initial={{ opacity: 0 }}
@@ -227,13 +229,13 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                           </div>
                         </div>
                       </div>
-                    </motion.div>
+                    </MotionDiv>
                   );
                 })}
               </div>
             )}
           </div>
-        </motion.div>
+        </MotionDiv>
       )}
     </AnimatePresence>
   );

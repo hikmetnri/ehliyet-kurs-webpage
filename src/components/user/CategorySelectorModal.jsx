@@ -3,6 +3,7 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Car, Truck, Bike, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
+import { isVideoRecord } from '../../utils/categoryContent';
 
 // İkon eşleştirme tablosu
 const iconMap = {
@@ -29,7 +30,7 @@ const CategorySelectorModal = ({ isOpen, onClose }) => {
           const res = await api.get('/categories');
           const data = res.data?.data || res.data;
           // Sadece parent'ı olmayan ana kategorileri al
-          setDbCategories((Array.isArray(data) ? data : []).filter(c => !c.parent));
+          setDbCategories((Array.isArray(data) ? data : []).filter(c => !c.parent && !isVideoRecord(c)));
         } catch (err) {
           console.error("Kategoriler yüklenemedi:", err);
         } finally {

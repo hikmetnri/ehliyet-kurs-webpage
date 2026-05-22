@@ -1,11 +1,11 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  ClipboardCheck,
+  FileQuestion,
+  GraduationCap,
   Home,
-  PenTool,
   User,
-  Users,
+  Radio,
 } from 'lucide-react';
 
 const items = [
@@ -13,18 +13,18 @@ const items = [
   {
     to: '/dashboard/exams?tab=short_tests',
     label: 'Sorular',
-    icon: PenTool,
+    icon: FileQuestion,
     match: ['/dashboard/exams'],
     tab: 'short_tests',
   },
   {
     to: '/dashboard/exams?tab=real_sim_cat',
     label: 'Sınavlar',
-    icon: ClipboardCheck,
+    icon: GraduationCap,
     match: ['/dashboard/exams'],
     tab: 'exam_modes',
   },
-  { to: '/dashboard/feed', label: 'Akış', icon: Users },
+  { to: '/dashboard/feed', label: 'Akış', icon: Radio },
   {
     to: '/dashboard/settings',
     label: 'Profil',

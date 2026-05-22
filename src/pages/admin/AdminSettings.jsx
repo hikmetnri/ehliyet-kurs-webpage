@@ -9,6 +9,9 @@ import {
   FileText, Lock, Mail, Link, Smartphone as PhoneIcon, ShieldCheck, Activity,
   ChevronRight, ToggleLeft, ToggleRight, Globe, AppWindow, User, Search
 } from 'lucide-react';
+import { limitQuoteText } from '../../utils/categoryContent';
+
+const QUOTE_MAX_LENGTH = 350;
 
 // ─── Mini bileşenler ──────────────────────────────────────────────────────────
 
@@ -215,7 +218,12 @@ const AdminSettings = () => {
   }, []);
 
   const fetchQuotes = useCallback(async () => {
-    try { setLoading(true); const res = await api.get('/quotes'); setQuotes(res.data); }
+    try {
+      setLoading(true);
+      const res = await api.get('/quotes');
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setQuotes(data.map((quote) => ({ ...quote, text: limitQuoteText(quote.text, QUOTE_MAX_LENGTH) })));
+    }
     catch { } finally { setLoading(false); }
   }, []);
 
@@ -315,10 +323,16 @@ const AdminSettings = () => {
 
   const handleQuoteSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      ...quoteData,
+      text: limitQuoteText(quoteData.text, QUOTE_MAX_LENGTH),
+      author: quoteData.author.trim(),
+    };
+    if (!payload.text) return;
     try {
       setLoading(true);
-      if (editingQuote) { await api.put(`/quotes/${editingQuote._id}`, quoteData); }
-      else              { await api.post('/quotes', quoteData); }
+      if (editingQuote) { await api.put(`/quotes/${editingQuote._id}`, payload); }
+      else              { await api.post('/quotes', payload); }
       setShowQuoteForm(false); setEditingQuote(null); setQuoteData({ text: '', author: '' });
       showToast('Söz kaydedildi!');
       fetchQuotes();
@@ -690,7 +704,19 @@ const AdminSettings = () => {
                         <form onSubmit={handleQuoteSubmit} className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 space-y-4">
                           <h3 className="text-xs font-black text-amber-400 uppercase tracking-widest">{editingQuote ? 'Sözü Güncelle' : 'Yeni Söz Ekle'}</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><FieldLabel>Söz / İçerik</FieldLabel><TextInput required value={quoteData.text} onChange={e => setQuoteData(p => ({ ...p, text: e.target.value }))} placeholder="Motivasyonel söz..." /></div>
+                            <div>
+                              <div className="flex items-center justify-between gap-3">
+                                <FieldLabel>Söz / İçerik</FieldLabel>
+                                <span className="mb-2 text-[10px] font-black text-text-muted">{quoteData.text.length}/{QUOTE_MAX_LENGTH}</span>
+                              </div>
+                              <TextInput
+                                required
+                                maxLength={QUOTE_MAX_LENGTH}
+                                value={quoteData.text}
+                                onChange={e => setQuoteData(p => ({ ...p, text: limitQuoteText(e.target.value, QUOTE_MAX_LENGTH) }))}
+                                placeholder="Motivasyonel söz..."
+                              />
+                            </div>
                             <div><FieldLabel>Yazar / Kaynak</FieldLabel><TextInput required value={quoteData.author} onChange={e => setQuoteData(p => ({ ...p, author: e.target.value }))} placeholder="Atatürk, Einstein..." /></div>
                           </div>
                           <div className="flex gap-3">
@@ -709,11 +735,11 @@ const AdminSettings = () => {
                         {quotes.map(q => (
                           <div key={q._id} className="bg-black/30 border border-white/5 rounded-2xl p-5 relative group hover:border-amber-500/20 transition-all">
                             <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
-                              <button onClick={() => { setEditingQuote(q); setQuoteData({ text: q.text, author: q.author }); setShowQuoteForm(true); }} className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-text-muted hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => { setEditingQuote(q); setQuoteData({ text: limitQuoteText(q.text, QUOTE_MAX_LENGTH), author: q.author }); setShowQuoteForm(true); }} className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-text-muted hover:text-white"><Edit className="w-3.5 h-3.5" /></button>
                               <button onClick={() => handleDeleteQuote(q._id)} className="p-1.5 bg-danger/10 text-danger hover:bg-danger hover:text-white rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
                             </div>
                             <Quote className="w-7 h-7 text-amber-500/20 mb-3" />
-                            <p className="text-sm text-white/90 italic leading-relaxed mb-3">"{q.text}"</p>
+                            <p className="text-sm text-white/90 italic leading-relaxed mb-3">"{limitQuoteText(q.text, QUOTE_MAX_LENGTH)}"</p>
                             <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-amber-500"></div><span className="text-[10px] font-black uppercase tracking-widest text-amber-500/70">{q.author}</span></div>
                           </div>
                         ))}

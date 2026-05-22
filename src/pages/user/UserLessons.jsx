@@ -13,6 +13,7 @@ import remarkGfm from 'remark-gfm';
 import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
+import { isVideoRecord } from '../../utils/categoryContent';
 
 const MotionDiv = motion.div;
 
@@ -174,7 +175,7 @@ const UserLessons = () => {
       try {
         setLoading(true);
         const res = await api.get('/categories/all');
-        const cats = res.data?.data || [];
+        const cats = (res.data?.data || []).filter((category) => !isVideoRecord(category));
         
         let finalTree = buildTree(cats);
         let finalFlat = cats;

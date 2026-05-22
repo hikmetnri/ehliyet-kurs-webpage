@@ -13,6 +13,7 @@ import UserSettings from './user/UserSettings';
 import UserFavorites from './user/UserFavorites';
 import UserTrafficSigns from './user/UserTrafficSigns';
 import UserDrivingSchools from './user/UserDrivingSchools';
+import UserVideos from './user/UserVideos';
 
 const UserDashboard = () => {
   return (
@@ -43,6 +44,7 @@ const UserDashboard = () => {
         <Route path="settings" element={<UserSettings />} />
         <Route path="favorites" element={<UserFavorites />} />
         <Route path="traffic-signs" element={<UserTrafficSigns />} />
+        <Route path="videos" element={<UserVideos />} />
         <Route path="driving-schools" element={<UserDrivingSchools />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import { trackEvent } from '../../utils/analytics';
+import { isVideoRecord } from '../../utils/categoryContent';
 
 const examTabIds = ['short_tests', 'general', 'real_sim_cat'];
 const MotionDiv = motion.div;
@@ -50,7 +51,7 @@ const UserExams = () => {
         
         // Tüm kategorileri çek
         const catRes = await api.get('/categories/all');
-        const allCategories = catRes.data?.data || catRes.data || [];
+        const allCategories = (catRes.data?.data || catRes.data || []).filter((category) => !isVideoRecord(category));
 
         // Belirli bir parent'ın tüm alt çocuklarını bul (Recursive)
         const getDescendants = (parentId) => {

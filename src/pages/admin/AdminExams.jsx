@@ -30,6 +30,45 @@ const SIGN_CATEGORIES = [
   { key: 'Park_P',    label: 'Park Levhaları',       emoji: '🅿️', color: 'text-success',   bg: 'bg-success/10',  border: 'border-success/30'  },
 ];
 
+const EXAM_TYPES = {
+  short_test: { label: 'Kısa Test', icon: '📚' },
+  mock_exam: { label: 'Deneme Sınavı', icon: '⚡' },
+  real_exam: { label: 'Gerçek Sınav', icon: '🛡️' },
+};
+
+const normalizeTestType = (testType) => {
+  if (testType === 'exam') return 'mock_exam';
+  return testType || '';
+};
+
+const questionExamId = (question) => question.exam?._id || question.exam || '';
+
+const inferExamTypeFromName = (exam) => {
+  const text = `${exam?.name || ''} ${exam?.description || ''}`.toLocaleLowerCase('tr-TR');
+  if (/(gerçek|gercek|meb|e-sınav|e sinav|simülatör|simulator)/i.test(text)) return 'real_exam';
+  if (/(deneme|mock|trial)/i.test(text)) return 'mock_exam';
+  return '';
+};
+
+const resolveExamTestType = (exam, questions = []) => {
+  if (exam?.isMiniTest) return 'short_test';
+  if (normalizeTestType(exam?._resolvedTestType)) return normalizeTestType(exam._resolvedTestType);
+
+  const relatedQuestions = questions.filter(q => questionExamId(q) === exam?._id);
+  const realQuestionCount = relatedQuestions.filter(q => normalizeTestType(q.testType) === 'real_exam').length;
+  const mockQuestionCount = relatedQuestions.filter(q => normalizeTestType(q.testType) === 'mock_exam').length;
+
+  if (realQuestionCount > 0 && mockQuestionCount === 0) return 'real_exam';
+  if (mockQuestionCount > 0 && realQuestionCount === 0) return 'mock_exam';
+  if (realQuestionCount > mockQuestionCount) return 'real_exam';
+  if (mockQuestionCount > realQuestionCount) return 'mock_exam';
+
+  const inferred = inferExamTypeFromName(exam);
+  if (inferred) return inferred;
+
+  return normalizeTestType(exam?.testType) || 'mock_exam';
+};
+
 // Her kategorideki levha isimleri  (fetch ile backend'den alacağız)
 const MEDIA_BASE = import.meta.env.VITE_MEDIA_BASE || '';
 const fetchSignsInCategory = async (category) => {
@@ -245,6 +284,12 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
   }, [isOpen, existingQuestion, initialCategoryId, initialExamId, testType]);
 
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
+  const examMatchesType = (exam, type) => normalizeTestType(exam._resolvedTestType || exam.testType) === type;
+  const selectableExams = isShortTest ? exams : exams.filter(exam => examMatchesType(exam, form.testType));
+  const selectedExam = exams.find(exam => exam._id === form.exam);
+  const examOptions = selectedExam && !selectableExams.some(exam => exam._id === selectedExam._id)
+    ? [selectedExam, ...selectableExams]
+    : selectableExams;
 
   const setOption = (i, val) => {
     const opts = [...form.options];
@@ -414,9 +459,9 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
                 onChange={e => setField('exam', e.target.value)}
               >
                 <option value="" className="bg-bg-card text-white/40">Sınav ata (opsiyonel)</option>
-                {exams.map(exam => (
+                {examOptions.map(exam => (
                   <option key={exam._id} value={exam._id} className="bg-bg-card text-white">
-                    📋 {exam.name} ({exam.duration} dk)
+                    {EXAM_TYPES[normalizeTestType(exam._resolvedTestType || exam.testType)]?.icon || '📋'} {exam.name} ({exam.duration} dk)
                   </option>
                 ))}
               </select>
@@ -451,7 +496,11 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
                   <button
                     key={t.id}
                     type="button"
-                    onClick={() => setField('testType', t.id)}
+                    onClick={() => setForm(f => ({
+                      ...f,
+                      testType: t.id,
+                      exam: exams.some(exam => exam._id === f.exam && examMatchesType(exam, t.id)) ? f.exam : '',
+                    }))}
                     className={`flex-1 py-2.5 text-[11px] font-black rounded-xl transition-all ${form.testType === t.id
                       ? `${t.color} text-white shadow-lg`
                       : 'text-text-muted hover:text-white'}`}
@@ -814,7 +863,7 @@ const SignPickerModal = ({ onClose, onSelect }) => {
 };
 
 // ─── Exam Form Modal ───────────────────────────────────────────────────────────
-const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, forceMiniTest = false }) => {
+const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, forceMiniTest = false, testType = 'mock_exam' }) => {
   const isEdit = !!existingExam;
   const buildCategoryOptions = () => {
     const roots = categories.filter(c => !c.parent?._id && !c.parent);
@@ -832,7 +881,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
   };
   const catOptions = buildCategoryOptions();
 
-  const [form, setForm] = useState({ name: '', description: '', duration: '45', categoryId: '', isPro: false });
+  const [form, setForm] = useState({ name: '', description: '', duration: '45', categoryId: '', isPro: false, isMiniTest: forceMiniTest, testType });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -846,13 +895,14 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
           categoryId: existingExam.categoryId?._id || existingExam.categoryId || '',
           isPro: existingExam.isPro || false,
           isMiniTest: existingExam.isMiniTest || false,
+          testType: existingExam.isMiniTest ? 'short_test' : resolveExamTestType(existingExam),
         });
       } else {
-        setForm({ name: '', description: '', duration: '45', categoryId: catOptions[0]?._id || '', isPro: false, isMiniTest: forceMiniTest });
+        setForm({ name: '', description: '', duration: '45', categoryId: catOptions[0]?._id || '', isPro: false, isMiniTest: forceMiniTest, testType: forceMiniTest ? 'short_test' : testType });
       }
       setError('');
     }
-  }, [isOpen, existingExam]);
+  }, [isOpen, existingExam, forceMiniTest, testType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -866,6 +916,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
         categoryId: form.categoryId || null,
         isPro: form.isPro,
         isMiniTest: form.isMiniTest,
+        testType: form.isMiniTest ? 'short_test' : form.testType,
       };
       if (isEdit) {
         await api.put(`/exams/${existingExam._id}`, payload);
@@ -913,6 +964,30 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             />
           </div>
+          {!forceMiniTest && (
+            <div>
+              <label className="text-xs font-bold text-text-secondary mb-2 block">Sınav Türü</label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+                {[
+                  { id: 'mock_exam', label: 'Deneme Sınavı', icon: Zap, active: 'bg-primary text-white shadow-primary/30' },
+                  { id: 'real_exam', label: 'Gerçek Sınav', icon: Shield, active: 'bg-warning text-white shadow-warning/30' },
+                ].map(type => {
+                  const Icon = type.icon;
+                  const active = form.testType === type.id;
+                  return (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, testType: type.id }))}
+                      className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-black transition-all ${active ? `${type.active} shadow-lg` : 'text-text-muted hover:text-white hover:bg-white/5'}`}
+                    >
+                      <Icon className="w-4 h-4" /> {type.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <div>
             <label className="text-xs font-bold text-text-secondary mb-2 block">Açıklama (Opsiyonel)</label>
             <textarea
@@ -990,7 +1065,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
 };
 
 // ─── CSV Import Modal ──────────────────────────────────────────────────────────
-const CsvImportModal = ({ isOpen, onClose, onImported, exams }) => {
+const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_exam' }) => {
   const [selectedExamId, setSelectedExamId] = useState('');
   const [csv, setCsv] = useState('');
   const [loading, setLoading] = useState(false);
@@ -1007,7 +1082,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams }) => {
       const res = await api.post('/questions/bulk-csv', {
         csvText: csv,
         examId: selectedExamId || null,
-        testType: 'mock_exam', // Default to mock_exam for CSV import
+        testType,
         subject: selectedSubject,
       });
       setResult(res.data);
@@ -1416,6 +1491,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             categories={categories}
             existingExam={examModal.exam}
             forceMiniTest
+            testType="short_test"
           />
         )}
       </AnimatePresence>
@@ -1443,10 +1519,13 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
   };
   const collapseAll = () => setOpenExams({});
 
-  // Exclude mini tests from exam tabs — mini tests live in ShortTestTab
-  const tabExams = exams.filter(e => !e.isMiniTest);
+  // Exclude mini tests from exam tabs and keep Deneme/Gerçek lists separate.
+  const typedExams = exams
+    .filter(e => !e.isMiniTest)
+    .map(e => ({ ...e, _resolvedTestType: resolveExamTestType(e, questions) }));
+  const tabExams = typedExams.filter(e => e._resolvedTestType === testType);
 
-  const tabQuestions = questions.filter(q => q.testType === testType);
+  const tabQuestions = questions.filter(q => normalizeTestType(q.testType) === testType);
   
   const filtered = tabQuestions.filter(q => {
     const matchesSearch = !search || q.text.toLowerCase().includes(search.toLowerCase());
@@ -1631,10 +1710,10 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
       </div>
 
       {/* Exam Groups */}
-      {exams.length === 0 ? (
+      {tabExams.length === 0 ? (
         <div className="py-20 text-center text-text-muted">
           <PenTool className="w-16 h-16 mx-auto mb-4 opacity-20" />
-          <p className="mb-2">Henüz sınav oluşturulmadı.</p>
+          <p className="mb-2">Henüz {title.toLowerCase()} oluşturulmadı.</p>
           <button onClick={() => setExamModal({ open: true, exam: null })} className="text-warning text-sm font-bold hover:text-white transition-colors">
             + İlk sınavı oluştur
           </button>
@@ -1818,7 +1897,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             onSaved={onRefresh}
             testType={testType}
             categories={categories}
-            exams={exams}
+            exams={typedExams}
             initialExamId={formModal.examId}
             existingQuestion={formModal.question}
             isCopy={formModal.isCopy}
@@ -1833,6 +1912,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             onSaved={onRefresh}
             categories={categories}
             existingExam={examModal.exam}
+            testType={testType}
           />
         )}
       </AnimatePresence>
@@ -1842,7 +1922,8 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             isOpen={csvModal}
             onClose={() => setCsvModal(false)}
             onImported={onRefresh}
-            exams={exams}
+            exams={tabExams}
+            testType={testType}
           />
         )}
       </AnimatePresence>
@@ -1897,9 +1978,9 @@ const AdminExams = () => {
 
   const handleRefresh = () => setRefreshKey(k => k + 1);
 
-  const shortCount = questions.filter(q => q.testType === 'short_test').length;
-  const mockCount = questions.filter(q => q.testType === 'mock_exam').length;
-  const realCount = questions.filter(q => q.testType === 'real_exam').length;
+  const shortCount = questions.filter(q => normalizeTestType(q.testType) === 'short_test').length;
+  const mockCount = questions.filter(q => normalizeTestType(q.testType) === 'mock_exam').length;
+  const realCount = questions.filter(q => normalizeTestType(q.testType) === 'real_exam').length;
   const activeExamCount = exams.filter(e => e.isActive !== false).length;
   const imageQuestionCount = questions.filter(q => q.media).length;
 
