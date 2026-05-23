@@ -99,42 +99,38 @@ export default function UserFeed() {
       <div className="hidden lg:block mx-auto max-w-3xl pb-24">
 
         {/* ── Hero Banner ── */}
-        <div className="relative mb-8 overflow-hidden rounded-3xl p-5 sm:p-8"
-          style={{ background: 'gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(6,182,212,0.12) 100%)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-20" style={{ background: 'radial-gradient(circle, #6366f1, transparent)' }} />
-            <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-15" style={{ background: 'radial-gradient(circle, #06b6d4, transparent)' }} />
-          </div>
-          <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Users className="w-5 h-5 text-primary-light" />
-                <span className="text-xs font-bold uppercase tracking-widest text-primary-light">Topluluk</span>
+        <div className="relative mb-8 overflow-hidden rounded-[32px] border border-white/5 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-6 sm:p-8 shadow-xl shadow-black/10">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
+          <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="max-w-xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-primary-light" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Sürücü Sosyal Akış</span>
               </div>
-              <h1 className="mb-2 text-2xl font-black leading-tight text-white sm:text-3xl">
-                Birlikte <span className="gradient-text">öğrenelim!</span>
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                Bilgiyi Paylaş, <span className="gradient-text">Birlikte Öğren!</span> 👋
               </h1>
-              <p className="text-text-secondary text-sm leading-relaxed max-w-xs">
-                Diğer adaylarla bilgi paylaş, soru sor, deneyimlerini aktар.
+              <p className="mt-3 text-sm font-semibold leading-relaxed text-text-secondary">
+                Diğer sürücü adaylarıyla sınav tecrübelerini, zorlandığın soruları veya faydalı ipuçlarını paylaş.
               </p>
-              <div className="mt-4 flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                  <Flame className="w-3.5 h-3.5 text-orange-400" />
-                  <span><b className="text-white">{posts.length}</b> gönderi</span>
+              <div className="mt-5 flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-1.5 text-xs text-text-muted font-bold">
+                  <Flame className="w-4 h-4 text-orange-400 fill-current" />
+                  <span><b className="text-white font-black">{posts.length}</b> Gönderi</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-text-muted">
-                  <MessageCircle className="w-3.5 h-3.5 text-blue-400" />
-                  <span><b className="text-white">{posts.reduce((a, p) => a + (p.comments?.length || 0), 0)}</b> yorum</span>
+                <div className="flex items-center gap-1.5 text-xs text-text-muted font-bold">
+                  <MessageCircle className="w-4 h-4 text-blue-400" />
+                  <span><b className="text-white font-black">{posts.reduce((a, p) => a + (p.comments?.length || 0), 0)}</b> Yorum</span>
                 </div>
               </div>
             </div>
+            
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-6 py-4 font-bold text-white shadow-lg shadow-primary/30 transition-all hover:scale-105 active:scale-95 sm:w-auto sm:flex-col"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-light px-6 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
             >
-              <Plus className="w-6 h-6" />
-              <span className="text-xs">Paylaş</span>
+              <Plus className="w-5 h-5" />
+              GÖNDERİ PAYLAŞ
             </button>
           </div>
         </div>
@@ -144,14 +140,14 @@ export default function UserFeed() {
           {/* Search Bar */}
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-text-muted" />
+              <Search className="w-4.5 h-4.5 text-text-muted" />
             </div>
             <input
               type="text"
-              placeholder="Gönderilerde, etiketlerde veya kullanıcılarda ara..."
+              placeholder="Konularda, etiketlerde veya kullanıcılarda ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-bg-card border border-white/5 rounded-2xl pl-12 pr-4 py-3 text-sm text-white placeholder-text-muted focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3.5 text-xs text-white placeholder-text-muted focus:outline-none focus:border-primary/40 focus:bg-primary/5 focus:ring-4 focus:ring-primary/20 transition-all duration-300"
             />
           </div>
 
@@ -164,11 +160,13 @@ export default function UserFeed() {
                 <button
                   key={f.key}
                   onClick={() => setActiveFilter(f.key)}
-                  className={`flex items-center gap-2 px-4 py-3 sm:py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
-                    active ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-bg-card border border-white/5 text-text-muted hover:text-white hover:border-white/15'
+                  className={`flex items-center gap-2 px-4.5 py-3 rounded-xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    active 
+                      ? 'bg-primary text-white border border-primary shadow-lg shadow-primary/20' 
+                      : 'bg-white/5 border border-white/5 text-text-muted hover:bg-white/10 hover:text-white hover:border-white/15'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   {f.label}
                 </button>
               );
@@ -214,79 +212,79 @@ export default function UserFeed() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.04 }}
-                  className="bg-bg-card border border-white/5 rounded-3xl overflow-hidden hover:border-white/10 transition-colors"
+                  className="glass-card p-6 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent hover:border-primary/20 hover:shadow-[0_0_30px_rgba(99,102,241,0.06)] hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden group"
                 >
-                  <div className="p-4 sm:p-6">
-                    {/* Header */}
-                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${grad} flex items-center justify-center text-white font-black text-sm shadow-lg`}>
-                          {(post.userName || 'U').charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-white text-sm">{post.userName || 'Kullanıcı'}</p>
-                          <div className="flex items-center gap-1 text-xs text-text-muted mt-0.5">
-                            <Clock className="w-3 h-3" />
-                            {timeAgo(post.createdAt)}
-                          </div>
-                        </div>
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/[0.01] blur-xl pointer-events-none rounded-full" />
+                  
+                  {/* Header */}
+                  <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${grad} flex items-center justify-center text-white font-black text-sm shadow-md`}>
+                        {(post.userName || 'U').charAt(0).toUpperCase()}
                       </div>
-                      <div className={`flex w-fit items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold ${cfg.bg} ${cfg.tw} ${cfg.border}`}>
-                        <TypeIcon className="w-3.5 h-3.5" />
-                        {cfg.label}
+                      <div className="min-w-0">
+                        <p className="font-black text-white text-sm leading-snug">{post.userName || 'Kullanıcı'}</p>
+                        <div className="flex items-center gap-1.5 text-xs text-text-muted mt-1 font-semibold">
+                          <Clock className="w-3.5 h-3.5 text-primary-light" />
+                          {timeAgo(post.createdAt)}
+                        </div>
                       </div>
                     </div>
+                    <div className={`flex w-fit items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${cfg.bg} ${cfg.tw} ${cfg.border}`}>
+                      <TypeIcon className="w-3.5 h-3.5" />
+                      {cfg.label}
+                    </div>
+                  </div>
 
-                    {/* Content */}
+                  {/* Content */}
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/dashboard/feed/${post._id}`)}
+                    className="mb-4 block w-full text-left focus:outline-none cursor-pointer"
+                  >
+                    <h3 className="text-base font-black text-white mb-2 leading-snug group-hover:text-primary-light transition-colors">{post.title}</h3>
+                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap line-clamp-3 font-semibold">{post.content}</p>
+                  </button>
+
+                  {/* Tags */}
+                  {post.tags?.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {post.tags.map((tag, i) => (
+                        <span key={i} className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary-light bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg">
+                          <Tag className="w-3 h-3" /> #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-1 pt-4 border-t border-white/5">
+                    <button
+                      onClick={() => handleLike(post._id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
+                        isLiked ? 'bg-primary/15 text-primary-light' : 'text-text-muted hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-primary-light' : ''}`} />
+                      <span>{post.likes?.length || 0} BEĞENİ</span>
+                    </button>
+                    <button
+                      onClick={() => setExpandedPostId(isExpanded ? null : post._id)}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
+                        isExpanded ? 'bg-white/5 text-white' : 'text-text-muted hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>{post.comments?.length || 0} Yorum</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </button>
                     <button
                       type="button"
                       onClick={() => navigate(`/dashboard/feed/${post._id}`)}
-                      className="mb-4 block w-full rounded-2xl pl-1 text-left transition-colors hover:bg-white/[0.02] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="ml-auto rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-text-muted transition-all hover:bg-white/5 hover:text-white cursor-pointer"
                     >
-                      <h3 className="text-base font-bold text-white mb-2 leading-snug">{post.title}</h3>
-                      <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap line-clamp-3">{post.content}</p>
+                      GÖNDERİYİ AÇ
                     </button>
-
-                    {/* Tags */}
-                    {post.tags?.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {post.tags.map((tag, i) => (
-                          <span key={i} className="flex items-center gap-1 text-xs text-primary-light bg-primary/10 px-2.5 py-1 rounded-lg">
-                            <Tag className="w-3 h-3" /> #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1 pt-4 border-t border-white/5">
-                      <button
-                        onClick={() => handleLike(post._id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                          isLiked ? 'bg-primary/15 text-primary-light' : 'text-text-muted hover:bg-white/5 hover:text-white'
-                        }`}
-                      >
-                        <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-primary-light' : ''}`} />
-                        <span>{post.likes?.length || 0}</span>
-                      </button>
-                      <button
-                        onClick={() => setExpandedPostId(isExpanded ? null : post._id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                          isExpanded ? 'bg-white/5 text-white' : 'text-text-muted hover:bg-white/5 hover:text-white'
-                        }`}
-                      >
-                        <MessageCircle className="w-4 h-4" />
-                        <span>{post.comments?.length || 0} Yorum</span>
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/dashboard/feed/${post._id}`)}
-                        className="ml-auto rounded-xl px-3 py-2 text-xs font-black uppercase tracking-widest text-text-muted transition-all hover:bg-white/5 hover:text-white"
-                      >
-                        Aç
-                      </button>
-                    </div>
                   </div>
 
                   {/* Comments Panel */}

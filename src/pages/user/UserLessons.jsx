@@ -485,22 +485,26 @@ const UserLessons = () => {
               className="flex h-full min-h-[62vh] flex-col"
             >
               {/* Content Header */}
-              <div className="flex shrink-0 items-start gap-3 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-4 py-3 sm:gap-5 sm:px-6 sm:py-4 xl:px-8 xl:py-5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border-2 border-primary/30 bg-primary/20 sm:h-12 sm:w-12">
-                  <FileText className="h-5 w-5 text-primary-light sm:h-6 sm:w-6" />
+              <div className="flex shrink-0 items-start gap-4 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:px-8 xl:py-6">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/20 text-primary-light shadow-lg shadow-primary/10">
+                  <FileText className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="mb-1 text-[10px] font-black uppercase tracking-widest text-primary-light xl:hidden">Okunan Ders</p>
-                  <h2 className="text-base font-black leading-snug tracking-tight text-white sm:text-lg sm:truncate break-words">{selectedLesson.name}</h2>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Eğitim Müfredatı</span>
+                    {selectedLesson.isPro && (
+                      <span className="inline-flex px-1.5 py-0.5 bg-warning/15 text-warning border border-warning/20 rounded text-[8px] font-black uppercase tracking-widest animate-pulse">
+                        PRO
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-lg font-black leading-snug tracking-tight text-white mt-1 break-words sm:text-xl">
+                    {selectedLesson.name}
+                  </h2>
                   {selectedLesson.description && (
-                    <p className="text-xs text-text-muted mt-1 line-clamp-2 sm:line-clamp-1">{selectedLesson.description}</p>
+                    <p className="text-xs text-text-muted mt-1.5 line-clamp-1 font-semibold">{selectedLesson.description}</p>
                   )}
                 </div>
-                {selectedLesson.isPro && (
-                  <span className="hidden sm:inline-flex px-3 py-1.5 bg-warning/10 border border-warning/20 text-warning rounded-xl text-[10px] font-black uppercase shrink-0">
-                    PRO İçerik
-                  </span>
-                )}
               </div>
 
               {/* Markdown Body */}
@@ -584,52 +588,57 @@ const UserLessons = () => {
                     )}
 
                     {/* Konu Sonu: Kısa Teste Geçiş */}
-                    <div className="mt-10 sm:mt-16 pt-8 sm:pt-10 border-t border-white/5 flex flex-col items-center justify-center text-center pb-6 sm:pb-8 not-prose">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-success/10 border border-success/30 flex items-center justify-center mb-5 sm:mb-6 shadow-2xl shadow-success/10">
-                        <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-success" />
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-3">Konuyu Öğrendin mi?</h3>
-                      <p className="text-sm font-medium text-text-muted max-w-sm mb-6 sm:mb-8 leading-relaxed">
-                        Konuyu pekiştirmek için sana özel hazırlanan hızlı mini teste gir. Yanlışlarını detaylı açıklamalarla anında öğren.
-                      </p>
-                      
-                      <button 
-                        onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
-                        className="w-full sm:w-auto justify-center flex items-center gap-3 px-6 sm:px-8 py-4 bg-success text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-success/20 hover:scale-105 active:scale-95 transition-all group"
-                      >
-                        <Play className="w-5 h-5 group-hover:text-white/80" />
-                        Konu Testini Çöz
-                      </button>
-
-                      {/* Tamamlandı & Sıradaki Ders */}
-                      <div className="mt-8 w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
-                        {passedTestIds.includes(selectedLesson._id) ? (
-                          <button
-                            onClick={handleMarkComplete}
-                            className={`justify-center flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all ${
-                              completedIds.includes(selectedLesson._id)
-                                ? 'bg-success/20 border border-success/30 text-success'
-                                : 'bg-white/5 border border-white/10 text-text-muted hover:bg-white/10 hover:text-white'
-                            }`}
-                          >
-                            <CheckCircle2 className="w-5 h-5" />
-                            {completedIds.includes(selectedLesson._id) ? 'Tamamlandı ✓' : 'Konuyu Tamamla'}
-                          </button>
-                        ) : (
-                          <div className="justify-center flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-text-muted text-sm font-bold opacity-50 cursor-not-allowed">
-                            <Lock className="w-4 h-4" />
-                            Önce testi geçmelisiniz
+                    <div className="mt-12 sm:mt-20 pt-10 border-t border-white/5 pb-8 not-prose">
+                      <div className="relative overflow-hidden rounded-[32px] border border-success/25 bg-gradient-to-br from-success/15 via-white/[0.01] to-transparent p-6 sm:p-10 text-center shadow-lg shadow-success/5">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-success/5 blur-3xl pointer-events-none rounded-full" />
+                        <div className="relative z-10 flex flex-col items-center">
+                          <div className="w-16 h-16 rounded-2xl bg-success/10 border border-success/20 flex items-center justify-center mb-5 shadow-lg shadow-success/10">
+                            <Zap className="w-8 h-8 text-success" />
                           </div>
-                        )}
-
-                        {getNextLesson() && (
-                          <button
-                            onClick={() => handleSelect(getNextLesson())}
-                            className="justify-center flex items-center gap-2 px-6 py-3 bg-primary/10 border border-primary/20 text-primary-light rounded-xl font-bold text-sm hover:bg-primary/20 transition-all"
+                          <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">Bu Konuyu Öğrendin mi?</h3>
+                          <p className="text-sm font-semibold text-text-secondary max-w-md mt-2.5 leading-relaxed">
+                            Konuyu pekiştirmek için sana özel hazırlanan değerlendirme testine gir. Yanlışlarını anında detaylı açıklamalarla gör.
+                          </p>
+                          
+                          <button 
+                            onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
+                            className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-xl bg-success hover:bg-success/90 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-success/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
                           >
-                            Sıradaki Ders <ArrowRight className="w-4 h-4" />
+                            <Play className="w-4 h-4 fill-white" />
+                            Konu Testini Başlat
                           </button>
-                        )}
+
+                          {/* Tamamlandı & Sıradaki Ders */}
+                          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                            {passedTestIds.includes(selectedLesson._id) ? (
+                              <button
+                                onClick={handleMarkComplete}
+                                className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
+                                  completedIds.includes(selectedLesson._id)
+                                    ? 'bg-success/20 border border-success/30 text-success'
+                                    : 'bg-white/5 border border-white/10 text-text-secondary hover:bg-white/10 hover:text-white'
+                                }`}
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                                {completedIds.includes(selectedLesson._id) ? 'TAMAMLANDI ✓' : 'KONUYU TAMAMLANDI İŞARETLE'}
+                              </button>
+                            ) : (
+                              <div className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-text-muted text-xs font-black uppercase tracking-widest opacity-50 cursor-not-allowed">
+                                <Lock className="w-4 h-4" />
+                                Önce testi geçmelisin
+                              </div>
+                            )}
+
+                            {getNextLesson() && (
+                              <button
+                                onClick={() => handleSelect(getNextLesson())}
+                                className="inline-flex items-center gap-2 px-5 py-3 bg-primary/15 border border-primary/20 text-primary-light rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary/25 transition-all cursor-pointer"
+                              >
+                                Sıradaki Derse Geç <ArrowRight className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Star, Search, Trash2, ChevronRight, BookOpen, 
   HelpCircle, ImageIcon, CheckCircle2, XCircle,
-  Clock, BarChart2, Inbox, Loader2, Flag
+  Clock, BarChart2, Inbox, Loader2, Flag, Sparkles,
 } from 'lucide-react';
 import api from '../../api';
 import { useNavigate } from 'react-router-dom';
@@ -85,13 +85,13 @@ const UserFavorites = () => {
         {/* Left Side: Question List */}
         <div className="flex w-full shrink-0 flex-col gap-4 lg:w-96">
           
-          <div className="glass-card p-4 rounded-[24px] border border-white/5 space-y-4">
-            <div className="flex items-center bg-black/40 rounded-[18px] px-4 py-3 w-full border border-white/5 transition-all focus-within:border-amber-500/50">
+          <div className="bg-[#131522]/80 backdrop-blur-xl p-4 rounded-[2rem] border border-white/5 space-y-4">
+            <div className="flex items-center bg-black/40 rounded-[1.25rem] px-4 py-3 w-full border border-white/5 transition-all focus-within:border-amber-500/50">
               <Search className="w-5 h-5 text-amber-500/70 mr-3" />
               <input 
                 type="text" 
                 placeholder="Favorilerinde ara..." 
-                className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-text-muted font-medium"
+                className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-white/20 font-medium"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -106,18 +106,18 @@ const UserFavorites = () => {
 
           <div className="max-h-[55vh] flex-1 space-y-3 overflow-y-auto pr-1 custom-scrollbar lg:max-h-none">
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-32 bg-bg-card border border-white/5 rounded-[24px]">
+                <div className="flex flex-col items-center justify-center py-32 bg-[#131522]/40 border border-white/5 rounded-[2rem]">
                     <Loader2 className="w-10 h-10 animate-spin text-amber-500 mb-4" />
                     <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest animate-pulse">Sorular Yükleniyor...</span>
                 </div>
             ) : filteredFavorites.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-32 bg-bg-card border border-white/5 rounded-[24px] text-center px-6">
+                <div className="flex flex-col items-center justify-center py-32 bg-[#131522]/40 border border-white/5 rounded-[2rem] text-center px-6">
                     <Star className="w-16 h-16 text-white/5 mb-4" />
                     <h3 className="text-sm font-bold text-white mb-2">Henüz favori sorunuz yok</h3>
                     <p className="text-xs text-text-muted">Sınav çözerken zorlandığınız soruları yıldızlayarak buraya ekleyebilirsiniz.</p>
                     <button 
                       onClick={() => navigate('/dashboard/exams')}
-                      className="mt-6 px-6 py-3 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/20"
+                      className="mt-6 px-6 py-3 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
                     >
                       Sınavlara Git
                     </button>
@@ -131,10 +131,10 @@ const UserFavorites = () => {
                             key={question._id}
                             initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
                             onClick={() => setSelectedQuestion(question)}
-                            className={`w-full text-left p-5 rounded-[24px] border transition-all duration-300 relative group ${
+                            className={`w-full text-left p-5 rounded-[2rem] border transition-all duration-300 relative group cursor-pointer ${
                                 isSelected 
-                                ? 'bg-amber-500/[0.03] border-amber-500/30 shadow-2xl' 
-                                : 'bg-bg-card border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
+                                ? 'bg-amber-500/[0.03] border-amber-500/40 shadow-[0_0_35px_-12px_rgba(245,158,11,0.25)]' 
+                                : 'bg-[#131522]/60 border-white/5 hover:border-amber-500/20 hover:bg-[#131522]/80'
                             }`}
                         >
                             <div className="flex justify-between items-start mb-3">
@@ -143,9 +143,9 @@ const UserFavorites = () => {
                                 </span>
                                 <button 
                                   onClick={(e) => handleRemoveFavorite(question._id, e)}
-                                  className="p-2 bg-white/5 rounded-lg text-text-muted hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100"
+                                  className="p-2 bg-white/5 rounded-lg text-text-muted hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
                                 >
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                                 </button>
                             </div>
                             
@@ -171,7 +171,10 @@ const UserFavorites = () => {
         </div>
 
         {/* Right Side: Detail Area */}
-        <div className="flex-1 glass-card rounded-[32px] border border-white/5 flex flex-col overflow-hidden shadow-2xl relative">
+        <div className="flex-1 bg-[#131522]/80 backdrop-blur-xl rounded-[2.5rem] border border-white/10 flex flex-col overflow-hidden shadow-2xl relative">
+          {/* Ambient Glow */}
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
+          
           {selectedQuestion ? (
             <AnimatePresence mode="wait">
               <motion.div 
@@ -180,26 +183,26 @@ const UserFavorites = () => {
                 className="flex flex-col h-full"
               >
                 {/* Detail Header */}
-                <div className="flex flex-col gap-4 border-b border-white/5 bg-black/40 px-4 py-4 sm:px-8 sm:py-5 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-4 border-b border-white/5 bg-black/40 px-6 py-4 sm:px-8 sm:py-5 md:flex-row md:items-center md:justify-between">
                   <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                     <div className="w-12 h-12 rounded-[18px] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                       <HelpCircle className="w-6 h-6 text-amber-500" />
                     </div>
                     <div className="min-w-0">
                       <h2 className="text-lg font-black text-white leading-none">Soru Detayı</h2>
-                      <p className="text-[10px] text-text-muted font-bold mt-1 uppercase tracking-widest">{selectedQuestion.subject || 'Genel Kategori'}</p>
+                      <p className="text-[10px] text-text-muted font-bold mt-1.5 uppercase tracking-widest">{selectedQuestion.subject || 'Genel Kategori'}</p>
                     </div>
                   </div>
                   <button 
                     onClick={(e) => handleRemoveFavorite(selectedQuestion._id, e)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/10 px-4 py-2 text-xs font-bold text-danger transition-all hover:bg-danger hover:text-white md:w-auto"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-[#ff4444]/10 hover:text-[#ff4444] hover:border-[#ff4444]/20 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-text-secondary transition-all md:w-auto cursor-pointer"
                   >
-                    <Star className="w-4 h-4 fill-current" /> Favoriden Çıkar
+                    <Star className="w-4 h-4 fill-current text-amber-500" /> Favoriden Çıkar
                   </button>
                 </div>
 
                 {/* Detail Content */}
-                <div className="flex-1 space-y-8 overflow-y-auto p-4 custom-scrollbar sm:p-8 lg:p-10">
+                <div className="flex-1 space-y-8 overflow-y-auto p-6 custom-scrollbar sm:p-8 lg:p-10">
                   
                   {/* Question Media if exists */}
                   {selectedQuestion.media && (
@@ -229,8 +232,8 @@ const UserFavorites = () => {
                           key={idx}
                           className={`p-5 rounded-2xl border-2 transition-all flex items-center gap-4 ${
                             isCorrect 
-                              ? 'bg-success/5 border-success/30 text-success' 
-                              : 'bg-white/5 border-white/5 text-white/50'
+                              ? 'bg-success/5 border-success/30 text-success shadow-[0_0_15px_-3px_rgba(16,185,129,0.15)]' 
+                              : 'bg-white/[0.02] border-white/5 text-white/50'
                           }`}
                         >
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${
@@ -239,7 +242,7 @@ const UserFavorites = () => {
                             {String.fromCharCode(65 + idx)}
                           </div>
                           <span className="font-bold text-sm leading-tight">{opt}</span>
-                          {isCorrect && <CheckCircle2 className="w-5 h-5 ml-auto" />}
+                          {isCorrect && <CheckCircle2 className="w-5 h-5 ml-auto text-success" />}
                         </div>
                       );
                     })}
@@ -248,14 +251,14 @@ const UserFavorites = () => {
                   {/* Explanation */}
                   {selectedQuestion.explanation && (
                     <div className="max-w-3xl mx-auto pt-8">
-                      <div className="bg-primary/5 border border-primary/20 rounded-[32px] p-8 relative overflow-hidden">
+                      <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 sm:p-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-6 opacity-10">
                           <HelpCircle className="w-20 h-20 text-primary-light" />
                         </div>
                         <h4 className="text-xs font-black text-primary-light uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4" /> Soru Çözümü & Açıklama
+                          <Sparkles className="w-4 h-4" /> Soru Çözümü & Açıklama
                         </h4>
-                        <p className="text-sm text-white/80 leading-relaxed relative z-10">
+                        <p className="text-sm text-white/80 leading-relaxed relative z-10 font-semibold">
                           {selectedQuestion.explanation}
                         </p>
                       </div>
@@ -266,8 +269,8 @@ const UserFavorites = () => {
             </AnimatePresence>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-                <div className="w-32 h-32 rounded-[40px] bg-amber-500/5 border border-amber-500/10 flex items-center justify-center mb-8 relative">
-                    <Star className="w-12 h-12 text-amber-500/10 relative z-10" />
+                <div className="w-32 h-32 rounded-[40px] bg-amber-500/5 border border-amber-500/15 flex items-center justify-center mb-8 relative">
+                    <Star className="w-12 h-12 text-amber-500/25 relative z-10 fill-amber-500/10" />
                     <div className="absolute inset-0 bg-amber-500/5 blur-3xl rounded-full"></div>
                 </div>
                 <h3 className="text-2xl font-black text-white tracking-tight">Soru Seçilmedi</h3>

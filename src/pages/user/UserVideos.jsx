@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../api';
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
@@ -8,6 +9,7 @@ import {
   Loader2,
   PlayCircle,
   Video,
+  Sparkles,
 } from 'lucide-react';
 import {
   getVideoNotes,
@@ -81,15 +83,20 @@ const UserVideos = () => {
   }
 
   return (
-    <div className="space-y-5 pb-20 text-white">
+    <div className="space-y-6 pb-20 text-white">
+      
+      {/* Title Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Video Eğitimler</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary-light flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" />
+            Video Eğitimler
+          </p>
           <h1 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
             {showingUncategorized ? 'Kategorisiz Videolar' : selectedCategory ? selectedCategory.name : 'Video Dersler'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
-            {selectedCategory?.description || 'Online video bağlantıları ve ders notları tek yerde.'}
+            {selectedCategory?.description || 'Görsel ders anlatımları, püf noktaları ve direksiyon eğitim videoları.'}
           </p>
         </div>
         {(selectedCategory || showingUncategorized) && (
@@ -99,10 +106,10 @@ const UserVideos = () => {
               setSelectedCategoryId('');
               setSelectedVideo(null);
             }}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4.5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 hover:border-white/20 cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
-            Kategoriler
+            Kategorilere Dön
           </button>
         )}
       </div>
@@ -118,32 +125,35 @@ const UserVideos = () => {
           {categories.map((category) => {
             const count = videos.filter((video) => (video.parent?._id || video.parent) === category._id).length;
             return (
-              <button
+              <motion.button
                 key={category._id}
+                whileHover={{ y: -4 }}
                 type="button"
                 onClick={() => setSelectedCategoryId(category._id)}
-                className="group flex min-h-40 items-center gap-4 rounded-3xl border border-white/10 bg-white/[0.035] p-5 text-left transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/10"
+                className="group flex min-h-40 items-center gap-4 rounded-[2rem] border border-white/5 bg-[#131522]/80 backdrop-blur-xl p-6 text-left transition-all duration-300 hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-[0_0_30px_-10px_rgba(139,92,246,0.2)] cursor-pointer"
               >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 transition-colors group-hover:bg-primary/20">
                   <FolderOpen className="h-7 w-7 text-primary-light" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-lg font-black">{category.name}</h2>
-                  <p className="mt-2 line-clamp-2 text-sm font-semibold leading-relaxed text-text-muted">
-                    {category.description || `${count} video ders`}
+                  <h2 className="truncate text-lg font-black text-white group-hover:text-primary-light transition-colors">{category.name}</h2>
+                  <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted">
+                    {category.description || `${count} adet video ders içeriyor.`}
                   </p>
                   <span className="mt-4 inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary-light">
-                    {count} video
-                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
+                    {count} video ders
+                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1.5" />
                   </span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
       ) : (
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,420px)_1fr]">
-          <div className="space-y-3">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,400px)_1fr]">
+          
+          {/* Left Panel: Video list in selected category */}
+          <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
             {visibleVideos.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] p-8 text-center">
                 <PlayCircle className="mx-auto mb-3 h-10 w-10 text-white/15" />
@@ -157,21 +167,23 @@ const UserVideos = () => {
                     key={video._id}
                     type="button"
                     onClick={() => setSelectedVideo(video)}
-                    className={`group flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                    className={`group flex w-full items-center gap-4.5 rounded-2xl border p-4.5 text-left transition-all duration-300 cursor-pointer ${
                       active
-                        ? 'border-primary/35 bg-primary/15'
-                        : 'border-white/10 bg-white/[0.035] hover:border-primary/25 hover:bg-white/[0.06]'
+                        ? 'border-primary/45 bg-primary/15 shadow-[0_0_20px_-8px_rgba(139,92,246,0.3)]'
+                        : 'border-white/5 bg-[#131522]/60 hover:border-white/15 hover:bg-white/[0.02]'
                     }`}
                   >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
-                      <PlayCircle className="h-5 w-5 text-accent-light" />
+                    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 ${
+                      active ? 'border-primary/40 bg-primary/20 text-white' : 'border-white/10 bg-black/20 text-text-muted group-hover:scale-105 group-hover:text-white'
+                    }`}>
+                      <PlayCircle className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-sm font-black">{video.name}</h3>
-                      <p className="mt-1 truncate text-xs font-semibold text-text-muted">{video.description || getVideoUrl(video)}</p>
+                      <h3 className={`truncate text-sm font-black transition-colors ${active ? 'text-white' : 'text-white/80 group-hover:text-white'}`}>{video.name}</h3>
+                      <p className="mt-1 truncate text-xs font-semibold text-text-muted">{video.description || 'Ders videosunu izlemek için tıklayın.'}</p>
                     </div>
                     {video.isPro && (
-                      <span className="rounded-full bg-warning/10 px-2 py-1 text-[9px] font-black text-warning">PRO</span>
+                      <span className="rounded-full bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 text-[9px] font-black text-amber-500">PRO</span>
                     )}
                   </button>
                 );
@@ -179,6 +191,7 @@ const UserVideos = () => {
             )}
           </div>
 
+          {/* Right Panel: Video player preview */}
           <VideoPreview video={selectedVideo || visibleVideos[0]} />
         </div>
       )}
@@ -187,7 +200,7 @@ const UserVideos = () => {
         <button
           type="button"
           onClick={() => setSelectedCategoryId('__uncategorized__')}
-          className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+          className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4.5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10 hover:border-white/20 cursor-pointer"
         >
           Kategorisiz Videolar
           <ArrowRight className="h-4 w-4" />
@@ -197,11 +210,55 @@ const UserVideos = () => {
   );
 };
 
+const getEmbedUrl = (url) => {
+  if (!url) return null;
+  const lowerUrl = url.toLowerCase();
+  
+  // YouTube link
+  if (lowerUrl.includes('youtube.com/watch') || lowerUrl.includes('youtu.be/') || lowerUrl.includes('youtube.com/embed/') || lowerUrl.includes('youtube.com/shorts/')) {
+    let videoId = '';
+    if (lowerUrl.includes('youtube.com/watch')) {
+      try {
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        videoId = urlParams.get('v') || '';
+      } catch (e) {}
+    } else if (lowerUrl.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('/')[0] || '';
+    } else if (lowerUrl.includes('youtube.com/embed/')) {
+      videoId = url.split('youtube.com/embed/')[1]?.split('?')[0] || '';
+    } else if (lowerUrl.includes('youtube.com/shorts/')) {
+      videoId = url.split('youtube.com/shorts/')[1]?.split('?')[0] || '';
+    }
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    }
+  }
+
+  // Google Drive video
+  if (lowerUrl.includes('drive.google.com/')) {
+    const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (fileIdMatch && fileIdMatch[1]) {
+      return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
+    }
+  }
+
+  // Vimeo video
+  if (lowerUrl.includes('vimeo.com/')) {
+    const vimeoIdMatch = url.match(/vimeo\.com\/([0-9]+)/);
+    if (vimeoIdMatch && vimeoIdMatch[1]) {
+      return `https://player.vimeo.com/video/${vimeoIdMatch[1]}?autoplay=1`;
+    }
+  }
+
+  return null;
+};
+
 const VideoPreview = ({ video }) => {
   if (!video) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.025] text-center">
-        <p className="text-sm font-bold text-text-muted">Bir video seçin.</p>
+      <div className="flex min-h-[380px] flex-col items-center justify-center rounded-3xl border border-white/5 bg-[#131522]/40 text-center p-6">
+        <PlayCircle className="w-12 h-12 text-white/15 mb-3" />
+        <p className="text-sm font-bold text-text-muted">İzlemek istediğiniz ders videosunu sol menüden seçin.</p>
       </div>
     );
   }
@@ -209,42 +266,62 @@ const VideoPreview = ({ video }) => {
   const url = getVideoUrl(video);
   const notes = getVideoNotes(video);
   const resolvedUrl = resolveMediaUrl(url);
+  const embedUrl = getEmbedUrl(url);
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-white/10 bg-bg-card/80">
-      <div className="border-b border-white/10 p-5">
-        <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Video Ders</p>
-        <h2 className="mt-2 text-xl font-black">{video.name}</h2>
-        {video.description && <p className="mt-2 text-sm font-semibold text-text-muted">{video.description}</p>}
+    <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#131522]/80 backdrop-blur-xl shadow-2xl">
+      {/* Ambient glow */}
+      <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+      
+      <div className="border-b border-white/5 p-6 sm:p-8 relative z-10">
+        <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Ders Videosu</p>
+        <h2 className="mt-2 text-xl font-black text-white">{video.name}</h2>
+        {video.description && <p className="mt-2 text-xs font-semibold text-text-muted">{video.description}</p>}
       </div>
 
-      <div className="p-5">
+      <div className="p-6 sm:p-8 relative z-10">
         {url && isDirectVideoUrl(url) ? (
-          <video
-            src={resolvedUrl}
-            controls
-            className="aspect-video w-full rounded-2xl border border-white/10 bg-black"
-          />
+          <div className="rounded-2xl overflow-hidden border border-white/10 bg-black shadow-lg">
+            <video
+              src={resolvedUrl}
+              controls
+              className="aspect-video w-full"
+            />
+          </div>
+        ) : embedUrl ? (
+          <div className="rounded-2xl overflow-hidden border border-white/10 bg-black shadow-lg">
+            <iframe
+              src={embedUrl}
+              title={video.name}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="aspect-video w-full"
+            />
+          </div>
         ) : (
-          <div className="flex aspect-video flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/40 p-6 text-center">
-            <ExternalLink className="mb-4 h-10 w-10 text-primary-light" />
-            <p className="max-w-md text-sm font-semibold text-text-secondary">Bu bağlantı harici bir video platformunda açılır.</p>
+          <div className="flex aspect-video flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/40 p-6 text-center shadow-lg">
+            <ExternalLink className="mb-4 h-12 w-12 text-primary-light" />
+            <p className="max-w-md text-sm font-semibold text-text-secondary">Bu bağlantı harici bir video platformunda açılmaktadır.</p>
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-indigo-600 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-105 active:scale-95 shadow-md shadow-primary/20"
             >
-              Videoyu Aç
+              Videoyu Yeni Sekmede Aç
               <ExternalLink className="h-4 w-4" />
             </a>
           </div>
         )}
 
         {notes && (
-          <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Ders Notları</p>
-            <p className="mt-2 whitespace-pre-wrap text-sm font-semibold leading-relaxed text-text-secondary">{notes}</p>
+          <div className="mt-6 rounded-2xl border border-primary/10 bg-primary/5 p-5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-primary-light flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3" />
+              Eğitmen Notları
+            </p>
+            <p className="mt-3 whitespace-pre-wrap text-sm font-semibold leading-relaxed text-text-secondary">{notes}</p>
           </div>
         )}
       </div>

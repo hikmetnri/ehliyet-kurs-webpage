@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2, MapPinned, ArrowRight,
-  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, X
+  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, X, Sparkles
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
@@ -407,15 +407,16 @@ const UserSettings = () => {
       {/* ── DESKTOP VIEW ── */}
       <div className="hidden lg:block space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between sm:mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-3 h-10 bg-primary rounded-full shadow-[0_0_20px_rgba(99,102,241,0.6)]"></div>
-            <div>
-              <h2 className="text-2xl font-black italic tracking-tight sm:text-3xl">Ayarlar</h2>
-              <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">
-                Hesap detaylarını ve tercihlerini yönet
-              </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-primary-light" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Yönetim Paneli</span>
             </div>
+            <h2 className="text-3xl font-black tracking-tight text-white">Ayarlar</h2>
+            <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">
+              Hesap detaylarını, bildirimleri ve tercihlerini yönet
+            </p>
           </div>
         </div>
 
@@ -443,22 +444,32 @@ const UserSettings = () => {
         </Link>
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 lg:gap-8">
-          {/* Sidebar Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-1 custom-scrollbar lg:col-span-1 lg:block lg:space-y-2 lg:overflow-visible lg:pb-0">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-300 lg:w-full lg:px-5 lg:py-4 ${
-                  activeTab === tab.id 
-                  ? 'bg-primary/20 text-primary-light border border-primary/30 shadow-[0_0_20px_rgba(99,102,241,0.15)]' 
-                  : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white border border-transparent'
-                }`}
-              >
-                <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-primary-light' : 'opacity-50'}`} />
-                {tab.label}
-              </button>
-            ))}
+          {/* Sidebar Tabs - Sliding Pill */}
+          <div className="relative flex gap-2 overflow-x-auto pb-1 custom-scrollbar lg:col-span-1 lg:block lg:space-y-2.5 lg:overflow-visible lg:pb-0">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black uppercase tracking-wider transition-all duration-300 lg:w-full lg:px-5 lg:py-4 z-10 cursor-pointer ${
+                    isActive 
+                      ? 'text-primary-light' 
+                      : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {isActive && (
+                    <Motion.div
+                      layoutId="activeSettingsTab"
+                      className="absolute inset-0 bg-primary/10 border border-primary/25 rounded-2xl z-[-1] shadow-lg shadow-primary/5"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <tab.icon className={`w-5 h-5 ${isActive ? 'text-primary-light' : 'opacity-40'}`} />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Content Area */}
