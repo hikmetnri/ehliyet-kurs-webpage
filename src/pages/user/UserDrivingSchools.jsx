@@ -47,12 +47,14 @@ const UserDrivingSchools = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [city, setCity] = useState(profileCity);
   const [district, setDistrict] = useState(profileDistrict);
   const [useProfileLocation, setUseProfileLocation] = useState(true);
 
   const fetchSchools = useCallback(async () => {
-    if (!city) {
+    const search = debouncedQuery.trim();
+    if (!city && !search) {
       setSchools([]);
       setError('');
       setLoading(false);
@@ -62,8 +64,10 @@ const UserDrivingSchools = () => {
     try {
       setLoading(true);
       setError('');
-      const params = { city, limit: 1000 };
+      const params = { limit: 1000 };
+      if (city) params.city = city;
       if (district) params.district = district;
+      if (search) params.q = search;
       const res = await api.get('/driving-schools', { params });
       setSchools(readList(res));
     } catch (err) {
@@ -76,11 +80,19 @@ const UserDrivingSchools = () => {
     } finally {
       setLoading(false);
     }
-  }, [city, district]);
+  }, [city, district, debouncedQuery]);
 
   useEffect(() => {
     fetchSchools();
   }, [fetchSchools]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [query]);
 
   useEffect(() => {
     if (!useProfileLocation) return;
@@ -100,6 +112,15 @@ const UserDrivingSchools = () => {
     setUseProfileLocation(true);
     setCity(profileCity);
     setDistrict(profileDistrict);
+  };
+
+  const refreshSchools = () => {
+    const search = query.trim();
+    if (search !== debouncedQuery) {
+      setDebouncedQuery(search);
+      return;
+    }
+    fetchSchools();
   };
 
   const filteredSchools = useMemo(() => {
@@ -123,7 +144,7 @@ const UserDrivingSchools = () => {
     });
   }, [schools, city, district, query]);
 
-  const nearbyLabel = [city, district].filter(Boolean).join(' / ') || profileCity || 'şehir seçimi';
+  const nearbyLabel = [city, district].filter(Boolean).join(' / ') || (debouncedQuery ? `"${debouncedQuery}" araması` : profileCity || 'şehir seçimi');
 
   return (
     <div className="space-y-5 pb-24 text-white sm:space-y-6">
@@ -200,7 +221,7 @@ const UserDrivingSchools = () => {
           </div>
 
           <button
-            onClick={fetchSchools}
+            onClick={refreshSchools}
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:bg-white/10"
           >
             <RefreshCw className="h-4 w-4" />
@@ -257,11 +278,11 @@ const UserDrivingSchools = () => {
       ) : filteredSchools.length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
           <Building2 className="mx-auto mb-4 h-10 w-10 text-white/20" />
-          <h3 className="text-lg font-black text-white">{city ? 'Bu filtreyle kurs bulunamadı' : 'Şehir seçerek kursları listele'}</h3>
+          <h3 className="text-lg font-black text-white">{city || debouncedQuery ? 'Bu filtreyle kurs bulunamadı' : 'Şehir seçerek veya arama yaparak kursları listele'}</h3>
           <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-relaxed text-text-muted">
-            {city
+            {city || debouncedQuery
               ? 'İlçe alanını temizleyebilir veya profilindeki konum bilgisini güncelleyebilirsin.'
-              : 'Türkiye geneli veri çok büyük olduğu için önce şehir seçerek yakındaki kursları hızlıca görebilirsin.'}
+              : 'Türkiye geneli veri çok büyük olduğu için önce şehir seçebilir ya da kurs adı, ilçe veya ehliyet sınıfı arayabilirsin.'}
           </p>
         </div>
       ) : (

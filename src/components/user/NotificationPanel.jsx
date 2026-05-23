@@ -29,6 +29,13 @@ const timeAgo = (date) => {
   return new Date(date).toLocaleDateString('tr-TR');
 };
 
+const extractNotifications = (payload) => {
+  if (Array.isArray(payload?.data?.notifications)) return payload.data.notifications;
+  if (Array.isArray(payload?.notifications)) return payload.notifications;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return Array.isArray(payload) ? payload : [];
+};
+
 const NotificationPanel = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
@@ -57,8 +64,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       const res = await api.get('/notifications');
-      const data = res.data?.notifications || res.data?.data || res.data;
-      setNotifications(Array.isArray(data) ? data : []);
+      setNotifications(extractNotifications(res.data));
     } catch (err) {
       console.error('Bildirim yükleme hatası:', err);
     } finally {

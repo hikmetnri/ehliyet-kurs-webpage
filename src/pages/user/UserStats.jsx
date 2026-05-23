@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search, BookOpen, PlayCircle } from 'lucide-react';
+import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search, BookOpen, PlayCircle, CheckCircle2, XCircle, HelpCircle, AlertCircle, Percent } from 'lucide-react';
 import ExamDetailModal from '../../components/user/ExamDetailModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 
@@ -28,6 +28,28 @@ const EmptyAction = ({ icon: Icon, title, text, action, to }) => (
       {action}
       <ChevronRight className="h-3.5 w-3.5" />
     </Link>
+  </div>
+);
+
+const formatDuration = (seconds) => {
+  if (!seconds || seconds <= 0) return '0dk';
+  if (seconds < 60) return `${seconds}sn`;
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  if (hours > 0) {
+    const remMin = minutes % 60;
+    return remMin > 0 ? `${hours}sa ${remMin}dk` : `${hours}sa`;
+  }
+  return `${minutes}dk`;
+};
+
+const MiniStat = ({ icon: Icon, label, value, color, bg }) => (
+  <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
+    <div className={`w-9 h-9 rounded-full flex items-center justify-center ${bg} ${color} shrink-0 mb-2`}>
+      <Icon className="w-4.5 h-4.5" />
+    </div>
+    <span className="text-sm font-black text-white leading-tight">{value}</span>
+    <span className="text-[10px] font-bold text-text-muted mt-1 uppercase tracking-tight line-clamp-1">{label}</span>
   </div>
 );
 
@@ -128,28 +150,139 @@ const UserStats = () => {
             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
             className="space-y-8"
           >
-            {/* Main stats */}
-            <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-4 sm:gap-4">
-              {[
-                { label: 'Toplam Sınav', value: stats?.totalExams || 0, icon: ClipboardList, color: 'text-primary-light', bg: 'bg-primary/10', border: 'border-primary/20' },
-                { label: 'Başarı Oranı', value: `%${stats?.successRate || 0}`, icon: Target, color: 'text-success', bg: 'bg-success/10', border: 'border-success/20' },
-                { label: 'Toplam Doğru', value: stats?.totalCorrect || 0, icon: Award, color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20' },
-                { label: 'Günlük Seri', value: `${stats?.streak || 0} Gün`, icon: TrendingUp, color: 'text-warning', bg: 'bg-warning/10', border: 'border-warning/20' },
-              ].map((card, i) => (
-                <div 
-                  key={i}
-                  className={`glass-card p-5 rounded-3xl border ${card.border} flex flex-col gap-4`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.bg} ${card.color}`}>
-                    <card.icon className="w-5 h-5" />
+            {/* Detailed Analytics Header & Goals */}
+            {(() => {
+              const totalQ = stats?.totalQuestions || 0;
+              const correct = stats?.totalCorrect || 0;
+              const success = stats?.successRate || 0;
+              const accuracy = totalQ > 0 ? Math.round((correct / totalQ) * 100) : 0;
+              
+              const radius = 34;
+              const strokeWidth = 6;
+              const circumference = 2 * Math.PI * radius;
+              const strokeDashoffset = circumference - (accuracy / 100) * circumference;
+              
+              const heroColor = accuracy >= 70
+                ? 'text-success'
+                : accuracy >= 45
+                ? 'text-warning'
+                : 'text-primary-light';
+
+              const heroBgColor = accuracy >= 70
+                ? 'bg-success/10'
+                : accuracy >= 45
+                ? 'bg-warning/10'
+                : 'bg-primary/10';
+
+              const heroBorderColor = accuracy >= 70
+                ? 'border-success/20'
+                : accuracy >= 45
+                ? 'border-warning/20'
+                : 'border-primary/20';
+
+              const strokeColorHex = accuracy >= 70
+                ? '#22c55e'
+                : accuracy >= 45
+                ? '#f97316'
+                : '#6366f1';
+
+              const todayQ = stats?.todayQuestions || 0;
+              const dailyGoal = stats?.dailyGoal || 20;
+              const goalProgress = dailyGoal > 0 ? Math.min(1, todayQ / dailyGoal) : 0;
+              const isGoalComplete = todayQ >= dailyGoal;
+              const goalProgressPct = Math.round(goalProgress * 100);
+              
+              const goalColor = isGoalComplete ? 'text-success' : 'text-primary-light';
+              const goalBg = isGoalComplete ? 'bg-success/10' : 'bg-primary/10';
+              const goalBorder = isGoalComplete ? 'border-success/20' : 'border-primary/20';
+
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Hero Card */}
+                  <div className={`lg:col-span-2 p-6 rounded-[32px] border ${heroBorderColor} bg-gradient-to-br from-white/[0.03] to-white/[0.01] flex flex-col xs:flex-row items-center gap-6 relative overflow-hidden`}>
+                    <div className="absolute -right-16 -top-16 w-48 h-48 bg-primary/5 blur-[50px] rounded-full pointer-events-none"></div>
+                    
+                    {/* SVG Circular Accuracy Progress */}
+                    <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle
+                          cx="48"
+                          cy="48"
+                          r={radius}
+                          className="stroke-white/10 fill-none"
+                          strokeWidth={strokeWidth}
+                        />
+                        <motion.circle
+                          cx="48"
+                          cy="48"
+                          r={radius}
+                          className="fill-none"
+                          stroke={strokeColorHex}
+                          strokeWidth={strokeWidth}
+                          strokeDasharray={circumference}
+                          initial={{ strokeDashoffset: circumference }}
+                          animate={{ strokeDashoffset }}
+                          transition={{ duration: 1, ease: 'easeOut' }}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span className="absolute text-base font-black text-white">%{accuracy}</span>
+                    </div>
+
+                    <div className="flex-1 text-center xs:text-left">
+                      <h2 className="text-xl font-black text-white tracking-tight">Performans Özeti</h2>
+                      <p className="text-xs text-text-secondary leading-relaxed mt-2 font-semibold">
+                        {stats?.totalExams || 0} sınav, {stats?.totalQuestions || 0} soru ve %{Math.round(success)} genel sınav başarısı elde ettiniz.
+                      </p>
+                      <span className={`inline-block mt-4 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${heroBgColor} ${heroBorderColor} ${heroColor}`}>
+                        {accuracy >= 70 ? 'Sınava Yakınsın' : accuracy >= 45 ? 'Tekrar Alanı Açık' : 'Çalışmaya Başla'}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">{card.label}</p>
-                    <p className="text-2xl font-black text-white mt-0.5">{card.value}</p>
+
+                  {/* Streak & Daily Goal Column */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                    {/* Streak Card */}
+                    <div className="p-4 rounded-2xl border border-white/5 bg-bg-card flex items-center gap-4 shadow-lg shadow-black/10">
+                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-warning/10 text-warning shrink-0">
+                        <Flame className="w-6 h-6 fill-current" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Çalışma Serisi</p>
+                        <p className="text-lg font-black text-white mt-0.5">{stats?.streak || 0} Gün</p>
+                      </div>
+                    </div>
+
+                    {/* Daily Goal Card */}
+                    <div className="p-4 rounded-2xl border border-white/5 bg-bg-card flex flex-col justify-center gap-3 shadow-lg shadow-black/10">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${goalBg} ${goalColor}`}>
+                            {isGoalComplete ? <CheckCircle2 className="w-5 h-5" /> : <Target className="w-5 h-5" />}
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Günlük Soru</p>
+                            <p className="text-xs font-black text-white mt-0.5">{todayQ}/{dailyGoal}</p>
+                          </div>
+                        </div>
+                        <span className={`px-2.5 py-0.5 rounded-xl text-[9px] font-black border ${goalBg} ${goalBorder} ${goalColor}`}>
+                          %{goalProgressPct}
+                        </span>
+                      </div>
+                      
+                      <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${goalProgressPct}%` }}
+                          transition={{ duration: 1 }}
+                          className={`h-full rounded-full ${isGoalComplete ? 'bg-success' : 'bg-primary'}`}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
 
             {/* Performans Grafiği */}
             {recentResults.length > 0 && (() => {
@@ -224,57 +357,63 @@ const UserStats = () => {
             })()}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="glass-card p-6 rounded-3xl border border-white/5">
-                <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest">Sınav Sonuçları</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-24 text-xs font-bold text-text-muted">Geçilen</div>
-                    <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${stats?.totalExams > 0 ? (stats.passedCount / stats.totalExams) * 100 : 0}%` }}
-                        transition={{ duration: 1 }}
-                        className="h-full bg-success rounded-full"
-                      />
-                    </div>
-                    <div className="text-sm font-black text-success w-8 text-right">{stats?.passedCount || 0}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-24 text-xs font-bold text-text-muted">Kaldığım</div>
-                    <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${stats?.totalExams > 0 ? (stats.failedCount / stats.totalExams) * 100 : 0}%` }}
-                        transition={{ duration: 1 }}
-                        className="h-full bg-danger rounded-full"
-                      />
-                    </div>
-                    <div className="text-sm font-black text-danger w-8 text-right">{stats?.failedCount || 0}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-24 text-xs font-bold text-text-muted">Doğru</div>
-                    <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${stats?.totalQuestions > 0 ? (stats.totalCorrect / stats.totalQuestions) * 100 : 0}%` }}
-                        transition={{ duration: 1 }}
-                        className="h-full bg-primary rounded-full"
-                      />
-                    </div>
-                    <div className="text-sm font-black text-primary-light w-8 text-right">{stats?.totalCorrect || 0}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="w-24 text-xs font-bold text-text-muted">Yanlış</div>
-                    <div className="flex-1 h-3 bg-black/40 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${stats?.totalQuestions > 0 ? (stats.totalWrong / stats.totalQuestions) * 100 : 0}%` }}
-                        transition={{ duration: 1 }}
-                        className="h-full bg-warning rounded-full"
-                      />
-                    </div>
-                    <div className="text-sm font-black text-warning w-8 text-right">{stats?.totalWrong || 0}</div>
-                  </div>
+              <div className="space-y-6">
+                {/* Sınav ve Soru Özeti */}
+                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-[#171927]/60">
+                  <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest flex items-center gap-2">
+                    <ClipboardList className="w-4.5 h-4.5 text-primary-light" />
+                    Sınav ve Soru Özeti
+                  </h3>
+                  {(() => {
+                    const totalE = stats?.totalExams || 0;
+                    const passed = stats?.passedCount || 0;
+                    const failed = stats?.failedCount || 0;
+                    const totalQ = stats?.totalQuestions || 0;
+                    const correct = stats?.totalCorrect || 0;
+                    const wrong = stats?.totalWrong || 0;
+
+                    return (
+                      <div className="grid grid-cols-3 gap-3">
+                        <MiniStat icon={ClipboardList} label="Toplam Sınav" value={totalE} color="text-primary-light" bg="bg-primary/10" />
+                        <MiniStat icon={Trophy} label="Geçilen" value={passed} color="text-success" bg="bg-success/10" />
+                        <MiniStat icon={XCircle} label="Kalan" value={failed} color="text-text-muted" bg="bg-white/5" />
+                        <MiniStat icon={BookOpen} label="Toplam Soru" value={totalQ} color="text-indigo-400" bg="bg-indigo-500/10" />
+                        <MiniStat icon={CheckCircle2} label="Doğru" value={correct} color="text-success" bg="bg-success/10" />
+                        <MiniStat icon={AlertCircle} label="Yanlış" value={wrong} color="text-warning" bg="bg-warning/10" />
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* İleri Düzey Analiz */}
+                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-[#171927]/60">
+                  <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest flex items-center gap-2">
+                    <Target className="w-4.5 h-4.5 text-primary-light" />
+                    İleri Düzey Analiz
+                  </h3>
+                  {(() => {
+                    const totalQ = stats?.totalQuestions || 0;
+                    const correct = stats?.totalCorrect || 0;
+                    const wrong = stats?.totalWrong || 0;
+                    const success = stats?.successRate || 0;
+                    const totalScore = stats?.totalScore || 0;
+                    const totalDuration = stats?.totalDuration || 0;
+                    const avgTime = stats?.avgTimePerQuestion || 0;
+
+                    const accuracy = totalQ > 0 ? Math.round((correct / totalQ) * 100) : 0;
+                    const skipped = Math.max(0, totalQ - (correct + wrong));
+
+                    return (
+                      <div className="grid grid-cols-3 gap-3">
+                        <MiniStat icon={Percent} label="Sınav Başarısı" value={`%${success}`} color="text-primary-light" bg="bg-primary/10" />
+                        <MiniStat icon={Target} label="Doğruluk" value={`%${accuracy}`} color="text-success" bg="bg-success/10" />
+                        <MiniStat icon={HelpCircle} label="Boş/Atlanan" value={skipped} color="text-text-muted" bg="bg-white/5" />
+                        <MiniStat icon={Clock} label="Çalışma Süresi" value={formatDuration(totalDuration)} color="text-indigo-400" bg="bg-indigo-500/10" />
+                        <MiniStat icon={Zap} label="Soru Başı Hız" value={`${avgTime}sn`} color="text-warning" bg="bg-warning/10" />
+                        <MiniStat icon={Award} label="Toplam Puan" value={totalScore} color="text-amber-400" bg="bg-amber-400/10" />
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -410,6 +549,7 @@ const UserStats = () => {
                            <p className="text-[10px] font-black text-primary-light uppercase tracking-widest">Gereksinim</p>
                            <p className="text-xs font-bold text-white">
                              {selectedBadge.type === 'exam_count' ? `${selectedBadge.requiredValue} Sınav Tamamla` :
+                              selectedBadge.type === 'question_count' ? `${selectedBadge.requiredValue} Soru Çöz` :
                               selectedBadge.type === 'streak' ? `${selectedBadge.requiredValue} Günlük Seri Yap` :
                               selectedBadge.type === 'correct_count' ? `${selectedBadge.requiredValue} Doğru Cevaba Ulaş` :
                               selectedBadge.type === 'success_rate' ? `%${selectedBadge.requiredValue} Başarı Oranını Geç` :
@@ -441,7 +581,8 @@ const UserStats = () => {
                   </div>
                 </div>
 
-                <div className="overflow-x-auto custom-scrollbar">
+                {/* Desktop View Table */}
+                <div className="hidden md:block overflow-x-auto custom-scrollbar">
                   <table className="w-full min-w-[720px] text-left">
                     <thead>
                       <tr className="border-b border-white/5">
@@ -479,7 +620,13 @@ const UserStats = () => {
                                   {res.examName || res.categoryName || 'Genel Deneme'}
                                 </span>
                                 <span className="text-[10px] text-text-muted uppercase tracking-tighter mt-0.5">
-                                  {res.testType === 'short_test' ? 'Konu Testi' : res.testType === 'real_exam' ? 'Simülasyon' : 'Deneme Sınavı'}
+                                  {res.testType === 'short_test'
+                                    ? 'Konu Testi'
+                                    : res.testType === 'real_exam'
+                                      ? 'Simülasyon'
+                                      : res.testType === 'wrong_review' || res.testType === 'wrong_answers'
+                                        ? 'Yanlış Tekrarı'
+                                        : 'Deneme Sınavı'}
                                 </span>
                               </div>
                             </td>
@@ -522,6 +669,86 @@ const UserStats = () => {
                       )}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile View Card List */}
+                <div className="block md:hidden space-y-3">
+                  {recentResults.length === 0 ? (
+                    <EmptyAction
+                      icon={PlayCircle}
+                      title="Henüz sınav sonucun yok"
+                      text="İlk denemeni çözdükten sonra puan, doğru-yanlış ve detaylar burada listelenir."
+                      action="Sınavlara Git"
+                      to="/dashboard/exams"
+                    />
+                  ) : (
+                    recentResults.map((res, i) => (
+                      <motion.div 
+                        key={res._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="p-4 rounded-2xl border border-white/5 bg-bg-card flex flex-col gap-3 shadow-md"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-xs font-black text-white block">
+                              {res.examName || res.categoryName || 'Genel Deneme'}
+                            </span>
+                            <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider mt-0.5 block">
+                              {res.testType === 'short_test'
+                                ? 'Konu Testi'
+                                : res.testType === 'real_exam'
+                                  ? 'Simülasyon'
+                                  : res.testType === 'wrong_review' || res.testType === 'wrong_answers'
+                                    ? 'Yanlış Tekrarı'
+                                    : 'Deneme Sınavı'}
+                            </span>
+                          </div>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                            res.passed 
+                              ? 'bg-success/10 border-success/20 text-success' 
+                              : 'bg-danger/10 border-danger/20 text-danger'
+                          }`}>
+                            {res.passed ? 'Geçti' : 'Kaldı'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between border-t border-white/5 pt-3">
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Doğru/Yanlış</p>
+                              <p className="text-xs font-black text-white mt-0.5">
+                                <span className="text-success">{res.correctCount}D</span>
+                                <span className="text-text-muted mx-0.5">·</span>
+                                <span className="text-danger">{res.wrongCount}Y</span>
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Puan</p>
+                              <p className={`text-xs font-black mt-0.5 ${res.passed ? 'text-success' : 'text-danger'}`}>
+                                %{res.score}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Tarih</p>
+                              <p className="text-xs font-semibold text-text-secondary mt-0.5">
+                                {new Date(res.createdAt).toLocaleDateString('tr-TR')}
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setSelectedResult(res)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary-light text-[9px] font-black uppercase tracking-wider transition-all"
+                          >
+                            <Search className="w-3 h-3" />
+                            İncele
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
                 </div>
             </div>
           </motion.div>

@@ -5,13 +5,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList, Clock, Lock,
   Loader2, BookOpen, Target, FileQuestion,
-  Play, ListChecks, AlertCircle, GraduationCap, CheckCircle2, XCircle
+  Play, ListChecks, AlertCircle, GraduationCap, CheckCircle2, XCircle,
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import { trackEvent } from '../../utils/analytics';
 import { isVideoRecord } from '../../utils/categoryContent';
+import UserWrongAnswers from './UserWrongAnswers';
 
-const examTabIds = ['short_tests', 'general', 'real_sim_cat'];
+const examTabIds = ['short_tests', 'general', 'real_sim_cat', 'wrong_answers'];
 const MotionDiv = motion.div;
 
 const UserExams = () => {
@@ -23,11 +25,17 @@ const UserExams = () => {
   const [validCategories, setValidCategories] = useState([]);
   const [latestResults, setLatestResults] = useState({});
   const [reviewDueCount, setReviewDueCount] = useState(0);
+  const [wrongAnswerCount, setWrongAnswerCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(
     examTabIds.includes(tabParam) ? tabParam : 'short_tests'
   ); // 'short_tests' | 'general' | 'real_sim_cat'
   const [activeShortGroup, setActiveShortGroup] = useState('all');
+  const [expandedCategories, setExpandedCategories] = useState({});
+
+  const toggleCategory = (name) => {
+    setExpandedCategories(prev => ({ ...prev, [name]: !prev[name] }));
+  };
 
   useEffect(() => {
     const nextTab = examTabIds.includes(tabParam) ? tabParam : 'short_tests';
@@ -86,14 +94,17 @@ const UserExams = () => {
         }));
 
         // Tüm sınavları ve kullanıcının son sonuçlarını getir
-        const [examRes, resultRes, reviewRes] = await Promise.all([
+        const [examRes, resultRes, reviewRes, wrongRes] = await Promise.all([
           api.get('/exams'),
           api.get('/exam-results').catch(() => ({ data: [] })),
           api.get('/wrong-answers/review-due?limit=1').catch(() => ({ data: { count: 0 } })),
+          api.get('/wrong-answers').catch(() => ({ data: { data: [] } })),
         ]);
         const allExams = examRes.data?.exams || examRes.data || [];
         const resultRows = resultRes.data?.results || resultRes.data || [];
         setReviewDueCount(Number(reviewRes.data?.count || 0));
+        const wrongRows = wrongRes.data?.data || wrongRes.data || [];
+        setWrongAnswerCount(Array.isArray(wrongRows) ? wrongRows.length : 0);
         const resultMap = {};
 
         resultRows.forEach((result) => {
@@ -211,6 +222,13 @@ const UserExams = () => {
       icon: GraduationCap,
       hint: 'Süreli sınav simülasyonu',
     },
+    {
+      id: 'wrong_answers',
+      label: 'Yanlışlarım',
+      count: wrongAnswerCount,
+      icon: XCircle,
+      hint: 'Tekrar listesi',
+    },
   ];
 
   // Ekran render kontrolü
@@ -226,328 +244,721 @@ const UserExams = () => {
   }
 
   return (
-    <div className="space-y-7 pb-10 text-white">
-      
-      {/* Header */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight mb-2">Sınav Merkezi</h1>
-          <p className="text-text-muted text-sm font-medium">Seçili paket: <span className="text-primary-light font-black uppercase tracking-widest">{user?.selectedCategoryName}</span></p>
+    <>
+      {/* Desktop View */}
+      <div className="hidden lg:block space-y-7 pb-10 text-white">
+        
+        {/* Header */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight mb-2">Sınav Merkezi</h1>
+            <p className="text-text-muted text-sm font-medium">Seçili paket: <span className="text-primary-light font-black uppercase tracking-widest">{user?.selectedCategoryName}</span></p>
+          </div>
+          <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-text-muted">
+            <ClipboardList className="h-4 w-4 text-primary-light" />
+            {generalExams.length} deneme · {shortTests.length} kısa test
+          </div>
         </div>
-        <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-text-muted">
-          <ClipboardList className="h-4 w-4 text-primary-light" />
-          {generalExams.length} deneme · {shortTests.length} kısa test
-        </div>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card p-5 rounded-2xl border border-white/5 flex items-center gap-4 bg-gradient-to-br from-white/[0.02] to-transparent">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-             <ListChecks className="w-6 h-6 text-primary-light" />
-          </div>
-          <div>
-            <p className="text-2xl font-black tracking-tighter leading-none">{exams.length}</p>
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Toplam Sınav</p>
-          </div>
-        </div>
-        <div className="glass-card p-5 rounded-2xl border border-white/5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-             <BookOpen className="w-6 h-6 text-indigo-400" />
-          </div>
-          <div>
-            <p className="text-2xl font-black tracking-tighter leading-none">{shortTests.length}</p>
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Konu Testi</p>
-          </div>
-        </div>
-        <div className="glass-card p-5 rounded-2xl border border-white/5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
-             <Target className="w-6 h-6 text-warning" />
-          </div>
-          <div>
-            <p className="text-2xl font-black tracking-tighter leading-none">{generalExams.length}</p>
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Genel Deneme</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Wrong Review Quick Entry */}
-      <div className={`rounded-2xl border p-4 sm:p-5 ${
-        reviewDueCount > 0
-          ? 'border-primary/25 bg-primary/10'
-          : 'border-white/10 bg-white/[0.03]'
-      }`}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${
-              reviewDueCount > 0
-                ? 'border-primary/30 bg-primary/15 text-primary-light'
-                : 'border-white/10 bg-black/10 text-text-muted'
-            }`}>
-              <ListChecks className="h-6 w-6" />
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="glass-card p-5 rounded-2xl border border-white/5 flex items-center gap-4 bg-gradient-to-br from-white/[0.02] to-transparent">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+               <ListChecks className="w-6 h-6 text-primary-light" />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
-              <p className="mt-1 text-xs font-semibold text-text-muted">
-                {reviewDueCount > 0
-                  ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
-                  : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
-              </p>
-            </div>
-          </div>
-          <button
-            disabled={reviewDueCount === 0}
-            onClick={() => navigate('/dashboard/exams/wrong-review')}
-            className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all ${
-              reviewDueCount > 0
-                ? 'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95'
-                : 'cursor-not-allowed border border-white/10 bg-white/5 text-text-muted'
-            }`}
-          >
-            <Play className="h-4 w-4" />
-            {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {tabs.map(tab => {
-          const Icon = tab.icon;
-          return (
-          <button
-            key={tab.id}
-            onClick={() => {
-              handleTabChange(tab.id);
-            }}
-            className={`group flex min-h-[82px] items-center gap-4 rounded-2xl border p-4 text-left transition-all ${
-              activeTab === tab.id
-                ? 'bg-primary text-white border-primary shadow-xl shadow-primary/20'
-                : 'bg-white/5 text-text-muted border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20'
-            }`}
-          >
-            <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${
-              activeTab === tab.id ? 'border-white/20 bg-white/15' : 'border-white/10 bg-black/10 text-primary-light'
-            }`}>
-              <Icon className="h-5 w-5" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-black tracking-tight">{tab.label}</span>
-              <span className={`mt-1 block text-xs font-semibold ${activeTab === tab.id ? 'text-white/75' : 'text-text-muted'}`}>{tab.hint}</span>
-            </span>
-            <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${activeTab === tab.id ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'}`}>
-              {tab.count}
-            </span>
-          </button>
-          );
-        })}
-      </div>
-
-      {activeTab === 'short_tests' && (
-        <div className="glass-card rounded-2xl border border-white/5 p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black text-white">Kısa Test Kategorileri</p>
-              <p className="text-xs font-semibold text-text-muted">Konu grubunu seç, alt testleri düz listede gör.</p>
+              <p className="text-2xl font-black tracking-tighter leading-none">{exams.length}</p>
+              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Toplam Sınav</p>
             </div>
-            <span className="hidden rounded-full bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted sm:block">
-              {displayedExams.length} test
-            </span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              ['all', 'Tümü', shortTests.length],
-              ...Object.entries(shortGroups).sort(([a], [b]) => a.localeCompare(b, 'tr')),
-            ].map(([groupName, countOrLabel, maybeCount]) => {
-              const isAll = groupName === 'all';
-              const label = isAll ? countOrLabel : groupName;
-              const count = isAll ? maybeCount ?? shortTests.length : countOrLabel;
-              const active = activeShortGroup === groupName;
-              return (
-                <button
-                  key={groupName}
-                  onClick={() => setActiveShortGroup(groupName)}
-                  className={`rounded-xl border px-4 py-2.5 text-xs font-black transition-all ${
-                    active
-                      ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'border-white/10 bg-white/5 text-text-muted hover:border-white/20 hover:bg-white/10 hover:text-white'
-                  }`}
-                >
-                  {label}
-                  <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${active ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'}`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
+          <div className="glass-card p-5 rounded-2xl border border-white/5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+               <BookOpen className="w-6 h-6 text-indigo-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-black tracking-tighter leading-none">{shortTests.length}</p>
+              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Konu Testi</p>
+            </div>
+          </div>
+          <div className="glass-card p-5 rounded-2xl border border-white/5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center">
+               <Target className="w-6 h-6 text-warning" />
+            </div>
+            <div>
+              <p className="text-2xl font-black tracking-tighter leading-none">{generalExams.length}</p>
+              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1">Genel Deneme</p>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Exam Grid */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-32">
-          <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-          <span className="text-text-muted text-[10px] uppercase tracking-widest font-black">Sınavlar Yükleniyor...</span>
-        </div>
-      ) : displayedExams.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-32 text-center glass-card rounded-[3rem] border border-dashed border-white/10">
-          <ClipboardList className="w-16 h-16 text-text-muted opacity-30 mb-6" />
-          <p className="text-lg font-black text-white tracking-tight mb-2">Bu alanda sınav bulunamadı</p>
-          <p className="text-sm font-medium text-text-muted max-w-sm">Seçtiğiniz kategoriye ait sınav içerikleri kısa süre içinde admin tarafından eklenecektir.</p>
-        </div>
-      ) : (() => {
-        const renderExamCard = (exam, i) => {
-          const isLocked = exam.isPro && !user?.proStatus;
-          const isGeneral = !exam.categoryId;
-          const isSimulation = exam._isRealMeb;
-          const isShort = exam._isSynthetic;
-          const catName = isShort ? getParentName(exam.categoryId) : getCategoryName(exam.categoryId);
-          const badgeLabel = isGeneral ? 'Deneme Sınavı' : isSimulation ? 'E-Sınav Simülatörü' : isShort ? 'Kısa Test' : 'Konu Sınavı';
-          const Icon = isGeneral ? Target : isSimulation ? GraduationCap : isShort ? FileQuestion : BookOpen;
-          const resultKey = isShort ? `short_${exam._realCategoryId}` : exam._id;
-          const lastResult = latestResults[resultKey];
-          const score = Number(lastResult?.score || 0);
-          const completed = Boolean(lastResult);
-          const passed = Boolean(lastResult?.passed);
-          const handleExamAction = () => {
-            if (isLocked) {
-              trackEvent('pro_clicked', {
-                surface: 'exam_card',
-                contentType: 'exam',
-                examId: exam._id,
-                examName: exam.name,
-                tab: activeTab,
-              });
-              return;
-            }
-
-            navigate(
-              isSimulation ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` :
-              isShort ? `/dashboard/exams/short-test/${exam._realCategoryId}` :
-              `/dashboard/exams/${exam._id}`
-            );
-          };
-
-          return (
-            <MotionDiv
-              layout
-              key={exam._id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 8 }}
-              transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.09) }}
-              className={`glass-card p-6 rounded-2xl border flex flex-col gap-5 transition-all duration-300 relative overflow-hidden group ${
-                isLocked
-                  ? 'border-warning/20 opacity-80'
-                  : completed
-                    ? passed
-                      ? 'border-success/25 bg-success/[0.035] hover:border-success/40 hover:bg-success/[0.06]'
-                      : 'border-danger/25 bg-danger/[0.035] hover:border-danger/40 hover:bg-danger/[0.06]'
-                    : 'border-white/5 hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10'
+        {/* Wrong Review Quick Entry */}
+        <div className={`rounded-2xl border p-4 sm:p-5 ${
+          reviewDueCount > 0
+            ? 'border-primary/25 bg-primary/10'
+            : 'border-white/10 bg-white/[0.03]'
+        }`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${
+                reviewDueCount > 0
+                  ? 'border-primary/30 bg-primary/15 text-primary-light'
+                  : 'border-white/10 bg-black/10 text-text-muted'
+              }`}>
+                <ListChecks className="h-6 w-6" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
+                <p className="mt-1 text-xs font-semibold text-text-muted">
+                  {reviewDueCount > 0
+                    ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
+                    : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
+                </p>
+              </div>
+            </div>
+            <button
+              disabled={reviewDueCount === 0}
+              onClick={() => navigate('/dashboard/exams/wrong-review')}
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+                reviewDueCount > 0
+                  ? 'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95'
+                  : 'cursor-not-allowed border border-white/10 bg-white/5 text-text-muted'
               }`}
             >
-              {/* Top badges */}
-              <div className="flex items-start justify-between gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 ${
-                  isGeneral
-                    ? 'bg-warning/10 border-warning/30 text-warning'
-                    : isSimulation
-                      ? 'bg-success/10 border-success/30 text-success'
-                      : 'bg-primary/10 border-primary/30 text-primary-light'
-                }`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  {isLocked && (
-                    <span className="flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning border border-warning/20 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-warning/10">
-                      <Lock className="w-3 h-3" /> PRO ÜYELİK
+              <Play className="h-4 w-4" />
+              {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {tabs.map(tab => {
+            const Icon = tab.icon;
+            return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                handleTabChange(tab.id);
+              }}
+              className={`group flex min-h-[82px] items-center gap-4 rounded-2xl border p-4 text-left transition-all ${
+                activeTab === tab.id
+                  ? 'bg-primary text-white border-primary shadow-xl shadow-primary/20'
+                  : 'bg-white/5 text-text-muted border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20'
+              }`}
+            >
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${
+                activeTab === tab.id ? 'border-white/20 bg-white/15' : 'border-white/10 bg-black/10 text-primary-light'
+              }`}>
+                <Icon className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-black tracking-tight">{tab.label}</span>
+                <span className={`mt-1 block text-xs font-semibold ${activeTab === tab.id ? 'text-white/75' : 'text-text-muted'}`}>{tab.hint}</span>
+              </span>
+              <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${activeTab === tab.id ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'}`}>
+                {tab.count}
+              </span>
+            </button>
+            );
+          })}
+        </div>
+
+        {activeTab === 'short_tests' && (
+          <div className="glass-card rounded-2xl border border-white/5 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-black text-white">Kısa Test Kategorileri</p>
+                <p className="text-xs font-semibold text-text-muted">Konu grubunu seç, alt testleri düz listede gör.</p>
+              </div>
+              <span className="hidden rounded-full bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted sm:block">
+                {displayedExams.length} test
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                ['all', 'Tümü', shortTests.length],
+                ...Object.entries(shortGroups).sort(([a], [b]) => a.localeCompare(b, 'tr')),
+              ].map(([groupName, countOrLabel, maybeCount]) => {
+                const isAll = groupName === 'all';
+                const label = isAll ? countOrLabel : groupName;
+                const count = isAll ? maybeCount ?? shortTests.length : countOrLabel;
+                const active = activeShortGroup === groupName;
+                return (
+                  <button
+                    key={groupName}
+                    onClick={() => setActiveShortGroup(groupName)}
+                    className={`rounded-xl border px-4 py-2.5 text-xs font-black transition-all ${
+                      active
+                        ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20'
+                        : 'border-white/10 bg-white/5 text-text-muted hover:border-white/20 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    {label}
+                    <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] ${active ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'}`}>
+                      {count}
                     </span>
-                  )}
-                  {completed && (
-                    <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                      passed
-                        ? 'bg-success/10 text-success border-success/20'
-                        : 'bg-danger/10 text-danger border-danger/20'
-                    }`}>
-                      {passed ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                      {passed ? 'GEÇİLDİ' : 'TEKRAR'}
-                    </span>
-                  )}
-                  <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                    isGeneral
-                      ? 'bg-warning/10 text-warning border-warning/20'
-                      : isSimulation
-                        ? 'bg-success/10 text-success border-success/20'
-                      : isShort 
-                        ? 'bg-primary/10 text-primary-light border-primary/20'
-                        : 'bg-primary/10 text-primary-light border-primary/20'
-                  }`}>
-                    {badgeLabel}
-                  </span>
-                </div>
-              </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-              {/* Content */}
-              <div className="flex-1">
-                <h3 className="font-black text-xl tracking-tight leading-tight mb-2 group-hover:text-primary-light transition-colors">{exam.name}</h3>
-                {catName && <p className="text-[11px] text-text-muted font-bold uppercase tracking-widest mb-3">{catName}</p>}
-                {exam.description && (
-                  <p className="text-sm text-text-muted line-clamp-2 leading-relaxed">{exam.description}</p>
-                )}
-              </div>
+        {/* Exam Grid */}
+        {activeTab === 'wrong_answers' ? (
+          <UserWrongAnswers onCountChange={setWrongAnswerCount} />
+        ) : loading ? (
+          <div className="flex flex-col items-center justify-center py-32">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+            <span className="text-text-muted text-[10px] uppercase tracking-widest font-black">Sınavlar Yükleniyor...</span>
+          </div>
+        ) : displayedExams.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 text-center glass-card rounded-[3rem] border border-dashed border-white/10">
+            <ClipboardList className="w-16 h-16 text-text-muted opacity-30 mb-6" />
+            <p className="text-lg font-black text-white tracking-tight mb-2">Bu alanda sınav bulunamadı</p>
+            <p className="text-sm font-medium text-text-muted max-w-sm">Seçtiğiniz kategoriye ait sınav içerikleri kısa süre içinde admin tarafından eklenecektir.</p>
+          </div>
+        ) : (() => {
+          const renderExamCard = (exam, i) => {
+            const isLocked = exam.isPro && !user?.proStatus;
+            const isGeneral = !exam.categoryId;
+            const isSimulation = exam._isRealMeb;
+            const isShort = exam._isSynthetic;
+            const catName = isShort ? getParentName(exam.categoryId) : getCategoryName(exam.categoryId);
+            const badgeLabel = isGeneral ? 'Deneme Sınavı' : isSimulation ? 'E-Sınav Simülatörü' : isShort ? 'Kısa Test' : 'Konu Sınavı';
+            const Icon = isGeneral ? Target : isSimulation ? GraduationCap : isShort ? FileQuestion : BookOpen;
+            const resultKey = isShort ? `short_${exam._realCategoryId}` : exam._id;
+            const lastResult = latestResults[resultKey];
+            const score = Number(lastResult?.score || 0);
+            const completed = Boolean(lastResult);
+            const passed = Boolean(lastResult?.passed);
+            const handleExamAction = () => {
+              if (isLocked) {
+                trackEvent('pro_clicked', {
+                  surface: 'exam_card',
+                  contentType: 'exam',
+                  examId: exam._id,
+                  examName: exam.name,
+                  tab: activeTab,
+                });
+                return;
+              }
 
-              {completed && (
-                <div className="rounded-xl border border-white/5 bg-black/10 p-3">
-                  <div className="mb-2 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-                    <span className={passed ? 'text-success' : 'text-danger'}>{passed ? 'Başarılı' : 'Tamamlandı'}</span>
-                    <span className="text-white">{score}%</span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-white/10">
-                    <div
-                      className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
-                      style={{ width: `${Math.max(4, Math.min(score, 100))}%` }}
-                    />
-                  </div>
-                </div>
-              )}
+              navigate(
+                isSimulation ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` :
+                isShort ? `/dashboard/exams/short-test/${exam._realCategoryId}` :
+                `/dashboard/exams/${exam._id}`
+              );
+            };
 
-              {/* Meta */}
-              <div className="flex flex-wrap items-center gap-4 py-4 mt-auto border-y border-white/5 text-[11px] font-black text-text-muted uppercase tracking-widest">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-primary-light" /> {exam.duration || 45} Dakika
-                </div>
-                <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-                <div className="flex items-center gap-1.5">
-                  <FileQuestion className="w-4 h-4 text-warning" /> Çoktan Seçmeli
-                </div>
-              </div>
-
-              {/* CTA */}
-              <button
-                onClick={handleExamAction}
-                className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+            return (
+              <MotionDiv
+                layout
+                key={exam._id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.09) }}
+                className={`glass-card p-6 rounded-2xl border flex flex-col gap-5 transition-all duration-300 relative overflow-hidden group ${
                   isLocked
-                    ? 'bg-white/5 text-text-muted border border-white/5 hover:bg-warning/10 hover:text-warning hover:border-warning/20'
-                    : 'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95'
+                    ? 'border-warning/20 opacity-80'
+                    : completed
+                      ? passed
+                        ? 'border-success/25 bg-success/[0.035] hover:border-success/40 hover:bg-success/[0.06]'
+                        : 'border-danger/25 bg-danger/[0.035] hover:border-danger/40 hover:bg-danger/[0.06]'
+                      : 'border-white/5 hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10'
                 }`}
               >
-                <Play className="w-5 h-5" />
-                {isLocked ? 'KİLİDİ AÇ' : 'TESTİ BAŞLAT'}
-              </button>
+                {/* Top badges */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 ${
+                    isGeneral
+                      ? 'bg-warning/10 border-warning/30 text-warning'
+                      : isSimulation
+                        ? 'bg-success/10 border-success/30 text-success'
+                        : 'bg-primary/10 border-primary/30 text-primary-light'
+                  }`}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    {isLocked && (
+                      <span className="flex items-center gap-1.5 px-3 py-1 bg-warning/10 text-warning border border-warning/20 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg shadow-warning/10">
+                        <Lock className="w-3 h-3" /> PRO ÜYELİK
+                      </span>
+                    )}
+                    {completed && (
+                      <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                        passed
+                          ? 'bg-success/10 text-success border-success/20'
+                          : 'bg-danger/10 text-danger border-danger/20'
+                      }`}>
+                        {passed ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                        {passed ? 'GEÇİLDİ' : 'TEKRAR'}
+                      </span>
+                    )}
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                      isGeneral
+                        ? 'bg-warning/10 text-warning border-warning/20'
+                        : isSimulation
+                          ? 'bg-success/10 text-success border-success/20'
+                        : isShort 
+                          ? 'bg-primary/10 text-primary-light border-primary/20'
+                          : 'bg-primary/10 text-primary-light border-primary/20'
+                    }`}>
+                      {badgeLabel}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <h3 className="font-black text-xl tracking-tight leading-tight mb-2 group-hover:text-primary-light transition-colors">{exam.name}</h3>
+                  {catName && <p className="text-[11px] text-text-muted font-bold uppercase tracking-widest mb-3">{catName}</p>}
+                  {exam.description && (
+                    <p className="text-sm text-text-muted line-clamp-2 leading-relaxed">{exam.description}</p>
+                  )}
+                </div>
+
+                {completed && (
+                  <div className="rounded-xl border border-white/5 bg-black/10 p-3">
+                    <div className="mb-2 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+                      <span className={passed ? 'text-success' : 'text-danger'}>{passed ? 'Başarılı' : 'Tamamlandı'}</span>
+                      <span className="text-white">{score}%</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
+                        style={{ width: `${Math.max(4, Math.min(score, 100))}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Meta */}
+                <div className="flex flex-wrap items-center gap-4 py-4 mt-auto border-y border-white/5 text-[11px] font-black text-text-muted uppercase tracking-widest">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-primary-light" /> {exam.duration || 45} Dakika
+                  </div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                  <div className="flex items-center gap-1.5">
+                    <FileQuestion className="w-4 h-4 text-warning" /> Çoktan Seçmeli
+                  </div>
+                </div>
+
+                {/* CTA */}
+                <button
+                  onClick={handleExamAction}
+                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${
+                    isLocked
+                      ? 'bg-white/5 text-text-muted border border-white/5 hover:bg-warning/10 hover:text-warning hover:border-warning/20'
+                      : 'bg-primary text-white shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95'
+                  }`}
+                >
+                  <Play className="w-5 h-5" />
+                  {isLocked ? 'KİLİDİ AÇ' : 'TESTİ BAŞLAT'}
+                </button>
+              </MotionDiv>
+            );
+          };
+    
+          return (
+            <MotionDiv layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <AnimatePresence>
+                {displayedExams.map((exam, i) => renderExamCard(exam, i))}
+              </AnimatePresence>
             </MotionDiv>
           );
-        };
- 
-        return (
-          <MotionDiv layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {displayedExams.map((exam, i) => renderExamCard(exam, i))}
-            </AnimatePresence>
-          </MotionDiv>
-        );
-      })()}
-    </div>
+        })()}
+      </div>
+
+      {/* Mobile View */}
+      <div className="block lg:hidden space-y-6 pb-24 text-white">
+        {/* Premium Header Card */}
+        <div className="relative overflow-hidden rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-[#20193A] to-[#111827] shadow-xl">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-radial-gradient(circle, #6366f1, transparent)" />
+          </div>
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/30 shrink-0">
+              {user?.firstName?.charAt(0).toUpperCase() || 'H'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-text-muted text-[11px] font-bold uppercase tracking-wider">Bugünkü pratik alanın</p>
+              <h1 className="text-white text-2xl font-black tracking-tight">Testler</h1>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              onClick={() => {
+                const incomplete = shortTests.find(t => !latestResults[`short_${t._realCategoryId}`]);
+                const target = incomplete || shortTests[0];
+                if (target) navigate(`/dashboard/exams/short-test/${target._realCategoryId}`);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-warning/15 border border-warning/20 text-warning rounded-xl text-xs font-black uppercase tracking-wider hover:bg-warning/25 transition-all"
+            >
+              <Play className="w-3.5 h-3.5 fill-warning" /> Hızlı Çöz
+            </button>
+            <button
+              onClick={() => navigate('/dashboard/stats')}
+              className="flex items-center gap-1.5 px-3 py-2 bg-indigo-500/15 border border-indigo-500/20 text-indigo-300 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-500/25 transition-all"
+            >
+              <Target className="w-3.5 h-3.5" /> İlerleme Takibi
+            </button>
+          </div>
+        </div>
+
+        {/* Modern Tab Bar */}
+        <div className="p-1 bg-white/5 border border-white/5 rounded-full flex gap-1">
+          {[
+            { id: 'short_tests', label: 'Kısa Testler' },
+            { id: 'general', label: 'Deneme' },
+            { id: 'wrong_answers', label: 'Yanlışlarım' }
+          ].map((tab) => {
+            const isActive = activeTab === tab.id || (tab.id === 'general' && activeTab === 'real_sim_cat');
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  handleTabChange(tab.id);
+                }}
+                className={`flex-1 text-center py-2.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                  isActive
+                    ? 'bg-primary text-white shadow-lg shadow-primary/40'
+                    : 'text-text-muted hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Accordion list for Kısa Testler */}
+        {activeTab === 'short_tests' && (
+          <div className="space-y-3">
+            {Object.keys(shortGroups).length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <FileQuestion className="w-12 h-12 text-text-muted opacity-30 mb-3" />
+                <p className="text-sm font-bold text-text-muted">Kısa test bulunamadı.</p>
+              </div>
+            ) : (
+              Object.entries(shortGroups)
+                .sort(([a], [b]) => a.localeCompare(b, 'tr'))
+                .map(([groupName, count]) => {
+                  const isExpanded = expandedCategories[groupName];
+                  const groupExams = shortTests.filter(e => getParentName(e.categoryId) === groupName);
+                  
+                  // Find a matching category in validCategories for category color/icon if available
+                  const matchedCat = validCategories.find(c => c.name === groupName || getCategoryName(c._id) === groupName);
+                  const categoryColor = matchedCat?.color || '#6366f1';
+
+                  return (
+                    <div
+                      key={groupName}
+                      className="border border-white/5 bg-[#171927]/60 rounded-2xl overflow-hidden transition-all duration-300 shadow-md"
+                    >
+                      {/* Header */}
+                      <button
+                        onClick={() => toggleCategory(groupName)}
+                        className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors"
+                      >
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
+                          style={{
+                            backgroundColor: `${categoryColor}1f`,
+                            borderColor: `${categoryColor}33`,
+                            color: categoryColor
+                          }}
+                        >
+                          <BookOpen className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-sm text-white truncate">{groupName}</h3>
+                          <p className="text-[11px] text-text-muted mt-0.5">{count} Soru • Süreli değil</p>
+                        </div>
+                        <ChevronDown
+                          className={`w-5 h-5 text-text-muted transition-transform duration-300 ${
+                            isExpanded ? 'rotate-180 text-white' : ''
+                          }`}
+                        />
+                      </button>
+
+                      {/* Children List */}
+                      {isExpanded && (
+                        <div className="border-t border-white/5 bg-black/15 divide-y divide-white/5 px-2">
+                          {groupExams.map((exam) => {
+                            const resultKey = `short_${exam._realCategoryId}`;
+                            const lastResult = latestResults[resultKey];
+                            const score = Number(lastResult?.score || 0);
+                            const completed = Boolean(lastResult);
+                            const passed = Boolean(lastResult?.passed);
+                            const isLocked = exam.isPro && !user?.proStatus;
+
+                            return (
+                              <div key={exam._id} className="flex items-center justify-between p-3 gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold text-xs text-white truncate">{exam.name}</p>
+                                  {completed ? (
+                                    <div className="flex items-center gap-1.5 mt-1">
+                                      <span className={`text-[10px] font-black uppercase tracking-wider ${passed ? 'text-success' : 'text-danger'}`}>
+                                        {passed ? 'GEÇİLDİ' : 'TEKRAR'}
+                                      </span>
+                                      <span className="text-[10px] text-text-muted">• Başarı: {score}%</span>
+                                    </div>
+                                  ) : (
+                                    <p className="text-[10px] text-text-muted mt-1">Konu Değerlendirme Testi</p>
+                                  )}
+                                </div>
+
+                                <button
+                                  onClick={() => {
+                                    if (isLocked) {
+                                      trackEvent('pro_clicked', {
+                                        surface: 'exam_card_mobile',
+                                        contentType: 'exam',
+                                        examId: exam._id,
+                                        examName: exam.name,
+                                      });
+                                      navigate('/dashboard/settings?tab=pro');
+                                      return;
+                                    }
+                                    navigate(`/dashboard/exams/short-test/${exam._realCategoryId}`);
+                                  }}
+                                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 ${
+                                    isLocked
+                                      ? 'bg-warning/10 text-warning border border-warning/20'
+                                      : completed
+                                        ? 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
+                                        : 'bg-primary text-white shadow-md shadow-primary/20 hover:scale-[1.01]'
+                                  }`}
+                                >
+                                  {isLocked ? (
+                                    <>
+                                      <Lock className="w-3 h-3" /> PRO
+                                    </>
+                                  ) : completed ? (
+                                    'TEKRAR'
+                                  ) : (
+                                    <>
+                                      <Play className="w-3 h-3 fill-white" /> BAŞLAT
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+            )}
+          </div>
+        )}
+
+        {/* Deneme Tab: lists both standard general denemes and MEB simulators */}
+        {(activeTab === 'general' || activeTab === 'real_sim_cat') && (
+          <div className="space-y-4">
+            {/* Real MEB simulator card at the top (prominent like Flutter) */}
+            {realSimExams.map((exam) => {
+              const resultKey = exam._id;
+              const lastResult = latestResults[resultKey];
+              const score = Number(lastResult?.score || 0);
+              const completed = Boolean(lastResult);
+              const passed = Boolean(lastResult?.passed);
+              
+              return (
+                <div
+                  key={exam._id}
+                  className="relative overflow-hidden rounded-2xl border border-success/20 bg-gradient-to-br from-success/[0.04] to-transparent p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-success/10 border border-success/20 text-success flex items-center justify-center shrink-0">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-success/10 text-success border border-success/20">
+                        MEB E-SINAV
+                      </span>
+                      {completed && (
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                          passed ? 'bg-success/15 text-success border-success/20' : 'bg-danger/15 text-danger border-danger/20'
+                        }`}>
+                          {passed ? 'GEÇİLDİ' : 'TEKRAR'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <h3 className="text-white font-black text-base">{exam.name}</h3>
+                    <p className="text-xs text-text-muted mt-1 leading-relaxed">{exam.description}</p>
+                  </div>
+
+                  {completed && (
+                    <div className="mt-4 rounded-xl bg-black/25 p-3 border border-white/5">
+                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider mb-1.5">
+                        <span className={passed ? 'text-success' : 'text-danger'}>{passed ? 'BAŞARILI' : 'TAMAMLANDI'}</span>
+                        <span className="text-white">{score}%</span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                        <div
+                          className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
+                          style={{ width: `${Math.max(5, score)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-4 flex items-center gap-4 text-[10px] font-black text-text-muted uppercase tracking-wider py-3 border-y border-white/5">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-primary-light" /> {exam.duration || 45} DK
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-white/10" />
+                    <div className="flex items-center gap-1">
+                      <FileQuestion className="w-3.5 h-3.5 text-warning" /> 50 SORU
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => navigate(`/dashboard/exams/real-test/${user?.selectedCategoryId}`)}
+                    className="mt-4 w-full flex items-center justify-center gap-1.5 py-3 bg-success hover:bg-success/90 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-success/10 transition-all active:scale-95"
+                  >
+                    <Play className="w-4 h-4 fill-white" /> Sınavı Başlat
+                  </button>
+                </div>
+              );
+            })}
+
+            {/* Standard Denemes */}
+            <div className="space-y-3">
+              <h4 className="text-text-muted text-xs font-bold uppercase tracking-wider px-1">Deneme Sınavları</h4>
+              {generalExams.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-8 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
+                  <Target className="w-10 h-10 text-text-muted opacity-30 mb-2" />
+                  <p className="text-xs text-text-muted">Deneme sınavı bulunamadı.</p>
+                </div>
+              ) : (
+                generalExams.map((exam) => {
+                  const resultKey = exam._id;
+                  const lastResult = latestResults[resultKey];
+                  const score = Number(lastResult?.score || 0);
+                  const completed = Boolean(lastResult);
+                  const passed = Boolean(lastResult?.passed);
+                  const isLocked = exam.isPro && !user?.proStatus;
+
+                  return (
+                    <div
+                      key={exam._id}
+                      className="p-4 rounded-2xl border border-white/5 bg-[#171927]/60 shadow-md flex items-center gap-3.5"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 text-warning flex items-center justify-center shrink-0">
+                        <Target className="w-5 h-5" />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-white font-bold text-sm truncate">{exam.name}</h4>
+                        <div className="flex items-center gap-1.5 mt-1 text-[10px] text-text-muted font-bold uppercase tracking-wider">
+                          <span>{exam.duration || 45} Dk</span>
+                          <span>•</span>
+                          <span>50 Soru</span>
+                          {completed && (
+                            <>
+                              <span>•</span>
+                              <span className={passed ? 'text-success font-black' : 'text-danger font-black'}>
+                                {score}%
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (isLocked) {
+                            trackEvent('pro_clicked', {
+                              surface: 'exam_card_mobile',
+                              contentType: 'exam',
+                              examId: exam._id,
+                              examName: exam.name,
+                            });
+                            navigate('/dashboard/settings?tab=pro');
+                            return;
+                          }
+                          navigate(`/dashboard/exams/${exam._id}`);
+                        }}
+                        className={`flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 ${
+                          isLocked
+                            ? 'bg-warning/10 text-warning border border-warning/20'
+                            : completed
+                              ? 'bg-white/5 text-white border border-white/10'
+                              : 'bg-primary text-white shadow-md shadow-primary/20 hover:scale-[1.01]'
+                        }`}
+                      >
+                        {isLocked ? (
+                          <>
+                            <Lock className="w-3 h-3" /> PRO
+                          </>
+                        ) : completed ? (
+                          'TEKRAR'
+                        ) : (
+                          <>
+                            <Play className="w-3 h-3 fill-white" /> BAŞLAT
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Yanlışlarım Tab */}
+        {activeTab === 'wrong_answers' && (
+          <div className="space-y-4">
+            <div className={`rounded-2xl border p-5 ${
+              reviewDueCount > 0
+                ? 'border-primary/20 bg-primary/10'
+                : 'border-white/5 bg-[#171927]/60'
+            }`}>
+              <div className="flex items-center gap-4">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${
+                  reviewDueCount > 0
+                    ? 'border-primary/30 bg-primary/15 text-primary-light'
+                    : 'border-white/10 bg-black/20 text-text-muted'
+                }`}>
+                  <ListChecks className="h-6 w-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
+                  <p className="mt-1 text-xs text-text-muted font-medium">
+                    {reviewDueCount > 0
+                      ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
+                      : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                disabled={reviewDueCount === 0}
+                onClick={() => navigate('/dashboard/exams/wrong-review')}
+                className={`mt-4 w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                  reviewDueCount > 0
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.01]'
+                    : 'border border-white/5 bg-white/5 text-text-muted cursor-not-allowed'
+                }`}
+              >
+                <Play className="w-4 h-4 fill-current" />
+                {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
+              </button>
+            </div>
+
+            <UserWrongAnswers onCountChange={setWrongAnswerCount} />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

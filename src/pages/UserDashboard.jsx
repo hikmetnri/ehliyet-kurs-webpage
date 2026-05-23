@@ -22,6 +22,9 @@ const UserDashboard = () => {
       <Route path="exams/wrong-review" element={<UserLayout fullscreen />}>
         <Route index element={<UserExamSolve customType="wrong_review" />} />
       </Route>
+      <Route path="exams/wrong-answers" element={<UserLayout fullscreen />}>
+        <Route index element={<UserExamSolve customType="wrong_answers" />} />
+      </Route>
       <Route path="exams/:examId" element={<UserLayout fullscreen />}>
         <Route index element={<UserExamSolve />} />
       </Route>

@@ -33,6 +33,7 @@ const AdminBadges = () => {
 
   const badgeTypes = [
     { id: 'exam_count', label: 'Sınav Tamamlama', icon: History, desc: 'Belirli sayıda sınav çözenler' },
+    { id: 'question_count', label: 'Çözülen Soru', icon: Target, desc: 'Belirli sayıda soru çözenler' },
     { id: 'correct_count', label: 'Doğru Soru', icon: Target, desc: 'Belirli sayıda doğru yapanlar' },
     { id: 'streak', label: 'Seri (Gün)', icon: Flame, desc: 'Arka arkaya gün serisi' },
     { id: 'daily_goal', label: 'Günlük Hedef', icon: CheckCircle2, desc: 'Günlük hedefini tuturanlar' },

@@ -998,6 +998,7 @@ const testTypeLabels = {
   real_exam: 'Gerçek sınav',
   exam: 'Test',
   wrong_review: 'Yanlış tekrar',
+  wrong_answers: 'Yanlışlar testi',
 };
 
 const resultLabels = {

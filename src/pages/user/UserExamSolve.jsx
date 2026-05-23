@@ -11,6 +11,12 @@ import useAuthStore from '../../store/authStore';
 import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
+import {
+  filterQuestionsToCategoryTree,
+  hydrateWrongAnswers,
+  normalizeId,
+  readApiList,
+} from '../../utils/wrongAnswers';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 const REVIEW_SESSION_LIMIT = 20;
@@ -90,8 +96,9 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
   const score = total > 0 ? Math.round((correct / total) * 100) : 0;
   const passed = score >= 70;
   const isReview = exam?.testType === 'wrong_review' || exam?._id === 'wrong_review_today';
+  const isWrongPool = exam?.testType === 'wrong_answers' || exam?._id === 'wrong_answers_all';
   const reviewSummary = reviewSync?.summary || {};
-  const resultTone = isReview ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
+  const resultTone = isReview || isWrongPool ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
   const toneClasses = {
     success: 'border-success bg-success/10 shadow-success/20 text-success',
     primary: 'border-primary bg-primary/10 shadow-primary/20 text-primary-light',
@@ -115,11 +122,17 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
         <h2 className={`text-2xl font-black tracking-tight mb-2 ${
           isReview ? 'text-primary-light' : passed ? 'text-success' : 'text-danger'
         }`}>
-          {isReview ? 'Tekrar Tamamlandı' : passed ? 'Tebrikler, Geçtiniz!' : 'Maalesef Kaldınız'}
+          {isReview
+            ? 'Tekrar Tamamlandı'
+            : isWrongPool
+              ? 'Yanlışlar Güncellendi'
+              : passed ? 'Tebrikler, Geçtiniz!' : 'Maalesef Kaldınız'}
         </h2>
         <p className="text-text-muted text-sm mb-8 font-medium">
           {isReview
             ? `Bugünkü tekrar testi bitti. 4 kez doğru yapılan sorular tamamlandı; diğer doğrular ileriki bir güne bırakıldı.`
+            : isWrongPool
+              ? 'Doğru yaptığın sorular yanlış listenden çıkarıldı; kalanları istediğin zaman tekrar çözebilirsin.'
             : `${exam?.name} sınavı sonuçlandı. ${passed ? 'Harika bir performans!' : 'Bir sonraki denemede başarılar!'}`}
         </p>
 
@@ -179,7 +192,7 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
             onClick={onRetry}
             className="flex-1 flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
           >
-            <RefreshCw className="w-4 h-4" /> {isReview ? 'Kalanları Göster' : 'Tekrar Çöz'}
+            <RefreshCw className="w-4 h-4" /> {isReview || isWrongPool ? 'Kalanları Göster' : 'Tekrar Çöz'}
           </button>
           
           {isReview ? (
@@ -336,6 +349,34 @@ const UserExamSolve = ({ customType }) => {
             reviewSessionLimit: REVIEW_SESSION_LIMIT,
             testType: 'wrong_review',
           });
+        } else if (customType === 'wrong_answers') {
+          const [wrongRes, categoryRes] = await Promise.all([
+            api.get('/wrong-answers'),
+            user?.selectedCategoryId
+              ? api.get('/categories/all').catch(() => ({ data: [] }))
+              : Promise.resolve({ data: [] }),
+          ]);
+          const wrongItems = readApiList(wrongRes);
+          const hydrated = await hydrateWrongAnswers(api, wrongItems);
+          const scoped = filterQuestionsToCategoryTree(
+            hydrated,
+            readApiList(categoryRes),
+            normalizeId(user?.selectedCategoryId),
+          );
+          const qs = scoped.filter((question) => (
+            question._id && question.text && Array.isArray(question.options) && question.options.length > 0
+          ));
+
+          setQuestions(qs);
+          setExam({
+            _id: 'wrong_answers_all',
+            name: 'Yanlışlar Testi',
+            categoryName: 'Yanlışlarım',
+            description: 'Yanlış yaptığın sorulardan oluşan kişisel tekrar testi.',
+            duration: Math.max(10, Math.ceil(qs.length * 1.5)),
+            categoryId: user?.selectedCategoryId || null,
+            testType: 'wrong_answers',
+          });
         } else {
           // Normal exam
           const [examRes, qRes] = await Promise.all([
@@ -360,10 +401,11 @@ const UserExamSolve = ({ customType }) => {
 
   const mode = customType === 'short_test' ? 'short' :
                customType === 'wrong_review' ? 'review' :
+               customType === 'wrong_answers' ? 'wrong' :
                customType === 'real_test' ? 'real' :
                (!exam?.categoryId ? 'mock' : 'real');
                
-  const showFeedback = mode === 'short' || mode === 'mock' || mode === 'review';
+  const showFeedback = mode === 'short' || mode === 'mock' || mode === 'review' || mode === 'wrong';
   const reviewTotalCount = exam?.reviewTotalCount || questions.length;
   const reviewPendingAfterSession = Math.max(0, reviewTotalCount - questions.length);
 
@@ -433,9 +475,10 @@ const UserExamSolve = ({ customType }) => {
       const passed = score >= 70;
       const timeSpentSecs = (exam?.duration || 45) * 60 - timer.remaining;
       const isReviewMode = customType === 'wrong_review';
+      const isWrongPoolMode = customType === 'wrong_answers';
 
       const resultPayload = {
-        examId: (customType === 'short_test' || customType === 'real_test') ? null : examId,
+        examId: (customType === 'short_test' || customType === 'real_test' || isWrongPoolMode) ? null : examId,
         examName: exam?.name,
         testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
         categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
@@ -474,6 +517,11 @@ const UserExamSolve = ({ customType }) => {
         await api.post('/exam-results', resultPayload).catch((err) => {
           console.warn('Tekrar testi sonucu geçmişe kaydedilemedi:', err);
         });
+      } else if (isWrongPoolMode) {
+        await api.post('/exam-results', resultPayload).catch((err) => {
+          console.warn('Yanlışlar testi sonucu geçmişe kaydedilemedi:', err);
+        });
+        await syncWrongAnswers();
       } else {
         await api.post('/exam-results', resultPayload);
         await syncWrongAnswers();
@@ -500,7 +548,7 @@ const UserExamSolve = ({ customType }) => {
     </div>
   );
 
-  if (mode === 'review' && phase === 'intro' && questions.length === 0) {
+  if ((mode === 'review' || mode === 'wrong') && phase === 'intro' && questions.length === 0) {
     return (
       <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
         <MotionDiv
@@ -511,9 +559,13 @@ const UserExamSolve = ({ customType }) => {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[28px] border-2 border-success/30 bg-success/10">
             <CheckCircle2 className="h-10 w-10 text-success" />
           </div>
-          <h2 className="mb-2 text-2xl font-black tracking-tight text-white">Bugün Çözülecek Yanlış Kalmadı</h2>
+          <h2 className="mb-2 text-2xl font-black tracking-tight text-white">
+            {mode === 'review' ? 'Bugün Çözülecek Yanlış Kalmadı' : 'Açıkta Yanlış Soru Kalmadı'}
+          </h2>
           <p className="mb-8 text-sm font-medium leading-relaxed text-text-muted">
-            Şu anda yeniden çözmen gereken yanlış soru yok. Yeni test çözdükçe veya eski yanlışların günü geldikçe bu alan yeniden dolacak.
+            {mode === 'review'
+              ? 'Şu anda yeniden çözmen gereken yanlış soru yok. Yeni test çözdükçe veya eski yanlışların günü geldikçe bu alan yeniden dolacak.'
+              : 'Yanlış listen temiz görünüyor. Yeni test çözdükçe hatalı cevapların burada tekrar çözülebilir hale gelir.'}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
@@ -545,13 +597,13 @@ const UserExamSolve = ({ customType }) => {
         setAnswers({});
         setCurrentIdx(0);
         setReviewSync({ status: 'idle', wrongCount: 0 });
-        if (customType === 'wrong_review') {
+        if (customType === 'wrong_review' || customType === 'wrong_answers') {
           setLoading(true);
           setQuestions([]);
           setExam(null);
         }
         setPhase('intro');
-        if (customType === 'wrong_review') setReloadKey((key) => key + 1);
+        if (customType === 'wrong_review' || customType === 'wrong_answers') setReloadKey((key) => key + 1);
       }}
       onHome={(path) => navigate(path || '/dashboard/exams')}
     />;
@@ -612,6 +664,7 @@ const UserExamSolve = ({ customType }) => {
             <span className="leading-relaxed">
               {mode === 'short' ? 'Bu bir pekiştirme testidir. İşaretlediğiniz an sorunun doğrusunu ve detaylı açıklamasını göreceksiniz. Seçiminiz sonradan değiştirilemez.' :
                mode === 'review' ? `Bugünün tekrar testindesiniz. Şimdi ${questions.length} soru çözülecek${reviewPendingAfterSession > 0 ? `, kalan ${reviewPendingAfterSession} soru daha sonra çözülecek` : ''}. Bir soru 4 kez doğru yapılınca tamamlanır ve listeden çıkar.` :
+               mode === 'wrong' ? 'Yanlışlar testindesiniz. Doğru yaptığın sorular listenden çıkarılır; yeniden yanlış yaptıkların tekrar listende kalır.' :
                mode === 'mock' ? 'Genel Deneme modundasınız. Süre tutulacak ancak işaretleme anında sorunun çözümünü ve doğrusunu görebileceksiniz. Lütfen sürenizi verimli kullanın.' :
                'Gerçek Sınav Simülasyonu. Sınavı tamamla butonuna basana kadar cevapların doğru/yanlış olduğunu göremeyeceksiniz. Kalan sürenize dikkat edin!'}
             </span>
@@ -626,7 +679,7 @@ const UserExamSolve = ({ customType }) => {
               disabled={questions.length === 0}
               className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
             >
-              {mode === 'review' ? 'Tekrar Testini Başlat →' : 'Sınava Başla →'}
+              {mode === 'review' ? 'Tekrar Testini Başlat →' : mode === 'wrong' ? 'Yanlışlar Testini Başlat →' : 'Sınava Başla →'}
             </button>
           </div>
         </MotionDiv>

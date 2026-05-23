@@ -256,6 +256,12 @@ const UserLessons = () => {
 
   const handleSelect = useCallback((node) => {
     setSelectedLesson(node);
+    try {
+      localStorage.setItem('last_visited_id', node._id);
+      localStorage.setItem('last_visited_name', node.name);
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
   const handleMarkComplete = useCallback(() => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import UserSidebar from './UserSidebar';
 import UserBottomNav from './UserBottomNav';
 
@@ -8,6 +8,13 @@ import NotificationPanel from './NotificationPanel';
 import { Menu, Bell } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
+
+const extractNotifications = (payload) => {
+  if (Array.isArray(payload?.data?.notifications)) return payload.data.notifications;
+  if (Array.isArray(payload?.notifications)) return payload.notifications;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return Array.isArray(payload) ? payload : [];
+};
 
 const UserLayout = ({ fullscreen = false }) => {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
@@ -18,12 +25,13 @@ const UserLayout = ({ fullscreen = false }) => {
   const userKey = user?.id || user?._id || user?.email || 'current-user';
   const showCategoryModal = Boolean(user && !user.selectedCategoryId && dismissedCategoryPromptFor !== userKey);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Öğrenci';
+  const location = useLocation();
+  const hideHeaderOnMobile = ['/dashboard', '/dashboard/', '/dashboard/settings', '/dashboard/settings/'].includes(location.pathname);
 
   const fetchUnreadCount = useCallback(async () => {
     try {
       const res = await api.get('/notifications');
-      const data = res.data?.notifications || res.data?.data || res.data;
-      const list = Array.isArray(data) ? data : [];
+      const list = extractNotifications(res.data);
       setUnreadCount(list.filter(n => !n.isRead).length);
     } catch (err) {
       console.error('Bildirim sayısı alınamadı:', err);
@@ -65,11 +73,11 @@ const UserLayout = ({ fullscreen = false }) => {
         <div className="absolute top-0 right-0 hidden w-96 h-96 bg-primary/5 blur-[100px] pointer-events-none rounded-full lg:block" />
         
         {/* Topbar */}
-        <header className="h-14 lg:h-16 bg-[#121212]/95 lg:bg-bg-dark/80 backdrop-blur-xl border-b border-white/10 lg:border-white/5 flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-10 shrink-0">
+        <header className={`h-14 lg:h-16 bg-[#121212]/95 lg:bg-bg-dark/80 backdrop-blur-xl border-b border-white/10 lg:border-white/5 flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-10 shrink-0 ${hideHeaderOnMobile ? 'hidden lg:flex' : 'flex'}`}>
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded-xl border border-white/5 bg-white/[0.03] text-text-muted transition-colors hover:bg-white/5 hover:text-white lg:hidden"
+              className="p-2 rounded-xl border border-white/5 bg-white/[0.03] text-text-muted transition-colors hover:bg-white/5 hover:text-white hidden"
               aria-label="Menüyü aç"
             >
               <Menu className="w-5 h-5" />
