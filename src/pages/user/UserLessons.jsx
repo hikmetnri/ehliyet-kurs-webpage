@@ -69,16 +69,16 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
       <button
         onClick={handleClick}
         className={`
-          w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left transition-all duration-200 group
+          w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-200 group
           ${isSelected
-            ? 'bg-gradient-to-r from-primary/20 to-accent/10 text-white border border-primary/35 shadow-lg shadow-primary/10'
-            : 'bg-white/[0.025] hover:bg-white/[0.06] text-text-secondary hover:text-white border border-white/[0.04] hover:border-white/10'
+            ? 'border border-primary/35 bg-primary/10 text-white shadow-sm shadow-primary/10'
+            : 'border border-white/[0.04] bg-white/[0.018] text-text-secondary hover:border-white/10 hover:bg-white/[0.055] hover:text-white'
           }
           ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
         style={{ paddingLeft: `${12 + visualLevel * 8}px` }}
       >
-        <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+        <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
           isSelected
             ? 'bg-primary/20 border-primary/30 text-primary-light'
             : 'bg-black/20 border-white/5 text-text-muted group-hover:text-white'
@@ -86,7 +86,7 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
           {isLocked ? (
             <Lock className="w-4 h-4 text-warning" />
           ) : imageUrl ? (
-            <img src={imageUrl} alt="" className="w-full h-full rounded-xl object-cover" />
+            <img src={imageUrl} alt="" className="w-full h-full rounded-lg object-cover" />
           ) : hasContent ? (
             <FileText className="w-4 h-4" />
           ) : isExpanded ? (
@@ -134,7 +134,7 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="mt-1.5 space-y-1.5 border-l border-white/5 pl-2" style={{ marginLeft: `${18 + visualLevel * 8}px` }}>
+            <div className="mt-1.5 space-y-1 border-l border-white/5 pl-2" style={{ marginLeft: `${18 + visualLevel * 8}px` }}>
               {node.children.map(child => (
                 <TreeNode
                   key={child._id}
@@ -295,6 +295,12 @@ const UserLessons = () => {
     : null;
   const mobileLessons = (filteredFlat ?? contentLessons).filter(c => c.content && c.content.trim().length > 0);
   const completedContentCount = contentLessons.filter(c => completedIds.includes(c._id)).length;
+  const lessonProgressPercent = contentLessons.length
+    ? Math.round((completedContentCount / contentLessons.length) * 100)
+    : 0;
+  const selectedLessonIndex = selectedLesson
+    ? contentLessons.findIndex((lesson) => lesson._id === selectedLesson._id) + 1
+    : 0;
   const selectedLessonImage = selectedLesson?.image ? resolveMediaUrl(selectedLesson.image) : '';
   const selectedLessonImageFile = selectedLesson?.image?.split('/').pop()?.normalize('NFC') || '';
   const contentIncludesSelectedImage = Boolean(
@@ -323,13 +329,13 @@ const UserLessons = () => {
   }, [selectedLesson]);
 
   return (
-    <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-3xl xl:border xl:border-white/5 xl:bg-bg-card/60 xl:shadow-2xl xl:glass-card">
+    <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-2xl xl:border xl:border-white/10 xl:bg-[#0b0d12] xl:shadow-xl xl:shadow-black/20">
       
       {/* ─── LEFT: Category Tree Sidebar ─────────────────────────── */}
-      <div className="flex w-full shrink-0 flex-col rounded-2xl border border-white/5 bg-bg-card/80 xl:h-full xl:max-h-none xl:w-[420px] xl:rounded-none xl:border-0 xl:border-r xl:border-white/5 xl:bg-transparent 2xl:w-[440px]">
+      <div className="flex w-full shrink-0 flex-col rounded-2xl border border-white/5 bg-bg-card/80 xl:h-full xl:max-h-none xl:w-[380px] xl:rounded-none xl:border-0 xl:border-r xl:border-white/10 xl:bg-[#0e1016] 2xl:w-[400px]">
         
         {/* Sidebar header */}
-        <div className="border-b border-white/5 bg-white/[0.02] px-3 py-3 sm:px-4 xl:py-4">
+        <div className="border-b border-white/5 bg-white/[0.02] px-3 py-3 sm:px-4 xl:border-white/10 xl:bg-[#11141b] xl:py-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
@@ -344,8 +350,20 @@ const UserLessons = () => {
               {mobileLessons.length} konu
             </span>
           </div>
+          <div className="mb-3 hidden xl:block">
+            <div className="mb-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+              <span className="text-text-muted">Okuma ilerlemesi</span>
+              <span className="text-white">{lessonProgressPercent}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-success"
+                style={{ width: `${lessonProgressPercent}%` }}
+              />
+            </div>
+          </div>
           {/* Search */}
-          <div className="flex items-center rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 transition-colors focus-within:border-primary/40 focus-within:bg-primary/5 sm:rounded-2xl">
+          <div className="flex items-center rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 transition-colors focus-within:border-primary/40 focus-within:bg-primary/5 sm:rounded-2xl xl:rounded-lg xl:bg-black/20 xl:py-2">
             <Search className="w-3.5 h-3.5 text-text-muted mr-2 shrink-0" />
             <input
               type="text"
@@ -360,6 +378,14 @@ const UserLessons = () => {
               </button>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/videos')}
+            className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-accent-light transition hover:border-accent/35 hover:bg-accent/15 sm:rounded-2xl xl:rounded-lg xl:py-2"
+          >
+            <Play className="h-3.5 w-3.5 fill-current" />
+            Video Dersler
+          </button>
         </div>
 
         {/* Mobile horizontal lesson rail */}
@@ -417,7 +443,7 @@ const UserLessons = () => {
         </div>
 
         {/* Desktop tree scroll area */}
-        <div className="hidden xl:block flex-1 min-h-0 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
+        <div className="hidden xl:block flex-1 min-h-0 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <Loader2 className="w-7 h-7 animate-spin text-primary mb-2" />
@@ -433,14 +459,14 @@ const UserLessons = () => {
                   key={cat._id}
                   disabled={cat.isPro && !user?.proStatus}
                   onClick={() => cat.content?.trim() && handleSelect(cat)}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-left transition-all
-                    ${selectedLesson?._id === cat._id ? 'bg-gradient-to-r from-primary/20 to-accent/10 text-white border border-primary/35 shadow-lg shadow-primary/10' : 'bg-white/[0.025] hover:bg-white/[0.06] text-text-secondary hover:text-white border border-white/[0.04] hover:border-white/10'}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all
+                    ${selectedLesson?._id === cat._id ? 'border border-primary/35 bg-primary/10 text-white shadow-sm shadow-primary/10' : 'border border-white/[0.04] bg-white/[0.018] text-text-secondary hover:border-white/10 hover:bg-white/[0.055] hover:text-white'}
                     ${cat.isPro && !user?.proStatus ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
                 >
-                  <span className="w-9 h-9 rounded-xl bg-black/20 border border-white/5 flex items-center justify-center shrink-0">
+                  <span className="w-8 h-8 rounded-lg bg-black/20 border border-white/5 flex items-center justify-center shrink-0">
                     {cat.image ? (
-                      <img src={resolveMediaUrl(cat.image)} alt="" className="w-full h-full rounded-xl object-cover" />
+                      <img src={resolveMediaUrl(cat.image)} alt="" className="w-full h-full rounded-lg object-cover" />
                     ) : (
                       <FileText className="w-4 h-4 text-text-muted" />
                     )}
@@ -473,7 +499,7 @@ const UserLessons = () => {
       </div>
 
       {/* ─── RIGHT: Content Reader ────────────────────────────────── */}
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/5 bg-bg-card/70 xl:h-full xl:min-h-[62vh] xl:rounded-none xl:border-0 xl:bg-transparent">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/5 bg-bg-card/70 xl:h-full xl:min-h-[62vh] xl:rounded-none xl:border-0 xl:bg-[#0f1117]">
         <AnimatePresence mode="wait">
           {selectedLesson ? (
             <MotionDiv
@@ -485,8 +511,8 @@ const UserLessons = () => {
               className="flex h-full min-h-[62vh] flex-col"
             >
               {/* Content Header */}
-              <div className="flex shrink-0 items-start gap-4 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:px-8 xl:py-6">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/20 text-primary-light shadow-lg shadow-primary/10">
+              <div className="flex shrink-0 items-start gap-4 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:border-white/10 xl:bg-none xl:bg-[#11141b] xl:px-8 xl:py-5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/20 text-primary-light shadow-lg shadow-primary/10 xl:h-10 xl:w-10 xl:rounded-lg xl:shadow-none">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -504,11 +530,21 @@ const UserLessons = () => {
                   {selectedLesson.description && (
                     <p className="text-xs text-text-muted mt-1.5 line-clamp-1 font-semibold">{selectedLesson.description}</p>
                   )}
+                  <div className="mt-3 hidden flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-muted xl:flex">
+                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1">
+                      Ders {selectedLessonIndex > 0 ? selectedLessonIndex : '-'} / {contentLessons.length || '-'}
+                    </span>
+                    {completedIds.includes(selectedLesson._id) && (
+                      <span className="rounded-full border border-success/20 bg-success/10 px-2.5 py-1 text-success">
+                        Tamamlandı
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Markdown Body */}
-              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 custom-scrollbar sm:px-6 sm:py-7 xl:px-8 xl:py-8">
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 custom-scrollbar sm:px-6 sm:py-7 xl:px-10 xl:py-8">
                 {selectedLesson.isPro && !user?.proStatus ? (
                   <div className="flex flex-col items-center justify-center h-full text-center gap-5">
                     <div className="w-24 h-24 rounded-[32px] border-2 border-dashed border-warning/30 flex items-center justify-center">
@@ -529,7 +565,7 @@ const UserLessons = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="prose prose-invert prose-sm mx-auto max-w-none sm:prose-base xl:max-w-3xl
+                  <div className="prose prose-invert prose-sm mx-auto max-w-none sm:prose-base xl:max-w-4xl
                     prose-headings:font-black prose-headings:tracking-tight prose-headings:text-white
                     prose-h1:text-xl sm:prose-h1:text-2xl prose-h2:text-lg sm:prose-h2:text-xl prose-h2:border-b prose-h2:border-white/10 prose-h2:pb-3
                     prose-p:text-white/85 prose-p:leading-7 sm:prose-p:leading-relaxed
@@ -588,9 +624,9 @@ const UserLessons = () => {
                     )}
 
                     {/* Konu Sonu: Kısa Teste Geçiş */}
-                    <div className="mt-12 sm:mt-20 pt-10 border-t border-white/5 pb-8 not-prose">
-                      <div className="relative overflow-hidden rounded-[32px] border border-success/25 bg-gradient-to-br from-success/15 via-white/[0.01] to-transparent p-6 sm:p-10 text-center shadow-lg shadow-success/5">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-success/5 blur-3xl pointer-events-none rounded-full" />
+                    <div className="mt-12 sm:mt-20 pt-10 border-t border-white/5 pb-8 not-prose xl:mt-14 xl:pt-8">
+                      <div className="relative overflow-hidden rounded-[32px] border border-success/25 bg-gradient-to-br from-success/15 via-white/[0.01] to-transparent p-6 sm:p-10 text-center shadow-lg shadow-success/5 xl:rounded-2xl xl:border-white/10 xl:bg-none xl:bg-white/[0.025] xl:p-7 xl:shadow-none">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-success/5 blur-3xl pointer-events-none rounded-full xl:hidden" />
                         <div className="relative z-10 flex flex-col items-center">
                           <div className="w-16 h-16 rounded-2xl bg-success/10 border border-success/20 flex items-center justify-center mb-5 shadow-lg shadow-success/10">
                             <Zap className="w-8 h-8 text-success" />

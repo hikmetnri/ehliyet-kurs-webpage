@@ -6,7 +6,7 @@ import {
   ClipboardList, Clock, Lock,
   Loader2, BookOpen, Target, FileQuestion,
   Play, ListChecks, AlertCircle, GraduationCap, CheckCircle2, XCircle,
-  ChevronDown, ChevronUp, Sparkles
+  ChevronDown
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import { trackEvent } from '../../utils/analytics';
@@ -189,6 +189,8 @@ const UserExams = () => {
     .filter((exam) => exam.isPro && !user?.proStatus)
     .map((exam) => exam._id)
     .join(',');
+  const completedExamCount = Object.keys(latestResults).length;
+  const passedExamCount = Object.values(latestResults).filter((result) => result?.passed).length;
 
   useEffect(() => {
     if (!lockedExamIds) return;
@@ -246,32 +248,30 @@ const UserExams = () => {
   return (
     <>
       {/* Desktop View */}
-      <div className="hidden lg:block space-y-7 pb-10 text-white">
+      <div className="hidden lg:block space-y-6 pb-10 text-white">
         
         {/* Header */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-primary-light" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Sınav Değerlendirme Sistemi</span>
+        <div className="rounded-2xl border border-white/10 bg-[#0f1117] p-5 shadow-xl shadow-black/10">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Sınav Merkezi</p>
+              <h1 className="mt-1 text-3xl font-black tracking-tight text-white">Testler ve Denemeler</h1>
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
+                Kısa konu testleri, 50 soruluk denemeler, MEB simülasyonu ve yanlış tekrarları tek yerde.
+              </p>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white">Sınav Merkezi</h1>
-            <p className="mt-1 text-sm font-semibold text-text-muted">
-              Seçili Paket: <span className="gradient-text font-black uppercase tracking-widest">{user?.selectedCategoryName}</span>
-            </p>
-          </div>
-          <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md px-5 py-3.5 text-[10px] font-black uppercase tracking-widest text-text-secondary shadow-lg shadow-black/5">
-            <ClipboardList className="h-4.5 w-4.5 text-primary-light" />
-            <span className="text-white font-black">{generalExams.length}</span> deneme · <span className="text-white font-black">{shortTests.length}</span> kısa test
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-right">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Seçili paket</p>
+              <p className="mt-1 text-sm font-black uppercase tracking-widest text-white">{user?.selectedCategoryName}</p>
+            </div>
           </div>
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Card 1: Toplam Sınav */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-primary/30 transition-all duration-300">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-primary/25">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-primary/10 text-primary-light border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary-light">
                 <ListChecks className="w-6 h-6" />
               </div>
               <div>
@@ -281,10 +281,9 @@ const UserExams = () => {
             </div>
           </div>
 
-          {/* Card 2: Konu Testi */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-accent/30 transition-all duration-300">
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-accent/25">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-accent/10 text-accent-light border border-accent/20 group-hover:scale-110 transition-transform duration-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent-light">
                 <BookOpen className="w-6 h-6" />
               </div>
               <div>
@@ -294,10 +293,9 @@ const UserExams = () => {
             </div>
           </div>
 
-          {/* Card 3: Genel Deneme */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-warning/30 transition-all duration-300">
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-warning/25">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-warning/10 text-warning border border-warning/20 group-hover:scale-110 transition-transform duration-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-warning/20 bg-warning/10 text-warning">
                 <Target className="w-6 h-6" />
               </div>
               <div>
@@ -306,20 +304,31 @@ const UserExams = () => {
               </div>
             </div>
           </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-success/25">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-success/20 bg-success/10 text-success">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white leading-none">{passedExamCount}/{completedExamCount}</h3>
+                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">Başarılı Sonuç</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Wrong Review Quick Entry */}
-        <div className={`relative overflow-hidden rounded-[24px] border p-6 transition-all duration-300 shadow-lg ${
+        <div className={`rounded-2xl border p-5 transition-colors ${
           reviewDueCount > 0
-            ? 'border-primary/25 bg-gradient-to-br from-primary/15 to-transparent shadow-primary/5'
-            : 'border-white/5 bg-gradient-to-br from-white/[0.02] to-transparent shadow-black/10'
+            ? 'border-primary/25 bg-primary/10'
+            : 'border-white/10 bg-[#0f1117]'
         }`}>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] pointer-events-none rounded-full" />
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all ${
                 reviewDueCount > 0
-                  ? 'border-primary/30 bg-primary/20 text-primary-light shadow-lg shadow-primary/10'
+                  ? 'border-primary/30 bg-primary/20 text-primary-light'
                   : 'border-white/10 bg-black/20 text-text-muted'
               }`}>
                 <ListChecks className="h-6 w-6" />
@@ -338,7 +347,7 @@ const UserExams = () => {
               onClick={() => navigate('/dashboard/exams/wrong-review')}
               className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all ${
                 reviewDueCount > 0
-                  ? 'bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 cursor-pointer'
+                  ? 'bg-primary hover:bg-primary-light text-white active:scale-95 cursor-pointer'
                   : 'cursor-not-allowed border border-white/10 bg-white/5 text-text-muted'
               }`}
             >
@@ -349,7 +358,7 @@ const UserExams = () => {
         </div>
 
         {/* Filter Tabs - Sliding Pill Container */}
-        <div className="relative flex p-1.5 rounded-[24px] border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-lg shadow-black/10">
+        <div className="relative flex rounded-2xl border border-white/10 bg-[#0f1117] p-1.5">
           {tabs.map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -357,27 +366,27 @@ const UserExams = () => {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className="relative flex-1 py-4 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-center transition-colors duration-300 focus:outline-none z-10 cursor-pointer"
+                className="relative z-10 flex flex-1 flex-col items-center justify-center gap-1.5 rounded-xl py-3 text-center transition-colors duration-300 focus:outline-none cursor-pointer"
               >
                 {isActive && (
                   <motion.div
                     layoutId="activeExamTab"
-                    className="absolute inset-0 bg-primary rounded-2xl shadow-lg shadow-primary/20 z-[-1]"
+                    className="absolute inset-0 z-[-1] rounded-xl border border-primary/35 bg-primary/15"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
                 <div className="flex items-center gap-2">
-                  <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-white' : 'text-primary-light'}`} />
+                  <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-primary-light' : 'text-text-muted'}`} />
                   <span className={`text-sm font-black tracking-tight ${isActive ? 'text-white' : 'text-text-secondary'}`}>
                     {tab.label}
                   </span>
                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-white/5 text-text-muted'
+                    isActive ? 'bg-primary/20 text-primary-light' : 'bg-white/5 text-text-muted'
                   }`}>
                     {tab.count}
                   </span>
                 </div>
-                <span className={`text-[10px] font-semibold leading-none ${isActive ? 'text-white/70' : 'text-text-muted'}`}>
+                <span className={`text-[10px] font-semibold leading-none ${isActive ? 'text-text-secondary' : 'text-text-muted'}`}>
                   {tab.hint}
                 </span>
               </button>
@@ -386,13 +395,13 @@ const UserExams = () => {
         </div>
 
         {activeTab === 'short_tests' && (
-          <div className="glass-card rounded-[24px] border border-white/5 p-5 shadow-lg shadow-black/5">
+          <div className="rounded-2xl border border-white/10 bg-[#0f1117] p-5">
             <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <p className="text-sm font-black text-white">Kısa Test Kategorileri</p>
                 <p className="text-xs font-semibold text-text-muted mt-0.5">Konu grubunu seç, alt testleri filtrele.</p>
               </div>
-              <span className="inline-flex rounded-full bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+              <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
                 {displayedExams.length} test listeleniyor
               </span>
             </div>
@@ -411,7 +420,7 @@ const UserExams = () => {
                     onClick={() => setActiveShortGroup(groupName)}
                     className={`relative rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                       active
-                        ? 'bg-primary text-white shadow-md shadow-primary/20 border border-primary'
+                        ? 'bg-primary/15 text-white border border-primary/35'
                         : 'border border-white/10 bg-white/5 text-text-muted hover:border-white/20 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -437,7 +446,7 @@ const UserExams = () => {
             <span className="text-text-muted text-[10px] uppercase tracking-widest font-black">Sınavlar Yükleniyor...</span>
           </div>
         ) : displayedExams.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 text-center glass-card rounded-[3rem] border border-dashed border-white/10">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0f1117] py-24 text-center">
             <ClipboardList className="w-16 h-16 text-text-muted opacity-30 mb-6" />
             <p className="text-lg font-black text-white tracking-tight mb-2">Bu alanda sınav bulunamadı</p>
             <p className="text-sm font-medium text-text-muted max-w-sm">Seçtiğiniz kategoriye ait sınav içerikleri kısa süre içinde admin tarafından eklenecektir.</p>
@@ -459,25 +468,25 @@ const UserExams = () => {
 
             // Glow color configurations based on exam type
             let cardTheme = {
-              borderHover: 'hover:border-primary/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]',
+              borderHover: 'hover:border-primary/30',
               iconBg: 'bg-primary/10 border-primary/20 text-primary-light',
               badgeStyle: 'bg-primary/10 text-primary-light border-primary/20',
-              btnStyle: 'bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/20'
+              btnStyle: 'bg-primary hover:bg-primary-light text-white'
             };
 
             if (isGeneral) {
               cardTheme = {
-                borderHover: 'hover:border-warning/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]',
+                borderHover: 'hover:border-warning/30',
                 iconBg: 'bg-warning/10 border-warning/20 text-warning',
                 badgeStyle: 'bg-warning/10 text-warning border-warning/20',
-                btnStyle: 'bg-warning hover:bg-warning-light text-white shadow-lg shadow-warning/20'
+                btnStyle: 'bg-warning hover:bg-warning-light text-white'
               };
             } else if (isSimulation) {
               cardTheme = {
-                borderHover: 'hover:border-success/30 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)]',
+                borderHover: 'hover:border-success/30',
                 iconBg: 'bg-success/10 border-success/20 text-success',
                 badgeStyle: 'bg-success/10 text-success border-success/20',
-                btnStyle: 'bg-success hover:bg-success-light text-white shadow-lg shadow-success/20'
+                btnStyle: 'bg-success hover:bg-success-light text-white'
               };
             }
 
@@ -508,28 +517,26 @@ const UserExams = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}
                 transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.09) }}
-                className={`glass-card p-6 rounded-[24px] border flex flex-col justify-between gap-5 transition-all duration-300 relative overflow-hidden group ${
+                className={`relative flex flex-col justify-between gap-5 overflow-hidden rounded-2xl border bg-[#0f1117] p-5 transition-all duration-300 group ${
                   isLocked
                     ? 'border-warning/10 opacity-75'
                     : completed
                       ? passed
-                        ? 'border-success/25 bg-success/[0.02] hover:border-success/40 ' + cardTheme.borderHover
-                        : 'border-danger/25 bg-danger/[0.02] hover:border-danger/40 ' + cardTheme.borderHover
-                      : 'border-white/5 hover:-translate-y-1 ' + cardTheme.borderHover
+                        ? 'border-success/25 hover:border-success/40 ' + cardTheme.borderHover
+                        : 'border-danger/25 hover:border-danger/40 ' + cardTheme.borderHover
+                      : 'border-white/10 hover:-translate-y-0.5 ' + cardTheme.borderHover
                 }`}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.01] blur-xl pointer-events-none rounded-full" />
-                
                 {/* Top Header */}
                 <div>
                   <div className="flex items-start justify-between gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center border shrink-0 transition-transform duration-300 group-hover:scale-105 ${cardTheme.iconBg}`}>
+                    <div className={`w-11 h-11 rounded-lg flex items-center justify-center border shrink-0 transition-colors duration-300 ${cardTheme.iconBg}`}>
                       <Icon className="w-5.5 h-5.5" />
                     </div>
                     
                     <div className="flex flex-col items-end gap-1.5">
                       {isLocked && (
-                        <span className="flex items-center gap-1.5 px-2.5 py-1 bg-warning/15 text-warning border border-warning/20 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-lg shadow-warning/5 animate-pulse">
+                        <span className="flex items-center gap-1.5 px-2.5 py-1 bg-warning/15 text-warning border border-warning/20 rounded-lg text-[9px] font-black uppercase tracking-widest">
                           <Lock className="w-3 h-3" /> PRO Sınav
                         </span>
                       )}
@@ -626,7 +633,7 @@ const UserExams = () => {
           };
     
           return (
-            <MotionDiv layout className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <MotionDiv layout className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence>
                 {displayedExams.map((exam, i) => renderExamCard(exam, i))}
               </AnimatePresence>

@@ -25,6 +25,10 @@ const getTopic = (question) => (
   question.categoryName || question.subject || 'Yanlış soru'
 );
 
+const getCorrectReviewCount = (question) => (
+  Math.max(0, Math.min(3, Number(question.reviewStage || 0)))
+);
+
 const UserWrongAnswers = ({ onCountChange }) => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
@@ -33,7 +37,6 @@ const UserWrongAnswers = ({ onCountChange }) => {
   const [loading, setLoading] = useState(true);
   const [dueLoading, setDueLoading] = useState(true);
   const [error, setError] = useState('');
-  const [masteringId, setMasteringId] = useState('');
 
   const loadWrongAnswers = useCallback(async () => {
     try {
@@ -94,21 +97,6 @@ const UserWrongAnswers = ({ onCountChange }) => {
     () => questions.filter((question) => dueIds.has(normalizeId(question._id || question.questionId))).length,
     [dueIds, questions],
   );
-
-  const markMastered = async (questionId) => {
-    if (!questionId || masteringId) return;
-    try {
-      setMasteringId(questionId);
-      await api.post(`/wrong-answers/${questionId}/mastered`);
-      setQuestions((current) => current.filter((question) => normalizeId(question._id) !== questionId));
-      setDueQuestions((current) => current.filter((question) => normalizeId(question._id) !== questionId));
-      onCountChange?.(Math.max(0, questions.length - 1));
-    } catch (err) {
-      setError(err.response?.data?.error || 'Soru öğrenildi olarak işaretlenemedi.');
-    } finally {
-      setMasteringId('');
-    }
-  };
 
   if (loading) {
     return (
@@ -198,6 +186,7 @@ const UserWrongAnswers = ({ onCountChange }) => {
         {questions.map((question, index) => {
           const id = normalizeId(question._id || question.questionId);
           const isDueToday = dueIds.has(id);
+          const correctReviewCount = getCorrectReviewCount(question);
           return (
             <MotionDiv
               key={id}
@@ -230,18 +219,24 @@ const UserWrongAnswers = ({ onCountChange }) => {
                   <p className="mt-2 line-clamp-3 text-sm font-semibold leading-relaxed text-white">
                     {question.text}
                   </p>
-                  <button
-                    onClick={() => markMastered(id)}
-                    disabled={masteringId === id}
-                    className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg px-2 py-1.5 text-xs font-black text-success transition hover:bg-success/10 disabled:opacity-50"
-                  >
-                    {masteringId === id ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
+                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-black uppercase tracking-widest text-success">
+                    <span className="inline-flex items-center gap-1.5">
                       <CheckCircle2 className="h-3.5 w-3.5" />
-                    )}
-                    Öğrendim
-                  </button>
+                      {correctReviewCount}/4 doğru tekrar
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {[0, 1, 2].map((step) => (
+                        <span
+                          key={step}
+                          className={`h-1.5 w-5 rounded-full ${
+                            step < correctReviewCount
+                              ? 'bg-success'
+                              : 'bg-white/10'
+                          }`}
+                        />
+                      ))}
+                    </span>
+                  </div>
                 </div>
               </div>
             </MotionDiv>

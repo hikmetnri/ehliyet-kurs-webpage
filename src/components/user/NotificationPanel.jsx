@@ -123,14 +123,14 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-x-3 top-16 z-50 flex max-h-[calc(100vh-5rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101017] shadow-2xl shadow-black/70 ring-1 ring-black/40 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[420px] sm:max-h-[70vh]"
+          className="fixed inset-x-3 top-16 z-50 flex max-h-[calc(100vh-5rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101017] shadow-2xl shadow-black/70 ring-1 ring-black/40 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[420px] sm:max-h-[70vh] lg:mt-3 lg:w-[440px] lg:rounded-2xl lg:border-white/10 lg:bg-[#0b0d12] lg:shadow-xl"
         >
           {/* Header */}
-          <div className="flex shrink-0 items-center justify-between border-b border-white/5 bg-black/20 p-4 sm:p-5">
+          <div className="flex shrink-0 items-center justify-between border-b border-white/5 bg-black/20 p-4 sm:p-5 lg:border-white/10 lg:bg-white/[0.02]">
             <div className="flex items-center gap-3">
-              <h3 className="font-black text-lg">Bildirimler</h3>
+              <h3 className="font-black text-lg lg:text-base">Bildirimler</h3>
               {unreadCount > 0 && (
-                <span className="px-2.5 py-0.5 bg-primary/20 text-primary-light text-[10px] font-black rounded-full uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 bg-primary/20 text-primary-light text-[10px] font-black rounded-full uppercase tracking-wider lg:bg-white/[0.06] lg:text-white">
                   {unreadCount} yeni
                 </span>
               )}
@@ -140,7 +140,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                 <button
                   onClick={markAllRead}
                   disabled={actionLoading === 'all'}
-                  className="p-2 hover:bg-white/5 rounded-xl transition-colors text-text-muted hover:text-success"
+                  className="p-2 hover:bg-white/5 rounded-xl transition-colors text-text-muted hover:text-success lg:rounded-lg"
                   title="Tümünü Okundu İşaretle"
                 >
                   {actionLoading === 'all' ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCheck className="w-4 h-4" />}
@@ -148,7 +148,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
               )}
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/5 rounded-xl transition-colors text-text-muted hover:text-white"
+                className="p-2 hover:bg-white/5 rounded-xl transition-colors text-text-muted hover:text-white lg:rounded-lg"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -156,7 +156,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto bg-[#101017] custom-scrollbar">
+          <div className="flex-1 overflow-y-auto bg-[#101017] custom-scrollbar lg:bg-[#0b0d12]">
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -170,7 +170,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                 <p className="text-text-muted text-xs mt-1 opacity-60">Yeni bildirimler burada görünecek.</p>
               </div>
             ) : (
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-white/5 lg:divide-white/10">
                 {notifications.map((notif) => {
                   const config = typeConfig[notif.type] || typeConfig.system;
                   const IconComp = config.icon;
@@ -191,13 +191,13 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                           openNotificationTarget(notif);
                         }
                       }}
-                      className={`p-4 flex gap-3 transition-colors group ${
-                        notif.isRead ? 'opacity-60 hover:opacity-80' : 'bg-primary/[0.02] hover:bg-white/[0.03]'
+                      className={`p-4 flex gap-3 transition-colors group lg:px-5 ${
+                        notif.isRead ? 'opacity-60 hover:opacity-80' : 'bg-primary/[0.02] hover:bg-white/[0.03] lg:bg-white/[0.025]'
                       } ${postId ? 'cursor-pointer' : ''}`}
                     >
                       {/* Icon */}
-                      <div className={`w-10 h-10 rounded-xl ${config.bg} border ${config.border} flex items-center justify-center shrink-0`}>
-                        <IconComp className={`w-5 h-5 ${config.color}`} />
+                      <div className={`w-10 h-10 rounded-xl ${config.bg} border ${config.border} flex items-center justify-center shrink-0 lg:h-9 lg:w-9 lg:rounded-lg`}>
+                        <IconComp className={`w-5 h-5 ${config.color} lg:h-4 lg:w-4`} />
                       </div>
 
                       {/* Content */}
@@ -210,7 +210,7 @@ const NotificationPanel = ({ isOpen, onClose }) => {
                             <span className="w-2 h-2 bg-primary rounded-full shrink-0 mt-1.5 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
                           )}
                         </div>
-                        <p className="text-xs text-text-muted mt-1 line-clamp-2 leading-relaxed">{notif.message}</p>
+                        <p className="text-xs text-text-muted mt-1 line-clamp-2 leading-relaxed lg:leading-5">{notif.message}</p>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{timeAgo(notif.createdAt)}</span>
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

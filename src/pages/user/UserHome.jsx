@@ -837,15 +837,6 @@ const UserHome = () => {
                 {!user?.selectedCategoryId ? 'Sınıfını seçerek başla' : user.selectedCategoryName}
               </h2>
             </div>
-            {user?.selectedCategoryId && (
-              <button
-                onClick={() => setShowCategoryModal(true)}
-                className="inline-flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black uppercase tracking-widest text-text-secondary transition hover:border-primary/30 hover:bg-primary/10 hover:text-white"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                Sınıfı Değiştir
-              </button>
-            )}
           </div>
 
           <AnimatePresence mode="wait">
@@ -897,7 +888,7 @@ const UserHome = () => {
                   className="inline-flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-black uppercase tracking-widest transition hover:bg-white/10"
                 >
                   <Settings2 className="h-5 w-5 text-primary-light" />
-                  Düzenle
+                  Sınıfı Değiştir
                 </button>
               </Motion.div>
             )}

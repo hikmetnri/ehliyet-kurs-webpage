@@ -69,6 +69,7 @@ const mapWrongAnswerToQuestion = (item, source) => {
     testType: source?.testType || item?.testType || 'wrong_answers',
     subject: source?.subject || item?.subject || '',
     wrongCount: item?.wrongCount || 1,
+    reviewStage: Number(item?.reviewStage || 0),
     nextReviewAt: item?.nextReviewAt || null,
     lastWrongAt: item?.lastWrongAt || item?.updatedAt || null,
   };

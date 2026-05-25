@@ -97,8 +97,9 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
   const passed = score >= 70;
   const isReview = exam?.testType === 'wrong_review' || exam?._id === 'wrong_review_today';
   const isWrongPool = exam?.testType === 'wrong_answers' || exam?._id === 'wrong_answers_all';
+  const isAdaptiveReview = isReview || isWrongPool;
   const reviewSummary = reviewSync?.summary || {};
-  const resultTone = isReview || isWrongPool ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
+  const resultTone = isAdaptiveReview ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
   const toneClasses = {
     success: 'border-success bg-success/10 shadow-success/20 text-success',
     primary: 'border-primary bg-primary/10 shadow-primary/20 text-primary-light',
@@ -116,11 +117,11 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
         {/* Score Circle */}
         <div className={`w-32 h-32 rounded-full mx-auto mb-8 flex flex-col items-center justify-center border-4 shadow-xl ${toneClasses}`}>
           <span className="text-4xl font-black">{score}</span>
-          <span className="text-xs text-white/50 font-bold">{isReview ? 'BAŞARI' : 'PUAN'}</span>
+          <span className="text-xs text-white/50 font-bold">{isAdaptiveReview ? 'BAŞARI' : 'PUAN'}</span>
         </div>
 
         <h2 className={`text-2xl font-black tracking-tight mb-2 ${
-          isReview ? 'text-primary-light' : passed ? 'text-success' : 'text-danger'
+          isAdaptiveReview ? 'text-primary-light' : passed ? 'text-success' : 'text-danger'
         }`}>
           {isReview
             ? 'Tekrar Tamamlandı'
@@ -132,7 +133,7 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
           {isReview
             ? `Bugünkü tekrar testi bitti. 4 kez doğru yapılan sorular tamamlandı; diğer doğrular ileriki bir güne bırakıldı.`
             : isWrongPool
-              ? 'Doğru yaptığın sorular yanlış listenden çıkarıldı; kalanları istediğin zaman tekrar çözebilirsin.'
+              ? 'Doğru yaptığın sorular tekrar aşamasında ilerledi. Bir soru 4 doğru tekrardan sonra öğrenildi sayılır.'
             : `${exam?.name} sınavı sonuçlandı. ${passed ? 'Harika bir performans!' : 'Bir sonraki denemede başarılar!'}`}
         </p>
 
@@ -171,9 +172,9 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
               </p>
               <p className="mt-1 text-sm font-semibold leading-relaxed text-white/80">
                 {reviewSync.status === 'success'
-                  ? isReview
+                  ? isAdaptiveReview
                     ? [
-                        reviewSummary.masteredCount > 0 ? `${reviewSummary.masteredCount} soru tamamlandı ve artık tekrar listesinde görünmeyecek.` : '',
+                        reviewSummary.masteredCount > 0 ? `${reviewSummary.masteredCount} soru öğrenildi ve artık tekrar listesinde görünmeyecek.` : '',
                         reviewSummary.postponedCount > 0 ? `${reviewSummary.postponedCount} doğru soru ileriki bir güne bırakıldı.` : '',
                         reviewSummary.wrongCount > 0 ? `${reviewSummary.wrongCount} yanlış soru tekrar listesinde kaldı.` : '',
                       ].filter(Boolean).join(' ') || 'Tekrar sonuçların kaydedildi.'

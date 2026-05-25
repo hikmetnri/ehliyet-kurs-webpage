@@ -9,6 +9,26 @@ import { Menu, Bell } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
 
+const pageMeta = [
+  { match: /^\/dashboard\/lessons/, title: 'Dersler', kicker: 'Müfredat ve konu anlatımları' },
+  { match: /^\/dashboard\/exams/, title: 'Sınav Merkezi', kicker: 'Denemeler, mini testler ve tekrarlar' },
+  { match: /^\/dashboard\/favorites/, title: 'Favoriler', kicker: 'Kaydettiğin sorular' },
+  { match: /^\/dashboard\/stats/, title: 'İstatistikler', kicker: 'Gelişim ve performans takibi' },
+  { match: /^\/dashboard\/feed/, title: 'Topluluk', kicker: 'Duyurular ve paylaşımlar' },
+  { match: /^\/dashboard\/support/, title: 'Destek', kicker: 'Talepler ve mesajlar' },
+  { match: /^\/dashboard\/traffic-signs/, title: 'Trafik İşaretleri', kicker: 'Levha pratiği' },
+  { match: /^\/dashboard\/videos/, title: 'Video Dersler', kicker: 'Görsel anlatımlar' },
+  { match: /^\/dashboard\/driving-schools/, title: 'Sürücü Kursları', kicker: 'Kurs arama ve karşılaştırma' },
+  { match: /^\/dashboard\/settings/, title: 'Ayarlar', kicker: 'Profil, hedef ve tercihler' },
+];
+
+const getPageMeta = (pathname) => (
+  pageMeta.find((item) => item.match.test(pathname)) || {
+    title: 'Ana Sayfa',
+    kicker: 'Çalışma planı ve hızlı erişim',
+  }
+);
+
 const extractNotifications = (payload) => {
   if (Array.isArray(payload?.data?.notifications)) return payload.data.notifications;
   if (Array.isArray(payload?.notifications)) return payload.notifications;
@@ -18,14 +38,13 @@ const extractNotifications = (payload) => {
 
 const UserLayout = ({ fullscreen = false }) => {
   const [collapsed, setCollapsed] = useState(() => window.innerWidth < 1024);
-  const [dismissedCategoryPromptFor, setDismissedCategoryPromptFor] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const user = useAuthStore((state) => state.user);
-  const userKey = user?.id || user?._id || user?.email || 'current-user';
-  const showCategoryModal = Boolean(user && !user.selectedCategoryId && dismissedCategoryPromptFor !== userKey);
+  const showCategoryModal = Boolean(user && !user.selectedCategoryId);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Öğrenci';
   const location = useLocation();
+  const currentPage = getPageMeta(location.pathname);
   const hideHeaderOnMobile = ['/dashboard', '/dashboard/', '/dashboard/settings', '/dashboard/settings/'].includes(location.pathname);
 
   const fetchUnreadCount = useCallback(async () => {
@@ -56,24 +75,21 @@ const UserLayout = ({ fullscreen = false }) => {
   }, [fetchUnreadCount]);
 
   return (
-    <div className="flex bg-bg-dark min-h-screen text-text-primary overflow-hidden">
+    <div className="flex bg-bg-dark min-h-screen text-text-primary overflow-hidden lg:bg-[#07080c]">
       
       {/* Onboarding Modals */}
 
       <CategorySelectorModal 
         isOpen={showCategoryModal} 
-        onClose={() => setDismissedCategoryPromptFor(userKey)} 
+        required
       />
 
       <UserSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
-        {/* Dekoratif Işıklar - Sayfa Geneli */}
-        <div className="absolute top-0 right-0 hidden w-96 h-96 bg-primary/5 blur-[100px] pointer-events-none rounded-full lg:block" />
-        
         {/* Topbar */}
-        <header className={`h-14 lg:h-16 bg-[#121212]/95 lg:bg-bg-dark/80 backdrop-blur-xl border-b border-white/10 lg:border-white/5 flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-6 sticky top-0 z-10 shrink-0 ${hideHeaderOnMobile ? 'hidden lg:flex' : 'flex'}`}>
+        <header className={`h-14 lg:h-[72px] bg-[#121212]/95 lg:bg-[#090b10]/95 backdrop-blur-xl border-b border-white/10 lg:border-white/10 flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-8 sticky top-0 z-10 shrink-0 ${hideHeaderOnMobile ? 'hidden lg:flex' : 'flex'}`}>
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setCollapsed(!collapsed)}
@@ -91,9 +107,9 @@ const UserLayout = ({ fullscreen = false }) => {
               </h2>
             </div>
             <div className="hidden min-w-0 lg:block">
-              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Merhaba,</p>
-              <h2 className="max-w-[34vw] truncate text-base font-black leading-tight text-white">
-                {fullName}
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-text-muted">{currentPage.kicker}</p>
+              <h2 className="mt-1 max-w-[42vw] truncate text-xl font-black leading-tight tracking-tight text-white">
+                {currentPage.title}
               </h2>
             </div>
           </div>
@@ -103,10 +119,10 @@ const UserLayout = ({ fullscreen = false }) => {
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className={`relative w-10 h-10 flex items-center justify-center rounded-[14px] border transition-all group ${
+                className={`relative w-10 h-10 lg:h-9 lg:w-9 flex items-center justify-center rounded-[14px] lg:rounded-xl border transition-all group ${
                   showNotifications
                     ? 'bg-primary/10 border-primary/30 text-primary-light'
-                    : 'bg-white/[0.02] border-white/5 text-text-muted hover:text-white hover:bg-white/[0.05]'
+                    : 'bg-white/[0.02] border-white/5 lg:border-white/10 text-text-muted hover:text-white hover:bg-white/[0.05]'
                 }`}
               >
                 <Bell className={`w-5 h-5 transition-transform ${showNotifications ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-12'}`} />
@@ -125,19 +141,19 @@ const UserLayout = ({ fullscreen = false }) => {
             </div>
 
             {/* User XP Badge */}
-            <div className="flex items-center gap-2 border-l border-white/10 pl-2 sm:gap-3 sm:pl-3">
+            <div className="flex items-center gap-2 border-l border-white/10 pl-2 sm:gap-3 sm:pl-3 lg:pl-4">
               <div className="hidden max-w-[180px] text-right sm:block lg:max-w-[220px]">
                 <p className="truncate text-xs font-bold leading-none text-white">{fullName}</p>
                 <div className="flex items-center justify-end gap-1.5 mt-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                  <p className="text-[10px] text-accent-light font-bold uppercase tracking-wider">
+                  <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                  <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
                     Seviye {user?.level || 1} • {user?.totalScore || 0} XP
                   </p>
                 </div>
               </div>
               <div className="relative">
-                <div className="h-9 w-9 rounded-[13px] bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 sm:h-10 sm:w-10 sm:rounded-[14px]">
-                  <div className="w-full h-full bg-bg-dark rounded-[12px] flex items-center justify-center overflow-hidden">
+                <div className="h-9 w-9 rounded-[13px] bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 sm:h-10 sm:w-10 sm:rounded-[14px] lg:bg-white/10 lg:shadow-none">
+                  <div className="w-full h-full bg-bg-dark rounded-[12px] flex items-center justify-center overflow-hidden lg:bg-[#090b10]">
                     {user?.avatarUrl ? (
                       <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
