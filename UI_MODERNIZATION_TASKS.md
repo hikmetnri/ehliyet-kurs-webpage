@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.10 - Desktop web'de `UserDrivingSchools.jsx` sürücü kursları ekranını modernize et.
+NEXT: Task 2.11 - Desktop web'de `UserSupport.jsx` destek ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -108,8 +108,8 @@ NEXT: Task 2.10 - Desktop web'de `UserDrivingSchools.jsx` sürücü kursları ek
 - DONE 2.9: `src/pages/user/UserVideos.jsx`
   - Yapıldı: Video ekranına özet metrikler, daha sakin kategori kartları, kategori içi arama ve sade video oynatıcı alanı eklendi.
 
-- TODO 2.10: `src/pages/user/UserDrivingSchools.jsx`
-  - Liste, arama, lokasyon ve detay kartları daha kullanışlı yapılacak.
+- DONE 2.10: `src/pages/user/UserDrivingSchools.jsx`
+  - Yapıldı: Sürücü kursları ekranı özet metrikler, sade filtre paneli ve daha taranabilir kurs kartlarıyla düzenlendi.
 
 - TODO 2.11: `src/pages/user/UserSupport.jsx`
   - Mesajlaşma veya destek talebi akışı daha net olacak.
