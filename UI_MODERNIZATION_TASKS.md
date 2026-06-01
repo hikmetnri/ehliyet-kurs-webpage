@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.9 - Desktop web'de `UserVideos.jsx` video ekranını modernize et.
+NEXT: Task 2.10 - Desktop web'de `UserDrivingSchools.jsx` sürücü kursları ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -105,8 +105,8 @@ NEXT: Task 2.9 - Desktop web'de `UserVideos.jsx` video ekranını modernize et.
 - DONE 2.8: `src/pages/user/UserTrafficSigns.jsx`
   - Yapıldı: Levha kütüphanesi özet metrikler, arama/kategori şeridi, daha stabil görsel kartlar ve geniş detay modalıyla yenilendi.
 
-- TODO 2.9: `src/pages/user/UserVideos.jsx`
-  - Video kategori seçimi, video listesi ve boş durumlar iyileştirilecek.
+- DONE 2.9: `src/pages/user/UserVideos.jsx`
+  - Yapıldı: Video ekranına özet metrikler, daha sakin kategori kartları, kategori içi arama ve sade video oynatıcı alanı eklendi.
 
 - TODO 2.10: `src/pages/user/UserDrivingSchools.jsx`
   - Liste, arama, lokasyon ve detay kartları daha kullanışlı yapılacak.
