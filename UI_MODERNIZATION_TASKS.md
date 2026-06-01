@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.4 - Desktop web'de `UserExamSolve.jsx` sınav çözme ekranını modernize et.
+NEXT: Task 2.5 - Desktop web'de `UserStats.jsx` istatistik ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -86,9 +86,9 @@ NEXT: Task 2.4 - Desktop web'de `UserExamSolve.jsx` sınav çözme ekranını mo
   - Yapıldı: Desktop sınav merkezi, metrikler, sekmeler, yanlış tekrar kartı ve sınav kartları daha sade ve karşılaştırılabilir hale getirildi.
   - CTA sayısı azaltılsın, sınav kartları karşılaştırılabilir olsun.
 
-- TODO 2.4: `src/pages/user/UserExamSolve.jsx`
-  - Sınav çözme ekranı daha odaklı yapılacak.
-  - Mobilde seçenekler, ilerleme, süre ve raporlama çakışmayacak.
+- DONE 2.4: `src/pages/user/UserExamSolve.jsx`
+  - Yapıldı: Desktop çözme ekranı soru haritası, odaklı soru alanı, zaman/durum paneli ve sade alt aksiyonlarla modernize edildi.
+  - Mobilde soru listesi alt panel davranışı korunarak aksiyonlar daha stabil hale getirildi.
 
 - TODO 2.5: `src/pages/user/UserStats.jsx`
   - Grafikler daha okunur, özet metrikler daha az kalabalık olacak.

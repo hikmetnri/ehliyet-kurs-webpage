@@ -692,232 +692,403 @@ const UserExamSolve = ({ customType }) => {
   const q = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
   const emptyCount = questions.length - answeredCount;
-  return (
-    <div className="flex min-h-[calc(100vh-96px)] flex-col overflow-hidden sm:h-[calc(100vh-128px)]">
+  const completionPct = questions.length > 0 ? Math.round((answeredCount / questions.length) * 100) : 0;
+  const questionProgressPct = questions.length > 0 ? ((currentIdx + 1) / questions.length) * 100 : 0;
+  const correctAnsweredCount = showFeedback
+    ? questions.reduce((sum, question, index) => (
+        answers[index] === question.correctAnswer ? sum + 1 : sum
+      ), 0)
+    : 0;
+  const wrongAnsweredCount = showFeedback
+    ? questions.reduce((sum, question, index) => (
+        answers[index] !== undefined && answers[index] !== question.correctAnswer ? sum + 1 : sum
+      ), 0)
+    : 0;
+  const modeLabel = {
+    short: 'Kısa Test',
+    review: 'Yanlış Tekrarı',
+    wrong: 'Yanlışlarım',
+    mock: 'Deneme',
+    real: 'Gerçek Simülasyon',
+  }[mode] || 'Sınav';
+  const currentAnswer = answers[currentIdx];
+  const hasCurrentAnswer = currentAnswer !== undefined;
+  const currentAnswerCorrect = hasCurrentAnswer && currentAnswer === q?.correctAnswer;
+  const questionNavClass = (question, index) => {
+    const answered = answers[index] !== undefined;
+    const current = index === currentIdx;
 
-      {/* Header Bar */}
-      <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 px-3 sm:px-6 py-4 bg-bg-card border-b border-white/5">
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-          <button onClick={() => { if (window.confirm('Sınavdan çıkmak istiyor musunuz? İlerlemeniz kaydedilmez.')) navigate('/dashboard/exams'); }} className="p-2 hover:bg-white/5 rounded-xl transition-colors">
-            <ChevronLeft className="w-5 h-5 text-text-muted" />
-          </button>
-          <div className="min-w-0">
-            <h3 className="text-sm font-black text-white truncate max-w-[52vw] sm:max-w-xs">{exam.name}</h3>
-            <p className="text-[10px] font-bold text-text-muted uppercase">Soru {currentIdx + 1} / {questions.length}</p>
+    if (current) return 'border-white bg-white text-bg-dark shadow-lg shadow-white/10';
+    if (!answered) return 'border-white/10 bg-white/[0.04] text-text-muted hover:border-white/20 hover:bg-white/[0.08] hover:text-white';
+    if (showFeedback) {
+      return answers[index] === question.correctAnswer
+        ? 'border-success/35 bg-success/15 text-success'
+        : 'border-danger/35 bg-danger/15 text-danger';
+    }
+    return 'border-primary/35 bg-primary/15 text-primary-light';
+  };
+
+  return (
+    <div className="flex min-h-[calc(100vh-96px)] flex-col overflow-hidden bg-[#07080c] sm:h-[calc(100vh-128px)]">
+      <header className="shrink-0 border-b border-white/10 bg-[#0b0d13]/95 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5 lg:flex-nowrap lg:px-6">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <button
+              onClick={() => { if (window.confirm('Sınavdan çıkmak istiyor musunuz? İlerlemeniz kaydedilmez.')) navigate('/dashboard/exams'); }}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-text-muted transition hover:bg-white/[0.07] hover:text-white"
+              title="Sınavdan çık"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="min-w-0">
+              <div className="mb-1 flex min-w-0 items-center gap-2">
+                <span className="rounded-lg border border-accent/20 bg-accent/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-accent-light">
+                  {modeLabel}
+                </span>
+                <span className="hidden truncate text-[10px] font-bold uppercase tracking-widest text-text-muted sm:block">
+                  {exam.categoryName || 'Genel'}
+                </span>
+              </div>
+              <h1 className="truncate text-sm font-black leading-tight text-white sm:max-w-[44vw] lg:max-w-[520px]">
+                {exam.name}
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              onClick={() => toggleFavorite(q?._id)}
+              disabled={favLoading || !q?._id}
+              className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
+                favoriteIds.includes(q?._id)
+                  ? 'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                  : 'border-white/10 bg-white/[0.04] text-text-muted hover:border-amber-500/25 hover:bg-amber-500/10 hover:text-amber-400'
+              }`}
+              title={favoriteIds.includes(q?._id) ? "Favorilerden çıkar" : "Favorilere ekle"}
+            >
+              <Star className={`h-4 w-4 ${favoriteIds.includes(q?._id) ? 'fill-amber-400' : ''}`} />
+            </button>
+            <button
+              onClick={() => setShowReport(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-text-muted transition hover:border-warning/25 hover:bg-warning/10 hover:text-warning"
+              title="Bu soruyu raporla"
+            >
+              <Flag className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:grid-cols-[auto_auto]">
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+              <p className="text-[9px] font-black uppercase tracking-widest text-text-muted">İlerleme</p>
+              <p className="mt-1 text-sm font-black text-white">{currentIdx + 1} / {questions.length}</p>
+            </div>
+            <div className={`rounded-xl border px-3 py-2 ${
+              timer.isDanger ? 'border-danger/35 bg-danger/10 text-danger' :
+              timer.isWarning ? 'border-warning/35 bg-warning/10 text-warning' :
+              'border-white/10 bg-white/[0.04] text-white'
+            }`}>
+              <p className="text-[9px] font-black uppercase tracking-widest opacity-70">Süre</p>
+              <p className="mt-1 flex items-center gap-2 text-sm font-black">
+                <Clock className="h-4 w-4" /> {timer.formatted}
+              </p>
+            </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 min-w-0">
-          {/* Favori Butonu */}
-          <button
-            onClick={() => toggleFavorite(q?._id)}
-            disabled={favLoading || !q?._id}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl transition-all text-xs font-bold border ${
-              favoriteIds.includes(q?._id)
-                ? 'bg-amber-500/10 border-amber-500/30 text-amber-500'
-                : 'bg-white/5 border-white/10 text-text-muted hover:text-amber-500 hover:bg-amber-500/10 hover:border-amber-500/20'
-            }`}
-            title={favoriteIds.includes(q?._id) ? "Favorilerden çıkar" : "Favorilere ekle"}
-          >
-            <Star className={`w-3.5 h-3.5 ${favoriteIds.includes(q?._id) ? 'fill-amber-500' : ''}`} />
-            <span className="hidden sm:inline">Favori</span>
-          </button>
-
-          {/* Raporla Butonu */}
-          <button
-            onClick={() => setShowReport(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-text-muted hover:text-warning hover:bg-warning/10 hover:border-warning/20 transition-all text-xs font-bold"
-            title="Bu soruyu raporla"
-          >
-            <Flag className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Raporla</span>
-          </button>
-        </div>
-
-        {/* Timer */}
-        <div className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl border font-black text-sm transition-all ${
-          timer.isDanger ? 'bg-danger/10 border-danger/30 text-danger animate-pulse' :
-          timer.isWarning ? 'bg-warning/10 border-warning/30 text-warning' :
-          'bg-white/5 border-white/10 text-white'
-        }`}>
-          <Clock className="w-4 h-4" /> {timer.formatted}
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="w-full h-1 bg-black/30 shrink-0">
-        <MotionDiv
-          className="h-full bg-primary"
-          animate={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
-          transition={{ duration: 0.3 }}
-        />
-      </div>
-
-      {/* Question Area */}
-      <div className="flex-1 overflow-y-auto">
-        <AnimatePresence mode="wait">
+        <div className="h-1 bg-black/30">
           <MotionDiv
-            key={currentIdx}
-            initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.2 }}
-            className="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8"
-          >
-            {/* Question */}
-            <div className="mb-8">
-              <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-xl text-[10px] font-black text-primary-light uppercase tracking-widest mb-4">
-                Soru {currentIdx + 1}
-              </span>
-              <p className="text-white text-base font-semibold leading-relaxed">{q.text}</p>
+            className="h-full bg-accent"
+            animate={{ width: `${questionProgressPct}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+      </header>
 
-              {/* Media */}
-              {q.media && (
-                <div className="mt-5">
-                  <img
-                    src={resolveMediaUrl(q.media)}
-                    alt="Soru görseli"
-                    className="max-h-56 rounded-2xl border border-white/10 shadow-xl object-contain mx-auto"
-                  />
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="mx-auto grid h-full max-w-[1500px] grid-cols-1 gap-4 px-3 py-4 sm:px-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-6 xl:grid-cols-[240px_minmax(0,1fr)_280px]">
+          <aside className="hidden min-h-0 rounded-2xl border border-white/10 bg-white/[0.025] lg:flex lg:flex-col">
+            <div className="border-b border-white/10 p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Soru Haritası</p>
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-2xl font-black text-white">{answeredCount}</p>
+                  <p className="mt-0.5 text-[10px] font-bold text-text-muted">işaretli</p>
                 </div>
-              )}
+                <div className="text-right">
+                  <p className="text-2xl font-black text-text-muted">{emptyCount}</p>
+                  <p className="mt-0.5 text-[10px] font-bold text-text-muted">boş</p>
+                </div>
+              </div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="h-full rounded-full bg-primary" style={{ width: `${completionPct}%` }} />
+              </div>
             </div>
 
-            {/* Options */}
-            <div className="space-y-3">
-              {q.options.map((option, idx) => {
-                const isAnswered = showFeedback && answers[currentIdx] !== undefined;
-                const isCorrectOption = idx === q.correctAnswer;
-                const selected = answers[currentIdx] === idx;
-                
-                let btnClass = 'bg-white/[0.03] border-white/10 hover:bg-white/[0.07] hover:border-white/20';
-                let iconClass = 'bg-white/5 text-text-muted border border-white/10';
-                let textClass = 'text-white/80';
-
-                if (showFeedback && isAnswered) {
-                   if (isCorrectOption) {
-                      btnClass = 'bg-success/15 border-success/40 shadow-lg shadow-success/10';
-                      iconClass = 'bg-success text-white shadow-lg shadow-success/30';
-                      textClass = 'text-white font-semibold';
-                   } else if (selected && !isCorrectOption) {
-                      btnClass = 'bg-danger/15 border-danger/40 shadow-lg shadow-danger/10';
-                      iconClass = 'bg-danger text-white shadow-lg shadow-danger/30';
-                      textClass = 'text-white font-semibold';
-                   } else {
-                      btnClass = 'bg-white/[0.01] border-white/5 opacity-50 cursor-not-allowed';
-                   }
-                } else if (selected) {
-                   btnClass = 'bg-primary/15 border-primary/40 shadow-lg shadow-primary/10';
-                   iconClass = 'bg-primary text-white shadow-lg shadow-primary/30';
-                   textClass = 'text-white font-semibold';
-                }
-
-                return (
-                  <button
-                    key={idx}
-                    disabled={isAnswered}
-                    onClick={() => handleAnswer(idx)}
-                    className={`w-full flex items-start gap-3 rounded-2xl border p-3 text-left transition-all duration-200 sm:gap-4 sm:p-4 ${btnClass}`}
-                  >
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-all ${iconClass}`}>
-                      {OPTION_LABELS[idx]}
-                    </div>
-                    <span className={`text-sm leading-relaxed pt-0.5 ${textClass}`}>
-                      {cleanOptionText(option, idx)}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Instant Feedback Notice */}
-            <AnimatePresence>
-              {showFeedback && answers[currentIdx] !== undefined && (
-                <MotionDiv
-                  initial={{ opacity: 0, height: 0, marginTop: 0 }} 
-                  animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
-                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                  className="p-6 bg-white/[0.02] border border-white/10 rounded-[1.5rem] overflow-hidden"
+            <div className="custom-scrollbar grid grid-cols-5 gap-2 overflow-y-auto p-4">
+              {questions.map((question, index) => (
+                <button
+                  key={question._id || index}
+                  type="button"
+                  onClick={() => setCurrentIdx(index)}
+                  className={`h-9 rounded-xl border text-xs font-black transition ${questionNavClass(question, index)}`}
+                  title={`${index + 1}. soru`}
                 >
-                   <div className="flex items-center gap-3 mb-3">
-                      {answers[currentIdx] === q.correctAnswer ? (
-                         <div className="flex items-center gap-2 px-3 py-1 bg-success/20 border border-success/30 rounded-lg text-success">
-                           <CheckCircle2 className="w-5 h-5" />
-                           <span className="font-black tracking-widest text-[10px] uppercase">DOĞRU CEVAP</span>
-                         </div>
-                      ) : (
-                         <div className="flex items-center gap-2 px-3 py-1 bg-danger/20 border border-danger/30 rounded-lg text-danger">
-                           <XCircle className="w-5 h-5" />
-                           <span className="font-black tracking-widest text-[10px] uppercase">YANLIŞ CEVAP</span>
-                         </div>
-                      )}
-                   </div>
-                   <p className="text-sm text-text-muted leading-relaxed font-medium">
-                     <strong className="text-white">Çözüm / Açıklama:</strong> <br/>
-                     {q.explanation || 'Bu soru için detaylı çözüm açıklaması girilmemiştir.'}
-                   </p>
-                </MotionDiv>
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-auto grid grid-cols-2 gap-2 border-t border-white/10 p-4 text-[10px] font-bold text-text-muted">
+              <span className="flex items-center gap-2"><span className="h-2 w-2 rounded bg-primary/60" /> İşaretli</span>
+              <span className="flex items-center gap-2"><span className="h-2 w-2 rounded bg-white" /> Aktif</span>
+              {showFeedback && (
+                <>
+                  <span className="flex items-center gap-2"><span className="h-2 w-2 rounded bg-success" /> Doğru</span>
+                  <span className="flex items-center gap-2"><span className="h-2 w-2 rounded bg-danger" /> Yanlış</span>
+                </>
               )}
+            </div>
+          </aside>
+
+          <main className="min-h-0 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1018] custom-scrollbar">
+            <AnimatePresence mode="wait">
+              <MotionDiv
+                key={currentIdx}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.2 }}
+                className="mx-auto max-w-4xl p-4 sm:p-6 lg:p-8"
+              >
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <span className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary-light">
+                      Soru {currentIdx + 1}
+                    </span>
+                    {hasCurrentAnswer && showFeedback && (
+                      <span className={`ml-2 inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                        currentAnswerCorrect
+                          ? 'border-success/25 bg-success/10 text-success'
+                          : 'border-danger/25 bg-danger/10 text-danger'
+                      }`}>
+                        {currentAnswerCorrect ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+                        {currentAnswerCorrect ? 'Doğru' : 'Yanlış'}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-bold text-text-muted">
+                    {showFeedback ? 'İşaretledikten sonra açıklama açılır.' : 'Cevaplar teslimden sonra değerlendirilecek.'}
+                  </p>
+                </div>
+
+                <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+                  <p className="text-base font-semibold leading-relaxed text-white sm:text-lg">
+                    {q.text}
+                  </p>
+
+                  {q.media && (
+                    <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-3">
+                      <img
+                        src={resolveMediaUrl(q.media)}
+                        alt="Soru görseli"
+                        className="mx-auto max-h-72 w-full object-contain"
+                      />
+                    </div>
+                  )}
+                </section>
+
+                <div className="mt-5 space-y-3">
+                  {q.options.map((option, idx) => {
+                    const isAnswered = showFeedback && answers[currentIdx] !== undefined;
+                    const isCorrectOption = idx === q.correctAnswer;
+                    const selected = answers[currentIdx] === idx;
+
+                    let btnClass = 'border-white/10 bg-white/[0.035] hover:border-white/20 hover:bg-white/[0.07]';
+                    let iconClass = 'border border-white/10 bg-white/5 text-text-muted';
+                    let textClass = 'text-white/80';
+
+                    if (showFeedback && isAnswered) {
+                      if (isCorrectOption) {
+                        btnClass = 'border-success/45 bg-success/10 shadow-lg shadow-success/10';
+                        iconClass = 'bg-success text-white shadow-lg shadow-success/25';
+                        textClass = 'text-white font-semibold';
+                      } else if (selected && !isCorrectOption) {
+                        btnClass = 'border-danger/45 bg-danger/10 shadow-lg shadow-danger/10';
+                        iconClass = 'bg-danger text-white shadow-lg shadow-danger/25';
+                        textClass = 'text-white font-semibold';
+                      } else {
+                        btnClass = 'border-white/5 bg-white/[0.015] opacity-55 cursor-not-allowed';
+                      }
+                    } else if (selected) {
+                      btnClass = 'border-primary/45 bg-primary/15 shadow-lg shadow-primary/10';
+                      iconClass = 'bg-primary text-white shadow-lg shadow-primary/25';
+                      textClass = 'text-white font-semibold';
+                    }
+
+                    return (
+                      <button
+                        key={idx}
+                        disabled={isAnswered}
+                        onClick={() => handleAnswer(idx)}
+                        className={`group flex w-full items-start gap-3 rounded-2xl border p-3 text-left transition-all duration-200 sm:gap-4 sm:p-4 ${btnClass}`}
+                      >
+                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all ${iconClass}`}>
+                          {OPTION_LABELS[idx]}
+                        </div>
+                        <span className={`pt-1 text-sm leading-relaxed sm:text-[15px] ${textClass}`}>
+                          {cleanOptionText(option, idx)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <AnimatePresence>
+                  {showFeedback && answers[currentIdx] !== undefined && (
+                    <MotionDiv
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: 'auto', marginTop: 24 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-5"
+                    >
+                      <div className="mb-3 flex items-center gap-3">
+                        {answers[currentIdx] === q.correctAnswer ? (
+                          <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/15 px-3 py-1 text-success">
+                            <CheckCircle2 className="h-5 w-5" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Doğru Cevap</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 rounded-lg border border-danger/30 bg-danger/15 px-3 py-1 text-danger">
+                            <XCircle className="h-5 w-5" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Yanlış Cevap</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-sm font-medium leading-relaxed text-text-muted">
+                        <strong className="text-white">Çözüm / Açıklama:</strong><br />
+                        {q.explanation || 'Bu soru için detaylı çözüm açıklaması girilmemiştir.'}
+                      </p>
+                    </MotionDiv>
+                  )}
+                </AnimatePresence>
+              </MotionDiv>
             </AnimatePresence>
-          </MotionDiv>
-        </AnimatePresence>
+          </main>
+
+          <aside className="hidden min-h-0 flex-col gap-4 xl:flex">
+            <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sınav Durumu</p>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                  <p className="text-2xl font-black text-white">{answeredCount}</p>
+                  <p className="mt-1 text-[10px] font-bold text-text-muted">İşaretli</p>
+                </div>
+                <div className="rounded-xl border border-white/10 bg-white/[0.035] p-3">
+                  <p className="text-2xl font-black text-text-muted">{emptyCount}</p>
+                  <p className="mt-1 text-[10px] font-bold text-text-muted">Boş</p>
+                </div>
+                {showFeedback && (
+                  <>
+                    <div className="rounded-xl border border-success/20 bg-success/10 p-3">
+                      <p className="text-2xl font-black text-success">{correctAnsweredCount}</p>
+                      <p className="mt-1 text-[10px] font-bold text-success/80">Doğru</p>
+                    </div>
+                    <div className="rounded-xl border border-danger/20 bg-danger/10 p-3">
+                      <p className="text-2xl font-black text-danger">{wrongAnsweredCount}</p>
+                      <p className="mt-1 text-[10px] font-bold text-danger/80">Yanlış</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Zaman</p>
+              <div className={`mt-4 rounded-2xl border p-4 ${
+                timer.isDanger ? 'border-danger/30 bg-danger/10 text-danger' :
+                timer.isWarning ? 'border-warning/30 bg-warning/10 text-warning' :
+                'border-white/10 bg-white/[0.035] text-white'
+              }`}>
+                <p className="flex items-center gap-2 text-2xl font-black">
+                  <Clock className="h-5 w-5" /> {timer.formatted}
+                </p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/30">
+                  <div className="h-full rounded-full bg-current" style={{ width: `${timer.pct}%` }} />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Araçlar</p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => toggleFavorite(q?._id)}
+                  disabled={favLoading || !q?._id}
+                  className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-xs font-black transition ${
+                    favoriteIds.includes(q?._id)
+                      ? 'border-amber-500/30 bg-amber-500/10 text-amber-400'
+                      : 'border-white/10 bg-white/[0.04] text-text-muted hover:border-amber-500/25 hover:bg-amber-500/10 hover:text-amber-400'
+                  }`}
+                >
+                  <Star className={`h-4 w-4 ${favoriteIds.includes(q?._id) ? 'fill-amber-400' : ''}`} /> Favori
+                </button>
+                <button
+                  onClick={() => setShowReport(true)}
+                  className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-3 text-xs font-black text-text-muted transition hover:border-warning/25 hover:bg-warning/10 hover:text-warning"
+                >
+                  <Flag className="h-4 w-4" /> Raporla
+                </button>
+              </div>
+            </section>
+          </aside>
+        </div>
       </div>
 
-      {/* Footer Navigation */}
-      <div className="shrink-0 px-3 sm:px-6 py-4 bg-bg-card border-t border-white/5 flex items-center justify-between gap-3 sm:gap-4">
-        {/* Question Nav dots (minimap) */}
-        <div className="hidden md:flex items-center gap-1 flex-wrap max-w-xs">
-          {questions.map((_, i) => (
+      <footer className="shrink-0 border-t border-white/10 bg-[#0b0d13]/95 px-3 py-3 backdrop-blur-xl sm:px-5 lg:px-6">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3">
+          <div className="hidden items-center gap-3 text-xs font-bold text-text-muted sm:flex">
+            <span>{answeredCount} işaretli</span>
+            <span className="h-1 w-1 rounded-full bg-white/20" />
+            <span>{emptyCount} boş</span>
+            <span className="h-1 w-1 rounded-full bg-white/20" />
+            <span>%{completionPct} tamamlandı</span>
+          </div>
+
+          <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
             <button
-              key={i}
-              onClick={() => setCurrentIdx(i)}
-              className={`w-6 h-6 rounded text-[9px] font-bold transition-all border ${
-                i === currentIdx ? 'bg-white text-black border-white scale-110' :
-                answers[i] !== undefined 
-                  ? (showFeedback 
-                       ? (answers[i] === questions[i].correctAnswer ? 'bg-success/20 text-success border-success/30' : 'bg-danger/20 text-danger border-danger/30')
-                       : 'bg-primary/30 text-primary-light border-primary/40') 
-                  : 'bg-white/5 text-text-muted border-white/10 hover:bg-white/10'
-              }`}
+              type="button"
+              onClick={() => setShowQuestionList(true)}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:bg-white/10 sm:flex-none lg:hidden"
             >
-              {i + 1}
+              <ListChecks className="h-4 w-4" /> Soru Listesi
             </button>
-          ))}
+
+            <button
+              onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
+              disabled={currentIdx === 0}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:bg-white/10 disabled:opacity-30 sm:flex-none"
+            >
+              <ChevronLeft className="h-4 w-4" /> Önceki
+            </button>
+
+            {currentIdx < questions.length - 1 ? (
+              <button
+                onClick={() => setCurrentIdx(i => i + 1)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-3 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-primary/20 transition hover:bg-primary-light active:scale-95 sm:flex-none"
+              >
+                Sonraki <ChevronRight className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => handleSubmit(false)}
+                disabled={submitting}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-success px-4 py-3 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-success/20 transition active:scale-95 disabled:opacity-50 sm:flex-none"
+              >
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4" /> Sınavı Teslim Et</>}
+              </button>
+            )}
+          </div>
         </div>
-
-        <div className="flex items-center gap-2 sm:gap-3 ml-auto w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => setShowQuestionList(true)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/10 sm:flex-none md:hidden"
-          >
-            <ListChecks className="h-4 w-4" /> Soru Listesi
-          </button>
-
-          <button
-            onClick={() => setCurrentIdx(i => Math.max(0, i - 1))}
-            disabled={currentIdx === 0}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-white/5 border border-white/10 text-white rounded-xl font-black text-xs uppercase tracking-wider hover:bg-white/10 transition-all disabled:opacity-30"
-          >
-            <ChevronLeft className="w-4 h-4" /> Önceki
-          </button>
-
-          {currentIdx < questions.length - 1 ? (
-            <button
-              onClick={() => setCurrentIdx(i => i + 1)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-primary text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-            >
-              Sonraki <ChevronRight className="w-4 h-4" />
-            </button>
-          ) : (
-            <button
-              onClick={() => handleSubmit(false)}
-              disabled={submitting}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 sm:px-5 py-3 bg-success text-white rounded-xl font-black text-xs uppercase tracking-wider shadow-lg shadow-success/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
-            >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" /> Sınavı Teslim Et</>}
-            </button>
-          )}
-        </div>
-      </div>
+      </footer>
 
       {/* Report Modal */}
       <ReportQuestionModal
@@ -928,7 +1099,7 @@ const UserExamSolve = ({ customType }) => {
 
       <AnimatePresence>
         {showQuestionList && (
-          <div className="fixed inset-0 z-[90] md:hidden">
+          <div className="fixed inset-0 z-[90] lg:hidden">
             <MotionButton
               type="button"
               aria-label="Soru listesini kapat"
@@ -962,18 +1133,8 @@ const UserExamSolve = ({ customType }) => {
                 </button>
               </div>
 
-              <div className="grid max-h-[54vh] grid-cols-5 gap-2 overflow-y-auto p-4 custom-scrollbar">
+              <div className="grid max-h-[54vh] grid-cols-5 gap-2 overflow-y-auto p-4 custom-scrollbar sm:grid-cols-8">
                 {questions.map((question, i) => {
-                  const answered = answers[i] !== undefined;
-                  const current = i === currentIdx;
-                  const statusClass = current
-                    ? 'border-white bg-white text-black scale-105'
-                    : answered
-                      ? (showFeedback && answers[i] !== question.correctAnswer
-                        ? 'border-danger/40 bg-danger/15 text-danger'
-                        : 'border-primary/40 bg-primary/20 text-primary-light')
-                      : 'border-white/10 bg-white/5 text-text-muted';
-
                   return (
                     <button
                       key={question._id || i}
@@ -982,7 +1143,7 @@ const UserExamSolve = ({ customType }) => {
                         setCurrentIdx(i);
                         setShowQuestionList(false);
                       }}
-                      className={`h-12 rounded-2xl border text-xs font-black transition-all ${statusClass}`}
+                      className={`h-12 rounded-2xl border text-xs font-black transition-all ${questionNavClass(question, i)}`}
                     >
                       {i + 1}
                     </button>
