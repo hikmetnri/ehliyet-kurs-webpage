@@ -44,12 +44,40 @@ const formatDuration = (seconds) => {
 };
 
 const MiniStat = ({ icon: Icon, label, value, color, bg }) => (
-  <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all">
-    <div className={`w-9 h-9 rounded-full flex items-center justify-center ${bg} ${color} shrink-0 mb-2`}>
+  <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-white/[0.025] border border-white/10 hover:border-white/15 transition-all">
+    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg} ${color} shrink-0 mb-2`}>
       <Icon className="w-4.5 h-4.5" />
     </div>
     <span className="text-sm font-black text-white leading-tight">{value}</span>
     <span className="text-[10px] font-bold text-text-muted mt-1 uppercase tracking-tight line-clamp-1">{label}</span>
+  </div>
+);
+
+const SectionHeader = ({ icon: Icon, title, subtitle, action }) => (
+  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.035]">
+        <Icon className="h-5 w-5 text-primary-light" />
+      </div>
+      <div>
+        <h3 className="text-base font-black tracking-tight text-white">{title}</h3>
+        {subtitle && <p className="mt-0.5 text-xs font-semibold text-text-muted">{subtitle}</p>}
+      </div>
+    </div>
+    {action}
+  </div>
+);
+
+const MetricTile = ({ icon: Icon, label, value, helper, color = 'text-white', bg = 'bg-white/[0.04]' }) => (
+  <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+    <div className="flex items-center justify-between gap-3">
+      <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</p>
+      <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${bg} ${color}`}>
+        <Icon className="h-4.5 w-4.5" />
+      </div>
+    </div>
+    <p className={`mt-3 text-2xl font-black leading-none ${color}`}>{value}</p>
+    {helper && <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">{helper}</p>}
   </div>
 );
 
@@ -154,8 +182,11 @@ const UserStats = () => {
             {(() => {
               const totalQ = stats?.totalQuestions || 0;
               const correct = stats?.totalCorrect || 0;
+              const wrong = stats?.totalWrong || 0;
               const success = stats?.successRate || 0;
               const accuracy = totalQ > 0 ? Math.round((correct / totalQ) * 100) : 0;
+              const totalDuration = stats?.totalDuration || 0;
+              const avgTime = stats?.avgTimePerQuestion || 0;
               
               const radius = 34;
               const strokeWidth = 6;
@@ -197,95 +228,92 @@ const UserStats = () => {
               const goalBorder = isGoalComplete ? 'border-success/20' : 'border-primary/20';
 
               return (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Hero Card */}
-                  <div className={`lg:col-span-2 p-6 rounded-[32px] border ${heroBorderColor} bg-gradient-to-br from-white/[0.03] to-white/[0.01] flex flex-col xs:flex-row items-center gap-6 relative overflow-hidden`}>
-                    <div className="absolute -right-16 -top-16 w-48 h-48 bg-primary/5 blur-[50px] rounded-full pointer-events-none"></div>
-                    
-                    {/* SVG Circular Accuracy Progress */}
-                    <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
-                      <svg className="w-full h-full transform -rotate-90">
-                        <circle
-                          cx="48"
-                          cy="48"
-                          r={radius}
-                          className="stroke-white/10 fill-none"
-                          strokeWidth={strokeWidth}
-                        />
-                        <motion.circle
-                          cx="48"
-                          cy="48"
-                          r={radius}
-                          className="fill-none"
-                          stroke={strokeColorHex}
-                          strokeWidth={strokeWidth}
-                          strokeDasharray={circumference}
-                          initial={{ strokeDashoffset: circumference }}
-                          animate={{ strokeDashoffset }}
-                          transition={{ duration: 1, ease: 'easeOut' }}
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span className="absolute text-base font-black text-white">%{accuracy}</span>
-                    </div>
-
-                    <div className="flex-1 text-center xs:text-left">
-                      <h2 className="text-xl font-black text-white tracking-tight">Performans Özeti</h2>
-                      <p className="text-xs text-text-secondary leading-relaxed mt-2 font-semibold">
-                        {stats?.totalExams || 0} sınav, {stats?.totalQuestions || 0} soru ve %{Math.round(success)} genel sınav başarısı elde ettiniz.
-                      </p>
-                      <span className={`inline-block mt-4 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${heroBgColor} ${heroBorderColor} ${heroColor}`}>
-                        {accuracy >= 70 ? 'Sınava Yakınsın' : accuracy >= 45 ? 'Tekrar Alanı Açık' : 'Çalışmaya Başla'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Streak & Daily Goal Column */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                    {/* Streak Card */}
-                    <div className="p-4 rounded-2xl border border-white/5 bg-bg-card flex items-center gap-4 shadow-lg shadow-black/10">
-                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-warning/10 text-warning shrink-0">
-                        <Flame className="w-6 h-6 fill-current" />
+                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+                  <section className={`rounded-3xl border ${heroBorderColor} bg-white/[0.025] p-5 sm:p-6`}>
+                    <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+                      <div className="relative flex h-28 w-28 shrink-0 items-center justify-center">
+                        <svg className="h-full w-full -rotate-90">
+                          <circle
+                            cx="56"
+                            cy="56"
+                            r={radius}
+                            className="fill-none stroke-white/10"
+                            strokeWidth={strokeWidth}
+                          />
+                          <motion.circle
+                            cx="56"
+                            cy="56"
+                            r={radius}
+                            className="fill-none"
+                            stroke={strokeColorHex}
+                            strokeWidth={strokeWidth}
+                            strokeDasharray={circumference}
+                            initial={{ strokeDashoffset: circumference }}
+                            animate={{ strokeDashoffset }}
+                            transition={{ duration: 1, ease: 'easeOut' }}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <div className="absolute text-center">
+                          <span className="block text-2xl font-black text-white">%{accuracy}</span>
+                          <span className="text-[9px] font-black uppercase tracking-widest text-text-muted">Doğruluk</span>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Çalışma Serisi</p>
-                        <p className="text-lg font-black text-white mt-0.5">{stats?.streak || 0} Gün</p>
-                      </div>
-                    </div>
 
-                    {/* Daily Goal Card */}
-                    <div className="p-4 rounded-2xl border border-white/5 bg-bg-card flex flex-col justify-center gap-3 shadow-lg shadow-black/10">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${goalBg} ${goalColor}`}>
-                            {isGoalComplete ? <CheckCircle2 className="w-5 h-5" /> : <Target className="w-5 h-5" />}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className={`rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${heroBgColor} ${heroBorderColor} ${heroColor}`}>
+                            {accuracy >= 70 ? 'Sınava Yakınsın' : accuracy >= 45 ? 'Tekrar Alanı Açık' : 'Çalışmaya Başla'}
+                          </span>
+                          <span className="rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                            %{Math.round(success)} sınav başarısı
+                          </span>
+                        </div>
+                        <h2 className="mt-4 text-2xl font-black tracking-tight text-white">Performans Özeti</h2>
+                        <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
+                          {stats?.totalExams || 0} sınavda {totalQ} soru çözüldü. Doğru-yanlış dağılımı ve süre bilgileri aşağıdaki panellerde toplanıyor.
+                        </p>
+
+                        <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${goalBg} ${goalColor}`}>
+                                {isGoalComplete ? <CheckCircle2 className="h-5 w-5" /> : <Target className="h-5 w-5" />}
+                              </div>
+                              <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Günlük Hedef</p>
+                                <p className="mt-0.5 text-sm font-black text-white">{todayQ}/{dailyGoal} soru</p>
+                              </div>
+                            </div>
+                            <span className={`rounded-xl border px-2.5 py-1 text-[10px] font-black ${goalBg} ${goalBorder} ${goalColor}`}>
+                              %{goalProgressPct}
+                            </span>
                           </div>
-                          <div>
-                            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Günlük Soru</p>
-                            <p className="text-xs font-black text-white mt-0.5">{todayQ}/{dailyGoal}</p>
+                          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
+                            <motion.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${goalProgressPct}%` }}
+                              transition={{ duration: 1 }}
+                              className={`h-full rounded-full ${isGoalComplete ? 'bg-success' : 'bg-primary'}`}
+                            />
                           </div>
                         </div>
-                        <span className={`px-2.5 py-0.5 rounded-xl text-[9px] font-black border ${goalBg} ${goalBorder} ${goalColor}`}>
-                          %{goalProgressPct}
-                        </span>
-                      </div>
-                      
-                      <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${goalProgressPct}%` }}
-                          transition={{ duration: 1 }}
-                          className={`h-full rounded-full ${isGoalComplete ? 'bg-success' : 'bg-primary'}`}
-                        />
                       </div>
                     </div>
-                  </div>
+                  </section>
+
+                  <section className="grid grid-cols-2 gap-3">
+                    <MetricTile icon={ClipboardList} label="Sınav" value={stats?.totalExams || 0} helper={`${stats?.passedCount || 0} geçildi`} color="text-primary-light" bg="bg-primary/10" />
+                    <MetricTile icon={BookOpen} label="Soru" value={totalQ} helper={`${correct} doğru, ${wrong} yanlış`} color="text-accent-light" bg="bg-accent/10" />
+                    <MetricTile icon={Flame} label="Seri" value={`${stats?.streak || 0} gün`} helper="çalışma devamlılığı" color="text-warning" bg="bg-warning/10" />
+                    <MetricTile icon={Clock} label="Süre" value={formatDuration(totalDuration)} helper={`${avgTime || 0}sn / soru`} color="text-success" bg="bg-success/10" />
+                  </section>
                 </div>
               );
             })()}
 
             {/* Performans Grafiği */}
-            {recentResults.length > 0 && (() => {
+            {(() => {
               const chartData = [...recentResults]
                 .reverse()
                 .slice(-10)
@@ -296,74 +324,84 @@ const UserStats = () => {
                   label: r.examName || r.categoryName || `Sınav ${i+1}`,
                 }));
               return (
-                <div className="glass-card rounded-3xl border border-white/5 p-4 sm:p-6">
-                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                      <BarChart2 className="w-5 h-5 text-primary-light" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-white tracking-tight">Performans Grafiği</h3>
-                      <p className="text-xs text-text-muted font-bold mt-0.5">Son {chartData.length} sınavdaki başarı eğrisi</p>
-                    </div>
-                    <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest sm:ml-auto">
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-success inline-block"></span>Geçti</span>
-                      <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-danger inline-block"></span>Kaldı</span>
-                    </div>
-                  </div>
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        domain={[0, 100]}
-                        tick={{ fill: '#6b7280', fontSize: 10, fontWeight: 700 }}
-                        axisLine={false}
-                        tickLine={false}
-                        tickFormatter={v => `%${v}`}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          background: '#1a1a2e',
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          borderRadius: '16px',
-                          color: '#fff',
-                          fontSize: '12px',
-                          fontWeight: 700
-                        }}
-                        formatter={(value, name, props) => [
-                          `%${value}`,
-                          props.payload.label
-                        ]}
-                        labelFormatter={() => ''}
-                      />
-                      <ReferenceLine y={70} stroke="rgba(255,255,255,0.1)" strokeDasharray="4 4" label={{ value: 'Geçme Sınırı %70', position: 'insideTopRight', fill: 'rgba(255,255,255,0.3)', fontSize: 9, fontWeight: 700 }} />
-                      <Bar dataKey="score" radius={[8, 8, 0, 0]} maxBarSize={40}>
-                        {chartData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={entry.passed ? 'rgba(34,197,94,0.8)' : 'rgba(239,68,68,0.7)'}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                <div className="glass-card rounded-3xl border border-white/10 p-4 sm:p-6">
+                  <SectionHeader
+                    icon={BarChart2}
+                    title="Performans Grafiği"
+                    subtitle={chartData.length > 0 ? `Son ${chartData.length} sınavdaki başarı eğrisi` : 'İlk sınavdan sonra başarı eğrisi burada oluşur'}
+                    action={chartData.length > 0 && (
+                      <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                        <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-success" />Geçti</span>
+                        <span className="flex items-center gap-1.5"><span className="inline-block h-2.5 w-2.5 rounded-sm bg-danger" />Kaldı</span>
+                      </div>
+                    )}
+                  />
+                  {chartData.length === 0 ? (
+                    <EmptyAction
+                      icon={PlayCircle}
+                      title="Grafik için sınav sonucu gerekiyor"
+                      text="Bir deneme veya konu testi çözdüğünde puan değişimin burada görsel olarak izlenir."
+                      action="Sınavlara Git"
+                      to="/dashboard/exams"
+                    />
+                  ) : (
+                    <ResponsiveContainer width="100%" height={260}>
+                      <BarChart data={chartData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          domain={[0, 100]}
+                          tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
+                          axisLine={false}
+                          tickLine={false}
+                          tickFormatter={v => `%${v}`}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                          contentStyle={{
+                            background: '#101017',
+                            border: '1px solid rgba(255,255,255,0.12)',
+                            borderRadius: '14px',
+                            color: '#fff',
+                            fontSize: '12px',
+                            fontWeight: 700
+                          }}
+                          formatter={(value, name, props) => [
+                            `%${value}`,
+                            props.payload.label
+                          ]}
+                          labelFormatter={() => ''}
+                        />
+                        <ReferenceLine y={70} stroke="rgba(255,255,255,0.18)" strokeDasharray="4 4" label={{ value: 'Geçme Sınırı %70', position: 'insideTopRight', fill: 'rgba(255,255,255,0.45)', fontSize: 10, fontWeight: 700 }} />
+                        <Bar dataKey="score" radius={[8, 8, 0, 0]} maxBarSize={42}>
+                          {chartData.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={entry.passed ? 'rgba(16,185,129,0.85)' : 'rgba(239,68,68,0.78)'}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               );
             })()}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.75fr)]">
               <div className="space-y-6">
                 {/* Sınav ve Soru Özeti */}
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-[#171927]/60">
-                  <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest flex items-center gap-2">
-                    <ClipboardList className="w-4.5 h-4.5 text-primary-light" />
-                    Sınav ve Soru Özeti
-                  </h3>
+                <div className="glass-card p-5 rounded-3xl border border-white/10 sm:p-6">
+                  <SectionHeader
+                    icon={ClipboardList}
+                    title="Sınav ve Soru Özeti"
+                    subtitle="Temel çözüm hacmi ve geçme durumu"
+                  />
                   {(() => {
                     const totalE = stats?.totalExams || 0;
                     const passed = stats?.passedCount || 0;
@@ -373,7 +411,7 @@ const UserStats = () => {
                     const wrong = stats?.totalWrong || 0;
 
                     return (
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                         <MiniStat icon={ClipboardList} label="Toplam Sınav" value={totalE} color="text-primary-light" bg="bg-primary/10" />
                         <MiniStat icon={Trophy} label="Geçilen" value={passed} color="text-success" bg="bg-success/10" />
                         <MiniStat icon={XCircle} label="Kalan" value={failed} color="text-text-muted" bg="bg-white/5" />
@@ -386,11 +424,12 @@ const UserStats = () => {
                 </div>
 
                 {/* İleri Düzey Analiz */}
-                <div className="glass-card p-6 rounded-3xl border border-white/5 bg-[#171927]/60">
-                  <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest flex items-center gap-2">
-                    <Target className="w-4.5 h-4.5 text-primary-light" />
-                    İleri Düzey Analiz
-                  </h3>
+                <div className="glass-card p-5 rounded-3xl border border-white/10 sm:p-6">
+                  <SectionHeader
+                    icon={Target}
+                    title="İleri Düzey Analiz"
+                    subtitle="Doğruluk, süre ve XP sinyalleri"
+                  />
                   {(() => {
                     const totalQ = stats?.totalQuestions || 0;
                     const correct = stats?.totalCorrect || 0;
@@ -404,7 +443,7 @@ const UserStats = () => {
                     const skipped = Math.max(0, totalQ - (correct + wrong));
 
                     return (
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                         <MiniStat icon={Percent} label="Sınav Başarısı" value={`%${success}`} color="text-primary-light" bg="bg-primary/10" />
                         <MiniStat icon={Target} label="Doğruluk" value={`%${accuracy}`} color="text-success" bg="bg-success/10" />
                         <MiniStat icon={HelpCircle} label="Boş/Atlanan" value={skipped} color="text-text-muted" bg="bg-white/5" />
@@ -418,8 +457,12 @@ const UserStats = () => {
               </div>
 
               {/* Category stats */}
-              <div className="glass-card p-6 rounded-3xl border border-white/5">
-                <h3 className="text-sm font-black text-white mb-5 uppercase tracking-widest">Konu Bazlı Başarı</h3>
+              <div className="glass-card p-5 rounded-3xl border border-white/10 sm:p-6">
+                <SectionHeader
+                  icon={BookOpen}
+                  title="Konu Bazlı Başarı"
+                  subtitle="Hangi alanda güçlenmen gerektiğini gösterir"
+                />
                 {catStats.length === 0 ? (
                   <EmptyAction
                     icon={BookOpen}
@@ -429,12 +472,14 @@ const UserStats = () => {
                     to="/dashboard/lessons"
                   />
                 ) : (
-                  <div className="space-y-4 max-h-56 overflow-y-auto custom-scrollbar pr-2">
+                  <div className="space-y-4 max-h-[420px] overflow-y-auto custom-scrollbar pr-2">
                     {catStats.map((c, i) => (
-                      <div key={i} className="space-y-2">
-                        <div className="flex justify-between text-xs">
-                          <span className="font-bold text-white/80 truncate">{c.categoryName}</span>
-                          <span className="font-black text-primary-light ml-2 shrink-0">%{c.successRate}</span>
+                      <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+                        <div className="mb-3 flex items-center justify-between gap-3 text-xs">
+                          <span className="truncate font-bold text-white/90">{c.categoryName}</span>
+                          <span className={`shrink-0 rounded-lg px-2 py-1 text-[10px] font-black ${
+                            c.successRate > 75 ? 'bg-success/10 text-success' : c.successRate > 50 ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'
+                          }`}>%{c.successRate}</span>
                         </div>
                         <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden">
                           <motion.div
@@ -452,19 +497,24 @@ const UserStats = () => {
             </div>
 
             {/* Badges Section */}
-            <div className="glass-card group relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[40px]">
-              <div className="absolute -right-20 -top-20 w-64 h-64 bg-amber-400/5 blur-[80px] rounded-full"></div>
-              <div className="mb-8 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                    <Award className="w-6 h-6 text-amber-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-black text-white tracking-tight">Kazanılan Rozetler</h3>
-                    <p className="text-xs text-text-muted font-bold mt-0.5">Başarılarınızın simgesi olan ödülleriniz.</p>
-                  </div>
-              </div>
+            <div className="glass-card rounded-3xl border border-white/10 p-5 sm:p-6">
+              <SectionHeader
+                icon={Award}
+                title="Kazanılan Rozetler"
+                subtitle="Başarılarınızın simgesi olan ödüller"
+                action={<span className="rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted">{badges.filter(b => b.isEarned).length}/{badges.length}</span>}
+              />
 
-              <div className="relative z-10 grid grid-cols-2 gap-4 xs:grid-cols-3 sm:grid-cols-4 sm:gap-6 md:grid-cols-6 lg:grid-cols-8">
+              {badges.length === 0 ? (
+                <EmptyAction
+                  icon={Award}
+                  title="Henüz rozet verisi yok"
+                  text="Sınav çözdükçe ve hedef tamamladıkça kazanılabilecek rozetler burada görünür."
+                  action="Sınav Çöz"
+                  to="/dashboard/exams"
+                />
+              ) : (
+                <div className="grid grid-cols-2 gap-4 xs:grid-cols-3 sm:grid-cols-4 sm:gap-5 md:grid-cols-6 lg:grid-cols-8">
                   {badges.map((badge, idx) => (
                     <motion.div 
                       key={badge._id}
@@ -495,7 +545,8 @@ const UserStats = () => {
                       )}
                     </motion.div>
                   ))}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Badge Detail Modal */}
@@ -571,15 +622,12 @@ const UserStats = () => {
             </AnimatePresence>
 
             {/* Exam History Section */}
-            <div className="glass-card rounded-3xl border border-white/5 p-4 sm:p-6">
-                <div className="mb-6 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                      <ClipboardList className="w-5 h-5 text-primary-light" />
-                    </div>
-                    <h3 className="text-xl font-black text-white tracking-tight">Son Sınavlarım</h3>
-                  </div>
-                </div>
+            <div className="glass-card rounded-3xl border border-white/10 p-4 sm:p-6">
+                <SectionHeader
+                  icon={ClipboardList}
+                  title="Son Sınavlarım"
+                  subtitle={recentResults.length > 0 ? `${recentResults.length} son kayıt listeleniyor` : 'İlk sonuçtan sonra geçmiş burada oluşur'}
+                />
 
                 {/* Desktop View Table */}
                 <div className="hidden md:block overflow-x-auto custom-scrollbar">

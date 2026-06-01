@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.5 - Desktop web'de `UserStats.jsx` istatistik ekranını modernize et.
+NEXT: Task 2.6 - Desktop web'de `UserSettings.jsx` ayarlar ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -90,9 +90,9 @@ NEXT: Task 2.5 - Desktop web'de `UserStats.jsx` istatistik ekranını modernize 
   - Yapıldı: Desktop çözme ekranı soru haritası, odaklı soru alanı, zaman/durum paneli ve sade alt aksiyonlarla modernize edildi.
   - Mobilde soru listesi alt panel davranışı korunarak aksiyonlar daha stabil hale getirildi.
 
-- TODO 2.5: `src/pages/user/UserStats.jsx`
-  - Grafikler daha okunur, özet metrikler daha az kalabalık olacak.
-  - Empty veri durumları anlamlı olacak.
+- DONE 2.5: `src/pages/user/UserStats.jsx`
+  - Yapıldı: Özet metrikler daha taranabilir hale getirildi, performans grafiği boş durumda da anlamlı aksiyon gösteriyor.
+  - Konu başarıları, rozetler ve son sınavlar daha sakin kart hiyerarşisiyle düzenlendi.
 
 - TODO 2.6: `src/pages/user/UserSettings.jsx`
   - Profil, hedef, bildirim, sınav tarihi ve hesap alanları bölümlenecek.
