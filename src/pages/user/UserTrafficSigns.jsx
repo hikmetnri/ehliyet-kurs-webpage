@@ -1,168 +1,241 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, TriangleAlert, Info, CircleStop, ArrowRight, Filter } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Search, TriangleAlert, Info, CircleStop, ArrowRight, Filter, X } from 'lucide-react';
 import { trafficSignsData, categories } from '../../data/trafficSignsData';
+
+const normalizeText = (value) => String(value || '').toLocaleLowerCase('tr-TR');
+
+const categoryById = categories.reduce((acc, category) => {
+  acc[category.id] = category;
+  return acc;
+}, {});
 
 const UserTrafficSigns = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSign, setSelectedSign] = useState(null);
 
-  const filteredSigns = trafficSignsData.filter(sign => {
-    const matchesCategory = activeCategory === 'all' || sign.category === activeCategory;
-    const matchesSearch = sign.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          sign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          sign.code?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const categoryStats = useMemo(() => (
+    categories.map((category) => ({
+      ...category,
+      count: category.id === 'all'
+        ? trafficSignsData.length
+        : trafficSignsData.filter((sign) => sign.category === category.id).length,
+    }))
+  ), []);
 
-  const getCategoryCount = (categoryId) => (
-    categoryId === 'all'
-      ? trafficSignsData.length
-      : trafficSignsData.filter(sign => sign.category === categoryId).length
-  );
+  const filteredSigns = useMemo(() => {
+    const query = normalizeText(searchQuery);
+    return trafficSignsData.filter((sign) => {
+      const matchesCategory = activeCategory === 'all' || sign.category === activeCategory;
+      const searchable = `${sign.title} ${sign.description} ${sign.code} ${categoryById[sign.category]?.label || ''}`;
+      return matchesCategory && normalizeText(searchable).includes(query);
+    });
+  }, [activeCategory, searchQuery]);
+
+  const activeCategoryLabel = categoryById[activeCategory]?.label || 'Tümü';
+  const knownSignCount = trafficSignsData.filter((sign) => !sign.title.includes(sign.code)).length;
 
   return (
-    <div className="max-w-7xl mx-auto pb-16">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-[2.5rem] p-8 sm:p-12 mb-8"
-        style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(6,182,212,0.1) 100%)', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-32 -right-32 w-96 h-96 bg-primary/20 blur-[120px] rounded-full"></div>
-          <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-accent/20 blur-[120px] rounded-full"></div>
+    <div className="space-y-6 pb-16">
+      <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5">
+            <TriangleAlert className="h-3.5 w-3.5 text-primary-light" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Levha Kütüphanesi</span>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-white">Trafik İşaretleri</h1>
+          <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
+            Trafik levhalarını kategori, kod veya anlamına göre ara; görseli ve açıklamayı hızlıca incele.
+          </p>
         </div>
-        
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary-light text-xs font-black uppercase tracking-widest mb-6">
-              <TriangleAlert className="w-4 h-4" /> {trafficSignsData.length} Levha
+
+        <div className="grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+          {[
+            ['Toplam', trafficSignsData.length],
+            ['Listede', filteredSigns.length],
+            ['Tanımlı', knownSignCount],
+          ].map(([label, value]) => (
+            <div key={label} className="min-w-24 rounded-2xl bg-white/[0.035] px-4 py-3 text-center">
+              <p className="text-lg font-black text-white">{value}</p>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</p>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
-              Trafik İşaretleri <span className="gradient-text">Kütüphanesi</span>
-            </h1>
-            <p className="text-text-secondary text-base sm:text-lg max-w-2xl leading-relaxed">
-              Trafik levhalarının anlamlarını ve gruplarını öğrenerek sınavda ve gerçek trafikte bir adım önde olun.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        {/* Search */}
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 text-text-muted" />
-          </div>
-          <input
-            type="text"
-            placeholder="İşaret ara (Örn: Kavşak, Dur, Park)"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-bg-card border border-white/5 rounded-2xl pl-12 pr-4 py-4 text-sm text-white placeholder-text-muted focus:outline-none focus:border-primary/50 transition-colors shadow-lg"
-          />
-        </div>
-
-        {/* Categories */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center whitespace-nowrap gap-2 px-5 py-4 rounded-2xl text-sm font-bold transition-all border ${
-                activeCategory === cat.id 
-                  ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' 
-                  : 'bg-bg-card border-white/5 text-text-muted hover:border-white/10 hover:text-white'
-              }`}
-            >
-              {cat.label}
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-                activeCategory === cat.id ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'
-              }`}>
-                {getCategoryCount(cat.id)}
-              </span>
-            </button>
           ))}
         </div>
-      </div>
+      </header>
 
-      {/* Grid */}
-      {filteredSigns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-bg-card border border-white/5 rounded-[2.5rem]">
-          <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
-            <Search className="w-8 h-8 text-white/20" />
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+          <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10">
+            <Search className="mr-3 h-5 w-5 text-primary-light" />
+            <input
+              type="text"
+              placeholder="Levha adı, kodu veya açıklama ara..."
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="w-full border-none bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
+            />
           </div>
-          <h3 className="text-xl font-black text-white mb-2">Sonuç Bulunamadı</h3>
-          <p className="text-text-muted">Arama kriterlerinize uyan trafik işareti bulunamadı.</p>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar xl:max-w-[58%] xl:pb-0">
+            <span className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-text-muted xl:inline-flex">
+              <Filter className="h-3.5 w-3.5" />
+              Kategori
+            </span>
+            {categoryStats.map((category) => {
+              const active = activeCategory === category.id;
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => setActiveCategory(category.id)}
+                  className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition ${
+                    active
+                      ? 'border-primary/35 bg-primary/15 text-primary-light'
+                      : 'border-white/10 bg-white/[0.03] text-text-muted hover:border-white/20 hover:text-white'
+                  }`}
+                >
+                  {category.id === 'all' ? 'Tümü' : category.label.replace(' İşaretleri', '')}
+                  <span className="ml-2 opacity-70">{category.count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between px-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
+          <span>{activeCategoryLabel} içinde {filteredSigns.length} levha</span>
+          {searchQuery && (
+            <button type="button" onClick={() => setSearchQuery('')} className="text-primary-light hover:text-white">
+              Aramayı temizle
+            </button>
+          )}
+        </div>
+      </section>
+
+      {filteredSigns.length === 0 ? (
+        <div className="flex min-h-96 flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.025] px-6 text-center">
+          <Search className="mb-4 h-14 w-14 text-white/15" />
+          <h3 className="text-lg font-black text-white">Sonuç Bulunamadı</h3>
+          <p className="mt-2 max-w-md text-sm font-semibold leading-relaxed text-text-muted">
+            Arama metnini veya kategori filtresini değiştirerek trafik işaretlerini yeniden listeleyebilirsin.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredSigns.map((sign, idx) => (
-            <motion.div
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+          {filteredSigns.map((sign, index) => (
+            <motion.button
               key={sign.id}
-              initial={{ opacity: 0, y: 20 }}
+              type="button"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
+              transition={{ duration: 0.18, delay: Math.min(index * 0.01, 0.08) }}
               onClick={() => setSelectedSign(sign)}
-              className="glass-card rounded-3xl p-6 border border-white/5 cursor-pointer hover:border-white/20 transition-all group flex flex-col items-center text-center"
+              className="group flex min-h-[260px] flex-col rounded-3xl border border-white/10 bg-white/[0.025] p-4 text-left transition hover:border-primary/25 hover:bg-white/[0.04]"
             >
-              <div className="h-32 flex items-center justify-center mb-6">
-                <img 
-                  src={sign.image} 
-                  alt={sign.title} 
-                  className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-2xl" 
+              <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-white/[0.035] p-4">
+                <img
+                  src={sign.image}
+                  alt={sign.title}
+                  className="max-h-full max-w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105"
                 />
               </div>
-              <h3 className="text-white font-bold text-base mb-2 group-hover:text-primary-light transition-colors line-clamp-2 min-h-[40px] flex items-center">
-                {sign.title}
-              </h3>
-              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-text-muted uppercase">
-                {sign.code}
-              </span>
-              <div className="mt-auto pt-4 flex items-center justify-center gap-1 text-xs font-semibold text-text-muted group-hover:text-white transition-colors">
-                Detayları Gör <ArrowRight className="w-3 h-3" />
+
+              <div className="mt-4 flex flex-1 flex-col">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                    {sign.code}
+                  </span>
+                  <span className="rounded-lg bg-primary/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-primary-light">
+                    {categoryById[sign.category]?.label.replace(' İşaretleri', '')}
+                  </span>
+                </div>
+
+                <h3 className="line-clamp-2 min-h-[42px] text-sm font-black leading-snug text-white transition group-hover:text-primary-light">
+                  {sign.title}
+                </h3>
+
+                <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted">
+                  {sign.description}
+                </p>
+
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-black uppercase tracking-widest text-text-secondary transition group-hover:text-white">
+                  Detay
+                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                </span>
               </div>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
       )}
 
-      {/* Detail Modal */}
       <AnimatePresence>
         {selectedSign && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            <motion.button
+              type="button"
+              aria-label="Trafik işareti detayını kapat"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setSelectedSign(null)}
               className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-[#101017] border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl p-8 flex flex-col items-center text-center"
+
+            <motion.section
+              initial={{ opacity: 0, scale: 0.96, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 16 }}
+              className="relative grid max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-3xl border border-white/10 bg-[#101017] shadow-2xl md:grid-cols-[280px_minmax(0,1fr)]"
             >
-              <div className="w-32 h-32 mb-6 flex items-center justify-center bg-white/5 rounded-3xl p-4">
-                <img src={selectedSign.image} alt={selectedSign.title} className="max-w-full max-h-full drop-shadow-2xl" />
+              <div className="flex items-center justify-center border-b border-white/10 bg-white/[0.035] p-8 md:border-b-0 md:border-r">
+                <div className="flex aspect-square w-44 items-center justify-center rounded-3xl bg-white/[0.04] p-6 sm:w-52">
+                  <img src={selectedSign.image} alt={selectedSign.title} className="max-h-full max-w-full object-contain drop-shadow-2xl" />
+                </div>
               </div>
-              
-              <h2 className="text-2xl font-black text-white mb-2">{selectedSign.title}</h2>
-              
-              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-text-secondary uppercase tracking-widest mb-6">
-                {categories.find(c => c.id === selectedSign.category)?.label} • {selectedSign.code}
+
+              <div className="flex min-w-0 flex-col p-6 sm:p-8">
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary-light">
+                      <CircleStop className="h-3.5 w-3.5" />
+                      {selectedSign.code}
+                    </div>
+                    <h2 className="text-2xl font-black leading-tight text-white">{selectedSign.title}</h2>
+                    <p className="mt-2 text-xs font-black uppercase tracking-widest text-text-muted">
+                      {categoryById[selectedSign.category]?.label}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSign(null)}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-text-muted transition hover:text-white"
+                    aria-label="Kapat"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+                  <h3 className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary-light">
+                    <Info className="h-4 w-4" />
+                    Anlamı
+                  </h3>
+                  <p className="text-sm font-semibold leading-relaxed text-white/85">
+                    {selectedSign.description}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedSign(null)}
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                >
+                  Kapat
+                </button>
               </div>
-              
-              <p className="text-text-muted leading-relaxed mb-8">
-                {selectedSign.description}
-              </p>
-              
-              <button 
-                onClick={() => setSelectedSign(null)}
-                className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black uppercase tracking-widest transition-colors border border-white/5"
-              >
-                Kapat
-              </button>
-            </motion.div>
+            </motion.section>
           </div>
         )}
       </AnimatePresence>

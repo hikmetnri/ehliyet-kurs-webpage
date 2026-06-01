@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.8 - Desktop web'de `UserTrafficSigns.jsx` levha ekranını modernize et.
+NEXT: Task 2.9 - Desktop web'de `UserVideos.jsx` video ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -102,8 +102,8 @@ NEXT: Task 2.8 - Desktop web'de `UserTrafficSigns.jsx` levha ekranını moderniz
   - Yapıldı: Favori soru listesi arama, konu filtresi, özet metrikler ve daha sade detay paneliyle yenilendi.
   - Yanlış sorulara arama, tekrar filtresi, özet metrikler ve daha net tekil çözme aksiyonu eklendi.
 
-- TODO 2.8: `src/pages/user/UserTrafficSigns.jsx`
-  - Levha kategorileri ve detay görünümü daha görsel ve hızlı taranabilir olacak.
+- DONE 2.8: `src/pages/user/UserTrafficSigns.jsx`
+  - Yapıldı: Levha kütüphanesi özet metrikler, arama/kategori şeridi, daha stabil görsel kartlar ve geniş detay modalıyla yenilendi.
 
 - TODO 2.9: `src/pages/user/UserVideos.jsx`
   - Video kategori seçimi, video listesi ve boş durumlar iyileştirilecek.
