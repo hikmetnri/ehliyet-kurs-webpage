@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2, MapPinned, ArrowRight,
-  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, X, Sparkles
+  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
@@ -355,6 +355,59 @@ const UserSettings = () => {
     { id: '6', name: 'Bilge', description: 'Toplam 100 soru çöz.', icon: '📚', color: '#10b981', isEarned: stats.totalQuestions >= 100 }
   ];
 
+  const desktopFieldClass = "w-full rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-primary/50 focus:bg-primary/5 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50";
+
+  const DesktopSection = ({ icon: Icon, title, description, children, action, tone = 'primary' }) => {
+    const toneClass = {
+      primary: 'text-primary-light bg-primary/10 border-primary/20',
+      accent: 'text-accent-light bg-accent/10 border-accent/20',
+      success: 'text-success bg-success/10 border-success/20',
+      danger: 'text-danger bg-danger/10 border-danger/20',
+    }[tone] || 'text-primary-light bg-primary/10 border-primary/20';
+
+    return (
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${toneClass}`}>
+              <Icon className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black tracking-tight text-white">{title}</h3>
+              {description && <p className="mt-1 max-w-xl text-sm font-semibold leading-relaxed text-text-muted">{description}</p>}
+            </div>
+          </div>
+          {action}
+        </div>
+        {children}
+      </section>
+    );
+  };
+
+  const DesktopField = ({ label, children }) => (
+    <div className="space-y-2">
+      <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</label>
+      {children}
+    </div>
+  );
+
+  const formatExamDate = (value) => {
+    if (!value) return 'Tarih seçilmedi';
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) return 'Tarih seçilmedi';
+    return new Date(year, month - 1, day).toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  const displayName = [profileData.firstName, profileData.lastName].filter(Boolean).join(' ') || user?.name || 'Sürücü Adayı';
+  const locationLabel = [profileData.district, profileData.city].filter(Boolean).join(' / ') || 'Konum eklenmedi';
+  const reminderLabel = `${String(notifData.notifHour).padStart(2, '0')}:${String(notifData.notifMinute).padStart(2, '0')}`;
+  const examDateLabel = formatExamDate(notifData.examDate);
+  const earnedBadges = DEFAULT_BADGES.filter((badge) => badge.isEarned).length;
+
   // Helper to render responsive slide-up sheets
   const renderMobileModal = (isOpen, onClose, title, children) => (
     <AnimatePresence>
@@ -405,205 +458,278 @@ const UserSettings = () => {
       )}
 
       {/* ── DESKTOP VIEW ── */}
-      <div className="hidden lg:block space-y-6 sm:space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="hidden lg:block space-y-6">
+        <div className="flex items-start justify-between gap-6">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5">
               <Sparkles className="h-3.5 w-3.5 text-primary-light" />
-              <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Yönetim Paneli</span>
+              <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Hesap Ayarları</span>
             </div>
-            <h2 className="text-3xl font-black tracking-tight text-white">Ayarlar</h2>
-            <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">
-              Hesap detaylarını, bildirimleri ve tercihlerini yönet
+            <h2 className="text-3xl font-black tracking-tight text-white">Ayar Merkezi</h2>
+            <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
+              Profil bilgilerini, çalışma hedeflerini, sınav tarihini ve hesap güvenliğini tek yerden yönet.
             </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+              user?.proStatus
+                ? 'border-success/30 bg-success/10 text-success'
+                : 'border-white/10 bg-white/[0.035] text-text-secondary'
+            }`}>
+              {user?.proStatus ? 'PRO Üye' : 'Ücretsiz Plan'}
+            </span>
+            <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+              {notifData.dailyGoal} soru/gün
+            </span>
           </div>
         </div>
 
-        <Link
-          to="/dashboard/driving-schools"
-          className="group relative block overflow-hidden rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/15 via-white/[0.035] to-primary/10 p-5 transition-all hover:-translate-y-0.5 hover:border-accent/35 sm:p-6"
-        >
-          <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/20" />
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
-                <MapPinned className="h-6 w-6 text-accent-light" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black text-white">Yakındaki Sürücü Kursları</h3>
-                <p className="mt-1 text-sm font-semibold text-text-secondary">
-                  Profil şehrine göre kurs, telefon, konum ve kayıt linklerini gör.
-                </p>
-              </div>
-            </div>
-            <div className="inline-flex items-center gap-2 text-sm font-black text-accent-light">
-              Kursları Gör <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-            </div>
-          </div>
-        </Link>
-
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-4 lg:gap-8">
-          {/* Sidebar Tabs - Sliding Pill */}
-          <div className="relative flex gap-2 overflow-x-auto pb-1 custom-scrollbar lg:col-span-1 lg:block lg:space-y-2.5 lg:overflow-visible lg:pb-0">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
+        <div className="grid grid-cols-[300px_minmax(0,1fr)] gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+          <aside className="space-y-4">
+            <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+              <div className="flex items-center gap-4">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black uppercase tracking-wider transition-all duration-300 lg:w-full lg:px-5 lg:py-4 z-10 cursor-pointer ${
-                    isActive 
-                      ? 'text-primary-light' 
-                      : 'bg-white/5 text-text-muted hover:bg-white/10 hover:text-white'
-                  }`}
+                  type="button"
+                  onClick={handleAvatarClick}
+                  className="group relative h-20 w-20 shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]"
+                  title="Profil fotoğrafını değiştir"
                 >
-                  {isActive && (
-                    <Motion.div
-                      layoutId="activeSettingsTab"
-                      className="absolute inset-0 bg-primary/10 border border-primary/25 rounded-2xl z-[-1] shadow-lg shadow-primary/5"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                    />
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="Profil" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                      <User className="h-8 w-8 text-primary-light" />
+                    </div>
                   )}
-                  <tab.icon className={`w-5 h-5 ${isActive ? 'text-primary-light' : 'opacity-40'}`} />
-                  {tab.label}
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition group-hover:opacity-100">
+                    <Camera className="h-6 w-6 text-white" />
+                  </span>
                 </button>
-              );
-            })}
-          </div>
+                <div className="min-w-0">
+                  <h3 className="truncate text-lg font-black text-white">{displayName}</h3>
+                  <p className="mt-1 truncate text-xs font-bold uppercase tracking-wider text-text-muted">{locationLabel}</p>
+                  <div className={`mt-3 inline-flex rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-wider ${levelInfo.bgColor}`}>
+                    {levelInfo.name}
+                  </div>
+                </div>
+              </div>
 
-          {/* Content Area */}
-          <div className="lg:col-span-3">
+              <div className="mt-5">
+                <div className="mb-2 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-text-muted">
+                  <span>Seviye İlerlemesi</span>
+                  <span>{Math.round(levelInfo.progress * 100)}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${Math.round(levelInfo.progress * 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/10 pt-5">
+                <div>
+                  <p className="text-lg font-black text-white">{stats.totalExams || 0}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Sınav</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-white">{stats.totalQuestions || 0}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Soru</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-white">{earnedBadges}/{DEFAULT_BADGES.length}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Rozet</p>
+                </div>
+              </div>
+            </section>
+
+            <Link
+              to="/dashboard/driving-schools"
+              className="group flex items-center justify-between gap-4 rounded-3xl border border-accent/20 bg-accent/10 p-4 transition hover:border-accent/35 hover:bg-accent/15"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
+                  <MapPinned className="h-5 w-5 text-accent-light" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-black text-white">Yakındaki Kurslar</p>
+                  <p className="mt-1 truncate text-xs font-semibold text-text-muted">Şehir bilgine göre listele</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 text-accent-light transition group-hover:translate-x-1" />
+            </Link>
+
+            <nav className="rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-black transition ${
+                      isActive
+                        ? 'bg-primary/10 text-primary-light'
+                        : 'text-text-muted hover:bg-white/[0.04] hover:text-white'
+                    }`}
+                  >
+                    <tab.icon className={`h-5 w-5 ${isActive ? 'text-primary-light' : 'text-text-muted'}`} />
+                    <span className="flex-1">{tab.label}</span>
+                    <ChevronRight className={`h-4 w-4 transition ${isActive ? 'translate-x-0 text-primary-light' : 'text-text-muted'}`} />
+                  </button>
+                );
+              })}
+            </nav>
+
+            <button
+              type="button"
+              onClick={logout}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3 text-sm font-black text-text-secondary transition hover:border-danger/30 hover:bg-danger/10 hover:text-danger"
+            >
+              <LogOut className="h-4 w-4" />
+              Oturumu Kapat
+            </button>
+          </aside>
+
+          <section className="min-w-0">
             <AnimatePresence mode="wait">
               {activeTab === 'profile' && (
                 <Motion.div
                   key="profile"
                   initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                  className="glass-card relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[2.5rem]"
+                  className="space-y-5"
                 >
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
-                  <h3 className="text-2xl font-black mb-8 relative z-10">Kişisel Bilgiler</h3>
-                  
-                  <div className="flex flex-col md:flex-row gap-10 items-start relative z-10">
-                    {/* Avatar Upload */}
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 group-hover:border-primary/50 transition-colors relative z-10 bg-bg-dark">
-                          {user?.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="Profil" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
-                              <User className="w-12 h-12 text-primary-light" />
+                  <form onSubmit={saveProfile} className="space-y-5">
+                    <DesktopSection
+                      icon={User}
+                      title="Profil Bilgileri"
+                      description="Ad, soyad, telefon ve profil fotoğrafı ders panelindeki kişisel görünümünü belirler."
+                    >
+                      <div className="grid gap-6 xl:grid-cols-[180px_minmax(0,1fr)]">
+                        <div className="space-y-3">
+                          <button
+                            type="button"
+                            onClick={handleAvatarClick}
+                            className="group relative aspect-square w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.035]"
+                            title="Profil fotoğrafını değiştir"
+                          >
+                            {user?.avatarUrl ? (
+                              <img src={user.avatarUrl} alt="Profil" className="h-full w-full object-cover" />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                                <User className="h-12 w-12 text-primary-light" />
+                              </div>
+                            )}
+                            <span className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition group-hover:opacity-100">
+                              <Camera className="h-7 w-7 text-white" />
+                            </span>
+                          </button>
+                          <p className="text-center text-[10px] font-bold uppercase tracking-widest text-text-muted">
+                            Fotoğrafı değiştir<br />Maks. 5MB
+                          </p>
+                        </div>
+
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <DesktopField label="Adınız">
+                            <input
+                              type="text"
+                              name="firstName"
+                              value={profileData.firstName}
+                              onChange={handleProfileChange}
+                              className={desktopFieldClass}
+                              placeholder="Adınız"
+                            />
+                          </DesktopField>
+
+                          <DesktopField label="Soyadınız">
+                            <input
+                              type="text"
+                              name="lastName"
+                              value={profileData.lastName}
+                              onChange={handleProfileChange}
+                              className={desktopFieldClass}
+                              placeholder="Soyadınız"
+                            />
+                          </DesktopField>
+
+                          <DesktopField label="Telefon">
+                            <input
+                              type="text"
+                              name="phone"
+                              value={profileData.phone}
+                              onChange={handleProfileChange}
+                              className={desktopFieldClass}
+                              placeholder="555 555 55 55"
+                            />
+                          </DesktopField>
+
+                          <DesktopField label="Kısa Özet">
+                            <div className="flex h-[46px] items-center rounded-2xl border border-white/10 bg-white/[0.02] px-4 text-sm font-semibold text-text-secondary">
+                              {user?.email || 'E-posta tanımlı değil'}
                             </div>
-                          )}
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Camera className="w-8 h-8 text-white" />
-                          </div>
-                        </div>
-                        <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary rounded-full border-4 border-bg-card flex items-center justify-center z-20 shadow-lg">
-                          <Camera className="w-4 h-4 text-white" />
+                          </DesktopField>
                         </div>
                       </div>
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        className="hidden" 
-                        accept="image/*" 
-                        onChange={handleAvatarChange} 
-                      />
-                      <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest text-center">Tıkla ve Değiştir<br/>(Max 5MB)</p>
-                    </div>
+                    </DesktopSection>
 
-                    {/* Form */}
-                    <form onSubmit={saveProfile} className="flex-1 space-y-6 w-full">
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Adınız</label>
-                          <input
-                            type="text"
-                            name="firstName"
-                            value={profileData.firstName}
-                            onChange={handleProfileChange}
-                            className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
-                            placeholder="Adınız"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Soyadınız</label>
-                          <input
-                            type="text"
-                            name="lastName"
-                            value={profileData.lastName}
-                            onChange={handleProfileChange}
-                            className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
-                            placeholder="Soyadınız"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Telefon</label>
-                          <input
-                            type="text"
-                            name="phone"
-                            value={profileData.phone}
-                            onChange={handleProfileChange}
-                            className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
-                            placeholder="555 555 55 55"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Şehir</label>
+                    <DesktopSection
+                      icon={MapPinned}
+                      title="Konum ve Hakkımda"
+                      description="Konum bilgisi yakındaki sürücü kurslarını ve yerel önerileri daha anlamlı hale getirir."
+                      tone="accent"
+                    >
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <DesktopField label="Şehir">
                           <select
                             name="city"
                             value={profileData.city}
                             onChange={handleProfileCityChange}
-                            className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
+                            className={desktopFieldClass}
                           >
                             <option value="" className="bg-bg-card">Şehir seç</option>
                             {TURKEY_CITIES.map((city) => (
                               <option key={city} value={city} className="bg-bg-card">{city}</option>
                             ))}
                           </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">İlçe</label>
+                        </DesktopField>
+
+                        <DesktopField label="İlçe">
                           <select
                             name="district"
                             value={profileData.district}
                             onChange={handleProfileChange}
                             disabled={!profileData.city}
-                            className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5"
+                            className={desktopFieldClass}
                           >
                             <option value="" className="bg-bg-card">{profileData.city ? 'İlçe seç' : 'Önce şehir seç'}</option>
                             {profileDistrictOptions.map((district) => (
                               <option key={district} value={district} className="bg-bg-card">{district}</option>
                             ))}
                           </select>
+                        </DesktopField>
+
+                        <div className="md:col-span-2">
+                          <DesktopField label="Hakkımda">
+                            <textarea
+                              name="bio"
+                              value={profileData.bio}
+                              onChange={handleProfileChange}
+                              rows={4}
+                              className={`${desktopFieldClass} resize-none`}
+                              placeholder="Kendinizden kısaca bahsedin..."
+                            />
+                          </DesktopField>
                         </div>
                       </div>
+                    </DesktopSection>
 
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Hakkımda</label>
-                        <textarea
-                          name="bio"
-                          value={profileData.bio}
-                          onChange={handleProfileChange}
-                          rows={4}
-                          className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5 resize-none"
-                          placeholder="Kendinizden kısaca bahsedin..."
-                        />
-                      </div>
-
-                      <div className="flex justify-end pt-4">
-                        <button type="submit" disabled={loading} className="btn-primary flex w-full items-center justify-center gap-2 sm:w-auto">
-                          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                          Değişiklikleri Kaydet
-                        </button>
-                      </div>
-                    </form>
-                  </div>
+                    <div className="flex justify-end">
+                      <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-white transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60">
+                        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                        Profili Kaydet
+                      </button>
+                    </div>
+                  </form>
                 </Motion.div>
               )}
 
@@ -611,89 +737,90 @@ const UserSettings = () => {
                 <Motion.div
                   key="account"
                   initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                  className="glass-card relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[2.5rem]"
+                  className="space-y-5"
                 >
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 blur-[100px] pointer-events-none rounded-full" />
-                  <h3 className="text-2xl font-black mb-8 relative z-10 flex items-center gap-3">
-                    <Lock className="w-6 h-6 text-accent" />
-                    Güvenlik & Şifre
-                  </h3>
-
-                  <div className="relative z-10 mb-10 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                    <div className="min-w-0">
-                      <p className="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">E-Posta Adresi</p>
-                      <p className="break-all font-medium">{user?.email}</p>
-                    </div>
-                    <div className="px-3 py-1 bg-success/20 text-success text-[10px] font-black uppercase tracking-widest rounded-full border border-success/30">
-                      Doğrulandı
-                    </div>
-                  </div>
-
-                  <form onSubmit={savePassword} className="space-y-6 max-w-lg relative z-10">
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Mevcut Şifre</label>
-                      <input
-                        type="password"
-                        name="currentPassword"
-                        value={passwordData.currentPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        className="input-field bg-white/5 border-white/10 focus:border-accent focus:bg-accent/5"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Yeni Şifre</label>
-                      <input
-                        type="password"
-                        name="newPassword"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        className="input-field bg-white/5 border-white/10 focus:border-accent focus:bg-accent/5"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-text-muted uppercase tracking-wider ml-1">Yeni Şifre (Tekrar)</label>
-                      <input
-                        type="password"
-                        name="confirmPassword"
-                        value={passwordData.confirmPassword}
-                        onChange={handlePasswordChange}
-                        required
-                        className="input-field bg-white/5 border-white/10 focus:border-accent focus:bg-accent/5"
-                        placeholder="••••••••"
-                      />
-                    </div>
-                    <div className="flex justify-start pt-4">
-                      <button type="submit" disabled={loading} className="btn-primary flex w-full items-center justify-center gap-2 bg-gradient-to-r from-accent to-accent-light shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] sm:w-auto">
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
-                        Şifreyi Güncelle
-                      </button>
-                    </div>
-                  </form>
-                  
-                  {/* Hesabı Silme Alanı */}
-                  <div className="mt-12 pt-8 border-t border-white/5 relative z-10">
-                    <div className="flex flex-col items-stretch justify-between gap-6 rounded-2xl border border-danger/20 bg-danger/5 p-5 sm:p-6 md:flex-row md:items-center">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-danger/20 rounded-full flex items-center justify-center shrink-0">
-                          <ShieldAlert className="w-6 h-6 text-danger" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-white mb-1">Hesabımı Kalıcı Olarak Sil</h4>
-                          <p className="text-sm text-text-muted">Silme işlemi resmi hesap silme sayfasından yapılır. Tüm adımları ve e-posta alternatifini orada görebilirsiniz.</p>
-                        </div>
+                  <DesktopSection
+                    icon={Lock}
+                    title="E-posta ve Şifre"
+                    description="Hesabının giriş bilgilerini kontrol et ve şifreni güncelle."
+                    tone="accent"
+                  >
+                    <div className="mb-6 flex items-center justify-between gap-4 border-b border-white/10 pb-5">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">E-posta Adresi</p>
+                        <p className="mt-1 break-all text-sm font-bold text-white">{user?.email || 'E-posta tanımlı değil'}</p>
                       </div>
-                      <button 
-                        onClick={() => navigate('/delete-account')}
-                        className="px-6 py-3 bg-danger hover:bg-red-600 text-white font-bold rounded-xl transition-colors whitespace-nowrap shrink-0 text-sm"
-                      >
-                        Hesap Silme Sayfasına Git
-                      </button>
+                      <span className="shrink-0 rounded-full border border-success/25 bg-success/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-success">
+                        Doğrulandı
+                      </span>
                     </div>
-                  </div>
+
+                    <form onSubmit={savePassword} className="grid gap-4 xl:grid-cols-3">
+                      <DesktopField label="Mevcut Şifre">
+                        <input
+                          type="password"
+                          name="currentPassword"
+                          value={passwordData.currentPassword}
+                          onChange={handlePasswordChange}
+                          required
+                          className={desktopFieldClass}
+                          placeholder="••••••••"
+                        />
+                      </DesktopField>
+
+                      <DesktopField label="Yeni Şifre">
+                        <input
+                          type="password"
+                          name="newPassword"
+                          value={passwordData.newPassword}
+                          onChange={handlePasswordChange}
+                          required
+                          className={desktopFieldClass}
+                          placeholder="••••••••"
+                        />
+                      </DesktopField>
+
+                      <DesktopField label="Yeni Şifre (Tekrar)">
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          value={passwordData.confirmPassword}
+                          onChange={handlePasswordChange}
+                          required
+                          className={desktopFieldClass}
+                          placeholder="••••••••"
+                        />
+                      </DesktopField>
+
+                      <div className="xl:col-span-3 flex justify-end">
+                        <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3 text-sm font-black text-white transition hover:bg-accent-light disabled:cursor-not-allowed disabled:opacity-60">
+                          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Lock className="h-5 w-5" />}
+                          Şifreyi Güncelle
+                        </button>
+                      </div>
+                    </form>
+                  </DesktopSection>
+
+                  <DesktopSection
+                    icon={ShieldAlert}
+                    title="Hesap Silme"
+                    description="Kalıcı silme işlemi ayrı sayfada doğrulama adımlarıyla tamamlanır."
+                    tone="danger"
+                    action={
+                      <button 
+                        type="button"
+                        onClick={() => navigate('/delete-account')}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-danger transition hover:bg-danger/15"
+                      >
+                        Silme Sayfası
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    }
+                  >
+                    <p className="text-sm font-semibold leading-relaxed text-text-muted">
+                      Hesabınızı sildiğinizde profil, ilerleme ve sınav geçmişi kalıcı olarak kaldırılır. Bu işlem geri alınamaz.
+                    </p>
+                  </DesktopSection>
                 </Motion.div>
               )}
 
@@ -701,46 +828,43 @@ const UserSettings = () => {
                 <Motion.div
                   key="notifications"
                   initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                  className="glass-card relative overflow-hidden rounded-3xl border border-white/5 p-5 sm:p-8 lg:rounded-[2.5rem]"
+                  className="space-y-5"
                 >
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-success/5 blur-[100px] pointer-events-none rounded-full" />
-                  <h3 className="text-2xl font-black mb-8 relative z-10 flex items-center gap-3">
-                    <Bell className="w-6 h-6 text-success" />
-                    Tercihler ve Hedefler
-                  </h3>
+                  <div className="grid gap-5 xl:grid-cols-2">
+                    <DesktopSection
+                      icon={BarChart2}
+                      title="Günlük Hedef"
+                      description="Dashboard ve istatistik ekranlarında kullanılan günlük soru hedefi."
+                      tone="success"
+                    >
+                      <DesktopField label="Hedef">
+                        <select
+                          name="dailyGoal"
+                          value={notifData.dailyGoal}
+                          onChange={handleNotifChange}
+                          className={desktopFieldClass}
+                        >
+                          <option value={10}>10 Soru</option>
+                          <option value={20}>20 Soru</option>
+                          <option value={30}>30 Soru</option>
+                          <option value={50}>50 Soru</option>
+                          <option value={100}>100 Soru</option>
+                        </select>
+                      </DesktopField>
+                    </DesktopSection>
 
-                  <div className="space-y-8 relative z-10 max-w-xl">
-                    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                      <div>
-                        <h4 className="font-bold mb-1">Günlük Çalışma Hedefi</h4>
-                        <p className="text-xs text-text-muted">Günlük çözmeniz gereken soru sayısını belirleyin.</p>
-                      </div>
-                      <select 
-                        name="dailyGoal" 
-                        value={notifData.dailyGoal} 
-                        onChange={handleNotifChange}
-                        className="bg-bg-dark border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 font-bold"
-                      >
-                        <option value={10}>10 Soru</option>
-                        <option value={20}>20 Soru</option>
-                        <option value={30}>30 Soru</option>
-                        <option value={50}>50 Soru</option>
-                        <option value={100}>100 Soru</option>
-                      </select>
-                    </div>
-
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="flex items-start gap-4">
-                          <div className="w-11 h-11 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shrink-0">
-                            <CalendarDays className="w-5 h-5 text-success" />
-                          </div>
-                          <div>
-                            <h4 className="font-bold mb-1">Sınav Tarihi</h4>
-                            <p className="text-xs text-text-muted">Dashboardda sınava kaç gün kaldığını göstermek için tarihi girin.</p>
-                          </div>
+                    <DesktopSection
+                      icon={CalendarDays}
+                      title="Sınav Tarihi"
+                      description="Geri sayım ve çalışma temposu için planladığın sınav tarihini kaydet."
+                      tone="success"
+                    >
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Seçili Tarih</span>
+                          <span className="text-sm font-black text-white">{examDateLabel}</span>
                         </div>
-                        <div className="flex w-full items-center gap-2 sm:w-auto">
+                        <div className="flex items-center gap-2">
                           <input
                             ref={examDateInputRef}
                             type="date"
@@ -748,87 +872,105 @@ const UserSettings = () => {
                             value={notifData.examDate}
                             onChange={handleNotifChange}
                             onClick={openExamDatePicker}
-                            className="min-w-0 flex-1 cursor-pointer rounded-xl border border-white/10 bg-bg-dark px-3 py-2 font-bold text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 sm:flex-none sm:px-4"
+                            className={`${desktopFieldClass} min-w-0 flex-1 cursor-pointer`}
                           />
                           <button
                             type="button"
                             onClick={openExamDatePicker}
-                            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-success/20 bg-success/10 px-3 text-xs font-black uppercase tracking-widest text-success transition-colors hover:bg-success/20"
+                            className="inline-flex h-[46px] shrink-0 items-center justify-center rounded-2xl border border-success/25 bg-success/10 px-3 text-success transition hover:bg-success/15"
                             title="Takvimi aç"
                           >
                             <CalendarDays className="h-4 w-4" />
-                            <span className="hidden sm:inline">Takvim</span>
                           </button>
                           {notifData.examDate && (
                             <button
                               type="button"
                               onClick={() => setNotifData({ ...notifData, examDate: '' })}
-                              className="w-10 h-10 rounded-xl border border-danger/20 bg-danger/10 text-danger flex items-center justify-center hover:bg-danger/20 transition-colors"
+                              className="inline-flex h-[46px] shrink-0 items-center justify-center rounded-2xl border border-danger/25 bg-danger/10 px-3 text-danger transition hover:bg-danger/15"
                               title="Sınav tarihini temizle"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           )}
                         </div>
                       </div>
-                    </div>
+                    </DesktopSection>
 
-                    <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 opacity-50 sm:p-6 cursor-not-allowed" title="Bu özellik yakında mobil uygulamada aktif olacak">
-                      <div>
-                        <h4 className="font-bold mb-1">E-Posta Bildirimleri</h4>
-                        <p className="text-xs text-text-muted">Önemli güncellemeler ve sınav hatırlatıcıları (Yakında).</p>
+                    <DesktopSection
+                      icon={Bell}
+                      title="Hatırlatıcı Saati"
+                      description="Günlük çalışma hatırlatıcısının varsayılan saatini belirle."
+                      tone="success"
+                    >
+                      <div className="flex items-center gap-3">
+                        <DesktopField label="Saat">
+                          <select
+                            name="notifHour"
+                            value={notifData.notifHour}
+                            onChange={handleNotifChange}
+                            className={desktopFieldClass}
+                          >
+                            {[...Array(24).keys()].map(h => (
+                              <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>
+                            ))}
+                          </select>
+                        </DesktopField>
+                        <span className="mt-7 text-lg font-black text-text-muted">:</span>
+                        <DesktopField label="Dakika">
+                          <select
+                            name="notifMinute"
+                            value={notifData.notifMinute}
+                            onChange={handleNotifChange}
+                            className={desktopFieldClass}
+                          >
+                            {[0, 15, 30, 45].map(m => (
+                              <option key={m} value={m}>{m.toString().padStart(2, '0')}</option>
+                            ))}
+                          </select>
+                        </DesktopField>
                       </div>
-                      <label className="relative inline-flex items-center cursor-not-allowed">
-                        <input type="checkbox" className="sr-only peer" disabled checked={notifData.notifEnabled} />
-                        <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-success"></div>
-                      </label>
-                    </div>
+                    </DesktopSection>
 
-                    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                      <div>
-                        <h4 className="font-bold mb-1">Hatırlatıcı Saati</h4>
-                        <p className="text-xs text-text-muted">Günlük çalışmanı hatırlatmamız için bir saat seç.</p>
+                    <DesktopSection
+                      icon={Info}
+                      title="E-posta Bildirimleri"
+                      description="E-posta bildirimleri mobil uygulama ile birlikte aktif edilecek."
+                      tone="success"
+                    >
+                      <div className="flex items-center justify-between gap-4 opacity-60">
+                        <div>
+                          <p className="text-sm font-black text-white">Yakında</p>
+                          <p className="mt-1 text-xs font-semibold text-text-muted">Şimdilik pasif, tercih kaydı korunur.</p>
+                        </div>
+                        <label className="relative inline-flex cursor-not-allowed items-center">
+                          <input type="checkbox" className="sr-only peer" disabled readOnly checked={notifData.notifEnabled} />
+                          <span className="h-6 w-11 rounded-full bg-white/10 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-success peer-checked:after:translate-x-full peer-checked:after:border-white" />
+                        </label>
                       </div>
-                      <div className="flex gap-2">
-                        <select 
-                          name="notifHour" 
-                          value={notifData.notifHour} 
-                          onChange={handleNotifChange}
-                          className="bg-bg-dark border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 font-bold"
-                        >
-                          {[...Array(24).keys()].map(h => (
-                            <option key={h} value={h}>{h.toString().padStart(2, '0')}</option>
-                          ))}
-                        </select>
-                        <span className="flex items-center">:</span>
-                        <select 
-                          name="notifMinute" 
-                          value={notifData.notifMinute} 
-                          onChange={handleNotifChange}
-                          className="bg-bg-dark border border-white/10 rounded-xl px-3 py-2 text-white outline-none focus:border-success focus:ring-2 focus:ring-success/20 font-bold"
-                        >
-                          {[0, 15, 30, 45].map(m => (
-                            <option key={m} value={m}>{m.toString().padStart(2, '0')}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                    </DesktopSection>
+                  </div>
 
-                    <div className="flex justify-start pt-4">
-                      <button 
-                        onClick={savePreferences} 
-                        disabled={loading}
-                        className="btn-primary flex w-full items-center justify-center gap-2 bg-gradient-to-r from-success to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] sm:w-auto"
-                      >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                        Değişiklikleri Kaydet
-                      </button>
+                  <div className="flex items-center justify-between rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+                    <div>
+                      <p className="text-sm font-black text-white">Geçerli tercih özeti</p>
+                      <p className="mt-1 text-xs font-semibold text-text-muted">
+                        {notifData.dailyGoal} soru/gün hedef, {reminderLabel} hatırlatıcı, {examDateLabel.toLowerCase()} sınav tarihi.
+                      </p>
                     </div>
+                    <button
+                      type="button"
+                      onClick={savePreferences}
+                      disabled={loading}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-success px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />}
+                      Tercihleri Kaydet
+                    </button>
                   </div>
                 </Motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </section>
         </div>
       </div>
 

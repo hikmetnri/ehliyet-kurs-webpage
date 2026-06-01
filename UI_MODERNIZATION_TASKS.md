@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.6 - Desktop web'de `UserSettings.jsx` ayarlar ekranını modernize et.
+NEXT: Task 2.7 - Desktop web'de `UserFavorites.jsx` ve `UserWrongAnswers.jsx` soru listesi ekranlarını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -94,9 +94,9 @@ NEXT: Task 2.6 - Desktop web'de `UserSettings.jsx` ayarlar ekranını modernize 
   - Yapıldı: Özet metrikler daha taranabilir hale getirildi, performans grafiği boş durumda da anlamlı aksiyon gösteriyor.
   - Konu başarıları, rozetler ve son sınavlar daha sakin kart hiyerarşisiyle düzenlendi.
 
-- TODO 2.6: `src/pages/user/UserSettings.jsx`
-  - Profil, hedef, bildirim, sınav tarihi ve hesap alanları bölümlenecek.
-  - Desktop form grupları daha taranabilir ve daha az kalabalık olacak.
+- DONE 2.6: `src/pages/user/UserSettings.jsx`
+  - Yapıldı: Desktop ayarlar ekranı sol profil özeti ve sağda profil/güvenlik/tercih bölümleriyle yeniden düzenlendi.
+  - Profil, konum, sınav tarihi, günlük hedef, hatırlatıcı ve hesap silme alanları daha taranabilir hale getirildi.
 
 - TODO 2.7: `src/pages/user/UserFavorites.jsx` ve `UserWrongAnswers.jsx`
   - Soru listesi, filtreler ve tekrar aksiyonları sadeleştirilecek.
