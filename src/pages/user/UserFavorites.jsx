@@ -1,18 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Star, Search, Trash2, ChevronRight, BookOpen, 
-  HelpCircle, ImageIcon, CheckCircle2, XCircle,
-  Clock, BarChart2, Inbox, Loader2, Flag, Sparkles,
+import {
+  Star,
+  Search,
+  Trash2,
+  BookOpen,
+  HelpCircle,
+  ImageIcon,
+  CheckCircle2,
+  Inbox,
+  Loader2,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
-import api from '../../api';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+
+const normalizeText = (value) => String(value || '').toLocaleLowerCase('tr-TR');
 
 const UserFavorites = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeSubject, setActiveSubject] = useState('all');
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const navigate = useNavigate();
 
@@ -32,21 +43,43 @@ const UserFavorites = () => {
     }
   };
 
+  const subjectOptions = useMemo(() => {
+    const subjects = favorites.map((question) => question.subject || 'Genel');
+    return ['all', ...Array.from(new Set(subjects)).sort((a, b) => a.localeCompare(b, 'tr'))];
+  }, [favorites]);
+
+  useEffect(() => {
+    if (activeSubject !== 'all' && !subjectOptions.includes(activeSubject)) {
+      setActiveSubject('all');
+    }
+  }, [activeSubject, subjectOptions]);
+
+  const filteredFavorites = useMemo(() => {
+    const query = normalizeText(searchTerm);
+    return favorites.filter((question) => {
+      const subject = question.subject || 'Genel';
+      const matchesSubject = activeSubject === 'all' || subject === activeSubject;
+      const searchable = `${question.text || ''} ${subject} ${question.explanation || ''}`;
+      return matchesSubject && normalizeText(searchable).includes(query);
+    });
+  }, [activeSubject, favorites, searchTerm]);
+
+  const imageCount = useMemo(
+    () => favorites.filter((question) => Boolean(question.media)).length,
+    [favorites],
+  );
+
   const handleRemoveFavorite = async (qId, e) => {
     e.stopPropagation();
     if (!window.confirm('Bu soruyu favorilerinizden çıkarmak istiyor musunuz?')) return;
     try {
       await api.delete(`/users/favorites/${qId}`);
-      setFavorites(prev => prev.filter(q => q._id !== qId));
+      setFavorites((prev) => prev.filter((question) => question._id !== qId));
       if (selectedQuestion?._id === qId) setSelectedQuestion(null);
     } catch (err) {
       alert('Hata oluştu');
     }
   };
-
-  const filteredFavorites = favorites.filter(q => 
-    q.text.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getDifficultyColor = (diff) => {
     switch (diff) {
@@ -59,230 +92,279 @@ const UserFavorites = () => {
 
   const getDifficultyLabel = (diff) => {
     switch (diff) {
-      case 'easy': return 'KOLAY';
-      case 'medium': return 'ORTA';
-      case 'hard': return 'ZOR';
-      default: return 'BELİRSİZ';
+      case 'easy': return 'Kolay';
+      case 'medium': return 'Orta';
+      case 'hard': return 'Zor';
+      default: return 'Belirsiz';
     }
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-128px)] flex-col gap-6 pb-20 lg:h-[calc(100vh-128px)] lg:pb-0">
-      
-      {/* Header Area */}
-      <div className="flex shrink-0 flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+    <div className="flex min-h-[calc(100vh-128px)] flex-col gap-5 pb-20 lg:h-[calc(100vh-128px)] lg:pb-0">
+      <div className="flex shrink-0 flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <h1 className="flex items-center gap-3 text-2xl font-black tracking-tight text-white sm:text-3xl">
-            <Star className="h-7 w-7 fill-amber-500 text-amber-500 sm:h-8 sm:w-8" />
-            Favori Sorularım
-          </h1>
-          <p className="text-text-secondary text-sm mt-1">Tekrar çalışmak için yıldızladığınız tüm sorular burada listelenir.</p>
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5">
+            <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+            <span className="text-[9px] font-black uppercase tracking-widest text-amber-300">Kayıtlı Sorular</span>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-white">Favori Sorular</h1>
+          <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
+            Zorlandığın veya tekrar görmek istediğin soruları filtrele, doğru cevabı ve açıklamayı aynı ekranda incele.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+          {[
+            ['Toplam', favorites.length],
+            ['Konu', Math.max(0, subjectOptions.length - 1)],
+            ['Görsel', imageCount],
+          ].map(([label, value]) => (
+            <div key={label} className="min-w-24 rounded-2xl bg-white/[0.035] px-4 py-3 text-center">
+              <p className="text-lg font-black text-white">{value}</p>
+              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-6 lg:flex-row">
-        
-        {/* Left Side: Question List */}
-        <div className="flex w-full shrink-0 flex-col gap-4 lg:w-96">
-          
-          <div className="bg-[#131522]/80 backdrop-blur-xl p-4 rounded-[2rem] border border-white/5 space-y-4">
-            <div className="flex items-center bg-black/40 rounded-[1.25rem] px-4 py-3 w-full border border-white/5 transition-all focus-within:border-amber-500/50">
-              <Search className="w-5 h-5 text-amber-500/70 mr-3" />
-              <input 
-                type="text" 
-                placeholder="Favorilerinde ara..." 
-                className="bg-transparent border-none outline-none text-sm w-full text-white placeholder-white/20 font-medium"
+      <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
+        <aside className="flex min-h-0 flex-col gap-4">
+          <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
+            <div className="flex items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-amber-500/40 focus-within:ring-4 focus-within:ring-amber-500/10">
+              <Search className="mr-3 h-5 w-5 text-amber-300" />
+              <input
+                type="text"
+                placeholder="Soru, konu veya açıklama ara..."
+                className="w-full border-none bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            
-            <div className="flex items-center justify-between px-2">
-              <span className="text-[10px] font-black text-text-muted uppercase tracking-widest">
-                {filteredFavorites.length} SORU LİSTELENDİ
-              </span>
+
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+              {subjectOptions.map((subject) => {
+                const active = activeSubject === subject;
+                const count = subject === 'all'
+                  ? favorites.length
+                  : favorites.filter((question) => (question.subject || 'Genel') === subject).length;
+                return (
+                  <button
+                    key={subject}
+                    type="button"
+                    onClick={() => setActiveSubject(subject)}
+                    className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition ${
+                      active
+                        ? 'border-amber-500/35 bg-amber-500/15 text-amber-200'
+                        : 'border-white/10 bg-white/[0.03] text-text-muted hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {subject === 'all' ? 'Tümü' : subject}
+                    <span className="ml-2 opacity-70">{count}</span>
+                  </button>
+                );
+              })}
             </div>
-          </div>
 
-          <div className="max-h-[55vh] flex-1 space-y-3 overflow-y-auto pr-1 custom-scrollbar lg:max-h-none">
+            <div className="mt-3 flex items-center justify-between px-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
+              <span>{filteredFavorites.length} soru listeleniyor</span>
+              {searchTerm && (
+                <button type="button" onClick={() => setSearchTerm('')} className="text-amber-300 hover:text-amber-200">
+                  Temizle
+                </button>
+              )}
+            </div>
+          </section>
+
+          <section className="min-h-0 flex-1 overflow-y-auto pr-1 custom-scrollbar">
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-32 bg-[#131522]/40 border border-white/5 rounded-[2rem]">
-                    <Loader2 className="w-10 h-10 animate-spin text-amber-500 mb-4" />
-                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest animate-pulse">Sorular Yükleniyor...</span>
-                </div>
+              <div className="flex min-h-80 flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.025]">
+                <Loader2 className="mb-4 h-10 w-10 animate-spin text-amber-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sorular yükleniyor...</span>
+              </div>
             ) : filteredFavorites.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-32 bg-[#131522]/40 border border-white/5 rounded-[2rem] text-center px-6">
-                    <Star className="w-16 h-16 text-white/5 mb-4" />
-                    <h3 className="text-sm font-bold text-white mb-2">Henüz favori sorunuz yok</h3>
-                    <p className="text-xs text-text-muted">Sınav çözerken zorlandığınız soruları yıldızlayarak buraya ekleyebilirsiniz.</p>
-                    <button 
-                      onClick={() => navigate('/dashboard/exams')}
-                      className="mt-6 px-6 py-3 bg-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
-                    >
-                      Sınavlara Git
-                    </button>
-                </div>
+              <div className="flex min-h-80 flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.025] px-6 text-center">
+                <Inbox className="mb-4 h-14 w-14 text-white/15" />
+                <h3 className="text-sm font-black text-white">
+                  {favorites.length === 0 ? 'Henüz favori sorunuz yok' : 'Filtreye uygun soru yok'}
+                </h3>
+                <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">
+                  {favorites.length === 0
+                    ? 'Sınav çözerken zorlandığınız soruları yıldızlayarak buraya ekleyebilirsiniz.'
+                    : 'Arama metnini veya konu filtresini değiştirerek tekrar deneyin.'}
+                </p>
+                {favorites.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => navigate('/dashboard/exams')}
+                    className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-amber-500 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-amber-400"
+                  >
+                    Sınavlara Git
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             ) : (
-                filteredFavorites.map((question) => {
-                    const isSelected = selectedQuestion?._id === question._id;
-                    
-                    return (
-                        <motion.button
-                            key={question._id}
-                            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                            onClick={() => setSelectedQuestion(question)}
-                            className={`w-full text-left p-5 rounded-[2rem] border transition-all duration-300 relative group cursor-pointer ${
-                                isSelected 
-                                ? 'bg-amber-500/[0.03] border-amber-500/40 shadow-[0_0_35px_-12px_rgba(245,158,11,0.25)]' 
-                                : 'bg-[#131522]/60 border-white/5 hover:border-amber-500/20 hover:bg-[#131522]/80'
-                            }`}
+              <div className="space-y-3">
+                {filteredFavorites.map((question) => {
+                  const isSelected = selectedQuestion?._id === question._id;
+                  return (
+                    <motion.div
+                      key={question._id}
+                      role="button"
+                      tabIndex={0}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={() => setSelectedQuestion(question)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          setSelectedQuestion(question);
+                        }
+                      }}
+                      className={`group w-full cursor-pointer rounded-3xl border p-4 text-left transition ${
+                        isSelected
+                          ? 'border-amber-500/40 bg-amber-500/[0.06]'
+                          : 'border-white/10 bg-white/[0.025] hover:border-amber-500/25 hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <span className={`rounded-xl border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${getDifficultyColor(question.difficulty)}`}>
+                          {getDifficultyLabel(question.difficulty)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => handleRemoveFavorite(question._id, e)}
+                          className="rounded-xl border border-white/10 bg-white/[0.03] p-2 text-text-muted opacity-100 transition hover:border-danger/25 hover:bg-danger/10 hover:text-danger lg:opacity-0 lg:group-hover:opacity-100"
+                          title="Favoriden çıkar"
                         >
-                            <div className="flex justify-between items-start mb-3">
-                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getDifficultyColor(question.difficulty)}`}>
-                                    {getDifficultyLabel(question.difficulty)}
-                                </span>
-                                <button 
-                                  onClick={(e) => handleRemoveFavorite(question._id, e)}
-                                  className="p-2 bg-white/5 rounded-lg text-text-muted hover:text-danger hover:bg-danger/10 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
-                                >
-                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                                </button>
-                            </div>
-                            
-                            <h3 className="font-bold text-sm line-clamp-2 mb-2 text-white/90 leading-relaxed">
-                                {question.text}
-                            </h3>
-                            
-                            <div className="flex items-center gap-2 mt-3">
-                                <span className="text-[9px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-tighter">
-                                    <BookOpen className="w-2.5 h-2.5" /> {question.subject || 'Genel'}
-                                </span>
-                                {question.media && (
-                                  <span className="text-[9px] font-black text-primary-light bg-primary/10 px-2 py-0.5 rounded flex items-center gap-1 uppercase tracking-tighter">
-                                      <ImageIcon className="w-2.5 h-2.5" /> Görselli
-                                  </span>
-                                )}
-                            </div>
-                        </motion.button>
-                    );
-                })
-            )}
-          </div>
-        </div>
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
 
-        {/* Right Side: Detail Area */}
-        <div className="flex-1 bg-[#131522]/80 backdrop-blur-xl rounded-[2.5rem] border border-white/10 flex flex-col overflow-hidden shadow-2xl relative">
-          {/* Ambient Glow */}
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
-          
+                      <h3 className="line-clamp-3 text-sm font-bold leading-relaxed text-white">
+                        {question.text}
+                      </h3>
+
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300">
+                          <BookOpen className="h-3.5 w-3.5" />
+                          {question.subject || 'Genel'}
+                        </span>
+                        {question.media && (
+                          <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-primary-light">
+                            <ImageIcon className="h-3.5 w-3.5" />
+                            Görselli
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        </aside>
+
+        <section className="min-h-0 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]">
           {selectedQuestion ? (
             <AnimatePresence mode="wait">
-              <motion.div 
+              <motion.div
                 key={selectedQuestion._id}
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col h-full"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex h-full flex-col"
               >
-                {/* Detail Header */}
-                <div className="flex flex-col gap-4 border-b border-white/5 bg-black/40 px-6 py-4 sm:px-8 sm:py-5 md:flex-row md:items-center md:justify-between">
-                  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-                    <div className="w-12 h-12 rounded-[18px] bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                      <HelpCircle className="w-6 h-6 text-amber-500" />
+                <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.025] px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10">
+                      <HelpCircle className="h-5 w-5 text-amber-300" />
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-lg font-black text-white leading-none">Soru Detayı</h2>
-                      <p className="text-[10px] text-text-muted font-bold mt-1.5 uppercase tracking-widest">{selectedQuestion.subject || 'Genel Kategori'}</p>
+                      <h2 className="text-lg font-black text-white">Soru Detayı</h2>
+                      <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-text-muted">
+                        {selectedQuestion.subject || 'Genel Kategori'}
+                      </p>
                     </div>
                   </div>
-                  <button 
+                  <button
+                    type="button"
                     onClick={(e) => handleRemoveFavorite(selectedQuestion._id, e)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-[#ff4444]/10 hover:text-[#ff4444] hover:border-[#ff4444]/20 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-text-secondary transition-all md:w-auto cursor-pointer"
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-danger transition hover:bg-danger/15"
                   >
-                    <Star className="w-4 h-4 fill-current text-amber-500" /> Favoriden Çıkar
+                    <Trash2 className="h-4 w-4" />
+                    Favoriden Çıkar
                   </button>
                 </div>
 
-                {/* Detail Content */}
-                <div className="flex-1 space-y-8 overflow-y-auto p-6 custom-scrollbar sm:p-8 lg:p-10">
-                  
-                  {/* Question Media if exists */}
+                <div className="flex-1 space-y-7 overflow-y-auto p-5 custom-scrollbar sm:p-6 lg:p-8">
                   {selectedQuestion.media && (
-                    <div className="max-w-xl mx-auto mb-8 bg-black/20 border border-white/5 rounded-3xl overflow-hidden p-2">
-                       <img 
-                          src={resolveMediaUrl(selectedQuestion.media)} 
-                          alt="Soru Görseli"
-                          className="w-full h-auto max-h-[300px] object-contain rounded-2xl"
-                          onError={(e) => e.target.style.display = 'none'}
-                       />
+                    <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-black/20 p-2">
+                      <img
+                        src={resolveMediaUrl(selectedQuestion.media)}
+                        alt="Soru Görseli"
+                        className="max-h-[320px] w-full rounded-2xl object-contain"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
                     </div>
                   )}
 
-                  {/* Question Text */}
-                  <div className="max-w-2xl mx-auto">
-                    <p className="text-base font-bold leading-relaxed text-white sm:text-lg md:text-center">
+                  <div className="mx-auto max-w-3xl">
+                    <p className="text-base font-bold leading-relaxed text-white sm:text-lg">
                       {selectedQuestion.text}
                     </p>
                   </div>
 
-                  {/* Options */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto pt-6">
-                    {selectedQuestion.options.map((opt, idx) => {
+                  <div className="mx-auto grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2">
+                    {(selectedQuestion.options || []).map((opt, idx) => {
                       const isCorrect = idx === selectedQuestion.correctAnswer;
                       return (
-                        <div 
-                          key={idx}
-                          className={`p-5 rounded-2xl border-2 transition-all flex items-center gap-4 ${
-                            isCorrect 
-                              ? 'bg-success/5 border-success/30 text-success shadow-[0_0_15px_-3px_rgba(16,185,129,0.15)]' 
-                              : 'bg-white/[0.02] border-white/5 text-white/50'
+                        <div
+                          key={`${opt}-${idx}`}
+                          className={`flex items-center gap-4 rounded-2xl border p-4 ${
+                            isCorrect
+                              ? 'border-success/30 bg-success/10 text-success'
+                              : 'border-white/10 bg-white/[0.025] text-text-secondary'
                           }`}
                         >
-                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${
-                            isCorrect ? 'bg-success text-white' : 'bg-white/10 text-white/30'
+                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
+                            isCorrect ? 'bg-success text-white' : 'bg-white/10 text-text-muted'
                           }`}>
                             {String.fromCharCode(65 + idx)}
                           </div>
-                          <span className="font-bold text-sm leading-tight">{opt}</span>
-                          {isCorrect && <CheckCircle2 className="w-5 h-5 ml-auto text-success" />}
+                          <span className="text-sm font-bold leading-snug">{opt}</span>
+                          {isCorrect && <CheckCircle2 className="ml-auto h-5 w-5 text-success" />}
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Explanation */}
                   {selectedQuestion.explanation && (
-                    <div className="max-w-3xl mx-auto pt-8">
-                      <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 sm:p-8 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 opacity-10">
-                          <HelpCircle className="w-20 h-20 text-primary-light" />
-                        </div>
-                        <h4 className="text-xs font-black text-primary-light uppercase tracking-widest mb-3 flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" /> Soru Çözümü & Açıklama
-                        </h4>
-                        <p className="text-sm text-white/80 leading-relaxed relative z-10 font-semibold">
-                          {selectedQuestion.explanation}
-                        </p>
-                      </div>
+                    <div className="mx-auto max-w-3xl rounded-3xl border border-primary/20 bg-primary/10 p-6">
+                      <h4 className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary-light">
+                        <Sparkles className="h-4 w-4" />
+                        Soru Çözümü ve Açıklama
+                      </h4>
+                      <p className="text-sm font-semibold leading-relaxed text-white/85">
+                        {selectedQuestion.explanation}
+                      </p>
                     </div>
                   )}
                 </div>
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-                <div className="w-32 h-32 rounded-[40px] bg-amber-500/5 border border-amber-500/15 flex items-center justify-center mb-8 relative">
-                    <Star className="w-12 h-12 text-amber-500/25 relative z-10 fill-amber-500/10" />
-                    <div className="absolute inset-0 bg-amber-500/5 blur-3xl rounded-full"></div>
-                </div>
-                <h3 className="text-2xl font-black text-white tracking-tight">Soru Seçilmedi</h3>
-                <p className="text-text-secondary text-sm max-w-sm mt-3 font-medium">
-                  Detayları ve doğru cevabı görmek için sol taraftaki listeden bir soru seçiniz.
-                </p>
+            <div className="flex h-full min-h-[420px] flex-col items-center justify-center px-8 text-center">
+              <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl border border-amber-500/15 bg-amber-500/10">
+                <Star className="h-10 w-10 fill-amber-500/10 text-amber-300" />
+              </div>
+              <h3 className="text-xl font-black text-white">Soru Seçilmedi</h3>
+              <p className="mt-3 max-w-sm text-sm font-semibold leading-relaxed text-text-muted">
+                Detayları, doğru cevabı ve açıklamayı görmek için listeden bir favori soru seç.
+              </p>
             </div>
           )}
-        </div>
-
+        </section>
       </div>
-
     </div>
   );
 };

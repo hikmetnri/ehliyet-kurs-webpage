@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.7 - Desktop web'de `UserFavorites.jsx` ve `UserWrongAnswers.jsx` soru listesi ekranlarını modernize et.
+NEXT: Task 2.8 - Desktop web'de `UserTrafficSigns.jsx` levha ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -98,8 +98,9 @@ NEXT: Task 2.7 - Desktop web'de `UserFavorites.jsx` ve `UserWrongAnswers.jsx` so
   - Yapıldı: Desktop ayarlar ekranı sol profil özeti ve sağda profil/güvenlik/tercih bölümleriyle yeniden düzenlendi.
   - Profil, konum, sınav tarihi, günlük hedef, hatırlatıcı ve hesap silme alanları daha taranabilir hale getirildi.
 
-- TODO 2.7: `src/pages/user/UserFavorites.jsx` ve `UserWrongAnswers.jsx`
-  - Soru listesi, filtreler ve tekrar aksiyonları sadeleştirilecek.
+- DONE 2.7: `src/pages/user/UserFavorites.jsx` ve `UserWrongAnswers.jsx`
+  - Yapıldı: Favori soru listesi arama, konu filtresi, özet metrikler ve daha sade detay paneliyle yenilendi.
+  - Yanlış sorulara arama, tekrar filtresi, özet metrikler ve daha net tekil çözme aksiyonu eklendi.
 
 - TODO 2.8: `src/pages/user/UserTrafficSigns.jsx`
   - Levha kategorileri ve detay görünümü daha görsel ve hızlı taranabilir olacak.
