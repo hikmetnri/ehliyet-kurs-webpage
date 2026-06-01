@@ -2,13 +2,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   BookOpen, ChevronRight, ChevronDown, Loader2,
   Search, Lock, Folder, FolderOpen, FileText, X,
   Zap, Play, CheckCircle2, ArrowRight, ZoomIn
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
@@ -580,7 +579,6 @@ const UserLessons = () => {
                     prose-td:border prose-td:border-white/5 prose-td:p-3
                   ">
                     <ReactMarkdown
-                      rehypePlugins={[rehypeRaw]}
                       remarkPlugins={[remarkGfm]}
                       components={{
                         img: ({ src, alt }) => (

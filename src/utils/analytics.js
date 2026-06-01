@@ -47,7 +47,8 @@ export const getAcquisitionSource = () => {
 };
 
 export const trackEvent = async (eventType, metadata = {}) => {
-  const token = localStorage.getItem('token');
+  localStorage.removeItem('token');
+  const token = sessionStorage.getItem('token');
   if (!token) return;
 
   try {

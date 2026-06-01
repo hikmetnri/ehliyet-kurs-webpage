@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Loader2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import api from '../api';
 
 const PrivacyPolicy = () => {
@@ -50,7 +52,7 @@ const PrivacyPolicy = () => {
           <div className="prose prose-invert prose-lg max-w-none prose-headings:font-black prose-headings:text-white prose-p:text-text-secondary prose-a:text-primary-light hover:prose-a:text-white prose-li:text-text-secondary">
             
             {privacy ? (
-              <div dangerouslySetInnerHTML={{ __html: privacy }} />
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{privacy}</ReactMarkdown>
             ) : (
               <p>Gizlilik politikası henüz eklenmemiş.</p>
             )}
@@ -59,7 +61,7 @@ const PrivacyPolicy = () => {
 
             <h2>KVKK Aydınlatma Metni</h2>
             {kvkk ? (
-              <div dangerouslySetInnerHTML={{ __html: kvkk }} />
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{kvkk}</ReactMarkdown>
             ) : (
               <p>KVKK metni henüz eklenmemiş.</p>
             )}

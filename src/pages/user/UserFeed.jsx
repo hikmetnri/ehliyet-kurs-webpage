@@ -243,19 +243,8 @@ export default function UserFeed() {
                     className="mb-4 block w-full text-left focus:outline-none cursor-pointer"
                   >
                     <h3 className="text-base font-black text-white mb-2 leading-snug group-hover:text-primary-light transition-colors">{post.title}</h3>
-                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap line-clamp-3 font-semibold">{post.content}</p>
+                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap line-clamp-6 font-semibold">{post.content}</p>
                   </button>
-
-                  {/* Tags */}
-                  {post.tags?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {post.tags.map((tag, i) => (
-                        <span key={i} className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-primary-light bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg">
-                          <Tag className="w-3 h-3" /> #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 pt-4 border-t border-white/5">
@@ -528,19 +517,8 @@ export default function UserFeed() {
                       className="block w-full text-left focus:outline-none mb-3"
                     >
                       <h3 className="text-sm font-black text-white mb-1.5 leading-snug line-clamp-2">{post.title}</h3>
-                      <p className="text-xs text-text-secondary leading-relaxed line-clamp-3 whitespace-pre-wrap">{post.content}</p>
+                      <p className="text-xs text-text-secondary leading-relaxed line-clamp-6 whitespace-pre-wrap">{post.content}</p>
                     </button>
-
-                    {/* Tags */}
-                    {post.tags?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {post.tags.map((tag, i) => (
-                          <span key={i} className="flex items-center gap-0.5 text-[10px] text-primary-light bg-primary/10 px-2 py-0.5 rounded-md">
-                            <Tag className="w-2.5 h-2.5" /> #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
 
                     {/* Action Bar */}
                     <div className="flex items-center gap-1.5 pt-3 border-t border-white/5">

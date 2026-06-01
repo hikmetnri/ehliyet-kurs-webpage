@@ -9,6 +9,12 @@ const getStoredUser = () => {
   }
 }
 
+const getStoredToken = () => {
+  localStorage.removeItem('token')
+  const token = sessionStorage.getItem('token')
+  return token || null
+}
+
 const clearCategorySession = () => {
   localStorage.removeItem('last_visited_id')
   localStorage.removeItem('last_visited_name')
@@ -25,13 +31,14 @@ const syncCategorySession = (user) => {
 
 const useAuthStore = create((set) => ({
   user: getStoredUser(),
-  token: localStorage.getItem('token') || null,
+  token: getStoredToken(),
   loading: false,
   error: null,
 
   setAuth: (user, token) => {
     localStorage.setItem('user', JSON.stringify(user))
-    localStorage.setItem('token', token)
+    sessionStorage.setItem('token', token)
+    localStorage.removeItem('token')
     syncCategorySession(user)
     set({ user, token, error: null })
   },
@@ -47,6 +54,7 @@ const useAuthStore = create((set) => ({
   setError: (error) => set({ error }),
 
   logout: () => {
+    sessionStorage.removeItem('token')
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     clearCategorySession()

@@ -196,7 +196,8 @@
       </section>
     </main>
     <script>
-      const token = localStorage.getItem('token');
+      localStorage.removeItem('token');
+      const token = sessionStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
       const input = document.getElementById('confirm-input');
       const button = document.getElementById('delete-button');
@@ -237,6 +238,7 @@
           if (!response.ok) {
             throw new Error(data.error || data.message || 'Hesap silinemedi. Lütfen tekrar deneyin.');
           }
+          sessionStorage.removeItem('token');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           status.style.color = '#86efac';

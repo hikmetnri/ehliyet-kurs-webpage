@@ -6,10 +6,15 @@ const api = axios.create({
   timeout: 10000,
 })
 
+const getToken = () => {
+  localStorage.removeItem('token')
+  return sessionStorage.getItem('token')
+}
+
 // Request interceptor — JWT token ekle
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = getToken()
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -22,7 +27,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const suspended = error.response?.status === 403 &&
+      String(error.response?.data?.error || error.response?.data?.message || '').includes('askıya')
+
+    if (error.response?.status === 401 || suspended) {
+      sessionStorage.removeItem('token')
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       localStorage.removeItem('last_visited_id')

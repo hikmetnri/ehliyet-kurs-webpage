@@ -3,7 +3,6 @@ import api from '../../api';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import {
   Loader2, Search, Plus, Layers,
   Eye, EyeOff, Crown, Settings2, FileText,
@@ -1855,7 +1854,6 @@ const AdminContent = () => {
                         <div className="max-w-4xl mx-auto w-full">
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeRaw]}
                             components={markdownComponents}
                           >
                             {selectedDisplayContent}
