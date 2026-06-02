@@ -1,0 +1,14 @@
+- [x] React masaüstü web görünümleri (desktop UI) kalan sayfalar yeniden tasarımı
+  - [x] `UserLessons.jsx` (Ders Notları): Sol kategori ağacı & sağ içerik okuyucu
+  - [x] `UserSettings.jsx` (Profil & Ayarlar): Sliding active tab pill, form girdileri
+  - [x] `UserFeed.jsx` & `UserFeedDetail.jsx` (Topluluk): Premium hero banner, gönderi ve yorum kartları
+  - [x] `UserSupport.jsx` (Destek): Dual pane list/chat layout
+  - [x] `UserVideos.jsx` (Video Dersler): Izgara kartları ve oynatma butonları
+  - [x] `UserFavorites.jsx` (Favoriler) & `UserDrivingSchools.jsx` (Kurslar): Arayüz parlatmaları
+- [x] Doğrulama ve Derleme
+  - [x] `npm run build` komutuyla hatasız derlendiğini doğrula
+- [x] Video Oynatıcı Entegrasyonu (Web & Flutter)
+  - [x] React web: `UserVideos.jsx`'e `getEmbedUrl` helper ve `iframe` embed oynatıcı eklendi (YouTube, Vimeo, Google Drive)
+  - [x] Flutter: `video_detail_screen.dart` güncellendi — `webview_flutter` paketi eklendi, YouTube/Vimeo/Google Drive linkleri uygulama içi WebView ile oynatılır
+  - [x] `pubspec.yaml`'a `webview_flutter: ^4.10.0` eklendi ve `flutter pub get` başarıyla çalıştırıldı
+  - [x] Features MD dosyaları güncellendi (other-features.md, task.md, walkthrough.md)
