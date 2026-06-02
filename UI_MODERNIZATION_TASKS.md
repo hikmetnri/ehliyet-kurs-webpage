@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 3.2 - `src/pages/AdminDashboard.jsx` admin dashboard ekranını modernize et.
+NEXT: Task 4.1 - `src/pages/admin/AdminUsers.jsx` kullanıcı yönetimi ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -125,8 +125,9 @@ NEXT: Task 3.2 - `src/pages/AdminDashboard.jsx` admin dashboard ekranını moder
   - Yapıldı: Sidebar bölümlü, daha dar ve mobile kapatma kontrollü hale getirildi; alt nav etiketleri taşmaya daha dayanıklı yapıldı.
   - Yapıldı: Admin bildirim panelindeki ağır glow/shadow azaltıldı ve bekleyen işler paneli daha sakin hale getirildi.
 
-- TODO 3.2: `src/pages/AdminDashboard.jsx`
-  - Ana metrikler, grafikler ve son aktiviteler daha taranabilir yapılacak.
+- DONE 3.2: `src/pages/AdminDashboard.jsx`
+  - Yapıldı: Admin dashboard üst özeti tek aksiyonlu hale getirildi; metrik, kuyruk ve bekleyen iş kartları daha sakin yüzeylerle yenilendi.
+  - Yapıldı: Grafik kartları, aktivite logları ve hızlı not alanı daha taranabilir ve düşük dekorasyonlu hale getirildi.
 
 ## Task 4 - Admin Sayfaları
 
