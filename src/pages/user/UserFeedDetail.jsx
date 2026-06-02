@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Clock, Loader2, MessageCircle, Send, Tag,
-  ThumbsUp, TriangleAlert, Sparkles,
+  ThumbsUp, TriangleAlert,
 } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
@@ -173,19 +173,23 @@ export default function UserFeedDetail() {
   const TypeIcon = cfg.icon;
   const isLiked = post.likes?.includes(userId);
   const authorGrad = getAvatarGrad(post.userName);
+  const likeCount = post.likes?.length || 0;
+  const commentCount = post.comments?.length || 0;
 
   return (
     <>
       {/* Desktop View */}
-      <div className="hidden lg:block mx-auto max-w-3xl pb-24">
-        <button
-          type="button"
-          onClick={() => navigate('/dashboard/feed')}
-          className="mb-6 inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4.5 py-2.5 text-xs font-black uppercase tracking-widest text-text-muted transition-all hover:bg-white/[0.07] hover:text-white hover:border-white/20"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Topluluğa Dön
-        </button>
+      <div className="hidden lg:block mx-auto max-w-6xl pb-24">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/feed')}
+            className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-bold text-text-muted transition-all hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Topluluğa dön
+          </button>
+        </div>
 
         {error && (
           <div className="mb-4 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm font-semibold text-amber-200">
@@ -193,153 +197,185 @@ export default function UserFeedDetail() {
           </div>
         )}
 
-        <motion.article
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#131522]/80 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(139,92,246,0.15)]"
-        >
-          {/* Ambient Glow */}
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-          
-          <div className="p-8 sm:p-10">
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 items-center gap-4">
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${authorGrad} text-base font-black text-white shadow-lg shadow-black/35`}>
-                  {(post.userName || 'U').charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-black text-white">{post.userName || 'Kullanıcı'}</p>
-                  <div className="mt-1 flex items-center gap-1.5 text-xs text-text-muted">
-                    <Clock className="h-3.5 w-3.5" />
-                    {timeAgo(post.createdAt)}
+        <div className="grid grid-cols-[minmax(0,1fr)_18rem] gap-5">
+          <div className="space-y-5">
+            <motion.article
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-3xl border border-white/10 bg-white/[0.025] p-7"
+            >
+              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${authorGrad} text-base font-black text-white shadow-lg shadow-black/35`}>
+                    {(post.userName || 'U').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-white">{post.userName || 'Kullanıcı'}</p>
+                    <div className="mt-1 flex items-center gap-1.5 text-xs text-text-muted">
+                      <Clock className="h-3.5 w-3.5" />
+                      {timeAgo(post.createdAt)}
+                    </div>
                   </div>
                 </div>
+
+                <div className={`flex w-fit items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold ${cfg.bg} ${cfg.tw} ${cfg.border}`}>
+                  <TypeIcon className="h-3.5 w-3.5" />
+                  {cfg.label}
+                </div>
               </div>
 
-              <div className={`flex w-fit items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold ${cfg.bg} ${cfg.tw} ${cfg.border}`}>
-                <TypeIcon className="h-3.5 w-3.5" />
-                {cfg.label}
+              <h1 className="text-3xl font-black leading-tight text-white">{post.title}</h1>
+              <p className="mt-5 whitespace-pre-wrap text-base leading-8 text-text-secondary font-medium">{post.content}</p>
+
+              {post.tags?.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {post.tags.map((tag, index) => (
+                    <span key={`${tag}-${index}`} className="inline-flex items-center gap-1 rounded-xl bg-white/[0.04] border border-white/10 px-3 py-1.5 text-xs font-bold text-text-secondary">
+                      <Tag className="h-3.5 w-3.5 text-primary-light" />
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-8 flex items-center gap-3 border-t border-white/5 pt-5">
+                <button
+                  type="button"
+                  onClick={handleLike}
+                  disabled={actionLoading === 'post-like'}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-bold transition-all duration-300 ${
+                    isLiked
+                      ? 'border-primary/40 bg-primary/20 text-primary-light'
+                      : 'border-white/10 bg-white/[0.03] text-text-muted hover:bg-white/[0.07] hover:text-white'
+                  }`}
+                >
+                  <ThumbsUp className={`h-4 w-4 ${isLiked ? 'fill-primary-light' : ''}`} />
+                  Beğen ({likeCount})
+                </button>
+                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-bold text-text-muted">
+                  <MessageCircle className="h-4 w-4" />
+                  {commentCount} Yorum
+                </div>
+              </div>
+            </motion.article>
+
+            <section className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]">
+              <div className="border-b border-white/5 p-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-black text-white flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-sky-300" />
+                    Yorumlar
+                  </h2>
+                  <p className="mt-1 text-xs text-text-muted">Topluluk cevapları ve tartışmaları</p>
+                </div>
+                <span className="rounded-full bg-white/[0.04] px-3 py-1.5 text-xs font-bold text-text-muted border border-white/10">
+                  {commentCount} Yorum
+                </span>
+              </div>
+
+              <div className="space-y-5 p-6 max-h-[500px] overflow-y-auto custom-scrollbar">
+                {commentCount === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] px-5 py-12 text-center">
+                    <MessageCircle className="mx-auto mb-3 h-8 w-8 text-white/15" />
+                    <p className="text-sm font-black text-white">Henüz yorum yapılmamış</p>
+                    <p className="mt-1 text-xs text-text-muted">İlk düşüncelerini sen paylaş.</p>
+                  </div>
+                ) : (
+                  post.comments.map((comment) => {
+                    const isMe = comment.userId === userId;
+                    const liked = comment.likes?.includes(userId);
+                    return (
+                      <div key={comment._id} className={`flex gap-3.5 ${isMe ? 'flex-row-reverse' : ''}`}>
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${getAvatarGrad(comment.userName)} text-sm font-black text-white shadow-md`}>
+                          {(comment.userName || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div className={`flex max-w-[80%] flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                          <div className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed font-medium ${
+                            isMe
+                              ? 'rounded-tr-none bg-primary/85 text-white'
+                              : 'rounded-tl-none border border-white/10 bg-white/[0.035] text-text-secondary'
+                          }`}>
+                            {comment.text}
+                          </div>
+                          <div className="mt-2 flex items-center gap-2 px-1.5 text-xs font-bold text-text-muted">
+                            <span>{isMe ? 'Siz' : comment.userName} · {timeAgo(comment.createdAt)}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleCommentLike(comment._id)}
+                              disabled={actionLoading === `comment-like-${comment._id}`}
+                              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 transition-all hover:bg-white/5 hover:text-white ${liked ? 'text-primary-light' : ''}`}
+                            >
+                              <ThumbsUp className={`h-3 w-3 ${liked ? 'fill-primary-light' : ''}`} />
+                              {comment.likes?.length || 0}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="flex gap-3 border-t border-white/5 p-4 bg-black/15">
+                <input
+                  type="text"
+                  value={commentText}
+                  onChange={event => setCommentText(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                      event.preventDefault();
+                      handleComment();
+                    }
+                  }}
+                  placeholder="Yorum yaz, Enter ile gönder..."
+                  className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/20 px-5 py-3.5 text-sm text-white placeholder-text-muted transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/15 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleComment}
+                  disabled={!commentText.trim() || actionLoading === 'comment'}
+                  className="inline-flex items-center justify-center rounded-2xl bg-primary px-6 text-white transition-all hover:bg-primary-light active:scale-95 disabled:opacity-40 disabled:scale-100 cursor-pointer"
+                >
+                  {actionLoading === 'comment' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                </button>
+              </div>
+            </section>
+          </div>
+
+          <aside className="sticky top-6 h-fit space-y-4">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+              <h2 className="text-sm font-black text-white">Gönderi özeti</h2>
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-text-muted">Tür</span>
+                  <span className="font-bold text-white">{cfg.label}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-text-muted">Beğeni</span>
+                  <span className="font-bold text-white">{likeCount}</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-text-muted">Yorum</span>
+                  <span className="font-bold text-white">{commentCount}</span>
+                </div>
               </div>
             </div>
-
-            <h1 className="text-2xl font-black leading-tight text-white sm:text-3xl tracking-tight">{post.title}</h1>
-            <p className="mt-5 whitespace-pre-wrap text-sm leading-8 text-text-secondary sm:text-base font-medium">{post.content}</p>
 
             {post.tags?.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {post.tags.map((tag, index) => (
-                  <span key={`${tag}-${index}`} className="inline-flex items-center gap-1 rounded-xl bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-bold text-primary-light transition-all hover:bg-primary/20">
-                    <Tag className="h-3.5 w-3.5" />
-                    #{tag}
-                  </span>
-                ))}
+              <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+                <h2 className="text-sm font-black text-white">Etiketler</h2>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {post.tags.map((tag, index) => (
+                    <span key={`${tag}-${index}-side`} className="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-1.5 text-xs font-bold text-text-secondary">
+                      <Tag className="h-3.5 w-3.5 text-primary-light" />
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
-
-            <div className="mt-8 flex items-center gap-3 border-t border-white/5 pt-6">
-              <button
-                type="button"
-                onClick={handleLike}
-                disabled={actionLoading === 'post-like'}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all duration-300 ${
-                  isLiked 
-                    ? 'bg-primary/20 border border-primary/40 text-primary-light' 
-                    : 'bg-white/5 border border-white/5 text-text-muted hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <ThumbsUp className={`h-4 w-4 ${isLiked ? 'fill-primary-light' : ''}`} />
-                Beğen ({post.likes?.length || 0})
-              </button>
-              <div className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/5 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-text-muted">
-                <MessageCircle className="h-4 w-4" />
-                {post.comments?.length || 0} Yorum
-              </div>
-            </div>
-          </div>
-        </motion.article>
-
-        <section className="mt-6 overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#131522]/80 backdrop-blur-xl shadow-[0_0_50px_-12px_rgba(139,92,246,0.15)]">
-          <div className="border-b border-white/5 p-6 sm:p-8 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary-light" />
-                Yorumlar
-              </h2>
-              <p className="mt-1 text-xs text-text-muted">Topluluk içerisindeki fikir paylaşımları ve cevaplar.</p>
-            </div>
-            <span className="rounded-full bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted border border-white/5">
-              {post.comments?.length || 0} Yorum
-            </span>
-          </div>
-
-          <div className="space-y-5 p-6 sm:p-8 max-h-[500px] overflow-y-auto custom-scrollbar">
-            {(post.comments?.length || 0) === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.01] px-5 py-12 text-center">
-                <MessageCircle className="mx-auto mb-3 h-8 w-8 text-white/15" />
-                <p className="text-sm font-black text-white">Henüz yorum yapılmamış</p>
-                <p className="mt-1 text-xs text-text-muted">İlk düşüncelerini sen paylaş!</p>
-              </div>
-            ) : (
-              post.comments.map((comment) => {
-                const isMe = comment.userId === userId;
-                const liked = comment.likes?.includes(userId);
-                return (
-                  <div key={comment._id} className={`flex gap-3.5 ${isMe ? 'flex-row-reverse' : ''}`}>
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${getAvatarGrad(comment.userName)} text-sm font-black text-white shadow-md`}>
-                      {(comment.userName || 'U').charAt(0).toUpperCase()}
-                    </div>
-                    <div className={`flex max-w-[80%] flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                      <div className={`rounded-2xl px-5 py-3.5 text-sm leading-relaxed font-semibold shadow-md ${
-                        isMe
-                          ? 'rounded-tr-none bg-gradient-to-r from-primary to-indigo-600 border border-primary/20 text-white'
-                          : 'rounded-tl-none border border-white/10 bg-white/[0.04] text-white/90'
-                      }`}>
-                        {comment.text}
-                      </div>
-                      <div className="mt-2 flex items-center gap-2 px-1.5 text-[10px] font-bold text-text-muted">
-                        <span>{isMe ? 'Siz' : comment.userName} · {timeAgo(comment.createdAt)}</span>
-                        <span className="text-white/10">|</span>
-                        <button
-                          type="button"
-                          onClick={() => handleCommentLike(comment._id)}
-                          disabled={actionLoading === `comment-like-${comment._id}`}
-                          className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 transition-all hover:bg-white/5 hover:text-white ${liked ? 'text-primary-light' : ''}`}
-                        >
-                          <ThumbsUp className={`h-3 w-3 ${liked ? 'fill-primary-light' : ''}`} />
-                          {comment.likes?.length || 0}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          <div className="flex gap-3 border-t border-white/5 p-4 sm:p-5 bg-black/20">
-            <input
-              type="text"
-              value={commentText}
-              onChange={event => setCommentText(event.target.value)}
-              onKeyDown={event => {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault();
-                  handleComment();
-                }
-              }}
-              placeholder="Yorum yaz, Enter ile gönder..."
-              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-black/30 px-5 py-3.5 text-sm text-white placeholder-text-muted transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/30 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={handleComment}
-              disabled={!commentText.trim() || actionLoading === 'comment'}
-              className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary to-indigo-600 px-6 text-white transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:scale-100 disabled:hover:scale-100 shadow-md shadow-primary/20 cursor-pointer"
-            >
-              {actionLoading === 'comment' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            </button>
-          </div>
-        </section>
+          </aside>
+        </div>
       </div>
 
       {/* Mobile View */}

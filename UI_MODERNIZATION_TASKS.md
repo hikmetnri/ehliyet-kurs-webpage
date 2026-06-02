@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.12 - Desktop web'de `UserFeed.jsx` ve `UserFeedDetail.jsx` feed ekranlarını modernize et.
+NEXT: Task 3.1 - Admin ortak panel bileşenlerini modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -114,8 +114,9 @@ NEXT: Task 2.12 - Desktop web'de `UserFeed.jsx` ve `UserFeedDetail.jsx` feed ekr
 - DONE 2.11: `src/pages/user/UserSupport.jsx`
   - Yapıldı: Desktop destek ekranına talep arama/durum filtresi eklendi; mesaj paneli ve yeni talep modalı daha sade hale getirildi.
 
-- TODO 2.12: `src/pages/user/UserFeed.jsx` ve `UserFeedDetail.jsx`
-  - Feed kartları, detay okuma ve aksiyonlar modernize edilecek.
+- DONE 2.12: `src/pages/user/UserFeed.jsx` ve `UserFeedDetail.jsx`
+  - Yapıldı: Desktop feed listesi özet metrikler, arama/filtre paneli, iki kolonlu akış ve daha sade gönderi kartlarıyla yenilendi.
+  - Yapıldı: Feed detay ekranı okunabilir içerik alanı, net yorum paneli ve sağ özet kolonu ile sadeleştirildi.
 
 ## Task 3 - Admin Ortak Panel
 
