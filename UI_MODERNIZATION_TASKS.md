@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 3.1 - Admin ortak panel bileşenlerini modernize et.
+NEXT: Task 3.2 - `src/pages/AdminDashboard.jsx` admin dashboard ekranını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -120,9 +120,10 @@ NEXT: Task 3.1 - Admin ortak panel bileşenlerini modernize et.
 
 ## Task 3 - Admin Ortak Panel
 
-- TODO 3.1: `src/components/admin/AdminLayout.jsx`, `AdminSidebar.jsx`, `AdminBottomNav.jsx`, `AdminNotifications.jsx`
-  - Admin shell daha sakin, dense ve profesyonel hale getirilecek.
-  - Mobil admin nav taşma ve menü erişimi kontrol edilecek.
+- DONE 3.1: `src/components/admin/AdminLayout.jsx`, `AdminSidebar.jsx`, `AdminBottomNav.jsx`, `AdminNotifications.jsx`
+  - Yapıldı: Admin shell daha kompakt header, sayfa başlığı, sakin profil alanı ve daha yoğun içerik padding'iyle sadeleştirildi.
+  - Yapıldı: Sidebar bölümlü, daha dar ve mobile kapatma kontrollü hale getirildi; alt nav etiketleri taşmaya daha dayanıklı yapıldı.
+  - Yapıldı: Admin bildirim panelindeki ağır glow/shadow azaltıldı ve bekleyen işler paneli daha sakin hale getirildi.
 
 - TODO 3.2: `src/pages/AdminDashboard.jsx`
   - Ana metrikler, grafikler ve son aktiviteler daha taranabilir yapılacak.
