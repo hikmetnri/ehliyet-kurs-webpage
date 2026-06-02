@@ -55,7 +55,7 @@ const MarkdownToolbar = ({ onInsert, onImageUpload, uploading }) => {
   ];
 
   return (
-    <div className="flex items-center flex-wrap gap-0.5 px-3 py-2 bg-black/20 border-b border-white/5">
+    <div className="flex items-center flex-wrap gap-0.5 px-3 py-2 bg-black/20 border-b border-white/10">
       {tools.map((tool, i) =>
         tool.type === 'sep' ? (
           <div key={i} className="w-px h-5 bg-white/10 mx-1" />
@@ -93,30 +93,30 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
   const children = allCategories
     .filter(c => (c.parent?._id || c.parent) === cat._id)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
-    
+
   const hasChildren = children.length > 0;
   const isSelected = selectedId === cat._id;
   const [isOpen, setIsOpen] = useState(level < 1);
 
   return (
-    <div className={level > 0 ? 'ml-3 border-l border-white/5 pl-2' : ''}>
-      <Reorder.Item 
+    <div className={level > 0 ? 'ml-3 border-l border-white/10 pl-2' : ''}>
+      <Reorder.Item
         value={cat}
         id={cat._id}
         className="relative"
       >
         <div
-          className={`group flex items-center gap-2 px-3 py-2.5 rounded-xl cursor-pointer transition-all mb-0.5
+          className={`group flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer transition-all mb-0.5 border
             ${isSelected
-              ? 'bg-primary/20 border border-primary/30 text-white'
-              : 'hover:bg-white/5 text-text-secondary hover:text-white border border-transparent'}`}
+              ? 'bg-primary/20 border-primary/30 text-white shadow-sm'
+              : 'hover:bg-white/[0.04] text-text-secondary hover:text-white border-transparent'}`}
           onClick={() => {
             onSelect(cat._id);
             if (hasChildren) setIsOpen(o => !o);
           }}
         >
           {/* DRAG HANDLE */}
-          <div className="opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing p-1 -ml-1 hover:bg-white/10 rounded-md transition-all">
+          <div className="opacity-0 group-hover:opacity-40 cursor-grab active:cursor-grabbing p-1 -ml-1 hover:bg-white/10 rounded-xl transition-all">
              <GripVertical className="w-3 h-3" />
           </div>
 
@@ -140,12 +140,12 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
           </span>
 
           {!cat.isActive && (
-            <span className="text-[9px] font-black text-danger/60 uppercase bg-danger/10 px-1.5 py-0.5 rounded-md">
+            <span className="text-[9px] font-bold text-danger/60 uppercase bg-danger/10 px-1.5 py-0.5 rounded-md">
               GİZLİ
             </span>
           )}
           {categoryHasDraft(cat) && (
-            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border ${getPublicationMeta(cat).badge}`}>
+            <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md border ${getPublicationMeta(cat).badge}`}>
               {getPublicationMeta(cat).shortLabel}
             </span>
           )}
@@ -153,7 +153,7 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
 
           <button
             onClick={e => { e.stopPropagation(); onEdit(cat); }}
-            className="opacity-0 group-hover:opacity-100 p-1 rounded-md hover:bg-white/10 text-white/30 hover:text-white transition-all shrink-0"
+            className="opacity-0 group-hover:opacity-100 p-1 rounded-lg hover:bg-white/10 text-text-muted hover:text-white transition-all shrink-0"
           >
             <Settings2 className="w-3 h-3" />
           </button>
@@ -167,9 +167,9 @@ const CategoryTreeItem = ({ cat, allCategories, selectedId, onSelect, onEdit, on
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
           >
-             <Reorder.Group 
-               axis="y" 
-               values={children} 
+             <Reorder.Group
+               axis="y"
+               values={children}
                onReorder={(newOrder) => onReorder(cat._id, newOrder)}
                className="space-y-0.5"
              >
@@ -244,7 +244,7 @@ const getQuestionPerformance = (question) => {
 const DifficultyPill = ({ difficulty }) => {
   const meta = QUESTION_DIFFICULTY_META[difficulty] || QUESTION_DIFFICULTY_META.medium;
   return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${meta.badge}`}>
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${meta.badge}`}>
       {meta.label}
     </span>
   );
@@ -291,14 +291,14 @@ const TopicQuestionCard = ({ question, index, active, onEdit, onDuplicate, onDel
   const performance = getQuestionPerformance(question);
 
   return (
-    <div className={`group rounded-2xl border bg-white/[0.02] transition-all ${active ? 'border-accent/40 bg-accent/5 shadow-xl shadow-accent/5' : 'border-white/5 hover:border-white/10'}`}>
+    <div className={`group rounded-2xl border transition-all ${active ? 'border-accent/40 bg-accent/10 shadow-lg shadow-accent/5' : 'border-white/10 bg-white/[0.015] hover:border-white/20 hover:bg-white/[0.025]'}`}>
       <div className="flex flex-col gap-3 p-4">
         <div className="flex items-start gap-3">
           {question.media ? (
             <button
               type="button"
               onClick={() => onEdit(question)}
-              className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30"
+              className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30 hover:scale-105 transition-transform"
               title="Soruyu düzenle"
             >
               <img src={resolveMediaUrl(question.media)} alt="" className="h-full w-full object-contain p-1" />
@@ -307,7 +307,7 @@ const TopicQuestionCard = ({ question, index, active, onEdit, onDuplicate, onDel
             <button
               type="button"
               onClick={() => onEdit(question)}
-              className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[11px] font-black text-white/30 hover:text-white"
+              className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-xs font-bold text-text-muted hover:text-white hover:bg-white/10 transition-colors"
               title="Soruyu düzenle"
             >
               {index + 1}
@@ -335,13 +335,13 @@ const TopicQuestionCard = ({ question, index, active, onEdit, onDuplicate, onDel
           </button>
 
           <div className="flex shrink-0 items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-            <button type="button" onClick={() => onEdit(question)} title="Düzenle" className="rounded-lg p-2 text-text-muted hover:bg-primary/10 hover:text-primary-light">
+            <button type="button" onClick={() => onEdit(question)} title="Düzenle" className="rounded-lg p-2 text-text-muted hover:bg-primary/20 hover:text-primary-light transition-colors">
               <Edit3 className="h-4 w-4" />
             </button>
-            <button type="button" onClick={() => onDuplicate(question)} title="Kopyala" className="rounded-lg p-2 text-text-muted hover:bg-white/10 hover:text-white">
+            <button type="button" onClick={() => onDuplicate(question)} title="Kopyala" className="rounded-lg p-2 text-text-muted hover:bg-white/10 hover:text-white transition-colors">
               <FilePlus className="h-4 w-4" />
             </button>
-            <button type="button" onClick={() => onDelete(question._id)} title="Sil" className="rounded-lg p-2 text-text-muted hover:bg-danger/10 hover:text-danger">
+            <button type="button" onClick={() => onDelete(question._id)} title="Sil" className="rounded-lg p-2 text-text-muted hover:bg-danger/20 hover:text-danger transition-colors">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
@@ -351,8 +351,8 @@ const TopicQuestionCard = ({ question, index, active, onEdit, onDuplicate, onDel
           {(question.options || []).map((option, i) => {
             const isCorrect = i === question.correctAnswer;
             return (
-              <div key={`${question._id}-${i}`} className={`flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-xs ${isCorrect ? 'border-success/30 bg-success/10 text-success' : 'border-white/5 bg-black/10 text-text-secondary'}`}>
-                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${isCorrect ? 'bg-success text-white' : 'bg-white/10 text-white/40'}`}>
+              <div key={`${question._id}-${i}`} className={`flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-xs transition-colors ${isCorrect ? 'border-success/30 bg-success/10 text-success' : 'border-white/10 bg-black/10 text-text-secondary hover:bg-black/20'}`}>
+                <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold ${isCorrect ? 'bg-success text-white' : 'bg-white/10 text-white/40'}`}>
                   {optionLabel(i)}
                 </span>
                 <span className="min-w-0 flex-1 break-words leading-snug">{option}</span>
@@ -363,7 +363,7 @@ const TopicQuestionCard = ({ question, index, active, onEdit, onDuplicate, onDel
         </div>
 
         {question.explanation && (
-          <div className="rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs leading-relaxed text-primary-light">
+          <div className="rounded-xl border border-primary/20 bg-primary/10 px-3 py-2.5 text-xs leading-relaxed text-primary-light">
             {question.explanation}
           </div>
         )}
@@ -384,12 +384,12 @@ const TopicQuestionEditor = ({
   onRemoveOption,
   onReset,
 }) => (
-  <form onSubmit={onSubmit} className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-2xl border border-white/5 bg-bg-card2/80">
-    <div className="shrink-0 border-b border-white/5 p-4">
+  <form onSubmit={onSubmit} className="flex h-full min-h-[620px] flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] shadow-sm">
+    <div className="shrink-0 border-b border-white/10 p-4">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-widest text-accent">{selectedCat?.name}</p>
-          <h3 className="mt-1 truncate text-base font-black text-white">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-accent">{selectedCat?.name}</p>
+          <h3 className="mt-1 truncate text-base font-bold text-white">
             {editingQuestionId ? 'Soruyu Düzenle' : 'Yeni Kısa Test Sorusu'}
           </h3>
         </div>
@@ -411,7 +411,7 @@ const TopicQuestionEditor = ({
         </label>
         <textarea
           rows={4}
-          className="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium leading-relaxed text-white outline-none transition-all placeholder:text-white/20 focus:border-accent/50"
+          className="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium leading-relaxed text-white outline-none transition-all placeholder:text-white/30 focus:border-accent/50 focus:bg-transparent"
           placeholder="Soruyu buraya yazın..."
           value={form.text}
           onChange={e => onChange('text', e.target.value)}
@@ -423,7 +423,7 @@ const TopicQuestionEditor = ({
           <ImageIcon className="h-3.5 w-3.5 text-accent" /> Görsel Yolu
         </label>
         <input
-          className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 font-mono text-xs text-white outline-none transition-all placeholder:text-white/20 focus:border-accent/50"
+          className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 font-mono text-xs text-white outline-none transition-all placeholder:text-white/30 focus:border-accent/50 focus:bg-transparent"
           placeholder="assets/signs/... veya https://..."
           value={form.media}
           onChange={e => onChange('media', e.target.value)}
@@ -450,17 +450,17 @@ const TopicQuestionEditor = ({
           {form.options.map((option, i) => {
             const isCorrect = form.correctAnswer === i;
             return (
-              <div key={i} className={`flex items-center gap-2 rounded-2xl border p-2.5 transition-all ${isCorrect ? 'border-success/40 bg-success/5' : 'border-white/5 bg-white/[0.02]'}`}>
+              <div key={i} className={`flex items-center gap-2 rounded-2xl border p-2.5 transition-all ${isCorrect ? 'border-success/40 bg-success/5' : 'border-white/10 bg-white/[0.015]'}`}>
                 <button
                   type="button"
                   onClick={() => onChange('correctAnswer', i)}
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-all ${isCorrect ? 'bg-success text-white shadow-lg shadow-success/20' : 'bg-white/10 text-white/40 hover:bg-white/20 hover:text-white'}`}
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold transition-all ${isCorrect ? 'bg-success text-white shadow-md shadow-success/10' : 'bg-white/10 text-white/40 hover:bg-white/20 hover:text-white'}`}
                   title="Doğru cevap"
                 >
                   {isCorrect ? <Check className="h-4 w-4" /> : optionLabel(i)}
                 </button>
                 <input
-                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/20"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
                   placeholder={`${optionLabel(i)} şıkkı`}
                   value={option}
                   onChange={e => onOptionChange(i, e.target.value)}
@@ -486,7 +486,7 @@ const TopicQuestionEditor = ({
               key={value}
               type="button"
               onClick={() => onChange('difficulty', value)}
-              className={`flex-1 rounded-xl py-2 text-xs font-black transition-all ${form.difficulty === value ? `${meta.active} shadow-lg` : 'text-text-muted hover:text-white'}`}
+              className={`flex-1 rounded-xl py-2 text-xs font-bold transition-all ${form.difficulty === value ? `${meta.active} shadow-lg` : 'text-text-muted hover:text-white'}`}
             >
               {meta.label}
             </button>
@@ -500,7 +500,7 @@ const TopicQuestionEditor = ({
         </label>
         <textarea
           rows={3}
-          className="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium leading-relaxed text-white outline-none transition-all placeholder:text-white/20 focus:border-accent/50"
+          className="w-full resize-none rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-medium leading-relaxed text-white outline-none transition-all placeholder:text-white/30 focus:border-accent/50 focus:bg-transparent"
           placeholder="Doğru cevabın kısa açıklaması..."
           value={form.explanation}
           onChange={e => onChange('explanation', e.target.value)}
@@ -508,7 +508,7 @@ const TopicQuestionEditor = ({
       </div>
     </div>
 
-    <div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/5 p-4">
+    <div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 p-4">
       <button
         type="button"
         onClick={onReset}
@@ -519,7 +519,7 @@ const TopicQuestionEditor = ({
       <button
         type="submit"
         disabled={saving || !form.text.trim()}
-        className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent-light disabled:opacity-50"
+        className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/10 hover:bg-accent/90 disabled:opacity-50"
       >
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
         {editingQuestionId ? 'Güncelle' : 'Kaydet'}
@@ -561,18 +561,18 @@ const TopicQuestionsWorkspace = ({
   return (
     <div className="flex-1 overflow-y-auto bg-black/10 p-3 sm:p-4 custom-scrollbar">
       <div className="grid min-h-full grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_430px]">
-        <div className="flex min-w-0 flex-col overflow-hidden rounded-2xl border border-white/5 bg-bg-card2/60">
-          <div className="shrink-0 border-b border-white/5 p-4">
+        <div className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] shadow-sm">
+          <div className="shrink-0 border-b border-white/10 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-widest text-accent">Konu Sonu Testi</p>
-                <h3 className="mt-1 truncate text-lg font-black text-white">{selectedCat?.name}</h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-accent">Konu Sonu Testi</p>
+                <h3 className="mt-1 truncate text-lg font-bold text-white">{selectedCat?.name}</h3>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <button
                   type="button"
                   onClick={onRefresh}
-                  className="rounded-xl border border-white/10 p-2.5 text-text-muted transition-all hover:bg-white/5 hover:text-white"
+                  className="rounded-xl border border-white/10 bg-white/5 p-2.5 text-text-muted transition-all hover:bg-white/10 hover:text-white"
                   title="Soruları yenile"
                 >
                   <RefreshCw className={`h-4 w-4 ${loadingQuestions ? 'animate-spin' : ''}`} />
@@ -580,7 +580,7 @@ const TopicQuestionsWorkspace = ({
                 <button
                   type="button"
                   onClick={onNewQuestion}
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent-light"
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/10 hover:bg-accent/90 transition-all"
                 >
                   <Plus className="h-4 w-4" /> Yeni Soru
                 </button>
@@ -598,15 +598,15 @@ const TopicQuestionsWorkspace = ({
                   key={key}
                   type="button"
                   onClick={() => onDifficultyFilterChange(key)}
-                  className={`rounded-xl border px-3 py-2 text-left transition-all ${difficultyFilter === key ? 'border-accent/40 bg-accent/10' : 'border-white/5 bg-black/20 hover:border-white/10'}`}
+                  className={`rounded-2xl border px-3 py-2 text-left transition-all ${difficultyFilter === key ? 'border-accent/40 bg-accent/15' : 'border-white/10 bg-black/20 hover:border-white/20 hover:bg-black/30'}`}
                 >
-                  <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</p>
-                  <p className="mt-1 text-lg font-black text-white">{value}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</p>
+                  <p className="mt-1 text-lg font-bold text-white">{value}</p>
                 </button>
               ))}
             </div>
 
-            <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2">
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/10 bg-black/20 px-3 py-2.5 focus-within:border-accent/50 focus-within:bg-transparent transition-all">
               <Search className="h-4 w-4 shrink-0 text-text-muted" />
               <input
                 className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/25"
@@ -628,12 +628,12 @@ const TopicQuestionsWorkspace = ({
                 <Loader2 className="h-7 w-7 animate-spin text-accent" />
               </div>
             ) : visibleQuestions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 py-16 text-center">
+              <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.01] py-16 text-center">
                 <BookOpen className="mb-3 h-10 w-10 text-white/10" />
                 <p className="text-sm font-bold text-text-secondary">
                   {questions.length === 0 ? 'Bu konuya henüz kısa test sorusu eklenmemiş.' : 'Filtreyle eşleşen soru bulunamadı.'}
                 </p>
-                <button type="button" onClick={onNewQuestion} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent/15 px-4 py-2 text-xs font-black text-accent hover:bg-accent hover:text-white">
+                <button type="button" onClick={onNewQuestion} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent/20 border border-accent/30 px-4 py-2.5 text-xs font-bold text-accent hover:bg-accent hover:text-white transition-all">
                   <Plus className="h-4 w-4" /> Soru Ekle
                 </button>
               </div>
@@ -793,46 +793,46 @@ const VideoManagementWorkspace = ({ allCategories, onRefresh }) => {
   });
 
   return (
-    <div className="flex-1 overflow-y-auto rounded-2xl border border-white/5 bg-bg-card p-4 custom-scrollbar sm:p-5">
+    <div className="flex-1 overflow-y-auto rounded-3xl border border-white/10 bg-white/[0.02] p-4 custom-scrollbar sm:p-5 shadow-sm">
       <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-widest text-accent">Video Yönetimi</p>
-          <h2 className="mt-1 text-xl font-black text-white">Video Dersler</h2>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-accent">Video Yönetimi</p>
+          <h2 className="mt-1 text-xl font-bold text-white">Video Dersler</h2>
           <p className="mt-1 text-sm text-text-secondary">Online video bağlantılarını kategori altında yayınlayın.</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <button
             type="button"
             onClick={() => openCategoryModal()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-primary-light transition hover:bg-primary hover:text-white"
           >
             <Folder className="h-4 w-4" /> Kategori Oluştur
           </button>
           <button
             type="button"
             onClick={() => openVideoModal()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-accent-light"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/10 hover:bg-accent/90 transition-all"
           >
             <Video className="h-4 w-4" /> Video Ekle
           </button>
         </div>
       </div>
 
-      <div className="mb-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-primary/15 bg-primary/10 p-4">
-          <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Kategori</p>
-          <p className="mt-1 text-2xl font-black text-white">{videoCategories.length}</p>
+      <div className="mb-5 grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primary-light">Kategori</p>
+          <p className="mt-1 text-2xl font-bold text-white">{videoCategories.length}</p>
         </div>
-        <div className="rounded-2xl border border-accent/15 bg-accent/10 p-4">
-          <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Video</p>
-          <p className="mt-1 text-2xl font-black text-white">{videos.length}</p>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-accent-light">Video</p>
+          <p className="mt-1 text-2xl font-bold text-white">{videos.length}</p>
         </div>
       </div>
 
       {videoCategories.length === 0 && videos.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-16 text-center">
+        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.01] px-5 py-16 text-center">
           <Video className="mx-auto mb-4 h-14 w-14 text-white/15" />
-          <h3 className="text-lg font-black text-white">Henüz video içeriği yok</h3>
+          <h3 className="text-lg font-bold text-white">Henüz video içeriği yok</h3>
           <p className="mt-2 text-sm text-text-muted">Önce kategori oluşturabilir veya doğrudan video bağlantısı ekleyebilirsiniz.</p>
         </div>
       ) : (
@@ -840,29 +840,29 @@ const VideoManagementWorkspace = ({ allCategories, onRefresh }) => {
           {videoCategories.map((category) => {
             const categoryVideos = videos.filter((video) => (video.parent?._id || video.parent) === category._id);
             return (
-              <div key={category._id} className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-                <div className="flex flex-col gap-3 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div key={category._id} className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.015]">
+                <div className="flex flex-col gap-3 border-b border-white/10 p-4 sm:flex-row sm:items-center sm:justify-between bg-black/20">
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
                       <Folder className="h-5 w-5 text-primary-light" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="truncate text-sm font-black text-white">{category.name}</h3>
+                      <h3 className="truncate text-sm font-bold text-white">{category.name}</h3>
                       <p className="mt-1 truncate text-xs font-semibold text-text-muted">
                         {category.description || `${categoryVideos.length} video`}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => openVideoModal(null, category._id)} className="rounded-lg bg-accent/10 p-2 text-accent-light hover:bg-accent/20"><Video className="h-4 w-4" /></button>
-                    <button onClick={() => openCategoryModal(category)} className="rounded-lg bg-white/5 p-2 text-text-muted hover:text-white"><Edit3 className="h-4 w-4" /></button>
-                    <button onClick={() => deleteCategory(category)} className="rounded-lg bg-danger/10 p-2 text-danger hover:bg-danger hover:text-white"><Trash2 className="h-4 w-4" /></button>
+                    <button onClick={() => openVideoModal(null, category._id)} title="Video Ekle" className="rounded-xl border border-accent/20 bg-accent/10 p-2 text-accent-light hover:bg-accent hover:text-white transition-all"><Video className="h-4 w-4" /></button>
+                    <button onClick={() => openCategoryModal(category)} title="Düzenle" className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted hover:bg-white/10 hover:text-white transition-all"><Edit3 className="h-4 w-4" /></button>
+                    <button onClick={() => deleteCategory(category)} title="Sil" className="rounded-xl border border-danger/20 bg-danger/10 p-2 text-danger hover:bg-danger hover:text-white transition-all"><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </div>
                 {categoryVideos.length === 0 ? (
-                  <p className="p-4 text-sm font-semibold text-text-muted">Bu kategoriye henüz video eklenmedi.</p>
+                  <p className="p-4 text-sm font-medium text-text-muted">Bu kategoriye henüz video eklenmedi.</p>
                 ) : (
-                  <div className="divide-y divide-white/5">
+                  <div className="divide-y divide-white/10">
                     {categoryVideos.map((video) => (
                       <VideoRow key={video._id} video={video} onEdit={openVideoModal} onDelete={deleteVideo} />
                     ))}
@@ -873,11 +873,11 @@ const VideoManagementWorkspace = ({ allCategories, onRefresh }) => {
           })}
 
           {uncategorizedVideos.length > 0 && (
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-              <div className="border-b border-white/10 p-4">
-                <h3 className="text-sm font-black text-white">Kategorisiz Videolar ({uncategorizedVideos.length})</h3>
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.015]">
+              <div className="border-b border-white/10 p-4 bg-black/20">
+                <h3 className="text-sm font-bold text-white">Kategorisiz Videolar ({uncategorizedVideos.length})</h3>
               </div>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-white/10">
                 {uncategorizedVideos.map((video) => (
                   <VideoRow key={video._id} video={video} onEdit={openVideoModal} onDelete={deleteVideo} />
                 ))}
@@ -915,24 +915,24 @@ const VideoManagementWorkspace = ({ allCategories, onRefresh }) => {
 const VideoRow = ({ video, onEdit, onDelete }) => {
   const url = getVideoUrl(video);
   return (
-    <div className="flex items-center gap-3 p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
+    <div className="flex items-center gap-3 p-4 hover:bg-white/[0.025] transition-all">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accent/25 bg-accent/5">
         <PlayCircle className="h-5 w-5 text-accent-light" />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="truncate text-sm font-black text-white">{video.name}</p>
-          {video.isPro && <span className="rounded-full bg-warning/10 px-2 py-0.5 text-[9px] font-black text-warning">PRO</span>}
+          <p className="truncate text-sm font-bold text-white">{video.name}</p>
+          {video.isPro && <span className="rounded-full border border-warning/20 bg-warning/10 px-2 py-0.5 text-[9px] font-bold text-warning">PRO</span>}
         </div>
         <p className="mt-1 truncate text-xs font-semibold text-text-muted">{url || video.description}</p>
       </div>
       {url && (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="hidden rounded-lg bg-white/5 p-2 text-text-muted hover:text-white sm:block">
+        <a href={url} target="_blank" rel="noopener noreferrer" className="hidden rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted hover:bg-white/10 hover:text-white transition-all sm:block">
           <ExternalLink className="h-4 w-4" />
         </a>
       )}
-      <button onClick={() => onEdit(video)} className="rounded-lg bg-white/5 p-2 text-text-muted hover:text-white"><Edit3 className="h-4 w-4" /></button>
-      <button onClick={() => onDelete(video)} className="rounded-lg bg-danger/10 p-2 text-danger hover:bg-danger hover:text-white"><Trash2 className="h-4 w-4" /></button>
+      <button onClick={() => onEdit(video)} title="Düzenle" className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted hover:bg-white/10 hover:text-white transition-all"><Edit3 className="h-4 w-4" /></button>
+      <button onClick={() => onDelete(video)} title="Sil" className="rounded-xl border border-danger/20 bg-danger/10 p-2 text-danger hover:bg-danger hover:text-white transition-all"><Trash2 className="h-4 w-4" /></button>
     </div>
   );
 };
@@ -947,10 +947,22 @@ const VideoCategoryModal = ({ form, saving, onChange, onClose, onSave }) => (
         <textarea rows={3} value={form.description} onChange={(e) => onChange({ ...form, description: e.target.value })} className="input-field resize-none py-3" />
       </FormField>
       <FormField label="Renk">
-        <input type="color" value={form.color} onChange={(e) => onChange({ ...form, color: e.target.value })} className="h-11 w-20 rounded-xl bg-transparent" />
+        <div className="flex items-center gap-3">
+          <input
+            type="color"
+            value={form.color}
+            onChange={(e) => onChange({ ...form, color: e.target.value })}
+            className="w-12 h-10 bg-transparent cursor-pointer rounded-xl border-none"
+          />
+          <span className="text-sm text-text-secondary font-mono">{form.color}</span>
+        </div>
       </FormField>
       <ToggleField label="PRO kategori" checked={form.isPro} onClick={() => onChange({ ...form, isPro: !form.isPro })} />
-      <button disabled={saving || !form.name.trim()} onClick={() => onSave(form)} className="btn-primary w-full py-3 disabled:translate-y-0">
+      <button
+        disabled={saving || !form.name.trim()}
+        onClick={() => onSave(form)}
+        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md shadow-primary/10 hover:bg-primary-dark transition-all disabled:opacity-50 disabled:translate-y-0"
+      >
         {saving ? 'Kaydediliyor...' : 'Kaydet'}
       </button>
     </div>
@@ -981,7 +993,11 @@ const VideoFormModal = ({ form, categories, saving, onChange, onClose, onSave })
         <textarea rows={4} value={form.notes} onChange={(e) => onChange({ ...form, notes: e.target.value })} className="input-field resize-none py-3" />
       </FormField>
       <ToggleField label="PRO içerik" checked={form.isPro} onClick={() => onChange({ ...form, isPro: !form.isPro })} />
-      <button disabled={saving || !form.title.trim() || !form.url.trim()} onClick={() => onSave(form)} className="btn-primary w-full py-3 disabled:translate-y-0">
+      <button
+        disabled={saving || !form.title.trim() || !form.url.trim()}
+        onClick={() => onSave(form)}
+        className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold uppercase tracking-widest text-white shadow-md shadow-primary/10 hover:bg-primary-dark transition-all disabled:opacity-50 disabled:translate-y-0"
+      >
         {saving ? 'Kaydediliyor...' : 'Kaydet'}
       </button>
     </div>
@@ -997,8 +1013,8 @@ const ModalShell = ({ title, children, onClose }) => (
       className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-white/10 bg-bg-card p-5 shadow-2xl custom-scrollbar"
     >
       <div className="mb-5 flex items-center justify-between gap-4">
-        <h2 className="text-lg font-black text-white">{title}</h2>
-        <button onClick={onClose} className="rounded-xl bg-white/5 p-2 text-text-muted hover:text-white"><X className="h-5 w-5" /></button>
+        <h2 className="text-lg font-bold text-white">{title}</h2>
+        <button onClick={onClose} className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted hover:bg-white/10 hover:text-white transition-all"><X className="h-5 w-5" /></button>
       </div>
       {children}
     </MotionDiv>
@@ -1007,7 +1023,7 @@ const ModalShell = ({ title, children, onClose }) => (
 
 const FormField = ({ label, children }) => (
   <label className="block">
-    <span className="mb-2 block text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</span>
+    <span className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</span>
     {children}
   </label>
 );
@@ -1016,12 +1032,14 @@ const ToggleField = ({ label, checked, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-black transition ${
-      checked ? 'border-warning/30 bg-warning/10 text-warning' : 'border-white/10 bg-white/5 text-text-secondary'
+    className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3.5 text-sm font-bold transition-all ${
+      checked ? 'border-warning/20 bg-warning/5 text-warning' : 'border-white/10 bg-black/20 text-text-secondary hover:bg-black/30'
     }`}
   >
-    {label}
-    <span>{checked ? 'Açık' : 'Kapalı'}</span>
+    <span>{label}</span>
+    <div className={`relative h-6 w-11 rounded-full p-1 transition-colors duration-200 ease-in-out ${checked ? 'bg-warning' : 'bg-white/10'}`}>
+      <div className={`h-4 w-4 rounded-full bg-white transition-transform duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+    </div>
   </button>
 );
 
@@ -1031,19 +1049,19 @@ const ContentVersionHistory = ({ category, onLoadVersion }) => {
 
   return (
     <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 xl:px-12 2xl:px-24 pb-12">
-      <div className="rounded-2xl border border-white/5 bg-black/20 p-4 sm:p-5">
+      <div className="rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <History className="h-4 w-4 text-primary-light" />
-            <p className="text-sm font-black text-white">Sürüm Geçmişi</p>
+            <p className="text-sm font-bold text-white">Sürüm Geçmişi</p>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] font-black text-text-muted">
+          <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold text-text-muted">
             {versions.length}
           </span>
         </div>
         <div className="space-y-2">
           {versions.map((version, index) => (
-            <div key={version._id || `${version.savedAt}-${index}`} className="flex flex-col gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div key={version._id || `${version.savedAt}-${index}`} className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.015] p-3 sm:flex-row sm:items-center sm:justify-between hover:bg-white/[0.025] transition-all">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-[11px] font-bold text-text-muted">
                   <Clock3 className="h-3.5 w-3.5" />
@@ -1056,7 +1074,7 @@ const ContentVersionHistory = ({ category, onLoadVersion }) => {
               <button
                 type="button"
                 onClick={() => onLoadVersion(version.content || '')}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary hover:text-white"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3.5 py-2 text-[10px] font-bold uppercase tracking-widest text-primary-light transition-all hover:bg-primary hover:text-white"
               >
                 <RotateCcw className="h-3.5 w-3.5" /> Yükle
               </button>
@@ -1431,27 +1449,26 @@ const AdminContent = () => {
     return matchesDifficulty && matchesSearch;
   });
 
-  // Custom markdown image renderer with click-to-zoom and extremely premium typography
+  // Custom markdown image renderer with click-to-zoom.
   const markdownComponents = {
     img: ({ src, alt }) => {
       const resolvedSrc = resolveMediaUrl(src);
       return (
       <div className="my-10 w-full max-w-4xl mx-auto group">
         <div
-          className="relative cursor-zoom-in rounded-[32px] p-2 bg-gradient-to-b from-white/10 to-transparent border border-white/10 shadow-2xl transition-all duration-500 hover:scale-[1.01] overflow-hidden"
+          className="relative cursor-zoom-in overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025] p-2 transition-colors hover:bg-white/[0.04]"
           onClick={() => setPreviewImage(resolvedSrc)}
         >
-          <div className="absolute inset-0 bg-primary/20 blur-3xl opacity-0 group-hover:opacity-50 transition-all duration-700"></div>
           <img
             src={resolvedSrc}
             alt={alt}
-            className="w-full h-auto rounded-[24px] object-contain relative z-10"
+            className="relative z-10 h-auto w-full rounded-2xl object-contain"
           />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-[24px] flex items-center justify-center z-20">
+          <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
             <ZoomIn className="w-10 h-10 text-white" />
           </div>
         </div>
-        {alt && <p className="text-[11px] text-text-muted mt-4 text-center font-bold tracking-widest uppercase">{alt}</p>}
+        {alt && <p className="mt-4 text-center text-xs font-bold text-text-muted">{alt}</p>}
       </div>
       );
     },
@@ -1465,7 +1482,7 @@ const AdminContent = () => {
       ? <code className="px-2 py-1 bg-[#1e1e1e] border border-white/10 rounded-lg text-primary-light text-sm font-mono tracking-wide">{children}</code>
       : <code className="block bg-[#161618] border border-white/10 rounded-2xl p-6 text-sm font-mono text-green-400 overflow-x-auto my-8 shadow-xl custom-scrollbar">{children}</code>,
     blockquote: ({ children }) => (
-      <blockquote className="relative border-l-4 border-primary pl-6 my-8 py-4 bg-gradient-to-r from-primary/10 to-transparent rounded-r-2xl overflow-hidden group">
+      <blockquote className="group relative my-8 overflow-hidden rounded-r-2xl border border-white/10 border-l-4 border-l-primary bg-white/[0.025] py-4 pl-6">
         <Quote className="absolute right-4 top-4 w-12 h-12 text-primary/10 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
         <div className="relative z-10 text-lg leading-relaxed text-text-secondary italic font-medium">
             {children}
@@ -1476,7 +1493,7 @@ const AdminContent = () => {
     ol: ({ children }) => <ol className="list-decimal list-inside space-y-3 my-6 text-text-secondary font-medium text-base">{children}</ol>,
     li: ({ children }) => (
       <li className="flex items-start gap-4 text-text-secondary font-medium text-base group">
-        <span className="mt-2 w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary group-hover:scale-125 transition-all shrink-0 shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+        <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary/40 transition-all group-hover:scale-125 group-hover:bg-primary" />
         <span className="leading-relaxed">{children}</span>
       </li>
     ),
@@ -1508,7 +1525,7 @@ const AdminContent = () => {
       {/* ── Page Header ──────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">İçerik Kütüphanesi</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">İçerik Kütüphanesi</h1>
           <p className="text-text-secondary text-sm mt-1">Ders içeriklerini ve kategori yapısını yönetin.</p>
         </div>
         <div className="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center">
@@ -1521,7 +1538,7 @@ const AdminContent = () => {
                 key={item.id}
                 type="button"
                 onClick={() => setActivePanel(item.id)}
-                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-black uppercase tracking-widest transition ${
+                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest transition ${
                   (item.id === 'content' ? activePanel !== 'videos' : activePanel === item.id)
                     ? 'bg-primary/20 text-primary-light'
                     : 'text-text-muted hover:text-white'
@@ -1557,10 +1574,10 @@ const AdminContent = () => {
       <div className="flex flex-col xl:flex-row gap-4 flex-1 min-h-0 overflow-visible xl:overflow-hidden">
 
         {/* LEFT: Category Tree Panel */}
-        <div className="w-full xl:w-72 shrink-0 flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden max-h-[42vh] sm:max-h-[360px] xl:max-h-none">
+        <div className="w-full xl:w-72 shrink-0 flex flex-col bg-white/[0.025] border border-white/10 rounded-3xl overflow-hidden max-h-[42vh] sm:max-h-[360px] xl:max-h-none">
           {/* Search */}
-          <div className="p-3 border-b border-white/5">
-            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-3 py-2 gap-2">
+          <div className="p-3 border-b border-white/10">
+            <div className="flex items-center bg-black/20 border border-white/10 rounded-2xl px-3 py-2 gap-2 focus-within:border-primary/50 focus-within:bg-transparent transition-all">
               <Search className="w-4 h-4 text-text-muted shrink-0" />
               <input
                 type="text"
@@ -1571,7 +1588,7 @@ const AdminContent = () => {
               />
               {searchTerm && (
                 <button onClick={() => setSearchTerm('')}>
-                  <X className="w-3.5 h-3.5 text-text-muted" />
+                  <X className="w-3.5 h-3.5 text-text-muted hover:text-white" />
                 </button>
               )}
             </div>
@@ -1589,9 +1606,9 @@ const AdminContent = () => {
                 <p>Kategori bulunamadı.</p>
               </div>
             ) : (
-              <Reorder.Group 
-                axis="y" 
-                values={searchTerm ? filteredRoots : rootCats} 
+              <Reorder.Group
+                axis="y"
+                values={searchTerm ? filteredRoots : rootCats}
                 onReorder={(newOrder) => handleReorder(null, newOrder)}
                 className="space-y-0.5"
               >
@@ -1612,17 +1629,17 @@ const AdminContent = () => {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-white/5 text-[10px] text-text-muted font-bold uppercase tracking-widest text-center">
+          <div className="p-3.5 border-t border-white/10 text-[10px] text-text-muted font-bold uppercase tracking-widest text-center">
             {contentCategories.length} Kategori
           </div>
         </div>
 
         {/* RIGHT: Content Panel */}
-        <div className="flex-1 flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden min-w-0 min-h-[70vh] xl:min-h-0">
+        <div className="flex-1 flex flex-col bg-white/[0.025] border border-white/10 rounded-3xl overflow-hidden min-w-0 min-h-[70vh] xl:min-h-0">
           {selectedCat ? (
             <>
               {/* Content Header */}
-              <div className="p-3 sm:p-4 border-b border-white/5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/[0.02] shrink-0">
+              <div className="p-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/[0.015] shrink-0">
                 <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0"
@@ -1631,22 +1648,22 @@ const AdminContent = () => {
                     <FileText className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h2 className="text-sm font-black text-white truncate">{selectedCat.name}</h2>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <h2 className="text-sm font-bold text-white truncate">{selectedCat.name}</h2>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                       {selectedCat.isPro && (
-                        <span className="text-[9px] font-black text-warning uppercase bg-warning/10 px-1.5 py-0.5 rounded-md border border-warning/20">PRO</span>
+                        <span className="text-[9px] font-bold text-warning uppercase bg-warning/10 px-1.5 py-0.5 rounded border border-warning/20">PRO</span>
                       )}
-                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border
                         ${selectedCat.isActive
                           ? 'text-success bg-success/10 border-success/20'
                           : 'text-danger bg-danger/10 border-danger/20'}`}>
                         {selectedCat.isActive ? 'AKTİF' : 'GİZLİ'}
                       </span>
-                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border ${selectedPublicationMeta.badge}`}>
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded border ${selectedPublicationMeta.badge}`}>
                         {selectedPublicationMeta.label}
                       </span>
                       {hasUnsaved && (
-                        <span className="text-[9px] font-black text-warning uppercase bg-warning/10 px-1.5 py-0.5 rounded-md border border-warning/20 animate-pulse">
+                        <span className="text-[9px] font-bold text-warning uppercase bg-warning/10 px-1.5 py-0.5 rounded border border-warning/20 animate-pulse">
                           ● KAYDEDİLMEDİ
                         </span>
                       )}
@@ -1655,7 +1672,7 @@ const AdminContent = () => {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 custom-scrollbar">
-                  <div className="flex p-0.5 bg-white/5 border border-white/10 rounded-xl shrink-0">
+                  <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl shrink-0">
                     {[
                       { id: 'content', icon: BookOpen, label: 'Ders İçeriği', count: null },
                       { id: 'questions', icon: Activity, label: 'Kısa Test', count: shortTestQuestions.length },
@@ -1664,14 +1681,14 @@ const AdminContent = () => {
                         key={item.id}
                         type="button"
                         onClick={() => setActivePanel(item.id)}
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-black transition-all ${activePanel === item.id
-                          ? 'bg-accent/20 text-accent'
-                          : 'text-text-muted hover:text-white'}`}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${activePanel === item.id
+                          ? 'bg-accent/20 text-accent border-accent/20'
+                          : 'text-text-muted hover:text-white border-transparent'}`}
                       >
                         <item.icon className="w-3.5 h-3.5" />
                         <span className="hidden md:inline">{item.label}</span>
                         {item.count !== null && (
-                          <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${activePanel === item.id ? 'bg-accent/20 text-accent-light' : 'bg-white/10 text-white/40'}`}>
+                          <span className={`rounded px-1.5 py-0.5 text-[10px] ${activePanel === item.id ? 'bg-accent/20 text-accent-light' : 'bg-white/10 text-white/40'}`}>
                             {item.count}
                           </span>
                         )}
@@ -1681,7 +1698,7 @@ const AdminContent = () => {
 
                   {/* View mode toggle */}
                   {activePanel === 'content' && isEditing && (
-                    <div className="flex p-0.5 bg-white/5 border border-white/10 rounded-xl">
+                    <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl">
                       {[
                         { id: 'editor', icon: AlignLeft, label: 'Editör' },
                         { id: 'split', icon: SplitSquareVertical, label: 'Split' },
@@ -1691,9 +1708,9 @@ const AdminContent = () => {
                           key={m.id}
                           onClick={() => setViewMode(m.id)}
                           title={m.label}
-                          className={`p-2 rounded-lg transition-all ${viewMode === m.id
-                            ? 'bg-primary/20 text-primary-light'
-                            : 'text-text-muted hover:text-white'}`}
+                          className={`p-1.5 rounded-xl transition-all border ${viewMode === m.id
+                            ? 'bg-primary/20 text-primary-light border-primary/20'
+                            : 'text-text-muted hover:text-white border-transparent'}`}
                         >
                           <m.icon className="w-3.5 h-3.5" />
                         </button>
@@ -1703,7 +1720,7 @@ const AdminContent = () => {
 
                   <button
                     onClick={() => openCatModal(selectedCat)}
-                    className="p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all border border-white/10"
+                    className="p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all border border-white/10 bg-white/5"
                     title="Kategori Ayarları"
                   >
                     <Settings2 className="w-4 h-4" />
@@ -1712,8 +1729,8 @@ const AdminContent = () => {
                   <button
                     onClick={() => handleToggleActive(selectedCat)}
                     className={`p-2 rounded-xl transition-all border ${selectedCat.isActive
-                      ? 'hover:bg-danger/10 text-text-muted hover:text-danger border-white/10'
-                      : 'bg-success/10 text-success border-success/20'}`}
+                      ? 'hover:bg-danger/10 text-text-muted hover:text-danger border-white/10 bg-white/5'
+                      : 'bg-success/15 text-success border-success/30'}`}
                     title={selectedCat.isActive ? 'Gizle' : 'Göster'}
                   >
                     {selectedCat.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -1723,14 +1740,14 @@ const AdminContent = () => {
                     <>
                       <button
                         onClick={() => { setIsEditing(false); setEditContent(selectedEditableContent); }}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold border border-white/10 shrink-0"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-text-secondary hover:text-white hover:bg-white/5 transition-all text-xs font-bold border border-white/10 shrink-0"
                       >
                         <RotateCcw className="w-3.5 h-3.5" /> İptal
                       </button>
                       <button
                         onClick={handleSaveDraft}
                         disabled={Boolean(saveLoading)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-warning/30 bg-warning/10 text-warning text-xs font-black hover:bg-warning hover:text-white transition-all disabled:opacity-60 shrink-0"
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-warning/30 bg-warning/15 text-warning text-xs font-bold hover:bg-warning hover:text-white transition-all disabled:opacity-60 shrink-0"
                       >
                         {saveLoading === 'draft' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                         Taslak
@@ -1738,7 +1755,7 @@ const AdminContent = () => {
                       <button
                         onClick={() => handlePublish()}
                         disabled={Boolean(saveLoading)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-black shadow-lg shadow-success/20 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-bold shadow-md shadow-success/10 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
                       >
                         {saveLoading === 'publish' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                         Yayınla
@@ -1750,7 +1767,7 @@ const AdminContent = () => {
                         <button
                           onClick={() => handlePublish(selectedEditableContent)}
                           disabled={Boolean(saveLoading) || !selectedEditableContent.trim()}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-black shadow-lg shadow-success/20 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-success text-white text-xs font-bold shadow-md shadow-success/10 hover:-translate-y-0.5 transition-all disabled:opacity-60 shrink-0"
                         >
                           {saveLoading === 'publish' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                           Yayınla
@@ -1758,7 +1775,7 @@ const AdminContent = () => {
                       )}
                       <button
                         onClick={() => { setIsEditing(true); setViewMode('split'); }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/20 text-primary-light border border-primary/30 hover:bg-primary hover:text-white text-xs font-black transition-all shrink-0"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/20 text-primary-light border border-primary/30 hover:bg-primary hover:text-white text-xs font-bold transition-all shrink-0"
                       >
                         <Edit3 className="w-3.5 h-3.5" /> {selectedHasDraft ? 'Taslağı Düzenle' : 'İçeriği Düzenle'}
                       </button>
@@ -1805,10 +1822,10 @@ const AdminContent = () => {
               <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-h-0">
                 {/* Editor Pane */}
                 {isEditing && (viewMode === 'editor' || viewMode === 'split') && (
-                  <div className={`flex flex-col overflow-hidden min-h-[420px] lg:min-h-0 ${viewMode === 'split' ? 'w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-white/5' : 'w-full'}`}>
-                    <div className="px-4 py-2 bg-black/20 border-b border-white/5 flex items-center gap-2">
+                  <div className={`flex flex-col overflow-hidden min-h-[420px] lg:min-h-0 ${viewMode === 'split' ? 'w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-white/10' : 'w-full'}`}>
+                    <div className="px-4 py-2 bg-black/20 border-b border-white/10 flex items-center gap-2">
                       <AlignLeft className="w-3.5 h-3.5 text-white/30" />
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Markdown Editör</span>
+                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Markdown Editör</span>
                       <span className="ml-auto text-[10px] text-text-muted">{editContent.length} karakter</span>
                     </div>
                     <textarea
@@ -1825,19 +1842,19 @@ const AdminContent = () => {
                 {(!isEditing || viewMode === 'preview' || viewMode === 'split') && (
                   <div className={`flex flex-col min-h-0 overflow-y-auto custom-scrollbar ${isEditing && viewMode === 'split' ? 'w-full lg:w-1/2' : 'w-full'}`}>
                     {isEditing && (
-                      <div className="px-4 py-2 bg-black/20 border-b border-white/5 flex items-center gap-2 sticky top-0 z-30 backdrop-blur-xl">
+                      <div className="px-4 py-2 bg-black/20 border-b border-white/10 flex items-center gap-2 sticky top-0 z-30 backdrop-blur-xl">
                         <Eye className="w-3.5 h-3.5 text-white/30" />
-                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Canlı Önizleme</span>
+                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Canlı Önizleme</span>
                       </div>
                     )}
-                    
+
                     <div className="p-4 sm:p-6 xl:p-12 2xl:px-24">
                       {!isEditing && selectedHasDraft && (
                         <div className="max-w-4xl mx-auto mb-6 rounded-2xl border border-primary/20 bg-primary/10 p-4">
                           <div className="flex items-start gap-3">
                             <Save className="mt-0.5 h-4 w-4 shrink-0 text-primary-light" />
                             <div>
-                              <p className="text-xs font-black uppercase tracking-widest text-primary-light">
+                              <p className="text-xs font-bold uppercase tracking-widest text-primary-light">
                                 {getPublicationStatus(selectedCat) === 'draft' ? 'Yayınlanmamış taslak' : 'Taslak değişiklik'}
                               </p>
                               <p className="mt-1 text-xs font-semibold leading-relaxed text-text-secondary">
@@ -1861,13 +1878,13 @@ const AdminContent = () => {
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
-                          <div className="w-24 h-24 rounded-[32px] border border-white/10 bg-white/5 shadow-2xl flex items-center justify-center mb-6">
+                          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl border border-white/10 bg-white/[0.04]">
                             <BookOpen className="w-10 h-10 text-white/20" />
                           </div>
                           <p className="text-text-muted font-medium mb-2 text-sm">Bu konuya henüz ders içeriği metni eklenmemiş.</p>
                           <button
                             onClick={() => { setIsEditing(true); setViewMode('split'); }}
-                            className="mt-4 px-6 py-3 bg-gradient-to-br from-primary to-accent text-white rounded-xl text-xs uppercase tracking-widest font-black shadow-lg hover:shadow-primary/30 transition-all hover:scale-[1.02]"
+                            className="mt-4 rounded-xl border border-primary/30 bg-primary/15 px-5 py-3 text-xs font-bold text-white transition-colors hover:bg-primary/25"
                           >
                             Ders İçeriği Yaz
                           </button>
@@ -1878,12 +1895,12 @@ const AdminContent = () => {
                     {/* Kısa test yönetimine hızlı geçiş */}
                     {(!isEditing || viewMode === 'preview') && selectedCat && (
                       <div className="max-w-4xl mx-auto w-full px-4 sm:px-6 xl:px-12 2xl:px-24 pb-12 mt-8 sm:mt-10">
-                        <div className="rounded-2xl border border-white/5 bg-black/20 p-4 sm:p-5">
+                        <div className="rounded-2xl border border-white/10 bg-black/20 p-4 sm:p-5">
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div>
                               <div className="flex items-center gap-2">
                                 <Activity className="h-4 w-4 text-accent" />
-                                <p className="text-sm font-black text-white">Konu Sonu Kısa Test</p>
+                                <p className="text-sm font-bold text-white">Konu Sonu Kısa Test</p>
                               </div>
                               <p className="mt-1 text-xs text-text-muted">
                                 {loadingQuestions ? 'Sorular yükleniyor...' : `${shortTestQuestions.length} soru bağlı. Soruları alt alta görmek ve düzenlemek için çalışma alanını açın.`}
@@ -1892,7 +1909,7 @@ const AdminContent = () => {
                             <button
                               type="button"
                               onClick={() => setActivePanel('questions')}
-                              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-accent/20 transition-all hover:bg-accent-light"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-white shadow-md shadow-accent/10 hover:bg-accent-light"
                             >
                               <Edit3 className="h-4 w-4" /> Kısa Testi Yönet
                             </button>
@@ -1916,7 +1933,7 @@ const AdminContent = () => {
               <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mb-6">
                 <Layers className="w-9 h-9 text-white/20" />
               </div>
-              <h3 className="text-lg font-black text-white mb-2">Kategori Seçin</h3>
+              <h3 className="text-lg font-bold text-white mb-2">Kategori Seçin</h3>
               <p className="text-text-muted text-sm max-w-xs">
                 Sol panelden bir kategori seçerek içeriğini görüntüleyin ve düzenleyin.
               </p>
@@ -1936,7 +1953,7 @@ const AdminContent = () => {
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-md bg-bg-card border border-white/10 rounded-3xl shadow-2xl overflow-hidden"
             >
-              <div className="p-5 border-b border-white/5 flex items-center justify-between">
+              <div className="p-5 border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center text-white"
@@ -1945,7 +1962,7 @@ const AdminContent = () => {
                     {catModal.cat ? <Settings2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                   </div>
                   <div>
-                    <h2 className="font-black text-white text-sm">{catModal.cat ? 'Kategori Ayarları' : 'Yeni Kategori'}</h2>
+                    <h2 className="font-bold text-white text-sm">{catModal.cat ? 'Kategori Ayarları' : 'Yeni Kategori'}</h2>
                     <p className="text-[11px] text-text-muted">{catModal.cat?.name || 'Yeni öğe oluştur'}</p>
                   </div>
                 </div>
@@ -1956,9 +1973,9 @@ const AdminContent = () => {
 
               <div className="p-5 space-y-4">
                 <div>
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Kategori Adı *</label>
+                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Kategori Adı *</label>
                   <input
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm font-medium outline-none focus:border-primary/50 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-medium outline-none focus:border-primary/50 focus:bg-primary/5 focus:ring-4 focus:ring-primary/20 transition-all"
                     placeholder="Kategori adı..."
                     value={catForm.name}
                     onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))}
@@ -1966,10 +1983,10 @@ const AdminContent = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Kısa Açıklama</label>
+                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Kısa Açıklama</label>
                   <textarea
                     rows={2}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 transition-all resize-none placeholder:text-white/20"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 focus:bg-primary/5 focus:ring-4 focus:ring-primary/20 transition-all resize-none placeholder:text-white/20"
                     placeholder="Kısa açıklama..."
                     value={catForm.description}
                     onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))}
@@ -1977,9 +1994,9 @@ const AdminContent = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Kapak Görseli Yolu</label>
+                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Kapak Görseli Yolu</label>
                   <input
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 transition-all font-mono"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 focus:bg-primary/5 focus:ring-4 focus:ring-primary/20 transition-all font-mono"
                     placeholder="Örn: assets/content/motor.png"
                     value={catForm.image}
                     onChange={e => setCatForm(f => ({ ...f, image: e.target.value }))}
@@ -1987,9 +2004,9 @@ const AdminContent = () => {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Üst Kategori</label>
+                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Üst Kategori</label>
                   <select
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm outline-none focus:border-primary/50 focus:bg-primary/5 focus:ring-4 focus:ring-primary/20 transition-all"
                     value={catForm.parent || ''}
                     onChange={e => setCatForm(f => ({ ...f, parent: e.target.value || null }))}
                   >
@@ -2002,7 +2019,7 @@ const AdminContent = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Renk</label>
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Renk</label>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
@@ -2014,12 +2031,12 @@ const AdminContent = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest block mb-2">Durum</label>
+                    <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Durum</label>
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => setCatForm(f => ({ ...f, isActive: !f.isActive }))}
-                        className={`flex-1 py-2.5 rounded-xl text-xs font-black border transition-all ${catForm.isActive
+                        className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all ${catForm.isActive
                           ? 'bg-success/10 border-success/30 text-success'
                           : 'bg-danger/10 border-danger/30 text-danger'}`}
                       >
@@ -2028,7 +2045,7 @@ const AdminContent = () => {
                       <button
                         type="button"
                         onClick={() => setCatForm(f => ({ ...f, isPro: !f.isPro }))}
-                        className={`flex-1 py-2.5 rounded-xl text-xs font-black border transition-all ${catForm.isPro
+                        className={`flex-1 py-2.5 rounded-xl text-xs font-bold border transition-all ${catForm.isPro
                           ? 'bg-warning/10 border-warning/30 text-warning'
                           : 'bg-white/5 border-white/10 text-text-muted'}`}
                       >
@@ -2039,12 +2056,12 @@ const AdminContent = () => {
                 </div>
               </div>
 
-              <div className="p-5 border-t border-white/5 flex items-center justify-end gap-3">
+              <div className="p-5 border-t border-white/10 flex items-center justify-end gap-3">
                 <button onClick={() => setCatModal({ open: false, cat: null })} className="text-sm font-bold text-text-secondary hover:text-white transition-colors">İptal</button>
                 <button
                   onClick={handleCatSave}
                   disabled={catSaving}
-                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-black text-sm rounded-2xl shadow-xl shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-60"
+                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold text-sm rounded-xl shadow-md shadow-primary/10 hover:bg-primary-dark hover:-translate-y-0.5 transition-all disabled:opacity-60"
                 >
                   {catSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {catModal.cat ? 'Güncelle' : 'Oluştur'}

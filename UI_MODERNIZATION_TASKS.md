@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 4.1 - `src/pages/admin/AdminUsers.jsx` kullanıcı yönetimi ekranını modernize et.
+NEXT: Task 5 - Final QA ve Derleme Kontrolleri.
 
 ## Task 0 - Ortak Temel
 
@@ -131,31 +131,32 @@ NEXT: Task 4.1 - `src/pages/admin/AdminUsers.jsx` kullanıcı yönetimi ekranın
 
 ## Task 4 - Admin Sayfaları
 
-- TODO 4.1: `src/pages/admin/AdminUsers.jsx`
-  - Tablo, filtre, kullanıcı detay ve aksiyonlar sadeleştirilecek.
+- DONE 4.1: `src/pages/admin/AdminUsers.jsx`
+  - Tablo, filtre, kullanıcı detay ve aksiyonlar sadeleştirildi.
 
-- TODO 4.2: `src/pages/admin/AdminExams.jsx`
-  - Soru/sınav yönetimi formları daha okunur ve daha az yorucu olacak.
+- DONE 4.2: `src/pages/admin/AdminExams.jsx`
+  - Soru/sınav yönetimi formları daha okunur ve daha az yorucu olacak şekilde modernize edildi.
 
-- TODO 4.3: `src/pages/admin/AdminContent.jsx`
-  - İçerik düzenleme, kategori ağacı, draft/publish durumları netleştirilecek.
+- DONE 4.3: `src/pages/admin/AdminContent.jsx`
+  - Yapıldı: Kategori ağacı sol sidebar, sağ çalışma alanı editörü ve sürüm geçmişi, kısa test arayüzü (TopicQuestionsWorkspace & TopicQuestionEditor), video dersleri yönetim paneli (VideoManagementWorkspace & VideoRow), tüm modaller (CategorySettingsModal, VideoCategoryModal, VideoFormModal, ModalShell) ve ToggleField form elemanları modern SaaS standartlarında flat border, bg-white/[0.02] kart yüzeyleri ve font-bold sadeleştirilmiş tipografiyle yenilendi.
 
-- TODO 4.4: `src/pages/admin/AdminStats.jsx`
-  - Dashboard analitiği daha chart-first ve daha az metinli olacak.
 
-- TODO 4.5: `src/pages/admin/AdminSupport.jsx`
-  - Destek mesajları ve durum yönetimi sadeleştirilecek.
+- DONE 4.4: `src/pages/admin/AdminStats.jsx`
+  - Yapıldı: Üst KPI kartları sadeleştirilerek 4 adede indirildi, ikincil metrikler alt kısımda Sistem Metrikleri olarak toplandı. Recharts grafik kutuları büyütülüp CartesianGrid renkleri ve Tooltip pencereleri modern SaaS stiline uyarlandı. Huni, event dönüşüm kartları, son aktivite satırları, kohort tabloları ve timeline modalleri flat border ve modern fontlarla güncellendi.
 
-- TODO 4.6: `src/pages/admin/AdminFeed.jsx`, `AdminReports.jsx`
-  - Moderasyon akışı daha hızlı karar verilebilir hale getirilecek.
+- DONE 4.5: `src/pages/admin/AdminSupport.jsx`
+  - Yapıldı: Sol arama paneli, filtre sekmeleri ve bilet kartları `bg-white/[0.02]` zemin, `border-white/10` kenarlıklar ve `rounded-3xl` yapısına taşındı. Sağ sohbet alanı, baloncuklar, kapat butonu ve mesaj yazma/giriş paneli neon parlamalarından temizlenerek düz SaaS tasarım diline uyarlandı.
 
-- TODO 4.7: `src/pages/admin/AdminBadges.jsx`, `AdminMarketing.jsx`
-  - Kampanya, badge ve pazarlama içerikleri daha tutarlı kart/tablolarla düzenlenecek.
+- DONE 4.6: `src/pages/admin/AdminFeed.jsx`, `AdminReports.jsx`
+  - Yapıldı: AdminFeed üzerinde onaylama, reddetme ve silme eylem butonları mor neon efektleri olmadan flat `bg-white/[0.02]` tablolar ve yuvarlatılmış `rounded-2xl` butonlarla modernize edildi. AdminReports ekranında sol rapor listesi ve sağ rapor detay paneli flat border stili, durum butonları ve empty state alanlarıyla sadeleştirildi.
 
-- TODO 4.8: `src/pages/admin/AdminDrivingSchools.jsx`
-  - Sürücü kursu yönetimi liste, form ve harita/lokasyon kullanımına göre iyileştirilecek.
+- DONE 4.7: `src/pages/admin/AdminBadges.jsx`, `AdminMarketing.jsx`
+  - Yapıldı: AdminBadges ekranında rozet kartları, ikon kutuları, ekleme/düzenleme modalleri ve form elemanları flat border, sade arka planlar ve temiz tipografi ile modernize edildi. AdminMarketing ekranında QRTool, AdManagement ve SubscriptionManagement bileşenleri düz borderlı kutulara, flat toggle alanlarına, sade form girdilerine ve neon parlamasız SaaS butonlarına kavuşturuldu.
 
-- TODO 4.9: `src/pages/admin/AdminSettings.jsx`, `AdminProfile.jsx`
+- DONE 4.8: `src/pages/admin/AdminDrivingSchools.jsx`
+  - Yapıldı: Sürücü Kursları ekranında başlık banner'ı, metrik kartları, arama/filtreleme girdileri ve butonlar flat borderlı `rounded-3xl` SaaS stil kutularına taşındı. Kurs listesindeki kartların `isActive` durumlarına göre sınır ve zemin stilleri düzleştirildi. Sürücü kursu ekleme/düzenleme modalındaki overlay, modal gövdesi, başlık alanı, form girdileri ve kaydet butonu flat SaaS modal yapısına uyarlandı.
+
+- DONE 4.9: `src/pages/admin/AdminSettings.jsx`, `AdminProfile.jsx`
   - Ayarlar ve profil formları daha temiz bölümlenecek.
 
 ## Task 5 - Final QA

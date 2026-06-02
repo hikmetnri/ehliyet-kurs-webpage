@@ -61,13 +61,13 @@ const QRTool = ({ settings, qrStats, onChangePlayUrl, onSavePlayUrl, savingPlayU
   };
 
   return (
-    <div className="glass-card p-6 md:p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+    <div className="bg-white/[0.02] p-6 md:p-8 rounded-3xl border border-white/10 space-y-6">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
           <QrCode className="w-6 h-6 text-primary-light" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-white tracking-tight">Sabit Tanıtım QR Kodu</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Sabit Tanıtım QR Kodu</h2>
           <p className="text-xs text-text-muted font-bold mt-0.5">Basıma uygun, değişmeyen takip linki ve tıklanma ölçümü</p>
         </div>
       </div>
@@ -75,8 +75,8 @@ const QRTool = ({ settings, qrStats, onChangePlayUrl, onSavePlayUrl, savingPlayU
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <div className="space-y-5">
           <div>
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Sabit QR takip URL'si</p>
-            <div className="flex items-center gap-2 p-4 bg-black/30 border border-white/10 rounded-2xl">
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Sabit QR takip URL'si</p>
+            <div className="flex items-center gap-2 p-4 bg-white/[0.02] border border-white/10 rounded-2xl">
               <p className="flex-1 text-xs text-white font-mono truncate">{trackUrl}</p>
               <button onClick={handleCopy} className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-text-muted hover:text-white transition-all">
                 {copied ? <CheckCircle2 className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
@@ -91,18 +91,18 @@ const QRTool = ({ settings, qrStats, onChangePlayUrl, onSavePlayUrl, savingPlayU
           </div>
 
           <div>
-            <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Google Play yönlendirme URL'si</p>
+            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Google Play yönlendirme URL'si</p>
             <div className="flex flex-col sm:flex-row gap-2">
               <input
                 value={playUrl}
                 onChange={e => onChangePlayUrl(e.target.value)}
                 placeholder="https://play.google.com/store/apps/details?id=..."
-                className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
+                className="flex-1 bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3.5 text-xs text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
               />
               <button
                 onClick={() => onSavePlayUrl(playUrl)}
                 disabled={savingPlayUrl}
-                className="shrink-0 flex items-center justify-center gap-2 px-4 py-3 bg-primary/10 border border-primary/20 text-primary-light rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary/20 transition-all disabled:opacity-50"
+                className="shrink-0 flex items-center justify-center gap-2 px-5 py-3.5 bg-primary/10 border border-primary/20 text-primary-light rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-primary/20 transition-all disabled:opacity-50"
               >
                 {savingPlayUrl ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 Kaydet
@@ -113,15 +113,15 @@ const QRTool = ({ settings, qrStats, onChangePlayUrl, onSavePlayUrl, savingPlayU
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 rounded-2xl border border-primary/15 bg-primary/5">
               <MousePointerClick className="w-5 h-5 text-primary-light mb-2" />
-              <p className="text-2xl font-black text-white">{qrStats?.count || 0}</p>
-              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Toplam tıklanma</p>
+              <p className="text-2xl font-bold text-white">{qrStats?.count || 0}</p>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Toplam tıklanma</p>
             </div>
             <div className="p-4 rounded-2xl border border-white/10 bg-white/[0.02]">
               <CalendarClock className="w-5 h-5 text-text-muted mb-2" />
-              <p className="text-sm font-black text-white">
+              <p className="text-sm font-bold text-white">
                 {qrStats?.lastScanAt ? new Date(qrStats.lastScanAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '-'}
               </p>
-              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Son tıklama</p>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Son tıklama</p>
             </div>
           </div>
 
@@ -129,14 +129,14 @@ const QRTool = ({ settings, qrStats, onChangePlayUrl, onSavePlayUrl, savingPlayU
             <button
               onClick={handleDownload}
               disabled={!qrUrl}
-              className="flex items-center gap-2 px-5 py-3 bg-primary text-white font-black text-sm rounded-2xl shadow-xl shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-40"
+              className="flex items-center gap-2 px-6 py-3.5 bg-primary text-white font-bold text-sm rounded-2xl hover:bg-primary-light transition-all disabled:opacity-40"
             >
               <Download className="w-4 h-4" />
               PNG İndir
             </button>
             <button
               onClick={handleCopy}
-              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-white font-black text-sm rounded-2xl hover:bg-white/10 transition-all"
+              className="flex items-center gap-2 px-6 py-3.5 bg-white/5 border border-white/10 text-white font-bold text-sm rounded-2xl hover:bg-white/10 transition-all"
             >
               {copied ? <CheckCircle2 className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
               {copied ? 'Kopyalandı' : 'Takip URL Kopyala'}
@@ -145,7 +145,7 @@ const QRTool = ({ settings, qrStats, onChangePlayUrl, onSavePlayUrl, savingPlayU
         </div>
 
         <div className="flex flex-col items-center">
-          <div className="w-64 h-64 bg-white border border-white/10 rounded-3xl flex items-center justify-center overflow-hidden shadow-2xl">
+          <div className="w-64 h-64 bg-white border border-white/10 rounded-3xl flex items-center justify-center overflow-hidden">
             {qrUrl ? (
               <img src={qrUrl} alt="Sabit QR Kod" className="w-full h-full object-contain p-4" />
             ) : (
@@ -280,13 +280,13 @@ const AdManagement = () => {
   }
 
   return (
-    <div className="glass-card p-6 md:p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+    <div className="bg-white/[0.02] p-6 md:p-8 rounded-3xl border border-white/10 space-y-6">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-2xl bg-warning/10 border border-warning/20 flex items-center justify-center">
           <Megaphone className="w-6 h-6 text-warning" />
         </div>
         <div>
-          <h2 className="text-xl font-black text-white tracking-tight">Reklam Yönetimi</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Reklam Yönetimi</h2>
           <p className="text-xs text-text-muted font-bold mt-0.5">Veritabanındaki AdMob config kaydından okunur ve Flutter uygulamasına yayınlanır</p>
         </div>
         <button
@@ -300,15 +300,15 @@ const AdManagement = () => {
       <div
         onClick={handleToggleAds}
         className={`flex items-center justify-between p-5 rounded-2xl border cursor-pointer transition-all ${
-          adsEnabled ? 'bg-success/5 border-success/30' : 'bg-white/[0.02] border-white/5'
+          adsEnabled ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/[0.015] border-white/10'
         }`}
       >
         <div className="flex items-center gap-4">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${adsEnabled ? 'bg-success/10' : 'bg-white/5'}`}>
-            {adsEnabled ? <ToggleRight className="w-6 h-6 text-success" /> : <ToggleLeft className="w-6 h-6 text-text-muted" />}
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${adsEnabled ? 'bg-emerald-500/10' : 'bg-white/5'}`}>
+            {adsEnabled ? <ToggleRight className="w-6 h-6 text-emerald-400" /> : <ToggleLeft className="w-6 h-6 text-text-muted" />}
           </div>
           <div>
-            <p className={`font-black text-sm ${adsEnabled ? 'text-success' : 'text-text-secondary'}`}>
+            <p className={`font-bold text-sm ${adsEnabled ? 'text-emerald-400' : 'text-text-secondary'}`}>
               Reklamlar {adsEnabled ? 'Aktif' : 'Pasif'}
             </p>
             <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
@@ -324,14 +324,14 @@ const AdManagement = () => {
             key={field.key}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`p-5 rounded-2xl border ${field.border} bg-white/[0.02] space-y-3`}
+            className={`p-5 rounded-2xl border ${field.border} bg-white/[0.015] space-y-3`}
           >
             <div className="flex items-center gap-3">
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${field.bg}`}>
                 {React.createElement(field.icon, { className: `w-4 h-4 ${field.color}` })}
               </div>
               <div>
-                <p className="text-sm font-black text-white">{field.label}</p>
+                <p className="text-sm font-bold text-white">{field.label}</p>
                 <p className="text-[10px] text-text-muted">{field.desc}</p>
               </div>
             </div>
@@ -340,21 +340,21 @@ const AdManagement = () => {
               value={settings[field.key] || ''}
               onChange={e => setSettings(s => ({ ...s, [field.key]: e.target.value }))}
               placeholder={field.placeholder}
-              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
+              className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
             />
           </MotionDiv>
         ))}
       </div>
 
       <div>
-        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Geçiş reklamı sıklığı</p>
+        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-2">Geçiş reklamı sıklığı</p>
         <input
           type="number"
           min="1"
           max="15"
           value={settings.interstitial_freq || 5}
           onChange={e => setSettings(s => ({ ...s, interstitial_freq: e.target.value }))}
-          className="w-32 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-primary/50"
+          className="w-32 bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-primary/50"
         />
         <span className="ml-3 text-xs text-text-muted">ekran geçişinde 1 kez</span>
       </div>
@@ -362,10 +362,10 @@ const AdManagement = () => {
       <button
         onClick={() => saveAdConfig()}
         disabled={saving}
-        className={`w-full flex items-center justify-center gap-2 px-5 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+        className={`w-full flex items-center justify-center gap-2 px-5 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${
           saved
-            ? 'bg-success/10 border border-success/30 text-success'
-            : 'bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20'
+            ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+            : 'bg-primary text-white hover:bg-primary-light'
         } disabled:opacity-50`}
       >
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
@@ -426,15 +426,15 @@ const SubscriptionManagement = () => {
   };
 
   return (
-    <div className="glass-card p-6 md:p-8 rounded-[2.5rem] border border-white/5 space-y-5">
+    <div className="bg-white/[0.02] p-6 md:p-8 rounded-3xl border border-white/10 space-y-5">
       <div className="flex items-center gap-4">
         <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center ${
-          enabled ? 'bg-success/10 border-success/20' : 'bg-warning/10 border-warning/20'
+          enabled ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-amber-500/10 border-amber-500/20'
         }`}>
-          <Shield className={`w-6 h-6 ${enabled ? 'text-success' : 'text-warning'}`} />
+          <Shield className={`w-6 h-6 ${enabled ? 'text-emerald-400' : 'text-amber-400'}`} />
         </div>
         <div>
-          <h2 className="text-xl font-black text-white tracking-tight">Abonelik Satış Durumu</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">Abonelik Satış Durumu</h2>
           <p className="text-xs text-text-muted font-bold mt-0.5">
             Mobil uygulamadaki PRO satış ekranını ve plan görünürlüğünü yönetir
           </p>
@@ -452,21 +452,21 @@ const SubscriptionManagement = () => {
         onClick={handleToggle}
         disabled={loading || saving}
         className={`w-full flex items-center justify-between p-5 rounded-2xl border text-left transition-all disabled:opacity-60 ${
-          enabled ? 'bg-success/5 border-success/30' : 'bg-white/[0.02] border-white/5'
+          enabled ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white/[0.015] border-white/10'
         }`}
       >
         <div className="flex items-center gap-4">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${enabled ? 'bg-success/10' : 'bg-white/5'}`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${enabled ? 'bg-emerald-500/10' : 'bg-white/5'}`}>
             {loading || saving ? (
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
             ) : enabled ? (
-              <ToggleRight className="w-6 h-6 text-success" />
+              <ToggleRight className="w-6 h-6 text-emerald-400" />
             ) : (
               <ToggleLeft className="w-6 h-6 text-text-muted" />
             )}
           </div>
           <div>
-            <p className={`font-black text-sm ${enabled ? 'text-success' : 'text-text-secondary'}`}>
+            <p className={`font-bold text-sm ${enabled ? 'text-emerald-400' : 'text-text-secondary'}`}>
               Abonelik satış ekranı {enabled ? 'aktif' : 'kapalı'}
             </p>
             <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">
@@ -520,7 +520,7 @@ const AdminMarketing = () => {
   return (
     <div className="space-y-8 pb-10">
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight">Pazarlama & Reklam</h1>
+        <h1 className="text-2xl font-bold text-white tracking-tight">Pazarlama & Reklam</h1>
         <p className="text-text-secondary text-sm mt-1">
           Sabit QR takip linki, tıklanma ölçümü ve AdMob reklam yönetimi
         </p>

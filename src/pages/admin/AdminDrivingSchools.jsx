@@ -53,27 +53,27 @@ const SchoolModal = ({ form, setForm, editing, saving, onClose, onSubmit }) => {
     }));
   };
 
-  const inputClass = 'w-full rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm font-semibold text-white outline-none transition-all placeholder:text-white/20 focus:border-primary/50 focus:bg-primary/5';
+  const inputClass = 'w-full rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-bold text-white outline-none transition-all placeholder:text-white/20 focus:border-primary/50';
   const selectClass = `${inputClass} appearance-none`;
-  const labelClass = 'mb-2 block text-[10px] font-black uppercase tracking-widest text-text-muted';
+  const labelClass = 'mb-2 block text-[10px] font-bold uppercase tracking-widest text-text-muted';
 
   return (
-    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl">
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-4 backdrop-blur-xl">
       <Motion.form
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         onSubmit={onSubmit}
-        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] border border-white/10 bg-bg-card shadow-2xl custom-scrollbar"
+        className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-white/10 bg-bg-card custom-scrollbar"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-bg-card/95 p-5 backdrop-blur-xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-black/20 p-5 backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
               <Building2 className="h-5 w-5 text-primary-light" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white">{editing ? 'Kursu Düzenle' : 'Yeni Sürücü Kursu'}</h2>
-              <p className="text-xs font-semibold text-text-muted">Kullanıcıların şehirlerine göre göreceği kurs bilgileri</p>
+              <h2 className="text-lg font-bold text-white">{editing ? 'Kursu Düzenle' : 'Yeni Sürücü Kursu'}</h2>
+              <p className="text-xs font-medium text-text-muted">Kullanıcıların şehirlerine göre göreceği kurs bilgileri</p>
             </div>
           </div>
           <button type="button" onClick={onClose} className="rounded-xl p-2 text-text-muted transition hover:bg-white/10 hover:text-white">
@@ -146,10 +146,10 @@ const SchoolModal = ({ form, setForm, editing, saving, onClose, onSubmit }) => {
             <button
               type="button"
               onClick={() => update('isActive', !form.isActive)}
-              className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+              className={`inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-xs font-bold uppercase tracking-widest transition-all ${
                 form.isActive
-                  ? 'border-success/25 bg-success/10 text-success'
-                  : 'border-danger/25 bg-danger/10 text-danger'
+                  ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                  : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
               }`}
             >
               {form.isActive ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
@@ -158,14 +158,14 @@ const SchoolModal = ({ form, setForm, editing, saving, onClose, onSubmit }) => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-white/5 bg-bg-card/95 p-5 backdrop-blur-xl">
-          <button type="button" onClick={onClose} className="rounded-2xl px-5 py-3 text-sm font-black text-text-muted transition hover:bg-white/5 hover:text-white">
+        <div className="sticky bottom-0 flex items-center justify-end gap-3 border-t border-white/10 bg-black/20 p-5 backdrop-blur-xl">
+          <button type="button" onClick={onClose} className="rounded-2xl px-5 py-3 text-sm font-bold text-text-muted transition hover:bg-white/5 hover:text-white">
             İptal
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-sm font-black text-white shadow-xl shadow-primary/25 transition hover:-translate-y-0.5 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-bold text-white transition hover:bg-primary-light disabled:opacity-60"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             {editing ? 'Güncelle' : 'Kaydet'}
@@ -316,22 +316,22 @@ const AdminDrivingSchools = () => {
 
   return (
     <div className="space-y-6 pb-24 text-white">
-      <div className="relative overflow-hidden rounded-[2rem] border border-primary/15 bg-gradient-to-br from-primary/15 via-white/[0.035] to-accent/10 p-6 sm:p-8">
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
+      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/5 blur-3xl" />
         <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-primary-light">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-light">
               <MapPin className="h-3.5 w-3.5" />
               Konum tabanlı kurs rehberi
             </div>
-            <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Sürücü Kursları</h1>
-            <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Sürücü Kursları</h1>
+            <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-text-secondary">
               Kullanıcıların profil üzerinden göreceği şehir bazlı kursları, iletişim ve başvuru bağlantılarıyla birlikte yönetin.
             </p>
           </div>
           <button
             onClick={openCreate}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-white shadow-xl shadow-primary/25 transition hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-primary-light"
           >
             <Plus className="h-4 w-4" />
             Kurs Ekle
@@ -342,14 +342,53 @@ const AdminDrivingSchools = () => {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           { label: 'Toplam Kurs', value: stats.total, tone: 'text-primary-light' },
-          { label: 'Aktif Kurs', value: stats.active, tone: 'text-success' },
+          { label: 'Aktif Kurs', value: stats.active, tone: 'text-emerald-400' },
           { label: 'Şehir', value: stats.cities, tone: 'text-accent-light' },
         ].map((item) => (
-          <div key={item.label} className="rounded-2xl border border-white/5 bg-white/[0.035] p-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{item.label}</p>
-            <p className={`mt-2 text-3xl font-black ${item.tone}`}>{item.value}</p>
+          <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">{item.label}</p>
+            <p className={`mt-2 text-3xl font-bold ${item.tone}`}>{item.value}</p>
           </div>
         ))}
+      </div>
+
+      <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-4 sm:p-5">
+        <div className="flex flex-col gap-3 lg:flex-row">
+          <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3">
+            <Search className="h-5 w-5 text-text-muted" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Kurs, adres, ehliyet sınıfı ara..."
+              className="w-full bg-transparent text-sm font-bold text-white outline-none placeholder:text-white/25"
+            />
+          </div>
+          <select
+            value={cityFilter}
+            onChange={(event) => handleCityFilterChange(event.target.value)}
+            className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50 select-dark-options"
+          >
+            <option value="" className="bg-bg-card">Tüm şehirler</option>
+            {cities.map((city) => (
+              <option key={city} value={city} className="bg-bg-card">{city}</option>
+            ))}
+          </select>
+          <select
+            value={districtFilter}
+            onChange={(event) => setDistrictFilter(event.target.value)}
+            disabled={!cityFilter}
+            className="rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50 disabled:opacity-50 select-dark-options"
+          >
+            <option value="" className="bg-bg-card">{cityFilter ? 'Tüm ilçeler' : 'Önce şehir seç'}</option>
+            {districtFilterOptions.map((district) => (
+              <option key={district} value={district} className="bg-bg-card">{district}</option>
+            ))}
+          </select>
+          <button onClick={fetchSchools} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-white/[0.04]">
+            <RefreshCw className="h-4 w-4" />
+            Yenile
+          </button>
+        </div>
       </div>
 
       {(error || success) && (
@@ -361,55 +400,16 @@ const AdminDrivingSchools = () => {
         </div>
       )}
 
-      <div className="rounded-[2rem] border border-white/5 bg-bg-card/70 p-4 sm:p-5">
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-            <Search className="h-5 w-5 text-text-muted" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Kurs, adres, ehliyet sınıfı ara..."
-              className="w-full bg-transparent text-sm font-semibold text-white outline-none placeholder:text-white/25"
-            />
-          </div>
-          <select
-            value={cityFilter}
-            onChange={(event) => handleCityFilterChange(event.target.value)}
-            className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50"
-          >
-            <option value="" className="bg-bg-card">Tüm şehirler</option>
-            {cities.map((city) => (
-              <option key={city} value={city} className="bg-bg-card">{city}</option>
-            ))}
-          </select>
-          <select
-            value={districtFilter}
-            onChange={(event) => setDistrictFilter(event.target.value)}
-            disabled={!cityFilter}
-            className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm font-bold text-white outline-none focus:border-primary/50 disabled:opacity-50"
-          >
-            <option value="" className="bg-bg-card">{cityFilter ? 'Tüm ilçeler' : 'Önce şehir seç'}</option>
-            {districtFilterOptions.map((district) => (
-              <option key={district} value={district} className="bg-bg-card">{district}</option>
-            ))}
-          </select>
-          <button onClick={fetchSchools} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:bg-white/10">
-            <RefreshCw className="h-4 w-4" />
-            Yenile
-          </button>
-        </div>
-      </div>
-
       {loading ? (
-        <div className="flex min-h-64 flex-col items-center justify-center rounded-[2rem] border border-white/5 bg-white/[0.02]">
+        <div className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.02]">
           <Loader2 className="mb-3 h-8 w-8 animate-spin text-primary" />
-          <p className="text-xs font-black uppercase tracking-widest text-text-muted">Kurslar yükleniyor...</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-text-muted">Kurslar yükleniyor...</p>
         </div>
       ) : filteredSchools.length === 0 ? (
-        <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
+        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
           <Building2 className="mx-auto mb-4 h-10 w-10 text-white/20" />
-          <h3 className="text-lg font-black text-white">Henüz kurs bulunamadı</h3>
-          <p className="mt-2 text-sm font-semibold text-text-muted">Filtreleri temizleyin veya ilk sürücü kursunu ekleyin.</p>
+          <h3 className="text-lg font-bold text-white">Henüz kurs bulunamadı</h3>
+          <p className="mt-2 text-sm font-medium text-text-muted">Filtreleri temizleyin veya ilk sürücü kursunu ekleyin.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -418,16 +418,20 @@ const AdminDrivingSchools = () => {
               key={school._id}
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`group rounded-[1.75rem] border bg-white/[0.035] p-5 transition hover:-translate-y-0.5 hover:border-white/10 ${
-                school.isActive ? 'border-white/5' : 'border-danger/20 bg-danger/5'
+              className={`group rounded-3xl border p-5 transition-all duration-300 hover:-translate-y-0.5 ${
+                school.isActive
+                  ? 'border-white/10 bg-white/[0.02] hover:bg-white/[0.03] hover:border-white/20'
+                  : 'border-rose-500/20 bg-rose-500/5 hover:border-rose-500/30'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="break-words text-xl font-black text-white">{school.name}</h2>
-                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-black uppercase ${
-                      school.isActive ? 'border-success/20 bg-success/10 text-success' : 'border-danger/20 bg-danger/10 text-danger'
+                    <h2 className="break-words text-xl font-bold text-white">{school.name}</h2>
+                    <span className={`rounded-full border px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest ${
+                      school.isActive
+                        ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+                        : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
                     }`}>
                       {school.isActive ? 'Aktif' : 'Pasif'}
                     </span>
@@ -447,35 +451,35 @@ const AdminDrivingSchools = () => {
                 </div>
               </div>
 
-              {school.address && <p className="mt-4 text-sm font-semibold leading-relaxed text-text-secondary">{school.address}</p>}
+              {school.address && <p className="mt-4 text-sm font-medium leading-relaxed text-text-secondary">{school.address}</p>}
 
               {school.licenseClasses?.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {school.licenseClasses.map((item) => (
-                    <span key={`${school._id}-${item}`} className="rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-xs font-black text-accent-light">
+                    <span key={`${school._id}-${item}`} className="rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-xs font-bold text-accent-light">
                       {item}
                     </span>
                   ))}
                 </div>
               )}
 
-              {school.description && <p className="mt-4 rounded-2xl border border-white/5 bg-black/15 p-3 text-xs font-semibold leading-relaxed text-text-muted">{school.description}</p>}
+              {school.description && <p className="mt-4 rounded-2xl border border-white/5 bg-black/15 p-3 text-xs font-medium leading-relaxed text-text-muted">{school.description}</p>}
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {school.phone && (
-                  <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-black text-white transition hover:bg-white/10">
+                  <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white transition hover:bg-white/10">
                     <Phone className="h-3.5 w-3.5" />
                     Ara
                   </a>
                 )}
                 {school.locationUrl && (
-                  <a href={withProtocol(school.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-black text-primary-light transition hover:bg-primary/20">
+                  <a href={withProtocol(school.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-bold text-primary-light transition hover:bg-primary/20">
                     <MapPin className="h-3.5 w-3.5" />
                     Konum
                   </a>
                 )}
                 {school.websiteUrl && (
-                  <a href={withProtocol(school.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-black text-accent-light transition hover:bg-accent/20">
+                  <a href={withProtocol(school.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2 text-xs font-bold text-accent-light transition hover:bg-accent/20">
                     <ExternalLink className="h-3.5 w-3.5" />
                     Web
                   </a>

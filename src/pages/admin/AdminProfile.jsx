@@ -127,22 +127,22 @@ const AdminProfile = () => {
     <div className="space-y-8 pb-16 text-white">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-3 h-10 bg-primary rounded-full shadow-[0_0_20px_rgba(99,102,241,0.6)]" />
+          <div className="w-3 h-10 bg-primary rounded-full" />
           <div>
-            <h2 className="text-3xl font-black tracking-tight italic">Admin Profili</h2>
+            <h2 className="text-3xl font-bold tracking-tight">Admin Profili</h2>
             <p className="text-xs text-text-muted font-bold uppercase tracking-widest mt-1">
               Hesap bilgileri, profil fotoğrafı ve güvenlik ayarları
             </p>
           </div>
         </div>
 
-        <div className="glass-card rounded-2xl border border-white/5 px-5 py-4 flex items-center gap-3">
+        <div className="bg-white/[0.02] border border-white/10 rounded-2xl px-5 py-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-success/10 text-success flex items-center justify-center border border-success/20">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Yetki</p>
-            <p className="text-sm font-black text-white">Super Admin</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Yetki</p>
+            <p className="text-sm font-bold text-white">Super Admin</p>
           </div>
         </div>
       </div>
@@ -169,13 +169,13 @@ const AdminProfile = () => {
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full h-14 flex items-center gap-3 px-5 rounded-2xl border text-sm font-black transition-all ${
+              className={`w-full h-12 flex items-center gap-3 px-4 rounded-2xl border text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === tab.id
-                  ? 'bg-primary/15 text-primary-light border-primary/30'
-                  : 'bg-white/5 text-text-muted border-white/5 hover:bg-white/10 hover:text-white'
+                  ? 'bg-primary/10 text-primary-light border-primary/30'
+                  : 'bg-white/[0.02] text-text-muted border-white/10 hover:bg-white/[0.04] hover:text-white'
               }`}
             >
-              <tab.icon className="w-5 h-5" />
+              <tab.icon className="w-4 h-4" />
               {tab.label}
             </button>
           ))}
@@ -188,9 +188,8 @@ const AdminProfile = () => {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
-              className="glass-card rounded-3xl border border-white/5 p-5 sm:p-8 relative overflow-hidden"
+              className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-8 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-72 h-72 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
               <div className="relative z-10 flex flex-col xl:flex-row gap-8">
                 <div className="xl:w-72 flex flex-col items-center gap-5">
                   <button
@@ -203,7 +202,7 @@ const AdminProfile = () => {
                       {user?.avatarUrl ? (
                         <img src={user.avatarUrl} alt="Admin profil" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                        <div className="w-full h-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                           <User className="w-14 h-14 text-primary-light" />
                         </div>
                       )}
@@ -211,41 +210,41 @@ const AdminProfile = () => {
                         <Camera className="w-8 h-8 text-white" />
                       </div>
                     </div>
-                    <span className="absolute -right-1 bottom-3 w-11 h-11 rounded-full bg-primary border-4 border-bg-card flex items-center justify-center shadow-lg">
+                    <span className="absolute -right-1 bottom-3 w-11 h-11 rounded-full bg-primary border-4 border-white/10 flex items-center justify-center transition-colors hover:bg-primary-light shadow-lg">
                       <Camera className="w-4 h-4 text-white" />
                     </span>
                   </button>
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} className="hidden" />
                   <div className="text-center">
-                    <p className="text-lg font-black text-white">{user?.firstName || 'Admin'} {user?.lastName || ''}</p>
+                    <p className="text-lg font-bold text-white">{user?.firstName || 'Admin'} {user?.lastName || ''}</p>
                     <p className="text-xs text-text-muted font-bold mt-1">{user?.email}</p>
                   </div>
                 </div>
 
                 <form onSubmit={saveProfile} className="flex-1 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <label className="space-y-2">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Ad</span>
-                      <input name="firstName" value={profileData.firstName} onChange={handleProfileChange} className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5" placeholder="Ad" />
+                    <label className="space-y-2 block">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Ad</span>
+                      <input name="firstName" value={profileData.firstName} onChange={handleProfileChange} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all font-medium" placeholder="Ad" />
                     </label>
-                    <label className="space-y-2">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Soyad</span>
-                      <input name="lastName" value={profileData.lastName} onChange={handleProfileChange} className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5" placeholder="Soyad" />
+                    <label className="space-y-2 block">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Soyad</span>
+                      <input name="lastName" value={profileData.lastName} onChange={handleProfileChange} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all font-medium" placeholder="Soyad" />
                     </label>
                   </div>
 
                   <label className="space-y-2 block">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Telefon</span>
-                    <input name="phone" value={profileData.phone} onChange={handleProfileChange} className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5" placeholder="555 555 55 55" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Telefon</span>
+                    <input name="phone" value={profileData.phone} onChange={handleProfileChange} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all font-medium" placeholder="555 555 55 55" />
                   </label>
 
                   <label className="space-y-2 block">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Hakkımda</span>
-                    <textarea name="bio" value={profileData.bio} onChange={handleProfileChange} rows={5} className="input-field bg-white/5 border-white/10 focus:border-primary focus:bg-primary/5 resize-none" placeholder="Kısa bir yönetici notu..." />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Hakkımda</span>
+                    <textarea name="bio" value={profileData.bio} onChange={handleProfileChange} rows={5} className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all resize-none custom-scrollbar font-medium" placeholder="Kısa bir yönetici notu..." />
                   </label>
 
                   <div className="flex justify-end">
-                    <button type="submit" disabled={loading} className="btn-primary flex items-center gap-2">
+                    <button type="submit" disabled={loading} className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-light text-white border border-primary/30 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50">
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                       Kaydet
                     </button>
@@ -261,13 +260,12 @@ const AdminProfile = () => {
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
-              className="glass-card rounded-3xl border border-white/5 p-5 sm:p-8 relative overflow-hidden"
+              className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-8 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-72 h-72 bg-accent/5 blur-[100px] pointer-events-none rounded-full" />
               <div className="relative z-10 max-w-2xl space-y-8">
                 <div>
-                  <h3 className="text-2xl font-black flex items-center gap-3">
-                    <Lock className="w-6 h-6 text-accent" />
+                  <h3 className="text-2xl font-bold flex items-center gap-3">
+                    <Lock className="w-6 h-6 text-primary-light" />
                     Şifre ve Güvenlik
                   </h3>
                   <p className="text-sm text-text-muted font-medium mt-2">
@@ -275,31 +273,31 @@ const AdminProfile = () => {
                   </p>
                 </div>
 
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center">
+                <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-5 flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary-light flex items-center justify-center border border-primary/20">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Giriş E-postası</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Giriş E-postası</p>
                     <p className="font-bold text-white truncate">{user?.email}</p>
                   </div>
                 </div>
 
                 <form onSubmit={savePassword} className="space-y-5">
                   <label className="space-y-2 block">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Mevcut Şifre</span>
-                    <input type="password" name="currentPassword" value={passwordData.currentPassword} onChange={handlePasswordChange} required className="input-field bg-white/5 border-white/10 focus:border-accent focus:bg-accent/5" placeholder="••••••••" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Mevcut Şifre</span>
+                    <input type="password" name="currentPassword" value={passwordData.currentPassword} onChange={handlePasswordChange} required className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all font-medium" placeholder="••••••••" />
                   </label>
                   <label className="space-y-2 block">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Yeni Şifre</span>
-                    <input type="password" name="newPassword" value={passwordData.newPassword} onChange={handlePasswordChange} required className="input-field bg-white/5 border-white/10 focus:border-accent focus:bg-accent/5" placeholder="••••••••" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Yeni Şifre</span>
+                    <input type="password" name="newPassword" value={passwordData.newPassword} onChange={handlePasswordChange} required className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all font-medium" placeholder="••••••••" />
                   </label>
                   <label className="space-y-2 block">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Yeni Şifre Tekrar</span>
-                    <input type="password" name="confirmPassword" value={passwordData.confirmPassword} onChange={handlePasswordChange} required className="input-field bg-white/5 border-white/10 focus:border-accent focus:bg-accent/5" placeholder="••••••••" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Yeni Şifre Tekrar</span>
+                    <input type="password" name="confirmPassword" value={passwordData.confirmPassword} onChange={handlePasswordChange} required className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all font-medium" placeholder="••••••••" />
                   </label>
 
-                  <button type="submit" disabled={loading} className="btn-primary bg-gradient-to-r from-accent to-accent-light shadow-[0_0_20px_rgba(6,182,212,0.3)] flex items-center gap-2">
+                  <button type="submit" disabled={loading} className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-light text-white border border-primary/30 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50">
                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
                     Şifreyi Güncelle
                   </button>

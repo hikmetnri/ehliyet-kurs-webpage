@@ -124,12 +124,12 @@ const QuestionCard = ({ q, idx, onEdit, onDelete, onCopy, isShortTest }) => {
   const rate = total > 0 ? Math.round((q.correctCount / total) * 100) : null;
 
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-white/10 transition-all group">
+    <div className="group rounded-2xl border border-white/10 bg-white/[0.02] transition-colors hover:border-white/20 hover:bg-white/[0.035] overflow-hidden">
       {/* Header */}
       <div className="p-4 flex items-start gap-3">
         {/* Görsel küçük thumbnail — varsa */}
         {q.media ? (
-          <div className="w-14 h-14 rounded-xl bg-black/30 border border-white/10 shrink-0 overflow-hidden flex items-center justify-center">
+          <div className="w-14 h-14 rounded-xl bg-black/40 border border-white/10 shrink-0 overflow-hidden flex items-center justify-center">
             <img
               src={resolveMediaUrl(q.media)}
               alt="Levha"
@@ -141,7 +141,7 @@ const QuestionCard = ({ q, idx, onEdit, onDelete, onCopy, isShortTest }) => {
             </div>
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+          <div className="w-8 h-8 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
             <span className="text-xs font-black text-white/20">#{idx + 1}</span>
           </div>
         )}
@@ -172,16 +172,16 @@ const QuestionCard = ({ q, idx, onEdit, onDelete, onCopy, isShortTest }) => {
           </div>
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-          <button onClick={() => setExpanded(e => !e)} className="p-2 rounded-lg hover:bg-white/10 text-text-muted hover:text-white transition-all" title="Şıkları Göster">
+          <button onClick={() => setExpanded(e => !e)} className="p-2 rounded-xl text-text-muted hover:bg-white/[0.07] hover:text-white transition-colors" title="Şıkları Göster">
             {expanded ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
-          <button onClick={() => onCopy(q)} className="p-2 rounded-lg hover:bg-white/10 text-text-muted hover:text-white transition-all" title="Kopyala">
+          <button onClick={() => onCopy(q)} className="p-2 rounded-xl text-text-muted hover:bg-white/[0.07] hover:text-white transition-colors" title="Kopyala">
             <Copy className="w-4 h-4" />
           </button>
-          <button onClick={() => onEdit(q)} className={`p-2 rounded-lg hover:bg-primary/20 text-text-muted transition-all ${isShortTest ? 'hover:text-accent' : 'hover:text-primary-light'}`} title="Düzenle">
+          <button onClick={() => onEdit(q)} className={`p-2 rounded-xl text-text-muted transition-colors ${isShortTest ? 'hover:bg-accent/15 hover:text-accent-light' : 'hover:bg-primary/10 hover:text-primary-light'}`} title="Düzenle">
             <FileEdit className="w-4 h-4" />
           </button>
-          <button onClick={() => onDelete(q._id)} className="p-2 rounded-lg hover:bg-danger/20 text-text-muted hover:text-danger transition-all" title="Sil">
+          <button onClick={() => onDelete(q._id)} className="p-2 rounded-xl text-text-muted hover:bg-rose-500/10 hover:text-rose-300 transition-colors" title="Sil">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -405,12 +405,12 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
         initial={{ y: 60, opacity: 0, scale: 0.97 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         exit={{ y: 60, opacity: 0, scale: 0.97 }}
-        className="w-full sm:max-w-2xl bg-bg-card border border-white/10 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[95vh] sm:max-h-[90vh] overflow-hidden"
+        className="relative flex max-h-[95vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#11131a] shadow-xl shadow-black/40 sm:max-h-[90vh] sm:max-w-2xl sm:rounded-3xl"
       >
         {/* Header */}
-        <div className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
+        <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-6 py-5 shrink-0">
           <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${isShortTest ? 'bg-accent/20 text-accent' : 'bg-primary/20 text-primary-light'}`}>
+            <div className={`flex h-11 w-11 items-center justify-center rounded-2xl border ${isShortTest ? 'border-accent/30 bg-accent/15 text-accent-light' : 'border-primary/30 bg-primary/15 text-primary-light'}`}>
               {isShortTest ? <BookOpen className="w-5 h-5" /> : <PenTool className="w-5 h-5" />}
             </div>
             <div>
@@ -422,7 +422,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all">
+          <button onClick={onClose} className="rounded-xl p-2 transition-colors hover:bg-white/[0.07] text-text-muted hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -434,7 +434,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           {isShortTest ? (
             <InputField label="Kategori / Konu" icon={Folder} required error={errors.category}>
               <select
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all"
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-all"
                 value={form.category}
                 onChange={e => setField('category', e.target.value)}
               >
@@ -454,7 +454,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           ) : (
             <InputField label="Sınav Bağlantısı (Opsiyonel)" icon={PenTool}>
               <select
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all"
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-all"
                 value={form.exam}
                 onChange={e => setField('exam', e.target.value)}
               >
@@ -472,15 +472,15 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           {!isShortTest && (
             <InputField label="Soru Konusu / Branş (Zorunlu)" icon={Zap}>
               <select
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all font-bold"
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-all"
                 value={form.subject}
                 onChange={e => setField('subject', e.target.value)}
               >
                 <option value="" className="bg-bg-card text-white/40">Konu seçin...</option>
-                <option value="trafik" className="bg-bg-card text-white font-bold">🚦 Trafik ve Çevre Bilgisi</option>
-                <option value="ilkyardim" className="bg-bg-card text-white font-bold">🚑 İlk Yardım Bilgisi</option>
-                <option value="motor" className="bg-bg-card text-white font-bold">🔧 Motor ve Araç Tekniği</option>
-                <option value="adabi" className="bg-bg-card text-white font-bold">🤝 Trafik Adabı</option>
+                <option value="trafik" className="bg-bg-card text-white">🚦 Trafik ve Çevre Bilgisi</option>
+                <option value="ilkyardim" className="bg-bg-card text-white">🚑 İlk Yardım Bilgisi</option>
+                <option value="motor" className="bg-bg-card text-white">🔧 Motor ve Araç Tekniği</option>
+                <option value="adabi" className="bg-bg-card text-white">🤝 Trafik Adabı</option>
               </select>
             </InputField>
           )}
@@ -488,10 +488,10 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           {/* Sınav Türü Seçimi (Sadece sınavlar için) */}
           {!isShortTest && (
             <InputField label="Sınav Grubu (Deneme / Gerçek)" icon={RefreshCw}>
-              <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl">
+              <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl">
                 {[
-                  { id: 'mock_exam', label: '📊 Deneme Sınavı', color: 'bg-primary' },
-                  { id: 'real_exam', label: '🛡️ Gerçek Sınav', color: 'bg-purple-600' }
+                  { id: 'mock_exam', label: '📊 Deneme Sınavı' },
+                  { id: 'real_exam', label: '🛡️ Gerçek Sınav' }
                 ].map(t => (
                   <button
                     key={t.id}
@@ -501,9 +501,9 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
                       testType: t.id,
                       exam: exams.some(exam => exam._id === f.exam && examMatchesType(exam, t.id)) ? f.exam : '',
                     }))}
-                    className={`flex-1 py-2.5 text-[11px] font-black rounded-xl transition-all ${form.testType === t.id
-                      ? `${t.color} text-white shadow-lg`
-                      : 'text-text-muted hover:text-white'}`}
+                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${form.testType === t.id
+                      ? `${t.id === 'real_exam' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' : 'bg-primary/20 border border-primary/30 text-primary-light'}`
+                      : 'text-text-muted hover:bg-white/[0.04] hover:text-white'}`}
                   >
                     {t.label}
                   </button>
@@ -516,7 +516,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           <InputField label="Soru Metni" icon={FileText} required error={errors.text}>
             <textarea
               rows={3}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all resize-none placeholder:text-white/20"
+              className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-colors resize-none placeholder:text-white/20"
               placeholder="Soru metnini buraya yazın..."
               value={form.text}
               onChange={e => setField('text', e.target.value)}
@@ -526,22 +526,22 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           {/* Görsel Ekle — İki mod: Levha Seç / Dosya Yükle */}
           <InputField label="Soru Görseli (Opsiyonel)" icon={ImageIcon}>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            
+
             {/* Mod seçici */}
-            <div className="flex p-0.5 bg-white/5 border border-white/10 rounded-xl mb-3">
+            <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl mb-3">
               <button type="button" onClick={() => setImageTab('sign')}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                  imageTab === 'sign' ? 'bg-primary/20 text-primary-light' : 'text-text-muted hover:text-white'}`}>
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  imageTab === 'sign' ? 'bg-primary/20 border border-primary/30 text-primary-light' : 'text-text-muted hover:bg-white/[0.04] hover:text-white'}`}>
                 🚦 Levha seç
               </button>
               <button type="button" onClick={() => setImageTab('upload')}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                  imageTab === 'upload' ? 'bg-primary/20 text-primary-light' : 'text-text-muted hover:text-white'}`}>
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  imageTab === 'upload' ? 'bg-primary/20 border border-primary/30 text-primary-light' : 'text-text-muted hover:bg-white/[0.04] hover:text-white'}`}>
                 <UploadCloud className="w-3.5 h-3.5" /> Dosya yükle
               </button>
               <button type="button" onClick={() => setImageTab('url')}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                  imageTab === 'url' ? 'bg-primary/20 text-primary-light' : 'text-text-muted hover:text-white'}`}>
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                  imageTab === 'url' ? 'bg-primary/20 border border-primary/30 text-primary-light' : 'text-text-muted hover:bg-white/[0.04] hover:text-white'}`}>
                 <Link className="w-3.5 h-3.5" /> Bağlantı (URL)
               </button>
             </div>
@@ -549,7 +549,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
             {/* Seçili görsel önizleme */}
             {imagePreview && (
               <div className="relative mb-3">
-                <div className="w-full h-40 bg-black/30 border border-white/10 rounded-2xl overflow-hidden flex items-center justify-center">
+                <div className="w-full h-40 bg-black/40 border border-white/10 rounded-2xl overflow-hidden flex items-center justify-center">
                   <img src={imagePreview} alt="Önizleme" className="max-h-full max-w-full object-contain p-2" />
                 </div>
                 <div className="absolute top-2 right-2 flex gap-2">
@@ -569,7 +569,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
             {imageTab === 'sign' && (
               <button type="button"
                 onClick={() => setSignPickerOpen(true)}
-                className="w-full py-3 border border-dashed border-primary/30 rounded-2xl text-primary-light text-xs font-bold hover:bg-primary/10 transition-all flex items-center justify-center gap-2">
+                className="w-full py-3 border border-dashed border-primary/30 rounded-2xl text-primary-light text-xs font-bold hover:bg-primary/10 transition-colors flex items-center justify-center gap-2">
                 🚦 {imagePreview ? 'Başka Levha Seç' : 'Trafik Levhası Seç (269 levha)'}
               </button>
             )}
@@ -578,7 +578,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
             {imageTab === 'upload' && !imagePreview && (
               <button type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-24 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-white/30 hover:border-primary/40 hover:text-primary-light transition-all">
+                className="w-full h-24 border-2 border-dashed border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-white/30 hover:border-primary/40 hover:text-primary-light transition-colors">
                 <UploadCloud className="w-7 h-7" />
                 <span className="text-xs font-medium">Görsel seçmek için tıklayın</span>
                 <span className="text-[10px]">JPEG, PNG, WebP • Max 5MB</span>
@@ -597,7 +597,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
                 <input
                   type="text"
                   placeholder="Resim veya Video URL'si (http://...)"
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
+                  className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-colors placeholder:text-white/20"
                   value={form.media.startsWith('http') ? form.media : ''}
                   onChange={e => {
                     const val = e.target.value;
@@ -617,15 +617,15 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           {/* Difficulty + Coefficient */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField label="Zorluk Seviyesi" icon={Zap}>
-              <div className="flex p-1 bg-white/5 border border-white/10 rounded-2xl">
+              <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl">
                 {['easy', 'medium', 'hard'].map(d => (
                   <button
                     key={d}
                     type="button"
                     onClick={() => setField('difficulty', d)}
-                    className={`flex-1 py-2.5 text-[11px] font-black rounded-xl transition-all ${form.difficulty === d
-                      ? d === 'hard' ? 'bg-danger text-white' : d === 'medium' ? 'bg-warning text-white' : 'bg-success text-white'
-                      : 'text-text-muted hover:text-white'}`}
+                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${form.difficulty === d
+                      ? d === 'hard' ? 'bg-danger/20 border border-danger/30 text-rose-300' : d === 'medium' ? 'bg-warning/20 border border-warning/30 text-amber-300' : 'bg-success/20 border border-success/30 text-emerald-300'
+                      : 'text-text-muted hover:bg-white/[0.04] hover:text-white'}`}
                   >
                     {d === 'easy' ? '🟢' : d === 'medium' ? '🟡' : '🔴'} {DIFFICULTY_CONFIG[d].label}
                   </button>
@@ -638,7 +638,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
                 step="0.1"
                 min="0.1"
                 max="5"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all"
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-colors"
                 value={form.coefficient}
                 onChange={e => setField('coefficient', e.target.value)}
               />
@@ -649,7 +649,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           <InputField label="Açıklama (Opsiyonel - doğru cevabın nedeni)" icon={HelpCircle}>
             <textarea
               rows={2}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/50 transition-all resize-none placeholder:text-white/20"
+              className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-colors resize-none placeholder:text-white/20"
               placeholder="Doğru cevabın neden doğru olduğunu açıklayın..."
               value={form.explanation}
               onChange={e => setField('explanation', e.target.value)}
@@ -675,11 +675,11 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
               {form.options.map((opt, i) => {
                 const isCorrect = form.correctAnswer === i;
                 return (
-                  <div key={i} className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all ${isCorrect ? 'border-success/50 bg-success/5' : 'border-white/5 bg-white/[0.02]'}`}>
+                  <div key={i} className={`flex items-center gap-3 p-3 rounded-2xl border transition-colors ${isCorrect ? 'border-success/30 bg-success/10' : 'border-white/10 bg-black/20'}`}>
                     <button
                       type="button"
                       onClick={() => setField('correctAnswer', i)}
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-black text-sm transition-all ${isCorrect ? 'bg-success text-white shadow-lg shadow-success/30' : 'bg-white/10 text-white/30 hover:bg-white/20'}`}
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-bold transition-colors ${isCorrect ? 'bg-success text-white' : 'bg-white/[0.06] text-white/40 hover:bg-white/[0.1] hover:text-white'}`}
                     >
                       {isCorrect ? <CheckCircle2 className="w-5 h-5" /> : String.fromCharCode(65 + i)}
                     </button>
@@ -708,14 +708,14 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
         </form>
 
         {/* Footer */}
-        <div className="p-5 border-t border-white/5 flex items-center justify-between gap-4 shrink-0">
+        <div className="flex items-center justify-between border-t border-white/10 bg-[#0d0f14] px-6 py-4 shrink-0 gap-4">
           <button type="button" onClick={onClose} className="text-sm font-bold text-text-secondary hover:text-white transition-colors">
             İptal
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-sm text-white shadow-2xl transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 ${isShortTest ? 'bg-accent hover:bg-accent/80 shadow-accent/30' : 'bg-primary hover:bg-primary-light shadow-primary/30'}`}
+            className={`flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-black text-white transition-colors disabled:opacity-60 ${isShortTest ? 'bg-accent hover:bg-accent/80' : 'bg-primary hover:bg-primary-light'}`}
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             {isEdit ? 'Güncelle' : 'Kaydet'}
@@ -939,17 +939,19 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-md bg-bg-card border border-white/10 rounded-3xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#11131a] shadow-xl shadow-black/40"
       >
-        <div className="p-6 border-b border-white/5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-warning/20 text-warning flex items-center justify-center">
-            <PenTool className="w-5 h-5" />
+        <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-6 py-5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-warning/30 bg-warning/15 text-warning">
+              <PenTool className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-black text-white">{isEdit ? 'Sınavı Düzenle' : 'Yeni Sınav Oluştur'}</h2>
+              <p className="text-xs text-text-muted">Sınav bilgilerini girin</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-black text-white">{isEdit ? 'Sınavı Düzenle' : 'Yeni Sınav Oluştur'}</h2>
-            <p className="text-xs text-text-muted">Sınav bilgilerini girin</p>
-          </div>
-          <button onClick={onClose} className="ml-auto p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all">
+          <button onClick={onClose} className="rounded-xl p-2 transition-colors hover:bg-white/[0.07] text-text-muted hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -958,7 +960,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
           <div>
             <label className="text-xs font-bold text-text-secondary mb-2 block">Sınav Adı *</label>
             <input
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/50 transition-all"
+              className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
               placeholder="Örn: 2024 Deneme Sınavı 1"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
@@ -967,10 +969,10 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
           {!forceMiniTest && (
             <div>
               <label className="text-xs font-bold text-text-secondary mb-2 block">Sınav Türü</label>
-              <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-black/20 border border-white/10 rounded-2xl">
                 {[
-                  { id: 'mock_exam', label: 'Deneme Sınavı', icon: Zap, active: 'bg-primary text-white shadow-primary/30' },
-                  { id: 'real_exam', label: 'Gerçek Sınav', icon: Shield, active: 'bg-warning text-white shadow-warning/30' },
+                  { id: 'mock_exam', label: 'Deneme Sınavı', icon: Zap },
+                  { id: 'real_exam', label: 'Gerçek Sınav', icon: Shield },
                 ].map(type => {
                   const Icon = type.icon;
                   const active = form.testType === type.id;
@@ -979,7 +981,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
                       key={type.id}
                       type="button"
                       onClick={() => setForm(f => ({ ...f, testType: type.id }))}
-                      className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-[11px] font-black transition-all ${active ? `${type.active} shadow-lg` : 'text-text-muted hover:text-white hover:bg-white/5'}`}
+                      className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${active ? `${type.id === 'real_exam' ? 'bg-warning/20 border border-warning/30 text-amber-300' : 'bg-primary/20 border border-primary/30 text-primary-light'}` : 'text-text-muted hover:text-white hover:bg-white/[0.04]'}`}
                     >
                       <Icon className="w-4 h-4" /> {type.label}
                     </button>
@@ -992,7 +994,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
             <label className="text-xs font-bold text-text-secondary mb-2 block">Açıklama (Opsiyonel)</label>
             <textarea
               rows={2}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/50 transition-all resize-none placeholder:text-white/20"
+              className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors resize-none placeholder:text-white/20"
               placeholder="Sınav hakkında kısa bir açıklama..."
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
@@ -1003,7 +1005,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
               <label className="text-xs font-bold text-text-secondary mb-2 block flex items-center gap-1"><Clock className="w-3 h-3" /> Süre (Dakika)</label>
               <input
                 type="number" min="1"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/50 transition-all"
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
                 value={form.duration}
                 onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
               />
@@ -1011,15 +1013,15 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
             <div>
               <label className="text-xs font-bold text-text-secondary mb-2 block">Kategori</label>
               <select
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/50 transition-all"
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
                 value={form.categoryId}
                 onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
               >
                 <option value="" className="bg-bg-card">Ata veya Havuza Bırak...</option>
                 {catOptions.map(c => (
-                  <option 
-                    key={c._id} 
-                    value={c._id} 
+                  <option
+                    key={c._id}
+                    value={c._id}
                     disabled={!c._isLeaf}
                     className={`bg-bg-card ${!c._isLeaf ? 'text-white/30' : 'text-white'}`}
                   >
@@ -1030,10 +1032,10 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
             </div>
           </div>
 
-          <label className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-all ${form.isPro ? 'border-warning/40 bg-warning/5' : 'border-white/5 bg-white/[0.02]'}`}>
+          <label className={`flex items-center gap-3 p-4 rounded-2xl border cursor-pointer transition-colors ${form.isPro ? 'border-warning/30 bg-warning/10' : 'border-white/10 bg-black/20'}`}>
               <input type="checkbox" checked={form.isPro} onChange={e => setForm(f => ({ ...f, isPro: e.target.checked }))} className="hidden" />
-              <div className={`w-10 h-6 rounded-full shrink-0 transition-all relative ${form.isPro ? 'bg-warning' : 'bg-white/10'}`}>
-                <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${form.isPro ? 'left-5' : 'left-1'}`} />
+              <div className={`w-9 h-5 rounded-full shrink-0 transition-colors relative ${form.isPro ? 'bg-warning' : 'bg-white/10'}`}>
+                <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all ${form.isPro ? 'left-5' : 'left-0.5'}`} />
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-white flex items-center gap-2 truncate"><Shield className="w-4 h-4 text-warning shrink-0" /> PRO Üyelik Gerekli</p>
@@ -1047,12 +1049,12 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex items-center justify-between border-t border-white/10 bg-[#0d0f14] px-6 py-4 -mx-6 -mb-6 mt-4 gap-3 shrink-0">
             <button type="button" onClick={onClose} className="text-sm font-bold text-text-secondary hover:text-white transition-colors">İptal</button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-3 bg-warning text-white font-black text-sm rounded-2xl shadow-xl shadow-warning/30 hover:-translate-y-0.5 transition-all disabled:opacity-60"
+              className="flex items-center gap-2 rounded-2xl bg-warning px-6 py-3 text-xs font-black text-white transition-colors disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {isEdit ? 'Güncelle' : 'Oluştur'}
@@ -1098,16 +1100,18 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
-      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-2xl bg-bg-card border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="p-6 border-b border-white/5 flex items-center gap-3 shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-primary/20 text-primary-light flex items-center justify-center">
-            <UploadCloud className="w-5 h-5" />
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#11131a] shadow-xl shadow-black/40">
+        <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.02] px-6 py-5 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/30 bg-primary/15 text-primary-light">
+              <UploadCloud className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="font-black text-white">CSV ile Toplu Soru Ekle</h2>
+              <p className="text-xs text-text-muted">Sınav soruları için CSV formatı</p>
+            </div>
           </div>
-          <div>
-            <h2 className="font-black text-white">CSV ile Toplu Soru Ekle</h2>
-            <p className="text-xs text-text-muted">Sınav soruları için CSV formatı</p>
-          </div>
-          <button onClick={onClose} className="ml-auto p-2 rounded-xl hover:bg-white/10 text-text-muted hover:text-white transition-all">
+          <button onClick={onClose} className="rounded-xl p-2 transition-colors hover:bg-white/[0.07] text-text-muted hover:text-white">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1115,11 +1119,11 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
           <div>
             <label className="text-xs font-bold text-text-secondary mb-2 block">Sınav Seçimi (Opsiyonel)</label>
             <select
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none"
+              className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-primary/40 transition-colors"
               value={selectedExamId}
               onChange={e => setSelectedExamId(e.target.value)}
             >
-              <option value="" className="bg-bg-card">Sınav atamadan ekle</option>
+              <option value="" className="bg-bg-card text-white/40">Sınav atamadan ekle</option>
               {exams.map(ex => <option key={ex._id} value={ex._id} className="bg-bg-card">{ex.name}</option>)}
             </select>
           </div>
@@ -1127,11 +1131,11 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
           <div>
             <label className="text-xs font-bold text-text-secondary mb-2 block">Soru Konusu / Branş (Tüm liste için geçerli)</label>
             <select
-              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none font-bold"
+              className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-primary/40 transition-colors"
               value={selectedSubject}
               onChange={e => setSelectedSubject(e.target.value)}
             >
-              <option value="" className="bg-bg-card">Konu seçilmedi</option>
+              <option value="" className="bg-bg-card text-white/40">Konu seçilmedi</option>
               <option value="trafik" className="bg-bg-card">🚦 Trafik ve Çevre Bilgisi</option>
               <option value="ilkyardim" className="bg-bg-card">🚑 İlk Yardım Bilgisi</option>
               <option value="motor" className="bg-bg-card">🔧 Motor ve Araç Tekniği</option>
@@ -1139,8 +1143,8 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
             </select>
           </div>
 
-          <div className="p-4 bg-primary/5 border border-primary/20 rounded-2xl space-y-1">
-            <p className="text-xs font-bold text-primary-light">📋 CSV Formatı:</p>
+          <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl space-y-1.5 text-primary-light">
+            <p className="text-xs font-bold">📋 CSV Formatı:</p>
             <p className="text-[11px] text-text-muted font-mono leading-relaxed">
               text, seçenek1, seçenek2, seçenek3, seçenek4, doğruCevap, zorluk, açıklama<br />
               • doğruCevap: 0=A, 1=B, 2=C, 3=D<br />
@@ -1148,7 +1152,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
               • açıklama: opsiyonel, boş bırakılabilir<br />
               • İlk satır (başlık) atlanır
             </p>
-            <button type="button" onClick={() => setCsv(CSV_EXAMPLE)} className="text-[11px] font-bold text-primary-light hover:text-white transition-colors">
+            <button type="button" onClick={() => setCsv(CSV_EXAMPLE)} className="text-xs font-bold text-primary-light hover:text-white transition-colors hover:underline">
               ▶ Örnek yapıştır
             </button>
           </div>
@@ -1157,7 +1161,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
             <label className="text-xs font-bold text-text-secondary mb-2 block">CSV İçeriği</label>
             <textarea
               rows={12}
-              className="w-full bg-black/30 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-mono outline-none resize-none focus:border-primary/50 transition-all placeholder:text-white/20"
+              className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-xs text-white font-mono outline-none resize-none focus:border-primary/40 transition-colors placeholder:text-white/20"
               placeholder="CSV içeriğini buraya yapıştırın..."
               value={csv}
               onChange={e => { setCsv(e.target.value); setError(''); }}
@@ -1180,7 +1184,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
             </div>
           )}
         </div>
-        <div className="p-5 border-t border-white/5 flex items-center justify-end gap-3 shrink-0">
+        <div className="flex items-center justify-between border-t border-white/10 bg-[#0d0f14] px-6 py-4 shrink-0 gap-3">
           <button onClick={onClose} className="text-sm font-bold text-text-secondary hover:text-white transition-colors">
             {result ? 'Kapat' : 'İptal'}
           </button>
@@ -1188,7 +1192,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
             <button
               onClick={handleImport}
               disabled={loading}
-              className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-black text-sm rounded-2xl shadow-xl shadow-primary/30 hover:-translate-y-0.5 transition-all disabled:opacity-60"
+              className="flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black text-white transition-colors disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
               {loading ? 'Yükleniyor...' : 'Yükle'}
@@ -1218,7 +1222,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
   const collapseAll = () => setOpenCats({});
 
   const shortQuestions = questions.filter(q => q.testType === 'short_test');
-  
+
   const filtered = shortQuestions.filter(q => {
     const matchesSearch = !search || q.text.toLowerCase().includes(search.toLowerCase());
     const matchesDifficulty = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
@@ -1245,12 +1249,12 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
       .reduce((acc, child) => acc + getQuestionsForCat(child._id).length, 0);
 
     return (
-      <div key={cat._id} className={`mb-3 transition-all duration-300 ${level > 0 ? 'ml-6 border-l border-white/5 pl-4' : ''}`}>
+      <div key={cat._id} className={`mb-3 transition-all duration-300 ${level > 0 ? 'ml-6 border-l border-white/10 pl-4' : ''}`}>
         <div className={`
-          relative overflow-hidden rounded-2xl border transition-all duration-500
-          ${isOpen 
-            ? 'bg-white/[0.04] border-accent/30 shadow-2xl shadow-accent/5' 
-            : 'bg-white/[0.01] border-white/5 hover:border-white/10 hover:bg-white/[0.02]'}
+          relative overflow-hidden rounded-2xl border transition-all duration-300
+          ${isOpen
+            ? 'bg-white/[0.035] border-accent/30 shadow-lg'
+            : 'bg-white/[0.015] border-white/10 hover:border-white/20 hover:bg-white/[0.025]'}
         `}>
           {/* Category Header */}
           <button
@@ -1258,15 +1262,15 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             onClick={() => toggleCat(cat._id)}
           >
             <div className={`
-              w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500
-              ${isOpen ? 'bg-accent text-white rotate-6 shadow-lg shadow-accent/20' : 'bg-white/5 text-text-muted'}
+              w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 shrink-0
+              ${isOpen ? 'bg-accent/20 text-accent border-accent/30' : 'bg-white/5 text-text-muted border-white/5'}
             `}>
               {level === 0 ? <Folder className="w-5 h-5" /> : isLeaf ? <BookOpen className="w-4 h-4" /> : <FolderOpen className="w-5 h-5" />}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className={`font-black tracking-tight transition-colors ${isOpen ? 'text-white' : 'text-text-secondary'} text-${level === 0 ? 'base' : 'sm'}`}>
+                <p className={`font-bold tracking-tight transition-colors ${isOpen ? 'text-white' : 'text-text-secondary'} text-${level === 0 ? 'base' : 'sm'}`}>
                   {cat.name}
                 </p>
                 {!isLeaf && (
@@ -1275,14 +1279,14 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-3 mt-1 text-[11px] font-medium text-text-muted">
+              <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
                 <span className="flex items-center gap-1.5">
-                  <HelpCircle className="w-3 h-3 opacity-50" />
+                  <HelpCircle className="w-3.5 h-3.5 opacity-60" />
                   {totalDeep} Soru
                 </span>
                 {!isLeaf && (
                   <span className="flex items-center gap-1.5 border-l border-white/10 pl-3">
-                    <Folder className="w-3 h-3 opacity-50" />
+                    <Folder className="w-3.5 h-3.5 opacity-60" />
                     {children.length} Alt Konu
                   </span>
                 )}
@@ -1292,42 +1296,42 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             <div className="flex items-center gap-2">
               {isLeaf && (
                 <button
-                  onClick={(e) => { 
-                    e.stopPropagation(); 
-                    setFormModal({ open: true, question: null, isCopy: false, categoryId: cat._id }); 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFormModal({ open: true, question: null, isCopy: false, categoryId: cat._id });
                   }}
-                  className="px-3 py-1.5 rounded-xl bg-accent/20 text-accent text-[10px] font-black uppercase tracking-tighter hover:bg-accent hover:text-white transition-all shadow-lg shadow-accent/5"
+                  className="px-3 py-1.5 rounded-xl bg-accent/20 border border-accent/30 text-accent text-[11px] font-bold hover:bg-accent hover:text-white transition-all"
                 >
-                  <Plus className="w-3 h-3 mr-1 inline" /> Soru Ekle
+                  <Plus className="w-3.5 h-3.5 mr-1 inline" /> Soru Ekle
                 </button>
               )}
-              <motion.div animate={{ rotate: isOpen ? 180 : 0 }} className={`p-1 rounded-full ${isOpen ? 'bg-accent/10 text-accent' : 'text-white/20'}`}>
-                <ChevronDown className="w-5 h-5" />
-              </motion.div>
+              <div className={`p-1.5 rounded-full transition-colors ${isOpen ? 'bg-accent/15 text-accent' : 'text-text-muted hover:bg-white/5'}`}>
+                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+              </div>
             </div>
           </button>
 
           {/* Content */}
           <AnimatePresence>
             {isOpen && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }} 
-                animate={{ height: 'auto', opacity: 1 }} 
-                exit={{ height: 0, opacity: 0 }} 
-                className="overflow-hidden bg-black/20"
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden bg-black/15"
               >
-                <div className="p-4 pt-0 space-y-2">
-                  <div className="h-px w-full bg-gradient-to-r from-transparent via-white/5 to-transparent mb-4" />
-                  
+                <div className="p-4 pt-0 space-y-3">
+                  <div className="h-px w-full bg-white/5 mb-4" />
+
                   {isLeaf ? (
                     <div className="space-y-3">
                       {catQuestions.length === 0 ? (
-                        <div className="py-10 text-center rounded-2xl border-2 border-dashed border-white/5">
-                          <HelpCircle className="w-10 h-10 mx-auto mb-3 text-white/10" />
-                          <p className="text-sm text-text-muted italic">Bu kategoriye henüz soru eklenmedi.</p>
+                        <div className="py-8 text-center rounded-2xl border border-dashed border-white/10 bg-white/[0.01]">
+                          <HelpCircle className="w-8 h-8 mx-auto mb-2 text-white/20" />
+                          <p className="text-xs text-text-muted">Bu kategoriye henüz soru eklenmedi.</p>
                           <button
                             onClick={() => setFormModal({ open: true, question: null, isCopy: false, categoryId: cat._id })}
-                            className="mt-3 text-xs text-accent font-bold hover:underline"
+                            className="mt-2 text-xs text-accent font-bold hover:underline"
                           >
                             + İlk soruyu ekleyerek başlayın
                           </button>
@@ -1360,28 +1364,28 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
   return (
     <div className="space-y-4">
       {/* Toolbar & Filters */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 space-y-4">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex-1 min-w-[240px] flex items-center bg-black/40 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-accent/40 transition-all">
+          <div className="flex-1 min-w-[240px] flex items-center bg-black/20 border border-white/10 rounded-2xl px-4 py-2.5 transition-colors focus-within:border-accent/50 focus-within:bg-transparent">
             <Search className="w-4 h-4 text-text-muted mr-3" />
             <input
               type="text" placeholder="Soru metninde ara..."
-              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/20"
+              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/30"
               value={search} onChange={e => setSearch(e.target.value)}
             />
-            {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted" /></button>}
+            {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted hover:text-white" /></button>}
           </div>
-          
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => setFormModal({ open: true, question: null, isCopy: false, categoryId: null })}
-              className="flex items-center gap-2 px-5 py-3 bg-accent text-white font-black text-sm rounded-2xl shadow-xl shadow-accent/30 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white font-bold text-sm rounded-2xl shadow-md shadow-accent/10 hover:bg-accent/90 hover:-translate-y-0.5 transition-all whitespace-nowrap"
             >
               <Plus className="w-4 h-4" /> Soru Ekle
             </button>
             <button
               onClick={() => setExamModal({ open: true, exam: null })}
-              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/[0.05] border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/[0.1] hover:text-white transition-all whitespace-nowrap"
             >
               <Plus className="w-4 h-4" /> Test Oluştur
             </button>
@@ -1390,14 +1394,14 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
 
         <div className="flex flex-wrap items-center gap-4">
           {/* Difficulty Filter */}
-          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
-            <span className="text-[10px] font-black text-text-muted uppercase px-2">Zorluk:</span>
+          <div className="flex items-center gap-1.5 p-1 bg-black/20 border border-white/10 rounded-xl">
+            <span className="text-[10px] font-bold text-text-muted uppercase px-2">Zorluk:</span>
             {['all', 'easy', 'medium', 'hard'].map(d => (
               <button
                 key={d}
                 onClick={() => setFilterDifficulty(d)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
-                  filterDifficulty === d ? 'bg-accent text-white shadow-lg' : 'text-text-muted hover:text-white'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterDifficulty === d ? 'bg-accent/20 text-accent border border-accent/20' : 'text-text-muted hover:text-white border border-transparent'
                 }`}
               >
                 {d === 'all' ? 'Hepsi' : d === 'easy' ? 'Kolay' : d === 'medium' ? 'Orta' : 'Zor'}
@@ -1406,8 +1410,8 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
           </div>
 
           {/* Media Filter */}
-          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
-            <span className="text-[10px] font-black text-text-muted uppercase px-2">Görsel:</span>
+          <div className="flex items-center gap-1.5 p-1 bg-black/20 border border-white/10 rounded-xl">
+            <span className="text-[10px] font-bold text-text-muted uppercase px-2">Görsel:</span>
             {[
               { id: 'all', label: 'Hepsi' },
               { id: 'has_media', label: 'Görselli' },
@@ -1416,8 +1420,8 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
               <button
                 key={m.id}
                 onClick={() => setFilterMedia(m.id)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
-                  filterMedia === m.id ? 'bg-primary text-white shadow-lg' : 'text-text-muted hover:text-white'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterMedia === m.id ? 'bg-primary/20 text-primary-light border border-primary/20' : 'text-text-muted hover:text-white border border-transparent'
                 }`}
               >
                 {m.label}
@@ -1428,7 +1432,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
           {(search || filterDifficulty !== 'all' || filterMedia !== 'all') && (
             <button
               onClick={() => { setSearch(''); setFilterDifficulty('all'); setFilterMedia('all'); }}
-              className="text-[10px] font-black text-danger uppercase hover:underline"
+              className="text-xs font-bold text-danger uppercase hover:underline"
             >
               Filtreleri Temizle
             </button>
@@ -1438,21 +1442,21 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
 
       {/* Summary & Controls */}
       <div className="flex items-center justify-between gap-4">
-        <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4 text-sm flex-1">
-          <div className="flex items-center gap-2 text-text-secondary border-r border-white/5 pr-4">
+        <div className="flex flex-1 items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-xs">
+          <div className="flex items-center gap-1.5 text-text-secondary border-r border-white/10 pr-4">
             <BookOpen className="w-4 h-4 text-accent" />
             <span><strong className="text-white">{shortQuestions.length}</strong> Soru</span>
           </div>
-          <div className="flex items-center gap-2 text-text-secondary">
+          <div className="flex items-center gap-1.5 text-text-secondary">
             <FolderOpen className="w-4 h-4 text-primary-light" />
             <span><strong className="text-white">{categories.length}</strong> Kategori</span>
           </div>
           {search && <span className="text-text-muted text-[11px] ml-auto">• Aramada {filtered.length} sonuç</span>}
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <button onClick={expandAll} className="px-3 py-2 text-[10px] font-black uppercase tracking-tighter text-accent bg-accent/5 border border-accent/20 rounded-xl hover:bg-accent/10 transition-all">Tümünü Aç</button>
-          <button onClick={collapseAll} className="px-3 py-2 text-[10px] font-black uppercase tracking-tighter text-white/40 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all">Tümünü Kapat</button>
+          <button onClick={expandAll} className="px-4 py-2 text-xs font-bold tracking-tight text-accent bg-accent/10 border border-accent/20 rounded-xl hover:bg-accent/20 transition-all">Tümünü Aç</button>
+          <button onClick={collapseAll} className="px-4 py-2 text-xs font-bold tracking-tight text-text-muted bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-text-secondary transition-all">Tümünü Kapat</button>
         </div>
       </div>
 
@@ -1526,7 +1530,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
   const tabExams = typedExams.filter(e => e._resolvedTestType === testType);
 
   const tabQuestions = questions.filter(q => normalizeTestType(q.testType) === testType);
-  
+
   const filtered = tabQuestions.filter(q => {
     const matchesSearch = !search || q.text.toLowerCase().includes(search.toLowerCase());
     const matchesDifficulty = filterDifficulty === 'all' || q.difficulty === filterDifficulty;
@@ -1551,33 +1555,33 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
   return (
     <div className="space-y-4">
       {/* Toolbar & Filters */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 space-y-4">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex-1 min-w-[240px] flex items-center bg-black/40 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-primary/40 transition-all">
+          <div className="flex-1 min-w-[240px] flex items-center bg-black/20 border border-white/10 rounded-2xl px-4 py-2.5 transition-colors focus-within:border-primary/50 focus-within:bg-transparent">
             <Search className="w-4 h-4 text-text-muted mr-3" />
             <input
               type="text" placeholder="Soru metninde ara..."
-              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/20"
+              className="bg-transparent border-none outline-none text-sm w-full text-white placeholder:text-white/30"
               value={search} onChange={e => setSearch(e.target.value)}
             />
-            {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted" /></button>}
+            {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted hover:text-white" /></button>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setCsvModal(true)}
-              className="flex items-center gap-2 px-5 py-3 bg-white/5 border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/10 hover:text-white transition-all whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/[0.05] border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/[0.1] hover:text-white transition-all whitespace-nowrap"
             >
               <UploadCloud className="w-4 h-4" /> CSV Aktar
             </button>
             <button
               onClick={() => setExamModal({ open: true, exam: null })}
-              className="flex items-center gap-2 px-5 py-3 bg-warning/20 border border-warning/30 text-warning font-bold text-sm rounded-2xl hover:bg-warning/30 transition-all whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 bg-warning/20 border border-warning/30 text-warning font-bold text-sm rounded-2xl hover:bg-warning/30 transition-all whitespace-nowrap"
             >
               <Plus className="w-4 h-4" /> Sınav Oluştur
             </button>
             <button
               onClick={() => setFormModal({ open: true, question: null, isCopy: false, examId: null })}
-              className="flex items-center gap-2 px-5 py-3 bg-primary text-white font-black text-sm rounded-2xl shadow-xl shadow-primary/30 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-2xl shadow-md shadow-primary/10 hover:bg-primary/90 hover:-translate-y-0.5 transition-all whitespace-nowrap"
             >
               <Plus className="w-4 h-4" /> Soru Ekle
             </button>
@@ -1586,14 +1590,14 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 
         <div className="flex flex-wrap items-center gap-4">
           {/* Difficulty Filter */}
-          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
-            <span className="text-[10px] font-black text-text-muted uppercase px-2">Zorluk:</span>
+          <div className="flex items-center gap-1.5 p-1 bg-black/20 border border-white/10 rounded-xl">
+            <span className="text-[10px] font-bold text-text-muted uppercase px-2">Zorluk:</span>
             {['all', 'easy', 'medium', 'hard'].map(d => (
               <button
                 key={d}
                 onClick={() => setFilterDifficulty(d)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
-                  filterDifficulty === d ? 'bg-primary text-white shadow-lg' : 'text-text-muted hover:text-white'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterDifficulty === d ? 'bg-primary/20 text-white border border-primary/20' : 'text-text-muted hover:text-white border border-transparent'
                 }`}
               >
                 {d === 'all' ? 'Hepsi' : d === 'easy' ? 'Kolay' : d === 'medium' ? 'Orta' : 'Zor'}
@@ -1602,8 +1606,8 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
           </div>
 
           {/* Subject Filter */}
-          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
-            <span className="text-[10px] font-black text-text-muted uppercase px-2">Branş:</span>
+          <div className="flex items-center gap-1.5 p-1 bg-black/20 border border-white/10 rounded-xl">
+            <span className="text-[10px] font-bold text-text-muted uppercase px-2">Branş:</span>
             {[
               { id: 'all', label: 'Hepsi' },
               { id: 'trafik', label: 'Trafik' },
@@ -1614,8 +1618,8 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
               <button
                 key={s.id}
                 onClick={() => setFilterSubject(s.id)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
-                  filterSubject === s.id ? 'bg-purple-600 text-white shadow-lg' : 'text-text-muted hover:text-white'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterSubject === s.id ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'text-text-muted hover:text-white border border-transparent'
                 }`}
               >
                 {s.label}
@@ -1624,8 +1628,8 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
           </div>
 
           {/* Media Filter */}
-          <div className="flex items-center gap-2 p-1 bg-black/20 border border-white/5 rounded-xl">
-            <span className="text-[10px] font-black text-text-muted uppercase px-2">Görsel:</span>
+          <div className="flex items-center gap-1.5 p-1 bg-black/20 border border-white/10 rounded-xl">
+            <span className="text-[10px] font-bold text-text-muted uppercase px-2">Görsel:</span>
             {[
               { id: 'all', label: 'Hepsi' },
               { id: 'has_media', label: 'Görselli' },
@@ -1634,8 +1638,8 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
               <button
                 key={m.id}
                 onClick={() => setFilterMedia(m.id)}
-                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${
-                  filterMedia === m.id ? 'bg-success text-white shadow-lg' : 'text-text-muted hover:text-white'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  filterMedia === m.id ? 'bg-success/20 text-success border border-success/30' : 'text-text-muted hover:text-white border border-transparent'
                 }`}
               >
                 {m.label}
@@ -1646,7 +1650,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
           {(search || filterDifficulty !== 'all' || filterMedia !== 'all' || filterSubject !== 'all') && (
             <button
               onClick={() => { setSearch(''); setFilterDifficulty('all'); setFilterMedia('all'); setFilterSubject('all'); }}
-              className="text-[10px] font-black text-danger uppercase hover:underline"
+              className="text-xs font-bold text-danger uppercase hover:underline"
             >
               Filtreleri Temizle
             </button>
@@ -1656,27 +1660,27 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 
       {/* Summary & Controls */}
       <div className="flex items-center justify-between gap-4">
-        <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center gap-4 text-sm flex-1">
-          <div className="flex items-center gap-2 text-text-secondary border-r border-white/5 pr-4">
+        <div className="flex flex-1 items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-xs">
+          <div className="flex items-center gap-1.5 text-text-secondary border-r border-white/10 pr-4">
             <PenTool className={`w-4 h-4 ${testType === 'trial_exam' ? 'text-warning' : 'text-primary'}`} />
             <span><strong className="text-white">{tabExams.length}</strong> Aktif {title}</span>
           </div>
-          <div className="flex items-center gap-2 text-text-secondary">
+          <div className="flex items-center gap-1.5 text-text-secondary">
             <HelpCircle className="w-4 h-4 text-primary-light" />
             <span><strong className="text-white">{tabQuestions.length}</strong> Soru</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
-          <button onClick={expandAll} className="px-3 py-2 text-[10px] font-black uppercase tracking-tighter text-warning bg-warning/5 border border-warning/20 rounded-xl hover:bg-warning/10 transition-all">Tümünü Aç</button>
-          <button onClick={collapseAll} className="px-3 py-2 text-[10px] font-black uppercase tracking-tighter text-white/40 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-white transition-all">Tümünü Kapat</button>
+          <button onClick={expandAll} className="px-4 py-2 text-xs font-bold tracking-tight text-warning bg-warning/10 border border-warning/20 rounded-xl hover:bg-warning/20 transition-all">Tümünü Aç</button>
+          <button onClick={collapseAll} className="px-4 py-2 text-xs font-bold tracking-tight text-text-muted bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:text-text-secondary transition-all">Tümünü Kapat</button>
         </div>
       </div>
 
       {/* Premium Global Summary Panel */}
-      <div className="p-6 bg-[#131626] border border-white/5 rounded-3xl flex flex-col lg:flex-row lg:items-center gap-6">
+      <div className="p-6 bg-white/[0.025] border border-white/10 rounded-3xl flex flex-col lg:flex-row lg:items-center gap-6">
         <div className="flex items-center gap-4 lg:w-1/3">
-          <div className="w-14 h-14 rounded-2xl bg-accent/20 text-accent flex items-center justify-center shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-accent/20 text-accent flex items-center justify-center shrink-0 border border-accent/30">
             <BarChart2 className="w-7 h-7" />
           </div>
           <div>
@@ -1684,25 +1688,25 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             <p className="text-white/40 text-xs font-bold uppercase tracking-widest mt-1">{tabQuestions.length} Toplam Soru</p>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:w-2/3">
-          <div className="p-3 bg-success/10 border border-success/20 rounded-2xl flex flex-col items-center justify-center text-center">
-            <span className="text-2xl mb-1 drop-shadow-md">🚦</span>
+          <div className="p-4 bg-success/15 border border-success/20 rounded-2xl flex flex-col items-center justify-center text-center transition-all hover:bg-success/20">
+            <span className="mb-1 text-2xl">🚦</span>
             <span className="text-xl font-black text-white leading-none mb-1">{tabQuestions.filter(q => q.subject === 'trafik').length}</span>
             <span className="text-[10px] font-bold text-success uppercase tracking-widest">Trafik</span>
           </div>
-          <div className="p-3 bg-danger/10 border border-danger/20 rounded-2xl flex flex-col items-center justify-center text-center">
-            <span className="text-2xl mb-1 drop-shadow-md">🚑</span>
+          <div className="p-4 bg-danger/15 border border-danger/20 rounded-2xl flex flex-col items-center justify-center text-center transition-all hover:bg-danger/20">
+            <span className="mb-1 text-2xl">🚑</span>
             <span className="text-xl font-black text-white leading-none mb-1">{tabQuestions.filter(q => q.subject === 'ilkyardim').length}</span>
             <span className="text-[10px] font-bold text-danger uppercase tracking-widest">İlk Yrd.</span>
           </div>
-          <div className="p-3 bg-warning/10 border border-warning/20 rounded-2xl flex flex-col items-center justify-center text-center">
-            <span className="text-2xl mb-1 drop-shadow-md">🔧</span>
+          <div className="p-4 bg-warning/15 border border-warning/20 rounded-2xl flex flex-col items-center justify-center text-center transition-all hover:bg-warning/20">
+            <span className="mb-1 text-2xl">🔧</span>
             <span className="text-xl font-black text-white leading-none mb-1">{tabQuestions.filter(q => q.subject === 'motor').length}</span>
             <span className="text-[10px] font-bold text-warning uppercase tracking-widest">Motor</span>
           </div>
-          <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex flex-col items-center justify-center text-center">
-            <span className="text-2xl mb-1 drop-shadow-md">🤝</span>
+          <div className="p-4 bg-purple-500/15 border border-purple-500/20 rounded-2xl flex flex-col items-center justify-center text-center transition-all hover:bg-purple-500/20">
+            <span className="mb-1 text-2xl">🤝</span>
             <span className="text-xl font-black text-white leading-none mb-1">{tabQuestions.filter(q => q.subject === 'adabi').length}</span>
             <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest">Adap</span>
           </div>
@@ -1734,52 +1738,52 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 
             return (
               <div key={exam._id} className={`
-                group border transition-all duration-500 rounded-3xl overflow-hidden shadow-sm
-                ${isOpen 
-                  ? 'bg-white/[0.05] border-warning/30 shadow-2xl shadow-warning/5 translate-y--1' 
-                  : 'bg-white/[0.02] border-white/5 hover:border-warning/20 hover:bg-white/[0.03]'}
+                group border transition-all duration-300 rounded-3xl overflow-hidden
+                ${isOpen
+                  ? 'bg-white/[0.035] border-warning/30 shadow-lg'
+                  : 'bg-white/[0.015] border-white/10 hover:border-warning/30 hover:bg-white/[0.025]'}
               `}>
                 <button
                   className="w-full flex items-center gap-5 p-6 text-left"
                   onClick={() => toggleExam(exam._id)}
                 >
                   <div className={`
-                    w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500
-                    ${isOpen ? 'bg-warning text-white rotate-6 shadow-xl shadow-warning/30' : 'bg-white/5 text-warning/50'}
+                    w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-300 shrink-0
+                    ${isOpen ? 'bg-warning/20 text-warning border-warning/30' : 'bg-white/5 text-warning/50 border-white/5'}
                   `}>
-                    <PenTool className="w-6 h-6" />
+                    <PenTool className="w-5 h-5" />
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
-                      <h3 className={`text-lg font-black tracking-tight transition-colors ${isOpen ? 'text-white' : 'text-text-secondary'} truncate`}>
+                      <h3 className={`text-base font-bold tracking-tight transition-colors ${isOpen ? 'text-white' : 'text-text-secondary'} truncate`}>
                         {exam.name}
                       </h3>
-                      <div className="px-2.5 py-1 rounded-full bg-warning/10 border border-warning/20 text-[10px] font-black text-warning uppercase tracking-widest whitespace-nowrap">
+                      <div className="px-2 py-0.5 rounded-md bg-warning/10 border border-warning/20 text-[9px] font-bold text-warning uppercase tracking-wider whitespace-nowrap">
                         {catName || 'Genel'}
                       </div>
                     </div>
                     <div className="flex items-center gap-4 mt-2 text-xs text-text-muted font-medium">
                       <span className="flex items-center gap-1.5">
-                        <FileText className="w-3.5 h-3.5 opacity-50" />
+                        <FileText className="w-3.5 h-3.5 opacity-55" />
                         {eqCount} Soru
                       </span>
                       <span className="flex items-center gap-1.5 border-l border-white/10 pl-4">
-                        <Clock className="w-3.5 h-3.5 opacity-50" />
+                        <Clock className="w-3.5 h-3.5 opacity-55" />
                         {exam.duration} Dakika
                       </span>
                       {eqCount > 0 && !isOpen && (
                         <div className="flex items-center gap-1.5 border-l border-white/10 pl-4">
                           <div className="flex items-center gap-1">
-                            <span className="px-1.5 py-0.5 rounded-md bg-success/10 text-success text-[10px] font-black border border-success/20">🚦 {dist.traffic}</span>
-                            <span className="px-1.5 py-0.5 rounded-md bg-danger/10 text-danger text-[10px] font-black border border-danger/20">🚑 {dist.aid}</span>
-                            <span className="px-1.5 py-0.5 rounded-md bg-warning/10 text-warning text-[10px] font-black border border-warning/20">🔧 {dist.engine}</span>
-                            <span className="px-1.5 py-0.5 rounded-md bg-purple-500/10 text-purple-400 text-[10px] font-black border border-purple-500/20">🤝 {dist.ethics}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-success/10 text-success text-[10px] font-bold border border-success/20">🚦 {dist.traffic}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-danger/10 text-danger text-[10px] font-bold border border-danger/20">🚑 {dist.aid}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-warning/10 text-warning text-[10px] font-bold border border-warning/20">🔧 {dist.engine}</span>
+                            <span className="px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 text-[10px] font-bold border border-purple-500/20">🤝 {dist.ethics}</span>
                           </div>
                         </div>
                       )}
                       {exam.isPro && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-accent/10 border border-accent/20 text-accent rounded text-[9px] font-black uppercase">
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 bg-accent/10 border border-accent/20 text-accent rounded text-[9px] font-bold uppercase tracking-wider">
                           Premium
                         </span>
                       )}
@@ -1789,29 +1793,29 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
                   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                     <button
                       onClick={(e) => { e.stopPropagation(); setFormModal({ open: true, question: null, isCopy: false, examId: exam._id }); }}
-                      className="p-3 bg-warning/20 text-warning rounded-xl hover:bg-warning hover:text-white shadow-lg shadow-warning/20 transition-all"
+                      className="p-2.5 bg-warning/20 border border-warning/30 text-warning rounded-xl hover:bg-warning hover:text-white transition-all"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); setExamModal({ open: true, exam }); }}
-                      className="p-3 bg-white/5 text-text-secondary rounded-xl hover:bg-white/10 hover:text-white transition-all"
+                      className="p-2.5 bg-white/5 border border-white/10 text-text-secondary rounded-xl hover:bg-white/10 hover:text-white transition-all"
                     >
                       <FileEdit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDeleteExam(exam); }}
-                      className="p-3 bg-error/10 text-error rounded-xl hover:bg-error hover:text-white transition-all"
+                      className="p-2.5 bg-error/10 border border-error/20 text-error rounded-xl hover:bg-error hover:text-white transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  
+
                   <div className={`
-                    ml-4 p-2 rounded-full transition-all duration-300
-                    ${isOpen ? 'bg-warning/20 text-warning rotate-180' : 'text-text-muted'}
+                    ml-4 p-1.5 rounded-full transition-colors duration-300
+                    ${isOpen ? 'bg-warning/20 text-warning' : 'text-text-muted hover:bg-white/5'}
                   `}>
-                    <ChevronDown className="w-5 h-5" />
+                    <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                   </div>
                 </button>
 
@@ -1822,25 +1826,25 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.4, ease: "circOut" }}
-                      className="overflow-hidden border-t border-white/5 bg-black/30"
+                      className="overflow-hidden border-t border-white/10 bg-black/15"
                     >
                       <div className="p-6 space-y-4">
                         {eqCount > 0 && (
-                          <div className="flex flex-wrap gap-2 p-4 bg-white/[0.03] border border-white/5 rounded-2xl">
-                             <span className="text-[10px] font-black uppercase text-white/30 mr-2 flex items-center">Dağılım:</span>
-                             <SubjectBadge label="🚦 Trafik" count={dist.traffic} color="bg-success/10 text-success border-success/30" />
-                             <SubjectBadge label="🚑 İlk Yrd." count={dist.aid} color="bg-danger/10 text-danger border-danger/30" />
-                             <SubjectBadge label="🔧 Motor" count={dist.engine} color="bg-warning/10 text-warning border-warning/30" />
-                             <SubjectBadge label="🤝 Adap" count={dist.ethics} color="bg-purple-500/10 text-purple-400 border-purple-500/30" />
+                          <div className="flex flex-wrap gap-2 p-4 bg-white/[0.02] border border-white/10 rounded-2xl">
+                             <span className="text-[10px] font-bold uppercase text-white/30 mr-2 flex items-center">Dağılım:</span>
+                             <SubjectBadge label="🚦 Trafik" count={dist.traffic} color="bg-success/15 text-success border-success/20" />
+                             <SubjectBadge label="🚑 İlk Yrd." count={dist.aid} color="bg-danger/15 text-danger border-danger/20" />
+                             <SubjectBadge label="🔧 Motor" count={dist.engine} color="bg-warning/15 text-warning border-warning/20" />
+                             <SubjectBadge label="🤝 Adap" count={dist.ethics} color="bg-purple-500/15 text-purple-400 border-purple-500/20" />
                           </div>
                         )}
                         {eqCount === 0 ? (
-                          <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-3xl">
-                            <HelpCircle className="w-12 h-12 mx-auto mb-4 text-white/5" />
-                            <p className="text-text-muted font-medium">Bu sınavda henüz soru bulunmuyor.</p>
+                          <div className="py-10 text-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+                            <HelpCircle className="w-10 h-10 mx-auto mb-3 text-white/20" />
+                            <p className="text-text-muted text-sm font-medium">Bu sınavda henüz soru bulunmuyor.</p>
                             <button
                               onClick={() => setFormModal({ open: true, question: null, isCopy: false, examId: exam._id })}
-                              className="mt-4 px-6 py-2 bg-warning text-white font-black text-xs rounded-xl shadow-lg shadow-warning/20 hover:scale-105 transition-all"
+                              className="mt-3 px-4 py-2 bg-warning/20 border border-warning/30 text-warning text-xs font-bold rounded-xl hover:bg-warning hover:text-white transition-all"
                             >
                               + Hemen Soru Ekle
                             </button>
@@ -1864,17 +1868,17 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 
           {/* Unassigned questions */}
           {unassigned.length > 0 && (
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
-              <div className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/5 text-white/30 flex items-center justify-center shrink-0">
-                  <AlertTriangle className="w-5 h-5" />
+            <div className="bg-white/[0.015] border border-white/10 rounded-3xl overflow-hidden mt-6">
+              <div className="p-5 flex items-center gap-3 border-b border-white/5 bg-white/[0.01]">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-white/30 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 text-warning/70" />
                 </div>
                 <div>
-                  <p className="font-bold text-white/60 text-sm">Sınav Atanmamış</p>
+                  <p className="font-bold text-white/80 text-sm">Sınav Atanmamış Sorular</p>
                   <p className="text-xs text-text-muted">{unassigned.length} Soru</p>
                 </div>
               </div>
-              <div className="px-4 pb-4 space-y-2">
+              <div className="p-5 space-y-3">
                 {unassigned.map((q, idx) => (
                   <QuestionCard key={q._id} q={q} idx={idx} isShortTest={false}
                     onEdit={(q) => setFormModal({ open: true, question: q, isCopy: false, examId: null })}
@@ -1932,17 +1936,14 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
 };
 
 const ExamOverviewCard = ({ icon: Icon, label, value, detail, color, bg, border }) => (
-  <div className="bg-bg-card border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
-    <div className={`absolute -right-6 -top-6 w-24 h-24 rounded-full ${bg} blur-2xl opacity-60 group-hover:opacity-90 transition-opacity`} />
-    <div className="relative z-10 flex items-start justify-between gap-4">
-      <div>
-        <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{label}</p>
-        <h3 className="text-3xl font-black text-white mt-2 leading-none">{value}</h3>
-        {detail && <p className="text-[11px] font-bold text-white/35 mt-3">{detail}</p>}
-      </div>
-      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${bg} ${color} border ${border}`}>
-        <Icon className="w-5 h-5" />
-      </div>
+  <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition-all hover:border-white/20 hover:bg-white/[0.04] group">
+    <div>
+      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">{label}</p>
+      <h3 className="text-3xl font-black text-white mt-2 leading-none tracking-tight">{value}</h3>
+      {detail && <p className="text-[11px] font-medium text-white/40 mt-2">{detail}</p>}
+    </div>
+    <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${border} ${bg} ${color} transition-transform group-hover:scale-105`}>
+      <Icon className="h-5 w-5" />
     </div>
   </div>
 );
@@ -2005,30 +2006,42 @@ const AdminExams = () => {
       </div>
 
       {/* Tab Selector */}
-      <div className="flex p-1 bg-bg-card2 border border-white/5 rounded-2xl w-full max-w-lg">
+      <div className="flex p-1.5 bg-black/20 border border-white/10 rounded-2xl w-full max-w-xl">
         <button
           onClick={() => setTab('short_test')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all ${tab === 'short_test' ? 'bg-accent text-white shadow-lg shadow-accent/30' : 'text-text-secondary hover:text-white'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all border ${
+            tab === 'short_test'
+              ? 'bg-accent/20 text-accent border-accent/20'
+              : 'text-text-muted hover:text-white border-transparent hover:bg-white/[0.05]'
+          }`}
         >
           <BookOpen className="w-4 h-4" />
           <span className="hidden sm:inline">Kısa Testler</span>
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${tab === 'short_test' ? 'bg-white/20' : 'bg-white/5'}`}>{shortCount}</span>
+          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${tab === 'short_test' ? 'bg-accent/20 text-white' : 'bg-white/5 text-text-muted'}`}>{shortCount}</span>
         </button>
         <button
           onClick={() => setTab('mock_exam')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all ${tab === 'mock_exam' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-text-secondary hover:text-white'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all border ${
+            tab === 'mock_exam'
+              ? 'bg-primary/20 text-primary-light border-primary/20'
+              : 'text-text-muted hover:text-white border-transparent hover:bg-white/[0.05]'
+          }`}
         >
           <Zap className="w-4 h-4" />
           <span className="hidden sm:inline">Deneme Sınavları</span>
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${tab === 'mock_exam' ? 'bg-white/20' : 'bg-white/5'}`}>{mockCount}</span>
+          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${tab === 'mock_exam' ? 'bg-primary/20 text-white' : 'bg-white/5 text-text-muted'}`}>{mockCount}</span>
         </button>
         <button
           onClick={() => setTab('real_exam')}
-          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[11px] sm:text-xs font-bold transition-all ${tab === 'real_exam' ? 'bg-warning text-white shadow-lg shadow-warning/30' : 'text-text-secondary hover:text-white'}`}
+          className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all border ${
+            tab === 'real_exam'
+              ? 'bg-warning/20 text-warning border-warning/20'
+              : 'text-text-muted hover:text-white border-transparent hover:bg-white/[0.05]'
+          }`}
         >
           <Shield className="w-4 h-4" />
           <span className="hidden sm:inline">Gerçek Sınavlar</span>
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${tab === 'real_exam' ? 'bg-white/20' : 'bg-white/5'}`}>{realCount}</span>
+          <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black ${tab === 'real_exam' ? 'bg-warning/20 text-white' : 'bg-white/5 text-text-muted'}`}>{realCount}</span>
         </button>
       </div>
 
@@ -2062,9 +2075,9 @@ const AdminExams = () => {
 };
 
 const SubjectBadge = ({ label, count, color }) => (
-  <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border text-[11px] font-black tracking-tight ${color}`}>
+  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold tracking-tight ${color}`}>
     <span>{label}</span>
-    <div className="px-1.5 py-0.5 bg-white/10 rounded-md min-w-[1.2rem] text-center">{count}</div>
+    <div className="px-1.5 py-0.5 bg-white/10 rounded-md min-w-[1.2rem] text-center text-[10px]">{count}</div>
   </div>
 );
 
