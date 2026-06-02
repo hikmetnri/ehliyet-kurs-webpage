@@ -33,7 +33,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 
 ## NEXT
 
-NEXT: Task 2.11 - Desktop web'de `UserSupport.jsx` destek ekranını modernize et.
+NEXT: Task 2.12 - Desktop web'de `UserFeed.jsx` ve `UserFeedDetail.jsx` feed ekranlarını modernize et.
 
 ## Task 0 - Ortak Temel
 
@@ -111,8 +111,8 @@ NEXT: Task 2.11 - Desktop web'de `UserSupport.jsx` destek ekranını modernize e
 - DONE 2.10: `src/pages/user/UserDrivingSchools.jsx`
   - Yapıldı: Sürücü kursları ekranı özet metrikler, sade filtre paneli ve daha taranabilir kurs kartlarıyla düzenlendi.
 
-- TODO 2.11: `src/pages/user/UserSupport.jsx`
-  - Mesajlaşma veya destek talebi akışı daha net olacak.
+- DONE 2.11: `src/pages/user/UserSupport.jsx`
+  - Yapıldı: Desktop destek ekranına talep arama/durum filtresi eklendi; mesaj paneli ve yeni talep modalı daha sade hale getirildi.
 
 - TODO 2.12: `src/pages/user/UserFeed.jsx` ve `UserFeedDetail.jsx`
   - Feed kartları, detay okuma ve aksiyonlar modernize edilecek.

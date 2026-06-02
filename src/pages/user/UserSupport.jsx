@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Send, MessageCircle, Plus, ChevronLeft,
   Inbox, HeadphonesIcon, CheckCircle2, Clock,
-  AlertCircle, Lock, Sparkles, ChevronRight
+  AlertCircle, Lock, Sparkles, ChevronRight, Search
 } from 'lucide-react';
 
 const STATUS_MAP = {
@@ -42,6 +42,8 @@ export default function UserSupport() {
   const [newSubject, setNewSubject] = useState('');
   const [newMessage, setNewMessage] = useState('');
   const [showNewTicketModal, setShowNewTicketModal] = useState(false);
+  const [ticketSearch, setTicketSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const messagesEndRef = useRef(null);
   const desktopMessagesEndRef = useRef(null);
 
@@ -98,9 +100,17 @@ export default function UserSupport() {
 
   const pending = tickets.filter(t => t.status !== 'closed').length;
   const replied = tickets.filter(t => t.status === 'replied').length;
+  const closed = tickets.filter(t => t.status === 'closed').length;
+  const filteredTickets = tickets.filter((ticket) => {
+    const query = ticketSearch.trim().toLocaleLowerCase('tr-TR');
+    const statusMatches = statusFilter === 'all' || ticket.status === statusFilter;
+    const lastMsg = ticket.messages?.[ticket.messages.length - 1];
+    const searchable = `${ticket.subject || ''} ${ticket.message || ''} ${lastMsg?.text || ''}`.toLocaleLowerCase('tr-TR');
+    return statusMatches && (!query || searchable.includes(query));
+  });
 
   return (
-    <div className="mx-auto max-w-5xl pb-24 px-4">
+    <div className="mx-auto max-w-7xl pb-24 px-4">
 
       {/* ── Desktop View (Dual Pane) ── */}
       <div className="hidden lg:grid grid-cols-12 gap-6 h-[calc(100vh-160px)] min-h-[600px] pb-6">
@@ -111,15 +121,16 @@ export default function UserSupport() {
           {/* Header & New Ticket Button */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                <HeadphonesIcon className="w-6 h-6 text-primary-light" />
-                Destek Merkezi
-              </h1>
-              <p className="text-text-muted text-xs mt-0.5">Sorularınız için buradayız</p>
+              <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5">
+                <HeadphonesIcon className="w-3.5 h-3.5 text-primary-light" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Destek Merkezi</span>
+              </div>
+              <h1 className="text-2xl font-black text-white tracking-tight">Destek Talepleri</h1>
+              <p className="text-text-muted text-xs mt-1 font-semibold">Sorularınız ve mesaj geçmişiniz tek ekranda.</p>
             </div>
             <button
               onClick={() => setShowNewTicketModal(true)}
-              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-indigo-600 px-4 py-2.5 text-xs font-black text-white shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="flex items-center gap-2 rounded-2xl bg-primary px-4 py-3 text-xs font-black text-white transition hover:bg-primary-light"
             >
               <Plus className="w-4 h-4" />
               Yeni Talep
@@ -133,25 +144,62 @@ export default function UserSupport() {
               { label: 'Bekleyen', value: pending, color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
               { label: 'Cevaplanan', value: replied, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
             ].map(stat => (
-              <div key={stat.label} className="bg-[#131522]/80 backdrop-blur-xl border border-white/5 rounded-xl p-3 text-center">
+              <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-center">
                 <p className={`text-lg font-black ${stat.color} leading-none`}>{stat.value}</p>
                 <p className="text-[9px] font-bold text-text-muted mt-1 uppercase tracking-wider">{stat.label}</p>
               </div>
             ))}
           </div>
 
+          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-3">
+            <div className="flex items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/10">
+              <Search className="mr-3 h-5 w-5 text-primary-light" />
+              <input
+                value={ticketSearch}
+                onChange={(event) => setTicketSearch(event.target.value)}
+                placeholder="Konu veya mesaj ara..."
+                className="w-full bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
+              />
+            </div>
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+              {[
+                ['all', 'Tümü', tickets.length],
+                ['new', 'Yeni', tickets.filter(t => t.status === 'new').length],
+                ['replied', 'Cevaplı', replied],
+                ['closed', 'Kapalı', closed],
+              ].map(([id, label, count]) => {
+                const active = statusFilter === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setStatusFilter(id)}
+                    className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition ${
+                      active
+                        ? 'border-primary/35 bg-primary/15 text-primary-light'
+                        : 'border-white/10 bg-white/[0.03] text-text-muted hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    {label}
+                    <span className="ml-2 opacity-70">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Tickets Scrollable List */}
           <div className="flex-1 overflow-y-auto pr-1 space-y-3 custom-scrollbar min-h-0">
             {loading ? (
               <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-            ) : tickets.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 bg-[#131522]/40 border border-white/5 rounded-3xl text-center px-4">
+            ) : filteredTickets.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 bg-white/[0.025] border border-dashed border-white/10 rounded-3xl text-center px-4">
                 <Inbox className="w-8 h-8 text-white/10 mb-3" />
-                <p className="text-white font-bold text-sm">Henüz talep yok</p>
-                <p className="text-text-muted text-xs mt-1">Yeni bir destek talebi oluşturabilirsiniz.</p>
+                <p className="text-white font-bold text-sm">{tickets.length === 0 ? 'Henüz talep yok' : 'Filtreye uygun talep yok'}</p>
+                <p className="text-text-muted text-xs mt-1">{tickets.length === 0 ? 'Yeni bir destek talebi oluşturabilirsiniz.' : 'Arama metnini veya durum filtresini değiştirin.'}</p>
               </div>
             ) : (
-              tickets.map((ticket) => {
+              filteredTickets.map((ticket) => {
                 const isSelected = selected?._id === ticket._id;
                 const lastMsg = ticket.messages?.[ticket.messages.length - 1];
                 return (
@@ -160,8 +208,8 @@ export default function UserSupport() {
                     onClick={() => setSelected(ticket)}
                     className={`w-full text-left border rounded-2xl p-4.5 transition-all duration-300 group cursor-pointer ${
                       isSelected
-                        ? 'bg-primary/10 border-primary-light shadow-lg shadow-primary/5'
-                        : 'bg-[#131522]/60 border-white/5 hover:border-white/15 hover:bg-white/[0.02]'
+                        ? 'bg-primary/10 border-primary-light'
+                        : 'bg-white/[0.025] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
                     }`}
                   >
                     <div className="flex items-start gap-3">
@@ -187,14 +235,11 @@ export default function UserSupport() {
         </div>
 
         {/* Right Side: Chat Pane */}
-        <div className="col-span-7 bg-[#131522]/80 backdrop-blur-xl border border-white/10 rounded-[2rem] flex flex-col min-h-0 shadow-2xl relative overflow-hidden">
-          {/* Ambient light glow inside chat pane */}
-          <div className="absolute right-0 bottom-0 w-64 h-64 bg-primary/5 blur-[80px] pointer-events-none rounded-full" />
-          
+        <div className="col-span-7 bg-white/[0.025] border border-white/10 rounded-3xl flex flex-col min-h-0 relative overflow-hidden">
           {selected ? (
-            <div className="flex flex-col h-full min-h-0 relative z-10">
+            <div className="flex flex-col h-full min-h-0">
               {/* Chat Header */}
-              <div className="border-b border-white/5 bg-gradient-to-r from-primary/5 to-transparent px-6 py-5 shrink-0 flex items-center justify-between">
+              <div className="border-b border-white/10 bg-white/[0.025] px-6 py-5 shrink-0 flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-black text-white truncate max-w-[280px]">{selected.subject}</h2>
                   <div className="flex items-center gap-2 mt-1">
@@ -225,10 +270,10 @@ export default function UserSupport() {
                           {isAdmin ? <HeadphonesIcon className="w-4 h-4" /> : 'S'}
                         </div>
                         <div className={`flex max-w-[80%] flex-col ${isAdmin ? 'items-start' : 'items-end'}`}>
-                          <div className={`px-4.5 py-3 rounded-2xl text-sm leading-relaxed font-semibold shadow-md ${
+                          <div className={`px-4.5 py-3 rounded-2xl text-sm leading-relaxed font-semibold ${
                             isAdmin
                               ? 'bg-white/[0.04] border border-white/5 text-white/90 rounded-tl-none'
-                              : 'bg-gradient-to-r from-primary to-indigo-600 border border-primary/20 text-white rounded-tr-none'
+                              : 'bg-primary border border-primary/20 text-white rounded-tr-none'
                           }`}>
                             {m.text}
                           </div>
@@ -248,7 +293,7 @@ export default function UserSupport() {
               </div>
 
               {/* Chat Reply Composer */}
-              <div className="p-4 border-t border-white/5 bg-black/20 shrink-0">
+              <div className="p-4 border-t border-white/10 bg-white/[0.025] shrink-0">
                 {selected.status === 'closed' ? (
                   <div className="flex items-center justify-center gap-2 py-3 bg-white/[0.01] rounded-2xl border border-white/5">
                     <Lock className="w-4 h-4 text-text-muted" />
@@ -261,12 +306,12 @@ export default function UserSupport() {
                       value={replyText}
                       onChange={e => setReplyText(e.target.value)}
                       placeholder="Yanıtınızı yazın..."
-                      className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-[#131522]/95 px-4.5 py-3.5 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all placeholder-white/20"
+                      className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.035] px-4.5 py-3.5 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition placeholder:text-text-muted"
                     />
                     <button
                       type="submit"
                       disabled={!replyText.trim() || sending}
-                      className="px-6 py-3.5 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40 transition-all hover:scale-105 active:scale-95 bg-gradient-to-r from-primary to-indigo-600 shadow-md shadow-primary/20 cursor-pointer"
+                      className="px-6 py-3.5 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40 transition bg-primary hover:bg-primary-light"
                     >
                       {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                     </button>
@@ -275,10 +320,9 @@ export default function UserSupport() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-10 relative z-10">
-              <div className="w-24 h-24 rounded-[2rem] bg-primary/5 border border-primary/10 flex items-center justify-center mb-6 relative">
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
+              <div className="w-24 h-24 rounded-3xl bg-primary/5 border border-primary/10 flex items-center justify-center mb-6">
                 <HeadphonesIcon className="w-10 h-10 text-primary-light" />
-                <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-full" />
               </div>
               <h3 className="text-xl font-black text-white tracking-tight">Talep Seçilmedi</h3>
               <p className="text-text-secondary text-sm max-w-xs mt-2 font-medium">
@@ -302,10 +346,8 @@ export default function UserSupport() {
               initial={{ scale: 0.95, y: 15 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
-              className="w-full max-w-xl overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#131522]/95 backdrop-blur-2xl shadow-2xl relative"
+              className="w-full max-w-xl overflow-hidden rounded-3xl border border-white/10 bg-[#131522] shadow-2xl"
             >
-              <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
-              <div className="h-1 bg-gradient-to-r from-primary to-indigo-600" />
               <div className="p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -338,7 +380,7 @@ export default function UserSupport() {
                       value={newSubject}
                       onChange={e => setNewSubject(e.target.value)}
                       placeholder="Sorununuzu kısaca özetleyin..."
-                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all placeholder-white/20"
+                      className="w-full bg-white/[0.035] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition placeholder:text-text-muted"
                     />
                   </div>
                   <div>
@@ -349,7 +391,7 @@ export default function UserSupport() {
                       onChange={e => setNewMessage(e.target.value)}
                       rows={4}
                       placeholder="Lütfen sorununuzu detaylı açıklayın. Hangi sayfada, ne zaman yaşandığını belirtmeniz süreci hızlandıracaktır."
-                      className="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all resize-none placeholder-white/20"
+                      className="w-full bg-white/[0.035] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition resize-none placeholder:text-text-muted"
                     />
                   </div>
 
@@ -366,7 +408,7 @@ export default function UserSupport() {
                   <button
                     type="submit"
                     disabled={sending || !newSubject.trim() || !newMessage.trim()}
-                    className="w-full h-14 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40 transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-primary to-indigo-600 shadow-xl shadow-primary/20 cursor-pointer"
+                    className="w-full h-14 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40 transition bg-primary hover:bg-primary-light"
                   >
                     {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Talebi Gönder</>}
                   </button>
