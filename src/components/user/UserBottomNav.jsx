@@ -35,6 +35,8 @@ const items = [
       '/dashboard/favorites',
       '/dashboard/support',
       '/dashboard/driving-schools',
+      '/dashboard/traffic-signs',
+      '/dashboard/videos',
     ],
   },
 ];

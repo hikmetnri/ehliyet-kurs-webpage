@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2, MapPinned, ArrowRight,
   BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles
 } from 'lucide-react';
@@ -235,8 +235,8 @@ const UserSettings = () => {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.put('/auth/profile', { 
-        dailyGoal: notifData.dailyGoal, 
+      const res = await api.put('/auth/profile', {
+        dailyGoal: notifData.dailyGoal,
         notifEnabled: notifData.notifEnabled,
         notifHour: notifData.notifHour,
         notifMinute: notifData.notifMinute,
@@ -289,6 +289,25 @@ const UserSettings = () => {
     { id: 'profile', icon: User, label: 'Profil Bilgileri' },
     { id: 'account', icon: Lock, label: 'Hesap Güvenliği' },
     { id: 'notifications', icon: Bell, label: 'Tercihler' },
+  ];
+
+  const settingsShortcutGroups = [
+    {
+      title: 'Çalışma Kısayolları',
+      items: [
+        { to: '/dashboard/stats', icon: BarChart2, label: 'İstatistikler', description: 'Performans ve gelişim' },
+        { to: '/dashboard/favorites', icon: Star, label: 'Favoriler', description: 'Kaydedilen sorular' },
+        { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: 'Trafik İşaretleri', description: 'Levha kütüphanesi' },
+        { to: '/dashboard/videos', icon: PlayCircle, label: 'Video Dersler', description: 'Görsel anlatımlar' },
+      ],
+    },
+    {
+      title: 'Hesap ve Destek',
+      items: [
+        { to: '/dashboard/driving-schools', icon: MapPinned, label: 'Sürücü Kursları', description: 'Kurs arama' },
+        { to: '/dashboard/support', icon: Headphones, label: 'Destek Talepleri', description: 'Mesaj ve yardım' },
+      ],
+    },
   ];
 
   const profileDistrictOptions = getDistrictsForCity(profileData.city);
@@ -448,7 +467,7 @@ const UserSettings = () => {
   return (
     <div className="text-white pb-24">
       {message.text && (
-        <Motion.div 
+        <Motion.div
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
           className="fixed top-24 left-4 right-4 z-40 p-4 rounded-xl flex items-center gap-3 border bg-success/15 border-success/20 text-success shadow-lg shadow-black/20"
         >
@@ -543,21 +562,44 @@ const UserSettings = () => {
               </div>
             </section>
 
-            <Link
-              to="/dashboard/driving-schools"
-              className="group flex items-center justify-between gap-4 rounded-3xl border border-accent/20 bg-accent/10 p-4 transition hover:border-accent/35 hover:bg-accent/15"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10">
-                  <MapPinned className="h-5 w-5 text-accent-light" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-white">Yakındaki Kurslar</p>
-                  <p className="mt-1 truncate text-xs font-semibold text-text-muted">Şehir bilgine göre listele</p>
-                </div>
+            <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-3">
+              <div className="px-2 pb-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Ayarlar İçinden Erişim</p>
+                <p className="mt-1 text-xs font-semibold leading-relaxed text-text-muted">
+                  Favoriler, destek ve ek çalışma araçları.
+                </p>
               </div>
-              <ArrowRight className="h-4 w-4 shrink-0 text-accent-light transition group-hover:translate-x-1" />
-            </Link>
+              <div className="space-y-3">
+                {settingsShortcutGroups.map((group) => (
+                  <div key={group.title}>
+                    <p className="px-2 pb-1 text-[9px] font-black uppercase tracking-widest text-text-muted/80">{group.title}</p>
+                    <div className="space-y-1">
+                      {group.items.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.to}
+                            to={item.to}
+                            className="group flex items-center justify-between gap-3 rounded-2xl px-3 py-3 transition hover:bg-white/[0.04]"
+                          >
+                            <div className="flex min-w-0 items-center gap-3">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.035] text-text-secondary transition group-hover:border-accent/25 group-hover:bg-accent/10 group-hover:text-accent-light">
+                                <Icon className="h-4 w-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-black text-white">{item.label}</p>
+                                <p className="mt-0.5 truncate text-[11px] font-semibold text-text-muted">{item.description}</p>
+                              </div>
+                            </div>
+                            <ChevronRight className="h-4 w-4 shrink-0 text-text-muted transition group-hover:translate-x-0.5 group-hover:text-accent-light" />
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
 
             <nav className="rounded-3xl border border-white/10 bg-white/[0.025] p-2">
               {tabs.map((tab) => {
@@ -807,7 +849,7 @@ const UserSettings = () => {
                     description="Kalıcı silme işlemi ayrı sayfada doğrulama adımlarıyla tamamlanır."
                     tone="danger"
                     action={
-                      <button 
+                      <button
                         type="button"
                         onClick={() => navigate('/delete-account')}
                         className="inline-flex items-center justify-center gap-2 rounded-2xl border border-danger/25 bg-danger/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-danger transition hover:bg-danger/15"
@@ -979,7 +1021,7 @@ const UserSettings = () => {
         {/* Header Block */}
         <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-[#20193A] to-[#101827] p-5 shadow-lg shadow-black/25">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
-          
+
           <div className="flex flex-col items-center">
             {/* Avatar inside Progress Ring */}
             <div className="relative cursor-pointer" onClick={handleAvatarClick}>
@@ -1007,7 +1049,7 @@ const UserSettings = () => {
                     cy="48"
                   />
                 </svg>
-                
+
                 {/* Avatar Image */}
                 <div className="w-20 h-20 rounded-full overflow-hidden border border-white/10 bg-bg-dark flex items-center justify-center shadow-lg">
                   {loading && fileInputRef.current?.files?.length > 0 ? (
@@ -1027,13 +1069,13 @@ const UserSettings = () => {
                 </div>
               </div>
             </div>
-            
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*" 
-              onChange={handleAvatarChange} 
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleAvatarChange}
             />
 
             {/* Level Name Badge */}
@@ -1044,7 +1086,7 @@ const UserSettings = () => {
             {/* Name with edit icon */}
             <div className="mt-3 flex items-center gap-2">
               <h3 className="text-xl font-black tracking-tight text-white">{user?.firstName} {user?.lastName}</h3>
-              <button 
+              <button
                 onClick={() => setIsEditProfileOpen(true)}
                 className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-text-muted hover:text-white"
               >
@@ -1096,6 +1138,26 @@ const UserSettings = () => {
                 <div>
                   <div className="text-xs font-black text-white">İstatistik</div>
                   <div className="text-[10px] text-text-muted font-bold mt-0.5">Performans Analizi</div>
+                </div>
+              </Link>
+
+              <Link to="/dashboard/traffic-signs" className="flex items-center gap-3 p-3.5 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                  <TriangleAlert className="w-5 h-5 text-red-400" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-white">Levhalar</div>
+                  <div className="text-[10px] text-text-muted font-bold mt-0.5">Trafik İşaretleri</div>
+                </div>
+              </Link>
+
+              <Link to="/dashboard/videos" className="flex items-center gap-3 p-3.5 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
+                  <PlayCircle className="w-5 h-5 text-cyan-400" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-white">Videolar</div>
+                  <div className="text-[10px] text-text-muted font-bold mt-0.5">Video Dersler</div>
                 </div>
               </Link>
             </div>
@@ -1165,10 +1227,10 @@ const UserSettings = () => {
               return (
                 <div key={day} className="flex flex-col items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                    isActive 
-                      ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' 
-                      : isToday 
-                        ? 'border border-dashed border-white/30 text-white' 
+                    isActive
+                      ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                      : isToday
+                        ? 'border border-dashed border-white/30 text-white'
                         : 'bg-white/5 text-text-muted'
                   }`}>
                     {isActive ? "🔥" : "•"}
@@ -1293,7 +1355,7 @@ const UserSettings = () => {
                   </div>
                 </div>
                 {!user?.proStatus && (
-                  <button 
+                  <button
                     onClick={() => showMessage('success', "Özellik yakında aktif olacaktır!")}
                     className="px-3 py-1 bg-accent hover:bg-accent-light text-bg-dark font-black text-[10px] rounded-lg transition-colors whitespace-nowrap"
                   >
@@ -1404,7 +1466,7 @@ const UserSettings = () => {
               />
             </div>
           </div>
-          
+
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-wider">Telefon</label>
             <input
@@ -1522,9 +1584,9 @@ const UserSettings = () => {
         <div className="space-y-5">
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-wider">Günlük Çalışma Hedefi</label>
-            <select 
-              name="dailyGoal" 
-              value={notifData.dailyGoal} 
+            <select
+              name="dailyGoal"
+              value={notifData.dailyGoal}
               onChange={handleNotifChange}
               className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-success focus:bg-success/5 font-bold"
             >
@@ -1561,9 +1623,9 @@ const UserSettings = () => {
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-wider">Hatırlatıcı Saati</label>
             <div className="flex gap-2 items-center">
-              <select 
-                name="notifHour" 
-                value={notifData.notifHour} 
+              <select
+                name="notifHour"
+                value={notifData.notifHour}
                 onChange={handleNotifChange}
                 className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-success font-bold"
               >
@@ -1572,9 +1634,9 @@ const UserSettings = () => {
                 ))}
               </select>
               <span>:</span>
-              <select 
-                name="notifMinute" 
-                value={notifData.notifMinute} 
+              <select
+                name="notifMinute"
+                value={notifData.notifMinute}
                 onChange={handleNotifChange}
                 className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-success font-bold"
               >
@@ -1585,7 +1647,7 @@ const UserSettings = () => {
             </div>
           </div>
 
-          <button 
+          <button
             onClick={async () => {
               const success = await savePreferences();
               if (success) setIsNotifSettingsOpen(false);
@@ -1634,7 +1696,7 @@ const UserSettings = () => {
                     {activeBadgeList.map(badge => {
                       const badgeColor = badge.color || '#a855f7';
                       return (
-                        <div 
+                        <div
                           key={badge.id}
                           className="p-3.5 rounded-2xl border flex flex-col items-center text-center transition-all"
                           style={{
@@ -1642,7 +1704,7 @@ const UserSettings = () => {
                             borderColor: badge.isEarned ? `${badgeColor}50` : 'rgba(255,255,255,0.05)',
                           }}
                         >
-                          <div 
+                          <div
                             className="w-14 h-14 rounded-full flex items-center justify-center text-2xl border transition-all"
                             style={{
                               backgroundColor: badge.isEarned ? `${badgeColor}25` : 'rgba(255,255,255,0.04)',
@@ -1652,7 +1714,7 @@ const UserSettings = () => {
                           >
                             {badge.icon || '🏆'}
                           </div>
-                          
+
                           <span className={`text-[11px] font-black mt-2 ${badge.isEarned ? 'text-white' : 'text-text-muted'}`}>
                             {badge.name}
                           </span>
@@ -1689,8 +1751,8 @@ const UserSettings = () => {
                 key={p.id}
                 onClick={() => setLeaderboardPeriod(p.id)}
                 className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg text-center transition-all ${
-                  leaderboardPeriod === p.id 
-                    ? 'bg-primary/20 text-primary-light border border-primary/30 shadow-md shadow-primary/5' 
+                  leaderboardPeriod === p.id
+                    ? 'bg-primary/20 text-primary-light border border-primary/30 shadow-md shadow-primary/5'
                     : 'text-text-muted hover:text-white'
                 }`}
               >
@@ -1723,7 +1785,7 @@ const UserSettings = () => {
                 const rankBg = rank === 1 ? 'bg-yellow-500/10 border-yellow-500/20' : (rank === 2 ? 'bg-gray-400/10 border-gray-400/20' : (rank === 3 ? 'bg-amber-600/10 border-amber-600/20' : 'bg-white/5 border-white/5'));
 
                 return (
-                  <div 
+                  <div
                     key={item._id || index}
                     className={`flex items-center p-3 rounded-2xl border transition-all ${
                       isTopThree ? `${rankBg} shadow-sm shadow-black/10` : 'bg-bg-card border-white/5'
@@ -1787,11 +1849,11 @@ const UserSettings = () => {
               {faqs.map((faq, idx) => {
                 const isOpen = activeFaq === idx;
                 return (
-                  <div 
+                  <div
                     key={faq._id || idx}
                     className="rounded-2xl border border-white/5 bg-bg-card overflow-hidden transition-all duration-300"
                   >
-                    <button 
+                    <button
                       onClick={() => setActiveFaq(isOpen ? null : idx)}
                       className="w-full flex items-center justify-between p-4 text-left font-black text-xs text-white hover:bg-white/[0.01]"
                     >

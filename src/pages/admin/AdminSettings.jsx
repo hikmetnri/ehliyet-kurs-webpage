@@ -19,7 +19,7 @@ const SaveBtn = ({ loading, label = 'Kaydet' }) => (
   <button
     type="submit"
     disabled={loading}
-    className="flex items-center gap-2 px-5 py-3 bg-primary hover:bg-primary-light text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+    className="flex h-11 items-center gap-2 rounded-2xl border border-primary/30 bg-primary px-5 text-sm font-bold text-white transition-colors hover:bg-primary-light disabled:opacity-50"
   >
     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
     {label}
@@ -27,18 +27,18 @@ const SaveBtn = ({ loading, label = 'Kaydet' }) => (
 );
 
 const SectionCard = ({ children, className = '' }) => (
-  <div className={`rounded-3xl border border-white/10 bg-white/[0.02] overflow-hidden ${className}`}>
+  <div className={`overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025] ${className}`}>
     {children}
   </div>
 );
 
 const CardHeader = ({ icon: Icon, iconColor = 'from-primary to-primary-dark', title, subtitle, action }) => (
-  <div className="flex items-center justify-between p-6 lg:p-8 border-b border-white/10">
-    <div className="flex items-center gap-4">
-      <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+  <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between lg:p-6">
+    <div className="flex min-w-0 items-center gap-4">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
         <Icon className="w-5 h-5 text-primary-light" />
       </div>
-      <div>
+      <div className="min-w-0">
         <h2 className="text-base font-bold text-white tracking-tight">{title}</h2>
         {subtitle && <p className="text-xs text-text-secondary mt-0.5">{subtitle}</p>}
       </div>
@@ -48,7 +48,7 @@ const CardHeader = ({ icon: Icon, iconColor = 'from-primary to-primary-dark', ti
 );
 
 const FieldLabel = ({ children }) => (
-  <label className="text-[10px] uppercase font-bold text-text-muted tracking-widest block mb-2">{children}</label>
+  <label className="mb-2 block text-xs font-bold text-text-muted">{children}</label>
 );
 
 const TextInput = ({ value, onChange, placeholder, ...rest }) => (
@@ -117,7 +117,7 @@ const Toast = ({ msg, type = 'success', onClose }) => (
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-        className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border text-sm font-bold ${
+        className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border px-5 py-3.5 text-sm font-bold shadow-xl shadow-black/40 ${
           type === 'success'
             ? 'bg-success/10 border-success/30 text-success'
             : 'bg-danger/10 border-danger/30 text-danger'
@@ -134,12 +134,12 @@ const Toast = ({ msg, type = 'success', onClose }) => (
 // ─── Ana bileşen ──────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'legal',         label: 'Hukuki Metinler',  icon: FileText,     color: 'from-emerald-500 to-teal-600' },
-  { id: 'notifications', label: 'Bildirimler',       icon: Bell,         color: 'from-primary to-primary-dark' },
-  { id: 'quotes',        label: 'Günün Sözleri',    icon: Quote,        color: 'from-amber-500 to-orange-600' },
-  { id: 'faqs',          label: 'S.S.S.',            icon: HelpCircle,   color: 'from-violet-500 to-purple-700' },
-  { id: 'system',        label: 'Sistem',            icon: Database,     color: 'from-rose-500 to-red-700' },
-  { id: 'logs',          label: 'Aktivite Logları', icon: Terminal,     color: 'from-slate-500 to-gray-700' },
+  { id: 'legal',         label: 'Hukuki',     title: 'Hukuki Metinler',  description: 'Gizlilik politikası ve KVKK metinleri', icon: FileText },
+  { id: 'notifications', label: 'Bildirim',   title: 'Bildirimler',       description: 'Toplu veya hedefli push gönderimleri', icon: Bell },
+  { id: 'quotes',        label: 'Sözler',     title: 'Günün Sözleri',     description: 'Mobil uygulamada görünen motivasyon sözleri', icon: Quote },
+  { id: 'faqs',          label: 'S.S.S.',     title: 'S.S.S.',            description: 'Landing ve uygulama yardım içerikleri', icon: HelpCircle },
+  { id: 'system',        label: 'Sistem',     title: 'Sistem',            description: 'Bakım modu ve veritabanı yedeği', icon: Database },
+  { id: 'logs',          label: 'Loglar',     title: 'Aktivite Logları',  description: 'Son yönetici işlemleri', icon: Terminal },
 ];
 
 const AdminSettings = () => {
@@ -402,48 +402,100 @@ const AdminSettings = () => {
   };
 
   const activeTabMeta = TABS.find(t => t.id === activeTab);
+  const managementSummary = [
+    {
+      label: 'İçerik ve metin',
+      value: 'Hukuki + S.S.S.',
+      icon: Globe,
+      tone: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300',
+    },
+    {
+      label: 'Kullanıcı iletişimi',
+      value: 'Bildirim + sözler',
+      icon: Send,
+      tone: 'border-primary/20 bg-primary/10 text-primary-light',
+    },
+    {
+      label: 'Sistem durumu',
+      value: isMaintenance ? 'Bakım açık' : 'Normal',
+      icon: Activity,
+      tone: isMaintenance ? 'border-danger/30 bg-danger/10 text-danger' : 'border-success/20 bg-success/10 text-success',
+    },
+  ];
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 pb-20 min-h-[80vh]">
+    <div className="space-y-6 pb-20">
       {/* Toast */}
       <Toast msg={toast?.msg} type={toast?.type} onClose={() => setToast(null)} />
 
-      {/* ── Sidebar ── */}
-      <aside className="w-full lg:w-56 shrink-0 flex lg:flex-col gap-1 lg:sticky top-6 self-start overflow-x-auto custom-scrollbar pb-1 lg:pb-0">
-        <p className="hidden lg:block text-[9px] font-bold uppercase text-text-muted tracking-widest px-3 mb-2">Kategoriler</p>
-        {TABS.map(tab => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-none lg:flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all lg:w-full text-left group relative ${
-                isActive
-                  ? 'bg-primary/20 text-primary-light border-primary/30'
-                  : 'text-text-muted hover:text-white hover:bg-white/[0.02]'
-              }`}
-            >
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all ${
-                isActive ? `bg-primary/20 text-primary-light border border-primary/30` : 'bg-white/5 group-hover:bg-white/10'
-              }`}>
-                <tab.icon className="w-3.5 h-3.5 text-white" />
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <p className="text-xs font-bold text-primary-light">Admin kontrol alanı</p>
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Yönetim Merkezi</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-muted">
+              Metinler, bildirimler, yardım içerikleri ve sistem işlemleri tek yerde.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:min-w-[560px]">
+            {managementSummary.map(item => (
+              <div key={item.label} className={`rounded-2xl border px-4 py-3 ${item.tone}`}>
+                <div className="flex items-center gap-2">
+                  <item.icon className="h-4 w-4" />
+                  <span className="text-xs font-semibold opacity-80">{item.label}</span>
+                </div>
+                <p className="mt-2 text-sm font-bold text-white">{item.value}</p>
               </div>
-              <span className="relative z-10 truncate">{tab.label}</span>
-              {isActive && <ChevronRight className="hidden lg:block w-3 h-3 ml-auto relative z-10 opacity-50" />}
-            </button>
-          );
-        })}
-      </aside>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <nav className="rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
+          {TABS.map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`min-h-[74px] rounded-2xl border px-3 py-3 text-left transition-all ${
+                  isActive
+                    ? 'border-primary/40 bg-primary/15 text-white'
+                    : 'border-transparent bg-transparent text-text-muted hover:border-white/10 hover:bg-white/[0.04] hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`flex h-8 w-8 items-center justify-center rounded-xl border ${isActive ? 'border-primary/30 bg-primary/20 text-primary-light' : 'border-white/10 bg-white/[0.04] text-text-muted'}`}>
+                    <tab.icon className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-bold">{tab.label}</span>
+                </div>
+                <p className="mt-2 line-clamp-2 text-[11px] leading-snug opacity-70">{tab.description}</p>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* ── Content ── */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0">
         {/* Header strip */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            {activeTabMeta && <activeTabMeta.icon className="w-4 h-4 text-primary-light" />}
+        <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/[0.025] p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+              {activeTabMeta && <activeTabMeta.icon className="w-5 h-5 text-primary-light" />}
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xl font-bold leading-tight tracking-tight text-white sm:text-2xl">{activeTabMeta?.title}</h2>
+              <p className="mt-1 text-sm text-text-muted">{activeTabMeta?.description}</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">{activeTabMeta?.label}</h1>
+          <div className="flex w-fit items-center gap-2 rounded-2xl border border-white/10 bg-black/20 px-3 py-2 text-xs font-semibold text-text-muted">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin text-primary-light" /> : <CheckCircle2 className="h-4 w-4 text-success" />}
+            {loading ? 'Yükleniyor' : 'Hazır'}
           </div>
         </div>
 
@@ -464,7 +516,7 @@ const AdminSettings = () => {
                     <button
                       onClick={() => handleSaveLegal('privacy_policy')}
                       disabled={legalSaving === 'privacy_policy'}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+                      className="flex h-10 items-center gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500 hover:text-white disabled:opacity-50"
                     >
                       {legalSaving === 'privacy_policy' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                       Kaydet
@@ -480,7 +532,7 @@ const AdminSettings = () => {
                     className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white/90 placeholder-white/20 focus:outline-none focus:border-emerald-500/50 transition-all resize-none custom-scrollbar font-mono leading-relaxed"
                   />
                   <p className="text-[10px] text-text-muted mt-2">
-                    💡 Play Store onayı için bu metnin eksikosuz doldurulması zorunludur.
+                    Play Store onayı için bu metnin eksiksiz doldurulması gerekir.
                   </p>
                 </div>
               </SectionCard>
@@ -496,7 +548,7 @@ const AdminSettings = () => {
                     <button
                       onClick={() => handleSaveLegal('kvkk_text')}
                       disabled={legalSaving === 'kvkk_text'}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-teal-500/10 border border-teal-500/20 text-teal-400 hover:bg-teal-500 hover:text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+                      className="flex h-10 items-center gap-2 rounded-2xl border border-teal-500/20 bg-teal-500/10 px-4 text-sm font-bold text-teal-400 transition-colors hover:bg-teal-500 hover:text-white disabled:opacity-50"
                     >
                       {legalSaving === 'kvkk_text' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                       Kaydet
@@ -553,7 +605,7 @@ const AdminSettings = () => {
 
                       {notifTarget === 'targeted' && (
                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 p-4 bg-white/[0.02] border border-white/10 rounded-2xl">
-                          <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest flex justify-between">
+                          <label className="flex justify-between text-xs font-bold text-text-muted">
                             <span>Kullanıcı Seçimi ({selectedUserIds.length} seçildi)</span>
                             <button type="button" onClick={() => setSelectedUserIds([])} className="text-primary-light hover:underline lowercase font-bold">temizle</button>
                           </label>
@@ -599,7 +651,7 @@ const AdminSettings = () => {
                       )}
                       <div>
                         <FieldLabel>Başlık</FieldLabel>
-                        <TextInput value={notifTitle} onChange={e => setNotifTitle(e.target.value)} placeholder="Örn: Hafta Sonu Sınav Hazırlığı Başlıyor 🚀" />
+                        <TextInput value={notifTitle} onChange={e => setNotifTitle(e.target.value)} placeholder="Örn: Hafta sonu sınav hazırlığı başlıyor" />
                       </div>
                       <div>
                         <div className="flex justify-between items-center mb-2">
@@ -615,7 +667,7 @@ const AdminSettings = () => {
                       <button
                         type="submit"
                         disabled={loading || !notifTitle || !notifBody}
-                        className="w-full h-12 bg-primary hover:bg-primary-light text-white rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:grayscale"
+                        className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white transition-colors hover:bg-primary-light disabled:opacity-40 disabled:grayscale"
                       >
                         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Şimdi Gönder</>}
                       </button>
@@ -627,7 +679,7 @@ const AdminSettings = () => {
                 <div className="xl:col-span-5 flex flex-col gap-6">
                   {/* Preview */}
                   <div className="rounded-3xl border border-white/10 bg-white/[0.02] flex flex-col items-center justify-center p-6 h-[220px] relative overflow-hidden">
-                    <p className="text-[10px] font-bold uppercase text-text-muted tracking-widest absolute top-4 left-4 flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5" /> Canlı Önizleme</p>
+                    <p className="absolute left-4 top-4 flex items-center gap-1.5 text-xs font-bold text-text-muted"><Smartphone className="w-3.5 h-3.5" /> Canlı önizleme</p>
                     <div className="w-full max-w-[300px] bg-white/[0.04] border border-white/10 rounded-2xl p-4 flex gap-3 mt-4 hover:scale-105 transition-transform duration-500">
                       <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
                         <Bell className="w-4 h-4 text-white" />
@@ -684,7 +736,7 @@ const AdminSettings = () => {
                   action={
                     <button
                       onClick={() => { setShowQuoteForm(true); setEditingQuote(null); setQuoteData({ text: '', author: '' }); }}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all"
+                      className="flex h-10 items-center gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 text-sm font-bold text-amber-400 transition-colors hover:bg-amber-500 hover:text-white"
                     >
                       <Plus className="w-4 h-4" /> Yeni Ekle
                     </button>
@@ -694,8 +746,8 @@ const AdminSettings = () => {
                   <AnimatePresence>
                     {showQuoteForm && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                        <div className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 space-y-4">
-                          <h3 className="text-xs font-bold text-amber-400 uppercase tracking-widest">{editingQuote ? 'Sözü Güncelle' : 'Yeni Söz Ekle'}</h3>
+                        <form onSubmit={handleQuoteSubmit} className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 space-y-4">
+                          <h3 className="text-sm font-bold text-amber-400">{editingQuote ? 'Sözü güncelle' : 'Yeni söz ekle'}</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <div className="flex items-center justify-between gap-3">
@@ -716,7 +768,7 @@ const AdminSettings = () => {
                             <SaveBtn loading={loading} />
                             <button type="button" onClick={() => setShowQuoteForm(false)} className="flex items-center gap-2 px-4 py-2.5 bg-white/[0.02] border border-white/10 text-white hover:bg-white/[0.04] rounded-2xl text-xs font-bold"><X className="w-4 h-4" /></button>
                           </div>
-                        </div>
+                        </form>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -733,7 +785,7 @@ const AdminSettings = () => {
                             </div>
                             <Quote className="w-7 h-7 text-amber-500/20 mb-3" />
                             <p className="text-sm text-white/90 italic leading-relaxed mb-3">"{limitQuoteText(q.text, QUOTE_MAX_LENGTH)}"</p>
-                            <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-amber-500"></div><span className="text-[10px] font-bold uppercase tracking-widest text-amber-500/80">{q.author}</span></div>
+                            <div className="flex items-center gap-2"><div className="w-1 h-1 rounded-full bg-amber-500"></div><span className="text-xs font-bold text-amber-500/80">{q.author}</span></div>
                           </div>
                         ))}
                       </div>
@@ -756,7 +808,7 @@ const AdminSettings = () => {
                   action={
                     <button
                       onClick={() => { setShowFaqForm(true); setEditingFaq(null); setFaqData({ question: '', answer: '', isActive: true }); }}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500 hover:text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all"
+                      className="flex h-10 items-center gap-2 rounded-2xl border border-violet-500/20 bg-violet-500/10 px-4 text-sm font-bold text-violet-400 transition-colors hover:bg-violet-500 hover:text-white"
                     >
                       <Plus className="w-4 h-4" /> Yeni Ekle
                     </button>
@@ -767,7 +819,7 @@ const AdminSettings = () => {
                     {showFaqForm && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                         <form onSubmit={handleFaqSubmit} className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 space-y-4 mb-4">
-                          <h3 className="text-xs font-bold text-violet-400 uppercase tracking-widest">{editingFaq ? 'S.S.S. Güncelle' : 'Yeni S.S.S. Ekle'}</h3>
+                          <h3 className="text-sm font-bold text-violet-400">{editingFaq ? 'S.S.S. güncelle' : 'Yeni S.S.S. ekle'}</h3>
                           <div><FieldLabel>Soru</FieldLabel><TextInput required value={faqData.question} onChange={e => setFaqData(p => ({ ...p, question: e.target.value }))} placeholder="Örn: Bu platform tamamen ücretsiz mi?" /></div>
                           <div>
                             <FieldLabel>Cevap</FieldLabel>
@@ -809,7 +861,7 @@ const AdminSettings = () => {
                                 <p className="text-text-muted text-xs line-clamp-2">C: {faq.answer}</p>
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
-                                <span className={`text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full ${faq.isActive ? 'bg-success/10 text-success' : 'bg-white/5 text-text-muted'}`}>{faq.isActive ? 'Aktif' : 'Pasif'}</span>
+                                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${faq.isActive ? 'bg-success/10 text-success' : 'bg-white/5 text-text-muted'}`}>{faq.isActive ? 'Aktif' : 'Pasif'}</span>
                                 <button onClick={() => handleToggleFaqActive(faq)} className="p-1.5 rounded-xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] text-text-muted hover:text-white transition-colors" title={faq.isActive ? 'Pasif Yap' : 'Aktif Yap'}><Power className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => { setEditingFaq(faq); setFaqData({ question: faq.question, answer: faq.answer, isActive: faq.isActive }); setShowFaqForm(true); }} className="p-1.5 rounded-xl border border-violet-500/20 bg-white/[0.02] hover:bg-violet-500/10 text-text-muted hover:text-violet-400 transition-colors"><Edit className="w-3.5 h-3.5" /></button>
                                 <button onClick={() => handleDeleteFaq(faq._id)} className="p-1.5 rounded-xl border border-danger/20 bg-white/[0.02] hover:bg-danger/10 text-text-muted hover:text-danger transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -841,7 +893,7 @@ const AdminSettings = () => {
                     <button
                       onClick={toggleMaintenance}
                       disabled={systemLoading}
-                      className={`w-full py-3 text-xs font-bold uppercase tracking-widest rounded-2xl flex items-center justify-center gap-3 transition-all border disabled:opacity-50 ${
+                      className={`flex h-11 w-full items-center justify-center gap-3 rounded-2xl border text-sm font-bold transition-colors disabled:opacity-50 ${
                         isMaintenance
                           ? 'bg-success hover:bg-success-light text-white border-success'
                           : 'bg-danger/10 border border-danger/20 text-danger hover:bg-danger hover:text-white'
@@ -863,7 +915,7 @@ const AdminSettings = () => {
                     <button
                       onClick={handleBackup}
                       disabled={systemLoading}
-                      className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 rounded-2xl font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all disabled:opacity-50"
+                      className="flex h-11 w-full items-center justify-center gap-3 rounded-2xl border border-indigo-500/20 bg-indigo-500/10 text-sm font-bold text-indigo-400 transition-colors hover:bg-indigo-500/20 disabled:opacity-50"
                     >
                       {systemLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><RefreshCw className="w-4 h-4" /> Yedekleme Başlat</>}
                     </button>
@@ -875,7 +927,7 @@ const AdminSettings = () => {
               <div className="p-5 bg-warning/5 border border-warning/20 rounded-2xl flex gap-4">
                 <AlertTriangle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="text-xs font-bold text-warning uppercase tracking-widest">Dikkat</h4>
+                  <h4 className="text-sm font-bold text-warning">Dikkat</h4>
                   <p className="text-xs text-warning/70 mt-1 leading-relaxed">Bu alandaki değişiklikler doğrudan prodüksiyon ortamını etkiler. Operasyonları yapmadan önce doğru ayarı seçtiğinizden emin olun.</p>
                 </div>
               </div>
@@ -887,7 +939,7 @@ const AdminSettings = () => {
             <motion.div key="logs" variants={contentVariants} initial="initial" animate="animate" exit="exit">
               <SectionCard>
                 <div className="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/[0.01]">
-                  <div className="flex items-center gap-3"><Activity className="w-4 h-4 text-text-muted" /><h2 className="text-sm font-bold text-white uppercase tracking-widest">Son Yönetici Aktiviteleri</h2></div>
+                  <div className="flex items-center gap-3"><Activity className="w-4 h-4 text-text-muted" /><h2 className="text-sm font-bold text-white">Son yönetici aktiviteleri</h2></div>
                   <button onClick={fetchLogs} className="p-2 border border-white/10 hover:bg-white/[0.04] rounded-xl transition-colors"><RefreshCw className={`w-4 h-4 text-text-muted ${loading ? 'animate-spin' : ''}`} /></button>
                 </div>
                 <div className="divide-y divide-white/10 max-h-[600px] overflow-y-auto custom-scrollbar">

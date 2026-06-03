@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { 
-  CarFront, Target, Trophy, CheckCircle2, ChevronRight, 
-  Brain, Zap, Sparkles, Smartphone, Download, ChevronDown, 
-  Star, ShieldCheck, Map, PlayCircle, BarChart3, Clock, 
+import {
+  CarFront, Target, Trophy, CheckCircle2, ChevronRight,
+  Brain, Zap, Sparkles, Smartphone, Download, ChevronDown,
+  Star, ShieldCheck, Map, PlayCircle, BarChart3, Clock,
   Users, Award, ArrowRight, Quote, Check, BookOpen, User
 } from 'lucide-react';
 
@@ -56,7 +56,7 @@ const badges = [
 const FAQItem = ({ faq, index }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}
       className={`mb-4 border rounded-2xl overflow-hidden transition-all cursor-pointer backdrop-blur-sm ${isOpen ? 'bg-primary/5 border-primary/50 shadow-[0_0_20px_rgba(99,102,241,0.15)]' : 'bg-white/[0.02] border-white/10 hover:border-white/30 hover:bg-white/[0.04]'}`}
       onClick={() => setIsOpen(!isOpen)}
@@ -94,6 +94,7 @@ const LandingPage = () => {
     rating: '4.9'
   });
   const [faqList, setFaqList] = useState(FALLBACK_FAQS);
+  const [playStoreUrl, setPlayStoreUrl] = useState('https://play.google.com/store/apps/details?id=com.ehliyetyolu.app');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -136,9 +137,22 @@ const LandingPage = () => {
       }
     };
 
+    const fetchSettings = async () => {
+      try {
+        const { default: api } = await import('../api');
+        const res = await api.get('/admin/settings-map');
+        if (!cancelled && res.data?.playstore_url) {
+          setPlayStoreUrl(res.data.playstore_url);
+        }
+      } catch (err) {
+        // Fallback URL kullanılır
+      }
+    };
+
     const runDeferred = () => {
       fetchStats();
       fetchFaqs();
+      fetchSettings();
     };
 
     const idleId = window.requestIdleCallback
@@ -159,19 +173,19 @@ const LandingPage = () => {
     <div className="min-h-screen bg-[#050508] relative w-full font-sans text-white selection:bg-primary/30 overflow-x-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
-      
+
       {/* Dynamic Glows */}
       <motion.div style={{ y: y1 }} className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-primary/20 blur-[150px] rounded-full pointer-events-none z-0" />
       <motion.div style={{ y: y2 }} className="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-indigo-600/15 blur-[150px] rounded-full pointer-events-none z-0" />
       <div className="absolute top-[60%] left-[20%] w-[500px] h-[500px] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none z-0" />
 
       {/* Modern, Sticky Navbar */}
-      <motion.header 
+      <motion.header
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6">
           <div className={`flex justify-between items-center transition-all duration-500 rounded-2xl sm:rounded-[2.5rem] ${scrolled ? 'bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-2 sm:p-3 pl-4 sm:pl-6' : 'bg-transparent border-transparent p-3 sm:p-4 pl-4 sm:pl-6'}`}>
-            
+
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
               <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-200 shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
@@ -203,7 +217,7 @@ const LandingPage = () => {
 
       {/* Ultimate Animation Hero */}
       <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-32 pb-20 lg:pt-48 lg:pb-32 flex flex-col items-center text-center">
-        
+
         {/* Badge */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", duration: 0.8 }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/30 bg-primary/10 text-primary-light text-xs sm:text-sm font-black tracking-widest uppercase mb-8 shadow-[0_0_20px_rgba(99,102,241,0.15)] relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 -translate-x-full group-hover:animate-[shine_2s_infinite]"></div>
@@ -241,7 +255,7 @@ const LandingPage = () => {
         <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, type: "spring" }} className="mt-20 lg:mt-32 w-full max-w-5xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-6 sm:p-10 backdrop-blur-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full group-hover:bg-primary/10 transition-colors duration-700"></div>
-            
+
             <div className="flex flex-col items-center p-4">
               <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2">{stats.totalUsers}</span>
               <span className="text-xs sm:text-sm font-bold text-text-muted uppercase tracking-widest text-center">Aktif Öğrenci</span>
@@ -262,7 +276,7 @@ const LandingPage = () => {
               <span className="text-xs sm:text-sm font-bold text-text-muted uppercase tracking-widest text-center">Mağaza Puanı</span>
             </div>
           </div>
-          
+
           {/* Trust Bar */}
           <div className="mt-12 flex flex-wrap justify-center items-center gap-8 lg:gap-16 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
             <div className="flex items-center gap-2 font-bold tracking-tighter text-xl"><ShieldCheck className="w-6 h-6" /> MEB ONAYLI MÜFREDAT</div>
@@ -283,11 +297,11 @@ const LandingPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {features.map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.5, delay: i * 0.1 }} 
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="group p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:border-white/20 hover:bg-white/[0.04] transition-all duration-500 flex flex-col h-full relative overflow-hidden"
               >
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 blur-[80px] transition-opacity duration-500 rounded-full`}></div>
-                
+
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} p-[1px] mb-8 inline-block shadow-lg group-hover:scale-110 transition-transform duration-500`}>
                   <div className="w-full h-full bg-[#101017] rounded-2xl flex items-center justify-center">
                     <item.icon className="w-8 h-8 text-white" />
@@ -337,12 +351,12 @@ const LandingPage = () => {
       <section id="how-it-works" className="relative z-10 py-24 lg:py-32 bg-[#030305] border-y border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
+
             <div>
               <h2 className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-3">Sistem Nasıl Çalışır?</h2>
               <h3 className="text-4xl md:text-5xl font-black mb-8 tracking-tight text-white leading-tight">Başarıya Giden 4 Basit Adım.</h3>
               <p className="text-text-muted text-lg mb-12">Karmaşık süreçlere ve ne yapacağını bilmeden geçirilen saatlere son. Sana özel çizilen yol haritası ile adım adım ehliyetine ulaş.</p>
-              
+
               <div className="space-y-8">
                 {steps.map((step, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className="flex gap-6 group">
@@ -366,7 +380,7 @@ const LandingPage = () => {
               <div className="relative rounded-[3rem] border border-white/10 bg-[#0a0a0f] shadow-2xl p-4 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-cyan-400"></div>
                 <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=1200&h=1600" alt="App Dashboard Mockup" width="1200" height="1600" loading="lazy" decoding="async" className="rounded-[2.5rem] w-full h-auto opacity-80" />
-                
+
                 {/* Floating Elements */}
                 <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -left-10 top-20 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center"><Check className="w-6 h-6 text-success" /></div>
@@ -375,7 +389,7 @@ const LandingPage = () => {
                     <div className="text-xs text-text-muted">96 Puan - Başarılı</div>
                   </div>
                 </motion.div>
-                
+
                 <motion.div animate={{ y: [10, -10, 10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-8 bottom-32 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-warning/20 flex items-center justify-center"><Trophy className="w-6 h-6 text-warning" /></div>
                   <div>
@@ -385,7 +399,7 @@ const LandingPage = () => {
                 </motion.div>
               </div>
             </div>
-            
+
           </div>
         </div>
       </section>
@@ -395,10 +409,10 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="bg-white/[0.02] border border-white/5 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden text-center">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50"></div>
-            
+
             <h3 className="text-3xl md:text-4xl font-black text-white mb-6">Rozetleri Topla, Lider Ol!</h3>
             <p className="text-text-muted text-lg max-w-2xl mx-auto mb-12">Çalıştıkça rozet kazan, seviye atla ve Türkiye genelindeki diğer öğrencilerle rekabet et.</p>
-            
+
             <div className="flex flex-wrap justify-center gap-8 lg:gap-16">
               {badges.map((badge, i) => (
                 <motion.div key={i} initial={{ scale: 0 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ type: "spring", delay: i * 0.1 }}
@@ -474,7 +488,7 @@ const LandingPage = () => {
         <div className="rounded-[3rem] p-10 sm:p-16 border border-white/10 bg-gradient-to-br from-[#101017] via-primary/10 to-[#0a0a0f] text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-16 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)]">
           {/* Decorative Background Elements */}
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/10 blur-[120px] rounded-full pointer-events-none z-0 translate-x-1/3 -translate-y-1/3"></div>
-          
+
           <div className="flex-1 relative z-10 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white font-bold text-xs uppercase tracking-widest mb-8">
               <Download className="w-4 h-4 text-primary-light" /> Mobil Uygulama
@@ -485,9 +499,9 @@ const LandingPage = () => {
             <p className="text-text-muted text-xl mb-12 max-w-md mx-auto lg:mx-0 leading-relaxed">
               İnternetsiz mod, özel deneme sınavları ve anlık bildirimler için mobil uygulamamızı hemen indir.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
-              <a href="https://play.google.com/store/apps/details?id=com.mach.ehliyetyolu" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-4 bg-white text-black font-black py-4 px-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:bg-gray-100 shadow-[0_0_30px_rgba(255,255,255,0.15)] w-full sm:w-auto border border-transparent">
+              <a href={playStoreUrl} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center justify-center gap-4 bg-white text-black font-black py-4 px-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:bg-gray-100 shadow-[0_0_30px_rgba(255,255,255,0.15)] w-full sm:w-auto border border-transparent">
                  <svg className="w-8 h-8 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.523 15.3414C17.523 15.3414 16.2731 16.0371 14.5097 17.0274L14.4925 17.037L10.5186 19.3087C10.5057 19.3164 10.4907 19.3245 10.4745 19.3332L8.68307 10.4714L17.5255 15.337L17.523 15.3414ZM5.28919 4.3168V19.3524C5.28919 19.98 5.66068 20.2526 6.07921 19.9928L8.14088 18.7056L10.0215 19.8778L8.14925 10.6121L5.30252 4.30907C5.29342 4.31174 5.28919 4.3168 5.28919 4.3168ZM18.788 14.6186L17.9622 14.1506L8.68307 9.04351L18.4239 13.9113L18.788 14.6186ZM18.788 14.6186C19.068 14.7766 19.2435 15.0456 19.2435 15.338C19.2435 15.6322 19.0655 15.8996 18.788 16.0592L18.4216 16.2694L17.9622 16.5332L17.523 16.784L14.5097 18.4984L10.3204 20.8906C9.91971 21.121 9.47953 20.916 9.47953 20.45L9.47164 20.4452L8.68307 16.5375L8.14088 13.8553L6.07921 12.5694C5.66068 12.3091 5.28919 12.5833 5.28919 13.2098V20.4503L5.30252 20.4566C5.32179 20.9174 5.76307 21.122 6.16075 20.8925L10.3541 18.5202L14.5428 16.1485L17.5562 14.4363L18.0163 14.1724L18.4746 13.9103C18.8783 13.6811 19.3241 13.8967 19.3241 14.3642C19.3241 14.4442 19.2982 14.5207 19.2536 14.5828L18.788 14.6186ZM5.9892 3.86438L8.68307 9.04351L17.9404 14.1378L18.4216 14.4024C18.8252 14.6315 19.2713 14.4161 19.2713 13.9482C19.2713 13.8687 19.2458 13.7925 19.2017 13.7314L18.788 13.6816L18.3303 13.4326L14.5097 11.3435L10.3204 9.04944L6.1264 6.7554M5.9892 3.86438C5.59011 3.63372 5.14816 3.83984 5.14816 4.30561V13.21C5.14816 13.8824 5.58987 14.1166 6.04652 13.8569L8.14088 12.656L10.3541 13.9216L14.5428 16.3117L18.0163 18.3075L18.4746 18.5683C18.8783 18.7975 19.3241 18.5819 19.3241 18.1144C19.3241 18.0343 19.2982 17.9578 19.2536 17.8958L18.788 17.86L17.9622 17.3912L8.68307 12.2858L5.9892 3.86438Z" />
                  </svg>
@@ -510,7 +524,7 @@ const LandingPage = () => {
 
           <div className="relative w-72 h-[550px] bg-[#0c0c12] rounded-[3.5rem] border-[10px] border-[#1f2029] shadow-[0_30px_60px_rgba(0,0,0,0.8)] overflow-hidden hidden lg:flex flex-col items-center justify-center z-10 shrink-0 transform rotate-[-5deg] hover:rotate-0 transition-transform duration-700">
              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-[#1f2029] rounded-b-2xl z-20"></div>
-             
+
              {/* Mockup Screen Inside */}
              <div className="w-full h-full bg-[#050508] p-5 pt-12 relative flex flex-col">
                 <div className="flex justify-between items-center mb-6">
@@ -585,7 +599,7 @@ const LandingPage = () => {
                 <a href="#" aria-label="Instagram hesabı" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-colors text-white/50"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
               </div>
             </div>
-            
+
             <div>
               <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Hızlı Linkler</h4>
               <ul className="space-y-3">
@@ -596,7 +610,7 @@ const LandingPage = () => {
                 <li><Link to="/register" className="text-text-muted hover:text-white transition-colors text-sm">Yeni Kayıt</Link></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Yasal</h4>
               <ul className="space-y-3">
@@ -607,7 +621,7 @@ const LandingPage = () => {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs font-bold uppercase tracking-widest text-text-muted/60">© 2026 EhliyetYolu Eğitim Altyapısı. Tüm Hakları Saklıdır.</p>
             <div className="flex items-center gap-2 text-text-muted/60 text-xs font-bold uppercase tracking-widest">

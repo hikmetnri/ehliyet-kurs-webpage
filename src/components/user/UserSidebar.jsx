@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Home, BookOpen, ClipboardList, BarChart2, 
-  MessagesSquare, Headphones, ChevronRight, LogOut, Settings, Star, TriangleAlert, MapPinned, PlayCircle
+import {
+  Home, BookOpen, ClipboardList,
+  MessagesSquare, ChevronRight, LogOut, Settings
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -10,13 +10,7 @@ const navItems = [
   { to: '/dashboard', icon: Home, label: 'Ana Sayfa', exact: true },
   { to: '/dashboard/lessons', icon: BookOpen, label: 'Dersler' },
   { to: '/dashboard/exams', icon: ClipboardList, label: 'Sınav Merkezi' },
-  { to: '/dashboard/favorites', icon: Star, label: 'Favori Sorular' },
-  { to: '/dashboard/stats', icon: BarChart2, label: 'İstatistiklerim' },
   { to: '/dashboard/feed', icon: MessagesSquare, label: 'Topluluk' },
-  { to: '/dashboard/support', icon: Headphones, label: 'Destek Talepleri' },
-  { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: 'Trafik İşaretleri' },
-  { to: '/dashboard/videos', icon: PlayCircle, label: 'Video Dersler' },
-  { to: '/dashboard/driving-schools', icon: MapPinned, label: 'Sürücü Kursları' },
   { to: '/dashboard/settings', icon: Settings, label: 'Ayarlar' },
 ];
 
@@ -39,7 +33,7 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
     <>
       {/* Mobile overlay */}
       {!collapsed && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setCollapsed(true)}
         />
@@ -68,7 +62,7 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
             </div>
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-success rounded-full border-2 border-bg-dark lg:h-3 lg:w-3" />
           </div>
-          
+
           <div className={`transition-opacity duration-300 ${collapsed ? 'lg:hidden' : 'block'}`}>
             <h1 className="text-xl font-black text-white tracking-tight leading-none mb-1 lg:text-lg">
               Ehliyet<span className="text-primary-light">Yolu</span>
@@ -105,9 +99,9 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
                 {active && (
                   <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.8)] lg:-left-3 lg:h-6 lg:w-1 lg:shadow-none" />
                 )}
-                
+
                 <item.icon className={`w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 lg:group-hover:scale-100 ${active ? 'text-primary drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] lg:text-primary-light lg:drop-shadow-none' : ''}`} />
-                
+
                 <span className={`font-semibold text-sm transition-opacity duration-300 ${collapsed ? 'lg:hidden' : ''}`}>
                   {item.label}
                 </span>
@@ -134,8 +128,8 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
           <button
             onClick={handleLogout}
             className={`
-              w-full flex items-center gap-4 px-4 py-3.5 text-danger/80 hover:text-danger 
-              hover:bg-danger/10 rounded-2xl transition-all duration-300 border border-transparent 
+              w-full flex items-center gap-4 px-4 py-3.5 text-danger/80 hover:text-danger
+              hover:bg-danger/10 rounded-2xl transition-all duration-300 border border-transparent
               hover:border-danger/20 group
               lg:gap-3 lg:rounded-xl lg:px-3 lg:py-3
               ${collapsed ? 'lg:justify-center lg:px-0 lg:w-14 lg:mx-auto' : ''}
