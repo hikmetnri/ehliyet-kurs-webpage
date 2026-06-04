@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users, FileText, CheckCircle2, Clock, Loader2, AlertTriangle,
   MessageCircle, BarChart2, ShieldAlert, Settings,
-  Edit3, Activity, Library, Award, QrCode, Share2, XCircle, AlertCircle
+  Edit3, Activity, Library, Award, QrCode, Share2, XCircle, AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -13,6 +14,7 @@ import {
 import api from '../api';
 import { hasChartValue, normalizeCategoryStats, normalizeRegistrationTrend, readList } from '../utils/statsData';
 import { isVideoRecord } from '../utils/categoryContent';
+import useAuthStore from '../store/authStore';
 
 const MotionDiv = motion.div;
 
@@ -126,11 +128,13 @@ const ChartEmptyState = ({ text }) => (
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const [stats, setStats] = useState({
     totalUsers: 0, totalExams: 0, avgSuccessRate: 0, pendingPostsCount: 0, activeSupportCount: 0, activeReportsCount: 0
   });
   const [contentHealth, setContentHealth] = useState({ missingContentCount: 0, totalContentCategories: 0 });
+  const [isMaintenance, setIsMaintenance] = useState(false);
   
   const [pendingPosts, setPendingPosts] = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
@@ -149,7 +153,7 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
       
-      const [overviewRes, postsRes, ticketsRes, reportsRes, logsRes, regTrendRes, catStatsRes, categoriesRes] = await Promise.all([
+      const [overviewRes, postsRes, ticketsRes, reportsRes, logsRes, regTrendRes, catStatsRes, categoriesRes, maintenanceRes] = await Promise.all([
         api.get('/admin/stats/overview').catch(() => ({ data: { totalUsers: 0, totalExams: 0, avgSuccessRate: 0 } })),
         api.get('/posts/admin/pending').catch(() => ({ data: { data: [] } })),
         api.get('/contact').catch(() => ({ data: { data: [] } })),
@@ -157,7 +161,8 @@ const AdminDashboard = () => {
         api.get('/admin/logs').catch(() => ({ data: [] })),
         api.get('/admin/stats/registration-trend').catch(() => ({ data: [] })),
         api.get('/admin/stats/categories').catch(() => ({ data: [] })),
-        api.get('/categories/all').catch(() => ({ data: { data: [] } }))
+        api.get('/categories/all').catch(() => ({ data: { data: [] } })),
+        api.get('/admin/maintenance-status').catch(() => ({ data: { isMaintenance: false } }))
       ]);
 
       const overviewData = overviewRes.data || {};
@@ -169,6 +174,7 @@ const AdminDashboard = () => {
       
       setRegData(normalizeRegistrationTrend(regTrendRes.data));
       setCategoryStats(normalizeCategoryStats(catStatsRes.data));
+      setIsMaintenance(!!(maintenanceRes?.data?.isMaintenance || maintenanceRes?.data?.enabled));
 
       const activeTickets = ticketsData.filter(t => !['closed', 'kapalı'].includes(String(t.status || '').toLowerCase()));
       const activeReports = reportsData.filter(r => !['closed', 'resolved', 'rejected', 'dismissed'].includes(String(r.status || '').toLowerCase()));
@@ -206,6 +212,36 @@ const AdminDashboard = () => {
   const saveNote = (e) => {
     setNote(e.target.value);
     localStorage.setItem('adminNote', e.target.value);
+  };
+
+  const toggleMaintenance = async () => {
+    try {
+      setProcessingAction('maintenance');
+      const nextVal = !isMaintenance;
+      await api.post('/admin/maintenance', { enabled: nextVal });
+      setIsMaintenance(nextVal);
+      alert(`Bakım modu ${nextVal ? 'aktif edildi' : 'kapatıldı'}.`);
+    } catch (err) {
+      alert('Bakım modu değiştirilemedi.');
+    } finally {
+      setProcessingAction(null);
+    }
+  };
+
+  const handleBackup = async () => {
+    try {
+      setProcessingAction('backup');
+      const res = await api.get('/admin/backup');
+      if (res.data?.status === 'success') {
+        alert(`Yedekleme başarılı! Dosya: ${res.data.filename}`);
+      } else {
+        alert('Yedekleme başarısız oldu.');
+      }
+    } catch (err) {
+      alert('Yedekleme hatası oluştu.');
+    } finally {
+      setProcessingAction(null);
+    }
   };
 
   const updatePendingCount = (field, delta) => {
@@ -313,8 +349,10 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="w-full space-y-5 pb-10">
-      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+    <>
+      {/* Masaüstü Görünümü */}
+      <div className="hidden lg:block w-full space-y-5 pb-10">
+        <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
             <p className="mb-2 text-xs font-black text-primary-light">Operasyon özeti</p>
@@ -587,7 +625,254 @@ const AdminDashboard = () => {
         </MotionDiv>
       </div>
 
-    </div>
+      </div>
+
+      {/* Mobil Görünümü */}
+      <div className="block lg:hidden w-full space-y-6 pb-20">
+        {/* Mobil Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold text-text-muted">Merhaba,</span>
+            <h1 className="text-xl font-black text-white">Yönetici {user?.firstName || 'Admin'}</h1>
+          </div>
+          <button
+            type="button"
+            onClick={fetchData}
+            disabled={loading}
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white transition active:scale-95"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
+
+        {/* Yönetim Özeti (Hero Card) */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-5 text-white shadow-xl shadow-indigo-950/20">
+          <div className="relative z-10">
+            <span className="text-xs font-bold uppercase tracking-wider text-indigo-200">Toplam Bekleyen İş</span>
+            <p className="mt-1 text-4xl font-black tracking-tight">
+              {stats.pendingPostsCount + stats.activeSupportCount + stats.activeReportsCount}
+            </p>
+            <p className="mt-2 text-xs font-medium text-indigo-100">
+              Onay bekleyen akış gönderileri, şikayetler ve açık destek talepleri.
+            </p>
+          </div>
+          <div className="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-white/5 blur-xl" />
+        </div>
+
+        {/* Metric Strip (3 Columns) */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
+            <ShieldAlert className="mx-auto h-5 w-5 text-rose-400" />
+            <span className="mt-1 block text-lg font-black text-white">{stats.activeReportsCount}</span>
+            <span className="text-[10px] font-bold text-rose-300/70">Rapor</span>
+          </div>
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3 text-center">
+            <Clock className="mx-auto h-5 w-5 text-amber-400" />
+            <span className="mt-1 block text-lg font-black text-white">{stats.pendingPostsCount}</span>
+            <span className="text-[10px] font-bold text-amber-300/70">Akış</span>
+          </div>
+          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-3 text-center">
+            <MessageCircle className="mx-auto h-5 w-5 text-purple-400" />
+            <span className="mt-1 block text-lg font-black text-white">{stats.activeSupportCount}</span>
+            <span className="text-[10px] font-bold text-purple-300/70">Destek</span>
+          </div>
+        </div>
+
+        {/* Analitik Kartları */}
+        <div className="space-y-4">
+          {/* Kayıt Trendi */}
+          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
+            <h3 className="text-sm font-black text-white">Kayıt Trendi</h3>
+            <p className="text-[11px] font-medium text-text-muted">Son 7 günlük yeni kullanıcı kaydı</p>
+            <div className="mt-4 h-48 w-full">
+              {hasRegistrationData ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={regData} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorUsersMobile" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="name" stroke="#52525b" fontSize={9} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#52525b" fontSize={9} tickLine={false} axisLine={false} allowDecimals={false} />
+                    <RechartsTooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} itemStyle={{ color: '#a5b4fc' }} />
+                    <Area type="monotone" dataKey="users" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorUsersMobile)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <ChartEmptyState text="Veri bulunmuyor." />
+              )}
+            </div>
+          </div>
+
+          {/* Kategori Başarı Listesi (Progress Bar ile) */}
+          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
+            <h3 className="text-sm font-black text-white">Kategori Başarı Oranları</h3>
+            <p className="text-[11px] font-medium text-text-muted">Kategori bazlı sınav performansları</p>
+            
+            <div className="mt-4 space-y-3">
+              {hasCategoryData ? (
+                categoryStats.map((cat, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-white truncate max-w-[70%]">{cat.name}</span>
+                      <span className="font-black text-emerald-400">%{cat.oran}</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+                      <div 
+                        className="h-full rounded-full bg-emerald-500 transition-all duration-500" 
+                        style={{ width: `${cat.oran}%` }}
+                      />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs font-bold text-text-muted text-center py-4">Veri bulunmuyor.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Öncelikli İşler (Akış & Raporlar) */}
+        <div className="space-y-4">
+          <h2 className="text-base font-black tracking-tight text-white">Öncelikli İşler</h2>
+          
+          <div className="space-y-3">
+            {/* Bekleyen Gönderiler */}
+            {pendingPosts.length > 0 && (
+              <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-amber-400" />
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Bekleyen Gönderi ({pendingPosts.length})</h3>
+                </div>
+                <div className="space-y-3">
+                  {pendingPosts.map((post) => (
+                    <div key={post._id} className="rounded-2xl border border-white/5 bg-black/20 p-3 space-y-2">
+                      <p className="text-xs font-medium text-text-muted">{post.category || 'Genel'}</p>
+                      <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{post.title || post.content}</p>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          type="button"
+                          disabled={processingAction?.startsWith(`post-${post._id}`)}
+                          onClick={() => handlePostDecision(post._id, 'approve')}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition active:scale-95 disabled:opacity-50"
+                        >
+                          Onayla
+                        </button>
+                        <button
+                          type="button"
+                          disabled={processingAction?.startsWith(`post-${post._id}`)}
+                          onClick={() => handlePostDecision(post._id, 'reject')}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-rose-300 transition active:scale-95 disabled:opacity-50"
+                        >
+                          Reddet
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Şikayetler */}
+            {reportedItems.length > 0 && (
+              <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <ShieldAlert className="h-4 w-4 text-rose-400" />
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Açık Şikayetler ({reportedItems.length})</h3>
+                </div>
+                <div className="space-y-3">
+                  {reportedItems.map((report) => (
+                    <div key={report._id} className="rounded-2xl border border-white/5 bg-black/20 p-3 space-y-2">
+                      <p className="text-xs font-bold text-white uppercase">{report.reason || 'Şikayet'}</p>
+                      <p className="text-xs text-text-secondary leading-tight line-clamp-2">{report.details || report.description || 'Açıklama belirtilmemiş.'}</p>
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          type="button"
+                          disabled={processingAction?.startsWith(`report-${report._id}`)}
+                          onClick={() => handleReportDecision(report._id, 'resolved')}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition active:scale-95 disabled:opacity-50"
+                        >
+                          Kapat
+                        </button>
+                        <button
+                          type="button"
+                          disabled={processingAction?.startsWith(`report-${report._id}`)}
+                          onClick={() => handleReportDecision(report._id, 'rejected')}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-text-muted transition active:scale-95 disabled:opacity-50"
+                        >
+                          Reddet
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {pendingPosts.length === 0 && reportedItems.length === 0 && (
+              <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.015] p-6 text-center">
+                <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500/40 mb-2" />
+                <p className="text-xs font-bold text-text-muted">Şu an ilgilenilmesi gereken iş bulunmuyor.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Hızlı Araçlar (Toolbox) */}
+        <div className="space-y-4">
+          <h2 className="text-base font-black tracking-tight text-white">Hızlı Araçlar</h2>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/admin/settings')}
+              className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-center transition active:scale-95 hover:bg-white/[0.04]"
+            >
+              <MessageCircle className="h-5 w-5 text-indigo-400 mb-2" />
+              <span className="text-xs font-bold text-white">Duyuru Gönder</span>
+              <span className="text-[10px] text-text-muted mt-1">Kullanıcılara anons et</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleBackup}
+              disabled={processingAction === 'backup'}
+              className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-center transition active:scale-95 hover:bg-white/[0.04] disabled:opacity-50"
+            >
+              <FileText className="h-5 w-5 text-emerald-400 mb-2" />
+              <span className="text-xs font-bold text-white">Hızlı Yedek</span>
+              <span className="text-[10px] text-text-muted mt-1">DB yedeği al</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={toggleMaintenance}
+              disabled={processingAction === 'maintenance'}
+              className={`col-span-2 flex items-center justify-between rounded-2xl border p-4 transition active:scale-95 disabled:opacity-50 ${
+                isMaintenance 
+                  ? 'border-rose-500/30 bg-rose-500/5' 
+                  : 'border-emerald-500/30 bg-emerald-500/5'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Settings className={`h-5 w-5 ${isMaintenance ? 'text-rose-400' : 'text-emerald-400'}`} />
+                <div className="text-left">
+                  <span className="block text-xs font-bold text-white">Bakım Modu</span>
+                  <span className="block text-[10px] text-text-muted">
+                    {isMaintenance ? 'Sistem şu an bakımda (Kapalı)' : 'Sistem aktif çalışıyor (Açık)'}
+                  </span>
+                </div>
+              </div>
+              <div className={`h-5 w-10 rounded-full p-0.5 transition-colors duration-200 ${isMaintenance ? 'bg-rose-500' : 'bg-zinc-700'}`}>
+                <div className={`h-4 w-4 rounded-full bg-white transition-transform duration-200 ${isMaintenance ? 'translate-x-5' : 'translate-x-0'}`} />
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -1057,13 +1057,34 @@ const UserHome = () => {
         <div className="w-full p-4 rounded-3xl border border-white/5 bg-gradient-to-br from-[#21183e] to-[#101827] shadow-xl shadow-black/15">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0 pr-3">
-              <span className={`inline-flex px-2.5 py-1 rounded-xl border text-[10px] font-black uppercase tracking-wide ${
-                todayQuestions >= dailyGoal
-                  ? 'bg-success/10 border-success/20 text-success'
-                  : 'bg-primary/10 border-primary/20 text-primary-light'
-              }`}>
-                {todayQuestions >= dailyGoal ? 'Günlük hedef tamamlandı' : 'Bugünkü görev'}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex px-2.5 py-1 rounded-xl border text-[10px] font-black uppercase tracking-wide ${
+                  todayQuestions >= dailyGoal
+                    ? 'bg-success/10 border-success/20 text-success'
+                    : 'bg-primary/10 border-primary/20 text-primary-light'
+                }`}>
+                  {todayQuestions >= dailyGoal ? 'Günlük hedef tamamlandı' : 'Bugünkü görev'}
+                </span>
+
+                {examCountdown && (
+                  <Link
+                    to="/dashboard/settings"
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl border text-[10px] font-black uppercase tracking-wide ${
+                      examCountdown.isPast
+                        ? 'bg-danger/10 border-danger/20 text-danger'
+                        : 'bg-warning/10 border-warning/20 text-warning'
+                    }`}
+                  >
+                    <CalendarDays className="w-3 h-3" />
+                    {examCountdown.isPast
+                      ? 'Tarih geçti'
+                      : examCountdown.isToday
+                      ? 'Sınav bugün'
+                      : `${examCountdown.days} gün kaldı`}
+                  </Link>
+                )}
+              </div>
+              
               <h3 className="text-xl font-black text-white mt-3 leading-snug tracking-tight">
                 {dailyPlan?.title || (todayQuestions >= dailyGoal ? 'Serini korudun, şimdi pekiştir.' : 'Bugünkü Testi Çöz')}
               </h3>
@@ -1096,25 +1117,39 @@ const UserHome = () => {
           </div>
 
           {/* Metrics row */}
-          <div className="grid grid-cols-2 gap-2.5 mt-4">
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {/* Streak */}
             <div
               onClick={() => navigate('/dashboard/exams')}
-              className="flex items-center justify-center gap-2 h-10 px-2.5 rounded-2xl bg-warning/10 border border-warning/15 cursor-pointer hover:bg-warning/20 transition-all"
+              className="flex items-center justify-center gap-1.5 h-10 px-2 rounded-2xl bg-warning/10 border border-warning/15 cursor-pointer hover:bg-warning/20 transition-all text-center min-w-0"
             >
-              <Flame className="w-4 h-4 text-warning" />
-              <span className="text-xs font-black text-white truncate">
-                {stats?.streak > 0 ? `${stats.streak} gün seri` : 'Seriyi başlat'}
+              <Flame className="w-3.5 h-3.5 text-warning shrink-0" />
+              <span className="text-[10px] font-black text-white truncate">
+                {stats?.streak > 0 ? `${stats.streak} gün` : 'Seri'}
               </span>
             </div>
+
+            {/* Success Rate */}
+            <div
+              onClick={() => navigate('/dashboard/stats')}
+              className="flex items-center justify-center gap-1.5 h-10 px-2 rounded-2xl bg-accent/10 border border-accent/15 cursor-pointer hover:bg-accent/20 transition-all text-center min-w-0"
+            >
+              <Target className="w-3.5 h-3.5 text-accent-light shrink-0" />
+              <span className="text-[10px] font-black text-white truncate">
+                {stats?.successRate > 0 ? `%${stats.successRate}` : 'Başarı'}
+              </span>
+            </div>
+
+            {/* Wrong Answers */}
             <div
               onClick={() => wrongCount > 0 ? navigate('/dashboard/exams?tab=wrong_answers') : navigate('/dashboard/exams')}
-              className={`flex items-center justify-center gap-2 h-10 px-2.5 rounded-2xl cursor-pointer hover:bg-opacity-20 transition-all ${
+              className={`flex items-center justify-center gap-1.5 h-10 px-2 rounded-2xl cursor-pointer hover:bg-opacity-20 transition-all text-center min-w-0 ${
                 wrongCount > 0 ? 'bg-danger/10 border border-danger/15' : 'bg-success/10 border border-success/15'
               }`}
             >
-              <AlertCircle className={`w-4 h-4 ${wrongCount > 0 ? 'text-danger' : 'text-success'}`} />
-              <span className="text-xs font-black text-white truncate">
-                {wrongCount > 0 ? `${wrongCount} yanlış` : 'Yanlış yok'}
+              <AlertCircle className={`w-3.5 h-3.5 shrink-0 ${wrongCount > 0 ? 'text-danger' : 'text-success'}`} />
+              <span className="text-[10px] font-black text-white truncate">
+                {wrongCount > 0 ? `${wrongCount} yanlış` : 'Temiz'}
               </span>
             </div>
           </div>
@@ -1132,6 +1167,90 @@ const UserHome = () => {
             {dailyPlan?.primaryAction?.label || 'Hızlı Teste Başla'}
           </button>
         </div>
+
+        {/* Quick Action Rail */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {/* Hızlı Test */}
+          <button
+            onClick={() => navigate('/dashboard/exams')}
+            className="h-[88px] p-3 rounded-2xl bg-bg-card border border-primary/15 flex flex-col justify-between text-left shadow-lg shadow-black/10 active:scale-[0.98] transition-transform"
+          >
+            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Zap className="w-4.5 h-4.5 text-primary-light" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-white leading-none">Hızlı Test</h4>
+              <p className="text-[9px] font-bold text-text-muted truncate mt-1.5 leading-none">Günlük hedef</p>
+            </div>
+          </button>
+
+          {/* Yanlışlar */}
+          <button
+            onClick={() => wrongCount > 0 ? navigate('/dashboard/exams?tab=wrong_answers') : navigate('/dashboard/exams')}
+            className={`h-[88px] p-3 rounded-2xl bg-bg-card border flex flex-col justify-between text-left shadow-lg shadow-black/10 active:scale-[0.98] transition-transform ${
+              wrongCount > 0 ? 'border-danger/15' : 'border-success/15'
+            }`}
+          >
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+              wrongCount > 0 ? 'bg-danger/10' : 'bg-success/10'
+            }`}>
+              <AlertCircle className={`w-4.5 h-4.5 ${wrongCount > 0 ? 'text-danger' : 'text-success'}`} />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-white leading-none">Yanlışlar</h4>
+              <p className="text-[9px] font-bold text-text-muted truncate mt-1.5 leading-none">
+                {reviewDue.count > 0
+                  ? `${reviewDue.count} bugün`
+                  : wrongCount > 0
+                  ? `${wrongCount} takipte`
+                  : 'Liste temiz'}
+              </p>
+            </div>
+          </button>
+
+          {/* Devam Et / Konu Oku */}
+          <button
+            onClick={() => {
+              if (lastVisitedId) {
+                navigate(`/dashboard/lessons?category=${lastVisitedId}`);
+              } else {
+                navigate('/dashboard/lessons');
+              }
+            }}
+            className="h-[88px] p-3 rounded-2xl bg-bg-card border border-accent/15 flex flex-col justify-between text-left shadow-lg shadow-black/10 active:scale-[0.98] transition-transform"
+          >
+            <div className="w-8 h-8 rounded-xl bg-accent/10 flex items-center justify-center">
+              <BookOpen className="w-4.5 h-4.5 text-accent-light" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-white leading-none">
+                {lastVisitedId ? 'Devam Et' : 'Konu Oku'}
+              </h4>
+              <p className="text-[9px] font-bold text-text-muted truncate mt-1.5 leading-none">
+                {lastVisitedName || selectedPackage || 'Ders notları'}
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {/* Devam Et Kartı */}
+        {lastVisitedId && lastVisitedName && (
+          <div
+            onClick={() => navigate(`/dashboard/lessons?category=${lastVisitedId}`)}
+            className="p-4 rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/5 flex items-center justify-between shadow-lg shadow-black/10 cursor-pointer"
+          >
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-11 h-11 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
+                <PlayCircle className="w-5 h-5 text-primary-light animate-pulse" />
+              </div>
+              <div className="min-w-0 pr-2">
+                <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest leading-none">Kaldığın Yerden Devam Et</p>
+                <h4 className="text-sm font-black text-white truncate mt-1 leading-none">{lastVisitedName}</h4>
+              </div>
+            </div>
+            <ChevronRight className="w-4.5 h-4.5 text-primary-light shrink-0" />
+          </div>
+        )}
 
         {/* Smart Guidance (Kişisel Yönlendirme) */}
         {recommendation && (
@@ -1158,44 +1277,27 @@ const UserHome = () => {
         )}
 
         {/* Sınav Tarihi Kartı */}
-        <div
-          onClick={() => navigate('/dashboard/settings')}
-          className="p-4 rounded-3xl border border-accent/15 bg-bg-card flex items-center justify-between shadow-lg shadow-black/10 cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
-              <CalendarDays className="w-5 h-5 text-accent-light" />
-            </div>
-            <div>
-              <h4 className="text-sm font-black text-white leading-snug">
-                {examCountdown ? (examCountdown.isPast ? 'Sınav tarihin geçti' : 'Sınava kalan süre') : 'Sınav tarihini ekle'}
-              </h4>
-              <p className="text-xs text-text-muted mt-0.5 leading-normal">
-                {examCountdown ? `Planın ${examCountdown.formatted} tarihine göre hazırlanıyor.` : 'Kalan süreyi ana sayfada takip et.'}
-              </p>
-            </div>
-          </div>
-          <span className="px-3.5 py-2 rounded-xl bg-accent/15 border border-accent/25 text-accent-light text-xs font-black shrink-0">
-            {examCountdown ? (examCountdown.isToday ? 'Bugün' : `${examCountdown.days} gün`) : 'Ayarla'}
-          </span>
-        </div>
-
-        {/* Devam Et Kartı */}
-        {lastVisitedId && lastVisitedName && (
+        {!examCountdown && (
           <div
-            onClick={() => navigate(`/dashboard/lessons?category=${lastVisitedId}`)}
-            className="p-4 rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/5 flex items-center justify-between shadow-lg shadow-black/10 cursor-pointer"
+            onClick={() => navigate('/dashboard/settings')}
+            className="p-4 rounded-3xl border border-accent/15 bg-bg-card flex items-center justify-between shadow-lg shadow-black/10 cursor-pointer"
           >
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-11 h-11 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0">
-                <PlayCircle className="w-5 h-5 text-primary-light animate-pulse" />
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
+                <CalendarDays className="w-5 h-5 text-accent-light" />
               </div>
-              <div className="min-w-0 pr-2">
-                <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest leading-none">Kaldığın Yerden Devam Et</p>
-                <h4 className="text-sm font-black text-white truncate mt-1 leading-none">{lastVisitedName}</h4>
+              <div>
+                <h4 className="text-sm font-black text-white leading-snug">
+                  Sınav tarihini ekle
+                </h4>
+                <p className="text-xs text-text-muted mt-0.5 leading-normal">
+                  Kalan süreyi ana sayfada takip et.
+                </p>
               </div>
             </div>
-            <ChevronRight className="w-4.5 h-4.5 text-primary-light shrink-0" />
+            <span className="px-3.5 py-2 rounded-xl bg-accent/15 border border-accent/25 text-accent-light text-xs font-black shrink-0">
+              Ayarla
+            </span>
           </div>
         )}
 

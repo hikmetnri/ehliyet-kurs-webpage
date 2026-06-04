@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2, MapPinned, ArrowRight,
-  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles
+  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles,
+  Settings, RefreshCw, LayoutGrid
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
 import { TURKEY_CITIES, getDistrictsForCity } from '../../data/turkeyLocations';
+import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 
 const getStoredExamDateInput = () => {
   try {
@@ -37,6 +39,7 @@ const UserSettings = () => {
   const [isBadgesOpen, setIsBadgesOpen] = useState(false);
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   // Modal Data States
   const [badges, setBadges] = useState([]);
@@ -1116,97 +1119,127 @@ const UserSettings = () => {
           </div>
         </div>
 
-        {/* Quick Actions Grid */}
+        {/* Quick Actions (Kişisel Merkez & Kısayollar) */}
         <div className="space-y-4">
+          {/* Kişisel Merkez */}
           <div>
-            <h4 className="text-[11px] font-black text-text-muted uppercase tracking-wider ml-1">Öğrenme</h4>
+            <h4 className="text-[11px] font-black text-text-muted uppercase tracking-wider ml-1">Kişisel Merkez</h4>
             <div className="grid grid-cols-2 gap-3 mt-2">
-              <Link to="/dashboard/lessons" className="flex items-center gap-3 p-3.5 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                  <BookOpen className="w-5 h-5 text-indigo-400" />
+              {/* İstatistik */}
+              <Link
+                to="/dashboard/stats"
+                className="flex flex-col items-center justify-center text-center p-2.5 h-[82px] rounded-[20px] bg-bg-card border border-purple-500/20 shadow-lg shadow-black/14 hover:bg-white/[0.02] transition-all gap-2"
+              >
+                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <BarChart2 className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <div>
-                  <div className="text-xs font-black text-white">Dersler</div>
-                  <div className="text-[10px] text-text-muted font-bold mt-0.5">Müfredat & İçerik</div>
-                </div>
+                <span className="text-xs font-black text-white truncate max-w-full">İstatistik</span>
               </Link>
 
-              <Link to="/dashboard/stats" className="flex items-center gap-3 p-3.5 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-                  <BarChart2 className="w-5 h-5 text-primary-light" />
+              {/* Ayarlar */}
+              <button
+                onClick={() => setIsNotifSettingsOpen(true)}
+                className="flex flex-col items-center justify-center text-center p-2.5 h-[82px] rounded-[20px] bg-bg-card border border-purple-500/20 shadow-lg shadow-black/14 hover:bg-white/[0.02] transition-all gap-2"
+              >
+                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <Settings className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <div>
-                  <div className="text-xs font-black text-white">İstatistik</div>
-                  <div className="text-[10px] text-text-muted font-bold mt-0.5">Performans Analizi</div>
-                </div>
-              </Link>
-
-              <Link to="/dashboard/traffic-signs" className="flex items-center gap-3 p-3.5 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all">
-                <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
-                  <TriangleAlert className="w-5 h-5 text-red-400" />
-                </div>
-                <div>
-                  <div className="text-xs font-black text-white">Levhalar</div>
-                  <div className="text-[10px] text-text-muted font-bold mt-0.5">Trafik İşaretleri</div>
-                </div>
-              </Link>
-
-              <Link to="/dashboard/videos" className="flex items-center gap-3 p-3.5 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
-                  <PlayCircle className="w-5 h-5 text-cyan-400" />
-                </div>
-                <div>
-                  <div className="text-xs font-black text-white">Videolar</div>
-                  <div className="text-[10px] text-text-muted font-bold mt-0.5">Video Dersler</div>
-                </div>
-              </Link>
+                <span className="text-xs font-black text-white truncate max-w-full">Ayarlar</span>
+              </button>
             </div>
           </div>
 
+          {/* Ana Kategori */}
+          <div className="relative overflow-hidden rounded-[18px] border border-cyan-500/18 bg-bg-card p-3.5 shadow-md shadow-black/14">
+            <div className="flex items-center justify-between gap-3">
+              <div className="w-[38px] h-[38px] rounded-[13px] bg-cyan-500/12 flex items-center justify-center shrink-0">
+                <LayoutGrid className="w-5 h-5 text-cyan-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[11px] font-black text-text-muted uppercase tracking-wider">Ana kategori</div>
+                <div className="text-xs font-black text-white mt-0.5 truncate">
+                  {user?.selectedCategoryName || 'Kategori seçilmedi'}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsCategoryModalOpen(true)}
+                className="flex items-center gap-1.2 px-2.5 py-2 bg-purple-500/12 border border-purple-500/18 rounded-xl text-purple-400 font-black text-[11px] hover:bg-purple-500/20 transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span className="ml-1">Değiştir</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Kısayollar */}
           <div>
-            <h4 className="text-[11px] font-black text-text-muted uppercase tracking-wider ml-1">Araçlar</h4>
+            <h4 className="text-[11px] font-black text-text-muted uppercase tracking-wider ml-1">Kısayollar</h4>
             <div className="grid grid-cols-3 gap-2.5 mt-2">
-              <button onClick={() => setIsBadgesOpen(true)} className="flex flex-col items-center text-center p-3 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.5">
-                <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-purple-400" />
+              {/* Dersler */}
+              <Link
+                to="/dashboard/lessons"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none">Rozetler</span>
-              </button>
-
-              <button onClick={() => setIsLeaderboardOpen(true)} className="flex flex-col items-center text-center p-3 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.5">
-                <div className="w-9 h-9 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-yellow-400" />
-                </div>
-                <span className="text-[10px] font-black text-white/95 leading-none">Sıralama</span>
-              </button>
-
-              <Link to="/dashboard/favorites" className="flex flex-col items-center text-center p-3 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                  <Star className="w-5 h-5 text-amber-400" />
-                </div>
-                <span className="text-[10px] font-black text-white/95 leading-none">Favoriler</span>
+                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Dersler</span>
               </Link>
 
-              <Link to="/dashboard/support" className="flex flex-col items-center text-center p-3 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                  <Headphones className="w-5 h-5 text-emerald-400" />
+              {/* Video */}
+              <Link
+                to="/dashboard/videos"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <PlayCircle className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none">Destek</span>
+                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Video</span>
               </Link>
 
-              <Link to="/dashboard/driving-schools" className="flex flex-col items-center text-center p-3 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.5">
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                  <MapPinned className="w-5 h-5 text-cyan-400" />
+              {/* Rozetler */}
+              <button
+                onClick={() => setIsBadgesOpen(true)}
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <Award className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none">Kurslar</span>
-              </Link>
-
-              <button onClick={() => setIsNotifSettingsOpen(true)} className="flex flex-col items-center text-center p-3 rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.5">
-                <div className="w-9 h-9 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-success" />
-                </div>
-                <span className="text-[10px] font-black text-white/95 leading-none">Ayarlar</span>
+                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Rozetler</span>
               </button>
+
+              {/* Sıralama */}
+              <button
+                onClick={() => setIsLeaderboardOpen(true)}
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <Trophy className="w-[18px] h-[18px] text-purple-400" />
+                </div>
+                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Sıralama</span>
+              </button>
+
+              {/* Favoriler */}
+              <Link
+                to="/dashboard/favorites"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <Star className="w-[18px] h-[18px] text-purple-400" />
+                </div>
+                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Favoriler</span>
+              </Link>
+
+              {/* Sürücü Kursu */}
+              <Link
+                to="/dashboard/driving-schools"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+              >
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                  <MapPinned className="w-[18px] h-[18px] text-purple-400" />
+                </div>
+                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">S. Kursu</span>
+              </Link>
             </div>
           </div>
         </div>
@@ -1872,6 +1905,12 @@ const UserSettings = () => {
           )}
         </div>
       ))}
+
+      {/* Category Selection Modal */}
+      <CategorySelectorModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+      />
     </div>
   );
 };
