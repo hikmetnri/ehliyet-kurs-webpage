@@ -4,7 +4,7 @@ import {
   Users, FileText, CheckCircle2, Clock, Loader2, AlertTriangle,
   MessageCircle, BarChart2, ShieldAlert, Settings,
   Edit3, Activity, Library, Award, QrCode, Share2, XCircle, AlertCircle,
-  RefreshCw
+  RefreshCw, Megaphone
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -645,6 +645,42 @@ const AdminDashboard = () => {
           </button>
         </div>
 
+        {/* Hızlı Araçlar (Top Toolbox) */}
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => navigate('/admin/settings')}
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-400 transition active:scale-95 hover:bg-emerald-500/20"
+          >
+            <Megaphone className="h-3.5 w-3.5" />
+            <span>Duyuru</span>
+          </button>
+          
+          <button
+            type="button"
+            onClick={handleBackup}
+            disabled={processingAction === 'backup'}
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-indigo-400 transition active:scale-95 hover:bg-indigo-500/20 disabled:opacity-50"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            <span>Yedek</span>
+          </button>
+          
+          <button
+            type="button"
+            onClick={toggleMaintenance}
+            disabled={processingAction === 'maintenance'}
+            className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-[10px] font-black uppercase tracking-wider transition active:scale-95 disabled:opacity-50 ${
+              isMaintenance 
+                ? 'border-rose-500/20 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' 
+                : 'border-amber-500/20 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+            }`}
+          >
+            <Settings className="h-3.5 w-3.5" />
+            <span>{isMaintenance ? 'Bakım Açık' : 'Bakım'}</span>
+          </button>
+        </div>
+
         {/* Yönetim Özeti (Hero Card) */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-5 text-white shadow-xl shadow-indigo-950/20">
           <div className="relative z-10">
@@ -820,57 +856,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Hızlı Araçlar (Toolbox) */}
-        <div className="space-y-4">
-          <h2 className="text-base font-black tracking-tight text-white">Hızlı Araçlar</h2>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => navigate('/admin/settings')}
-              className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-center transition active:scale-95 hover:bg-white/[0.04]"
-            >
-              <MessageCircle className="h-5 w-5 text-indigo-400 mb-2" />
-              <span className="text-xs font-bold text-white">Duyuru Gönder</span>
-              <span className="text-[10px] text-text-muted mt-1">Kullanıcılara anons et</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={handleBackup}
-              disabled={processingAction === 'backup'}
-              className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-center transition active:scale-95 hover:bg-white/[0.04] disabled:opacity-50"
-            >
-              <FileText className="h-5 w-5 text-emerald-400 mb-2" />
-              <span className="text-xs font-bold text-white">Hızlı Yedek</span>
-              <span className="text-[10px] text-text-muted mt-1">DB yedeği al</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={toggleMaintenance}
-              disabled={processingAction === 'maintenance'}
-              className={`col-span-2 flex items-center justify-between rounded-2xl border p-4 transition active:scale-95 disabled:opacity-50 ${
-                isMaintenance 
-                  ? 'border-rose-500/30 bg-rose-500/5' 
-                  : 'border-emerald-500/30 bg-emerald-500/5'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Settings className={`h-5 w-5 ${isMaintenance ? 'text-rose-400' : 'text-emerald-400'}`} />
-                <div className="text-left">
-                  <span className="block text-xs font-bold text-white">Bakım Modu</span>
-                  <span className="block text-[10px] text-text-muted">
-                    {isMaintenance ? 'Sistem şu an bakımda (Kapalı)' : 'Sistem aktif çalışıyor (Açık)'}
-                  </span>
-                </div>
-              </div>
-              <div className={`h-5 w-10 rounded-full p-0.5 transition-colors duration-200 ${isMaintenance ? 'bg-rose-500' : 'bg-zinc-700'}`}>
-                <div className={`h-4 w-4 rounded-full bg-white transition-transform duration-200 ${isMaintenance ? 'translate-x-5' : 'translate-x-0'}`} />
-              </div>
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );
