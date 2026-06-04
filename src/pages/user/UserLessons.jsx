@@ -161,6 +161,8 @@ const UserLessons = () => {
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
   const [mainCategories, setMainCategories] = useState([]);
+  const [topicCategories, setTopicCategories] = useState([]);
+  const [activeTopicId, setActiveTopicId] = useState('all');
   const [tree, setTree] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [expandedIds, setExpandedIds] = useState(new Set());
@@ -183,12 +185,14 @@ const UserLessons = () => {
 
         let finalTree = buildTree(cats);
         let finalFlat = cats;
+        let topics = [];
 
         if (user?.selectedCategoryId) {
           const mainNode = cats.find(c => c._id === user.selectedCategoryId);
           if (mainNode) {
             const rootTree = buildTree(cats, user.selectedCategoryId);
             finalTree = [{ ...mainNode, children: rootTree }];
+            topics = rootTree;
             
             const flat = [];
             const extract = (nodes) => {
@@ -207,6 +211,7 @@ const UserLessons = () => {
 
         setAllCategories(finalFlat);
         setTree(finalTree);
+        setTopicCategories(topics);
       } catch (err) {
         console.error(err);
       } finally {
@@ -228,10 +233,22 @@ const UserLessons = () => {
       
       if (res.data.success) {
         setAuth({ ...user, ...res.data.user }, token);
+        setActiveTopicId('all');
         setSelectedLesson(null);
       }
     } catch (err) {
       console.error('Kategori değiştirilemedi:', err);
+    }
+  };
+
+  const handleTopicClick = (topicId) => {
+    setActiveTopicId(topicId);
+    if (topicId !== 'all') {
+      setExpandedIds(prev => {
+        const next = new Set(prev);
+        next.add(topicId);
+        return next;
+      });
     }
   };
 
@@ -299,30 +316,54 @@ const UserLessons = () => {
     [allCategories]
   );
 
+  const filteredContentLessons = useMemo(() => {
+    if (activeTopicId === 'all') return contentLessons;
+    return contentLessons.filter(lesson => {
+      let current = lesson;
+      while (current) {
+        const parentId = current.parent?._id || current.parent;
+        if (!parentId) break;
+        if (parentId === activeTopicId) return true;
+        current = allCategories.find(c => c._id === parentId);
+      }
+      return false;
+    });
+  }, [contentLessons, activeTopicId, allCategories]);
+
+  const displayTree = useMemo(() => {
+    if (activeTopicId === 'all' || tree.length === 0) return tree;
+    const rootNode = tree[0];
+    if (!rootNode) return tree;
+    const filteredChildren = (rootNode.children || []).filter(c => c._id === activeTopicId);
+    return [{ ...rootNode, children: filteredChildren }];
+  }, [tree, activeTopicId]);
+
   useEffect(() => {
-    if (loading || contentLessons.length === 0) return;
-    if (selectedLesson && contentLessons.some((lesson) => lesson._id === selectedLesson._id)) return;
-    setSelectedLesson(contentLessons[0]);
-  }, [contentLessons, loading, selectedLesson]);
+    if (loading || filteredContentLessons.length === 0) return;
+    const isStillValid = selectedLesson && filteredContentLessons.some((lesson) => lesson._id === selectedLesson._id);
+    if (!isStillValid) {
+      setSelectedLesson(filteredContentLessons[0]);
+    }
+  }, [filteredContentLessons, loading]);
 
   const getNextLesson = useCallback(() => {
     if (!selectedLesson) return null;
-    const idx = contentLessons.findIndex(c => c._id === selectedLesson._id);
-    if (idx >= 0 && idx < contentLessons.length - 1) return contentLessons[idx + 1];
+    const idx = filteredContentLessons.findIndex(c => c._id === selectedLesson._id);
+    if (idx >= 0 && idx < filteredContentLessons.length - 1) return filteredContentLessons[idx + 1];
     return null;
-  }, [selectedLesson, contentLessons]);
+  }, [selectedLesson, filteredContentLessons]);
 
   // Filter tree based on search (returns matching nodes as flat list)
   const filteredFlat = searchTerm.trim()
     ? allCategories.filter(c => c.name.toLowerCase().includes(searchTerm.toLowerCase()))
     : null;
-  const mobileLessons = (filteredFlat ?? contentLessons).filter(c => c.content && c.content.trim().length > 0);
-  const completedContentCount = contentLessons.filter(c => completedIds.includes(c._id)).length;
-  const lessonProgressPercent = contentLessons.length
-    ? Math.round((completedContentCount / contentLessons.length) * 100)
+  const mobileLessons = (filteredFlat ?? filteredContentLessons).filter(c => c.content && c.content.trim().length > 0);
+  const completedContentCount = filteredContentLessons.filter(c => completedIds.includes(c._id)).length;
+  const lessonProgressPercent = filteredContentLessons.length
+    ? Math.round((completedContentCount / filteredContentLessons.length) * 100)
     : 0;
   const selectedLessonIndex = selectedLesson
-    ? contentLessons.findIndex((lesson) => lesson._id === selectedLesson._id) + 1
+    ? filteredContentLessons.findIndex((lesson) => lesson._id === selectedLesson._id) + 1
     : 0;
   const selectedLessonImage = selectedLesson?.image ? resolveMediaUrl(selectedLesson.image) : '';
   const selectedLessonImageFile = selectedLesson?.image?.split('/').pop()?.normalize('NFC') || '';
@@ -389,6 +430,40 @@ const UserLessons = () => {
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {/* Konu Kategorisi Seçici Sekmeleri */}
+          {topicCategories.length > 0 && (
+            <div className="mb-3.5">
+              <label className="mb-1.5 block text-[9px] font-black uppercase tracking-widest text-text-muted">Konu Kategorisi</label>
+              <div className="flex gap-1.5 overflow-x-auto pb-1.5 custom-scrollbar">
+                <button
+                  type="button"
+                  onClick={() => handleTopicClick('all')}
+                  className={`shrink-0 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition ${
+                    activeTopicId === 'all'
+                      ? 'border-primary/45 bg-primary/10 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.15)]'
+                      : 'border-white/5 bg-white/[0.015] text-text-muted hover:border-white/15 hover:text-white'
+                  }`}
+                >
+                  Tümü
+                </button>
+                {topicCategories.map(topic => (
+                  <button
+                    key={topic._id}
+                    type="button"
+                    onClick={() => handleTopicClick(topic._id)}
+                    className={`shrink-0 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition ${
+                      activeTopicId === topic._id
+                        ? 'border-primary/45 bg-primary/10 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.15)]'
+                        : 'border-white/5 bg-white/[0.015] text-text-muted hover:border-white/15 hover:text-white'
+                    }`}
+                  >
+                    {topic.name}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
           <div className="mb-3 hidden xl:block">
@@ -522,7 +597,7 @@ const UserLessons = () => {
             )
           ) : (
             // Full tree
-            tree.map(node => (
+            displayTree.map(node => (
               <TreeNode
                 key={node._id}
                 node={node}
