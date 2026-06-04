@@ -406,7 +406,28 @@ const UserLessons = () => {
                 <BookOpen className="w-4 h-4 text-primary-light" />
               </span>
               <div>
-                <h2 className="text-sm font-black text-white uppercase tracking-widest">Dersler</h2>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h2 className="text-sm font-black text-white uppercase tracking-widest">Dersler</h2>
+                  {user?.selectedCategoryName && mainCategories.length > 0 && (
+                    <div className="relative inline-block">
+                      <select
+                        value={user?.selectedCategoryId || ''}
+                        onChange={(e) => handleCategoryChange(e.target.value)}
+                        className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                      >
+                        {mainCategories.map(cat => (
+                          <option key={cat._id} value={cat._id} className="bg-[#11141b] text-white">
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider hover:bg-primary/20 transition duration-150">
+                        {user.selectedCategoryName}
+                        <ChevronDown className="w-2.5 h-2.5 text-primary-light/75" />
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <p className="text-[10px] font-bold text-text-muted">{completedContentCount}/{contentLessons.length} tamamlandı</p>
               </div>
             </div>
@@ -414,24 +435,6 @@ const UserLessons = () => {
               {mobileLessons.length} konu
             </span>
           </div>
-
-          {/* Kategori Seçici */}
-          {mainCategories.length > 0 && (
-            <div className="mb-3.5">
-              <label className="mb-1 block text-[9px] font-black uppercase tracking-widest text-text-muted">Ehliyet Sınıfı</label>
-              <select
-                value={user?.selectedCategoryId || ''}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/45 px-3 py-2 text-xs font-black text-white outline-none transition focus:border-primary/50 focus:bg-primary/10 cursor-pointer"
-              >
-                {mainCategories.map(cat => (
-                  <option key={cat._id} value={cat._id} className="bg-[#11141b] text-white">
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
           {/* Konu Kategorisi Seçici Sekmeleri */}
           {topicCategories.length > 0 && (
