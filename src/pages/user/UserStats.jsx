@@ -232,7 +232,7 @@ const UserStats = () => {
                   <section className={`rounded-3xl border ${heroBorderColor} bg-white/[0.025] p-5 sm:p-6`}>
                     <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
                       <div className="relative flex h-28 w-28 shrink-0 items-center justify-center">
-                        <svg className="h-full w-full -rotate-90">
+                        <svg className="-rotate-90" width="112" height="112" viewBox="0 0 112 112">
                           <circle
                             cx="56"
                             cy="56"
@@ -254,9 +254,9 @@ const UserStats = () => {
                             strokeLinecap="round"
                           />
                         </svg>
-                        <div className="absolute text-center">
-                          <span className="block text-2xl font-black text-white">%{accuracy}</span>
-                          <span className="text-[9px] font-black uppercase tracking-widest text-text-muted">Doğruluk</span>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                          <span className="block text-2xl font-black text-white leading-none">%{accuracy}</span>
+                          <span className="mt-1 block text-[9px] font-black uppercase tracking-widest text-text-muted leading-none">Doğruluk</span>
                         </div>
                       </div>
 
