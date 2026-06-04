@@ -113,15 +113,15 @@ const UserFavorites = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/5 bg-[#0e1017]/80 p-1.5">
           {[
             ['Toplam', favorites.length],
             ['Konu', Math.max(0, subjectOptions.length - 1)],
             ['Görsel', imageCount],
           ].map(([label, value]) => (
-            <div key={label} className="min-w-24 rounded-2xl bg-white/[0.035] px-4 py-3 text-center">
-              <p className="text-lg font-black text-white">{value}</p>
-              <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</p>
+            <div key={label} className="min-w-24 rounded-xl bg-white/[0.015] border border-white/[0.04] px-4 py-3 text-center transition hover:border-amber-500/20 hover:bg-amber-500/[0.02]">
+              <p className="text-lg font-black text-amber-300 leading-none">{value}</p>
+              <p className="mt-2 text-[9px] font-black uppercase tracking-widest text-text-muted">{label}</p>
             </div>
           ))}
         </div>
@@ -129,19 +129,19 @@ const UserFavorites = () => {
 
       <div className="grid min-h-0 flex-1 gap-5 lg:grid-cols-[380px_minmax(0,1fr)]">
         <aside className="flex min-h-0 flex-col gap-4">
-          <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
-            <div className="flex items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-amber-500/40 focus-within:ring-4 focus-within:ring-amber-500/10">
-              <Search className="mr-3 h-5 w-5 text-amber-300" />
+          <section className="rounded-3xl border border-white/10 bg-[#0e1017]/60 p-4 backdrop-blur-md">
+            <div className="flex items-center rounded-2xl border border-white/10 bg-black/20 px-4 py-2.5 transition focus-within:border-amber-500/50 focus-within:shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+              <Search className="mr-3 h-4.5 w-4.5 text-amber-300" />
               <input
                 type="text"
                 placeholder="Soru, konu veya açıklama ara..."
-                className="w-full border-none bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
+                className="w-full border-none bg-transparent text-xs font-semibold text-white outline-none placeholder:text-text-muted"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 custom-scrollbar">
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1.5 custom-scrollbar">
               {subjectOptions.map((subject) => {
                 const active = activeSubject === subject;
                 const count = subject === 'all'
@@ -154,8 +154,8 @@ const UserFavorites = () => {
                     onClick={() => setActiveSubject(subject)}
                     className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition ${
                       active
-                        ? 'border-amber-500/35 bg-amber-500/15 text-amber-200'
-                        : 'border-white/10 bg-white/[0.03] text-text-muted hover:border-white/20 hover:text-white'
+                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.1)]'
+                        : 'border-white/5 bg-white/[0.015] text-text-muted hover:border-white/15 hover:text-white'
                     }`}
                   >
                     {subject === 'all' ? 'Tümü' : subject}
@@ -221,10 +221,16 @@ const UserFavorites = () => {
                           setSelectedQuestion(question);
                         }
                       }}
-                      className={`group w-full cursor-pointer rounded-3xl border p-4 text-left transition ${
+                      className={`group w-full cursor-pointer rounded-2xl border-l-4 border-y border-r p-4 text-left transition hover:-translate-y-0.5 hover:scale-[1.01] duration-200 ${
                         isSelected
-                          ? 'border-amber-500/40 bg-amber-500/[0.06]'
-                          : 'border-white/10 bg-white/[0.025] hover:border-amber-500/25 hover:bg-white/[0.04]'
+                          ? 'border-l-amber-500 border-y-white/5 border-r-white/5 bg-gradient-to-r from-amber-500/10 to-transparent text-white shadow-[0_4px_20px_rgba(245,158,11,0.15)]'
+                          : question.difficulty === 'easy'
+                            ? 'border-l-success/40 border-y-white/5 border-r-white/5 bg-white/[0.015] hover:border-l-success'
+                            : question.difficulty === 'medium'
+                              ? 'border-l-warning/40 border-y-white/5 border-r-white/5 bg-white/[0.015] hover:border-l-warning'
+                              : question.difficulty === 'hard'
+                                ? 'border-l-danger/40 border-y-white/5 border-r-white/5 bg-white/[0.015] hover:border-l-danger'
+                                : 'border-l-white/10 border-y-white/5 border-r-white/5 bg-white/[0.015] hover:border-l-amber-500/30'
                       }`}
                     >
                       <div className="mb-3 flex items-start justify-between gap-3">
@@ -265,7 +271,7 @@ const UserFavorites = () => {
           </section>
         </aside>
 
-        <section className="min-h-0 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]">
+        <section className="min-h-0 overflow-hidden rounded-3xl border border-white/10 bg-[#0e1017]/40 backdrop-blur-md">
           {selectedQuestion ? (
             <AnimatePresence mode="wait">
               <motion.div
@@ -274,14 +280,14 @@ const UserFavorites = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex h-full flex-col"
               >
-                <div className="flex flex-col gap-4 border-b border-white/10 bg-white/[0.025] px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+                <div className="flex flex-col gap-4 border-b border-white/10 bg-gradient-to-r from-[#11131a] to-[#0b0d12] px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-500/20 bg-amber-500/10">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
                       <HelpCircle className="h-5 w-5 text-amber-300" />
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-lg font-black text-white">Soru Detayı</h2>
-                      <p className="mt-1 truncate text-[10px] font-black uppercase tracking-widest text-text-muted">
+                      <h2 className="text-lg font-black text-white leading-none">Soru Detayı</h2>
+                      <p className="mt-2 truncate text-[9px] font-black uppercase tracking-widest text-text-muted">
                         {selectedQuestion.subject || 'Genel Kategori'}
                       </p>
                     </div>
@@ -289,7 +295,7 @@ const UserFavorites = () => {
                   <button
                     type="button"
                     onClick={(e) => handleRemoveFavorite(selectedQuestion._id, e)}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-danger transition hover:bg-danger/15"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-danger/20 bg-danger/10 px-4 py-2.5 text-xs font-black uppercase tracking-widest text-danger transition hover:bg-danger/15 active:scale-95 cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4" />
                     Favoriden Çıkar
@@ -298,7 +304,7 @@ const UserFavorites = () => {
 
                 <div className="flex-1 space-y-7 overflow-y-auto p-5 custom-scrollbar sm:p-6 lg:p-8">
                   {selectedQuestion.media && (
-                    <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-black/20 p-2">
+                    <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-black/20 p-2 shadow-xl">
                       <img
                         src={resolveMediaUrl(selectedQuestion.media)}
                         alt="Soru Görseli"
@@ -320,26 +326,26 @@ const UserFavorites = () => {
                       return (
                         <div
                           key={`${opt}-${idx}`}
-                          className={`flex items-center gap-4 rounded-2xl border p-4 ${
+                          className={`flex items-center gap-4 rounded-2xl border p-4 transition-all duration-200 ${
                             isCorrect
-                              ? 'border-success/30 bg-success/10 text-success'
-                              : 'border-white/10 bg-white/[0.025] text-text-secondary'
+                              ? 'border-success/40 bg-gradient-to-r from-success/10 to-transparent text-success shadow-[0_0_15px_rgba(16,185,129,0.15)] font-black'
+                              : 'border-white/5 bg-white/[0.015] text-text-secondary hover:border-white/15 hover:bg-white/[0.03]'
                           }`}
                         >
-                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
+                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-colors ${
                             isCorrect ? 'bg-success text-white' : 'bg-white/10 text-text-muted'
                           }`}>
                             {String.fromCharCode(65 + idx)}
                           </div>
                           <span className="text-sm font-bold leading-snug">{opt}</span>
-                          {isCorrect && <CheckCircle2 className="ml-auto h-5 w-5 text-success" />}
+                          {isCorrect && <CheckCircle2 className="ml-auto h-5 w-5 text-success shrink-0" />}
                         </div>
                       );
                     })}
                   </div>
 
                   {selectedQuestion.explanation && (
-                    <div className="mx-auto max-w-3xl rounded-3xl border border-primary/20 bg-primary/10 p-6">
+                    <div className="mx-auto max-w-3xl rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-transparent p-6 shadow-[0_4px_20px_rgba(99,102,241,0.05)]">
                       <h4 className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary-light">
                         <Sparkles className="h-4 w-4" />
                         Soru Çözümü ve Açıklama
@@ -353,9 +359,9 @@ const UserFavorites = () => {
               </motion.div>
             </AnimatePresence>
           ) : (
-            <div className="flex h-full min-h-[420px] flex-col items-center justify-center px-8 text-center">
-              <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-3xl border border-amber-500/15 bg-amber-500/10">
-                <Star className="h-10 w-10 fill-amber-500/10 text-amber-300" />
+            <div className="flex h-full min-h-[420px] flex-col items-center justify-center px-8 text-center bg-gradient-to-b from-[#111218]/30 to-[#0e1017]/80">
+              <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-[36px] bg-gradient-to-br from-amber-500/20 to-yellow-500/5 border border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.15)]">
+                <Star className="h-10 w-10 fill-amber-500/10 text-amber-400 animate-pulse" />
               </div>
               <h3 className="text-xl font-black text-white">Soru Seçilmedi</h3>
               <p className="mt-3 max-w-sm text-sm font-semibold leading-relaxed text-text-muted">

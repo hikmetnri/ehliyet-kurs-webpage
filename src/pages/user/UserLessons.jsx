@@ -70,17 +70,17 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
         className={`
           w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-200 group
           ${isSelected
-            ? 'border border-primary/35 bg-primary/10 text-white shadow-sm shadow-primary/10'
-            : 'border border-white/[0.04] bg-white/[0.018] text-text-secondary hover:border-white/10 hover:bg-white/[0.055] hover:text-white'
+            ? 'border-l-4 border-l-primary border-y-white/5 border-r-white/5 bg-gradient-to-r from-primary/15 to-transparent text-white shadow-[0_4px_20px_rgba(0,0,0,0.4)]'
+            : 'border-l-4 border-l-transparent border-y-white/[0.02] border-r-white/[0.02] bg-white/[0.01] text-text-secondary hover:border-l-primary/35 hover:bg-white/[0.04] hover:text-white'
           }
           ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         `}
         style={{ paddingLeft: `${12 + visualLevel * 8}px` }}
       >
-        <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-colors ${
+        <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300 ${
           isSelected
-            ? 'bg-primary/20 border-primary/30 text-primary-light'
-            : 'bg-black/20 border-white/5 text-text-muted group-hover:text-white'
+            ? 'bg-gradient-to-br from-primary/20 to-accent/20 border-primary/40 text-primary-light shadow-[0_0_12px_rgba(99,102,241,0.25)]'
+            : 'bg-black/40 border-white/5 text-text-muted group-hover:border-white/15 group-hover:bg-black/25 group-hover:text-white'
         }`}>
           {isLocked ? (
             <Lock className="w-4 h-4 text-warning" />
@@ -510,8 +510,9 @@ const UserLessons = () => {
               className="flex h-full min-h-[62vh] flex-col"
             >
               {/* Content Header */}
-              <div className="flex shrink-0 items-start gap-4 border-b border-white/5 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:border-white/10 xl:bg-none xl:bg-[#11141b] xl:px-8 xl:py-5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/20 text-primary-light shadow-lg shadow-primary/10 xl:h-10 xl:w-10 xl:rounded-lg xl:shadow-none">
+              {/* Content Header */}
+              <div className="flex shrink-0 items-start gap-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:bg-gradient-to-r xl:from-[#11131a] xl:to-[#0b0d12] xl:px-8 xl:py-5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/30 to-accent/30 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.2)] xl:h-10 xl:w-10 xl:rounded-lg">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -565,14 +566,14 @@ const UserLessons = () => {
                   </div>
                 ) : (
                   <div className="prose prose-invert prose-sm mx-auto max-w-none sm:prose-base xl:max-w-4xl
-                    prose-headings:font-black prose-headings:tracking-tight prose-headings:text-white
+                    prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-white
                     prose-h1:text-xl sm:prose-h1:text-2xl prose-h2:text-lg sm:prose-h2:text-xl prose-h2:border-b prose-h2:border-white/10 prose-h2:pb-3
-                    prose-p:text-white/85 prose-p:leading-7 sm:prose-p:leading-relaxed
+                    prose-p:text-slate-200/90 prose-p:leading-7 sm:prose-p:leading-relaxed
                     prose-strong:text-white prose-strong:font-black
                     prose-img:rounded-2xl prose-img:shadow-xl prose-img:border prose-img:border-white/10 prose-img:mx-auto prose-img:max-h-[320px] sm:prose-img:max-h-[460px] prose-img:object-contain
                     prose-li:text-white/85 prose-li:leading-7 prose-ul:space-y-1
                     prose-a:text-primary-light hover:prose-a:text-white prose-a:no-underline prose-a:font-semibold
-                    prose-blockquote:border-l-primary prose-blockquote:text-text-secondary
+                    prose-blockquote:border-l-4 prose-blockquote:border-l-primary prose-blockquote:bg-white/[0.02] prose-blockquote:px-5 prose-blockquote:py-3 prose-blockquote:rounded-r-2xl prose-blockquote:border-y prose-blockquote:border-r prose-blockquote:border-white/[0.03] prose-blockquote:text-text-secondary
                     prose-code:bg-white/5 prose-code:border prose-code:border-white/10 prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-primary-light
                     prose-pre:bg-black/40 prose-pre:border prose-pre:border-white/10 prose-pre:rounded-2xl
                     prose-table:border-collapse prose-th:border prose-th:border-white/10 prose-th:bg-white/5 prose-th:p-3
@@ -604,29 +605,29 @@ const UserLessons = () => {
 
                     {selectedLessonImage && !contentIncludesSelectedImage && (
                       <div className="not-prose mt-8 sm:mt-10">
-                        <button
-                          type="button"
-                          onClick={() => setPreviewImage({ src: selectedLessonImage, alt: selectedLesson.name })}
-                          className="group relative mx-auto block w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-2xl"
-                        >
-                          <img
-                            src={selectedLessonImage}
-                            alt={selectedLesson.name}
-                            className="w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                          />
-                          <span className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/70 text-white shadow-lg opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
-                            <ZoomIn className="h-4 w-4" />
-                          </span>
-                        </button>
+                         <button
+                           type="button"
+                           onClick={() => setPreviewImage({ src: selectedLessonImage, alt: selectedLesson.name })}
+                           className="group relative mx-auto block w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-black/20 shadow-2xl"
+                         >
+                           <img
+                             src={selectedLessonImage}
+                             alt={selectedLesson.name}
+                             className="w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                           />
+                           <span className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/70 text-white shadow-lg opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100">
+                             <ZoomIn className="h-4 w-4" />
+                           </span>
+                         </button>
                       </div>
                     )}
 
                     {/* Konu Sonu: Kısa Teste Geçiş */}
-                    <div className="mt-12 sm:mt-20 pt-10 border-t border-white/5 pb-8 not-prose xl:mt-14 xl:pt-8">
-                      <div className="relative overflow-hidden rounded-[32px] border border-success/25 bg-gradient-to-br from-success/15 via-white/[0.01] to-transparent p-6 sm:p-10 text-center shadow-lg shadow-success/5 xl:rounded-2xl xl:border-white/10 xl:bg-none xl:bg-white/[0.025] xl:p-7 xl:shadow-none">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-success/5 blur-3xl pointer-events-none rounded-full xl:hidden" />
+                    <div className="mt-16 pt-12 border-t border-white/10 pb-8 not-prose">
+                      <div className="relative overflow-hidden rounded-[2.5rem] border border-success/20 bg-gradient-to-br from-[#12221b] via-[#0d0f14] to-transparent p-6 sm:p-10 text-center shadow-2xl shadow-success/5">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-success/5 blur-[120px] pointer-events-none rounded-full" />
                         <div className="relative z-10 flex flex-col items-center">
-                          <div className="w-16 h-16 rounded-2xl bg-success/10 border border-success/20 flex items-center justify-center mb-5 shadow-lg shadow-success/10">
+                          <div className="w-16 h-16 rounded-3xl bg-success/10 border border-success/30 flex items-center justify-center mb-5 shadow-[0_0_20px_rgba(16,185,129,0.2)] animate-pulse">
                             <Zap className="w-8 h-8 text-success" />
                           </div>
                           <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">Bu Konuyu Öğrendin mi?</h3>
@@ -636,7 +637,7 @@ const UserLessons = () => {
                           
                           <button 
                             onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
-                            className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-xl bg-success hover:bg-success/90 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-success/20 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                            className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-2xl bg-success hover:bg-success/90 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.03] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                           >
                             <Play className="w-4 h-4 fill-white" />
                             Konu Testini Başlat
