@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, CheckCircle2, XCircle, AlertCircle,
@@ -33,7 +34,7 @@ const ExamDetailModal = ({ result, onClose }) => {
       })
     : '';
 
-  return (
+  return createPortal(
     <AnimatePresence>
       <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
         {/* Backdrop */}
@@ -237,7 +238,8 @@ const ExamDetailModal = ({ result, onClose }) => {
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

@@ -1094,20 +1094,22 @@ const UserHome = () => {
             </div>
 
             <div className="relative shrink-0 flex items-center justify-center w-16 h-16">
-              <svg className="w-16 h-16 transform -rotate-90">
-                <circle cx="32" cy="32" r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth={strokeWidth} fill="transparent" />
-                <circle
-                  cx="32"
-                  cy="32"
-                  r={radius}
-                  stroke={todayQuestions >= dailyGoal ? "#10b981" : "#6366f1"}
-                  strokeWidth={strokeWidth}
-                  fill="transparent"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="round"
-                  className="transition-all duration-500 ease-out"
-                />
+              <svg className="w-16 h-16">
+                <g transform="rotate(-90 32 32)">
+                  <circle cx="32" cy="32" r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth={strokeWidth} fill="transparent" />
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r={radius}
+                    stroke={todayQuestions >= dailyGoal ? "#10b981" : "#6366f1"}
+                    strokeWidth={strokeWidth}
+                    fill="transparent"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    className="transition-all duration-500 ease-out"
+                  />
+                </g>
               </svg>
               <div className="absolute flex flex-col items-center justify-center">
                 <span className="text-sm font-black text-white leading-none">{todayQuestions}</span>

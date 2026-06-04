@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Car, Truck, Bike, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
 import api from '../../api';
@@ -62,7 +63,7 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
     }
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <Motion.div
@@ -162,7 +163,8 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
           </Motion.div>
         </Motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

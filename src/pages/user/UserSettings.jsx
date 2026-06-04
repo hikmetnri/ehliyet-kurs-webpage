@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
@@ -431,41 +432,44 @@ const UserSettings = () => {
   const earnedBadges = DEFAULT_BADGES.filter((badge) => badge.isEarned).length;
 
   // Helper to render responsive slide-up sheets
-  const renderMobileModal = (isOpen, onClose, title, children) => (
-    <AnimatePresence>
-      {isOpen && (
-        <Motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-md p-0 sm:p-4"
-          onClick={() => onClose(false)}
-        >
+  const renderMobileModal = (isOpen, onClose, title, children) => {
+    return createPortal(
+      <AnimatePresence>
+        {isOpen && (
           <Motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 220 }}
-            className="w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2rem] bg-[#111218] border-t border-x border-white/5 p-6 space-y-5 shadow-2xl overflow-y-auto max-h-[85vh] text-white"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 backdrop-blur-md p-0 sm:p-4"
+            onClick={() => onClose(false)}
           >
-            <div className="flex items-center justify-between pb-3 border-b border-white/5">
-              <h3 className="text-sm font-black text-white uppercase tracking-wider">{title}</h3>
-              <button
-                onClick={() => onClose(false)}
-                className="p-1.5 hover:bg-white/5 rounded-full transition-colors text-text-muted hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="py-1">
-              {children}
-            </div>
+            <Motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 220 }}
+              className="w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2rem] bg-[#111218] border-t border-x border-white/5 p-6 pb-12 space-y-5 shadow-2xl overflow-y-auto max-h-[85vh] text-white"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                <h3 className="text-sm font-black text-white uppercase tracking-wider">{title}</h3>
+                <button
+                  onClick={() => onClose(false)}
+                  className="p-1.5 hover:bg-white/5 rounded-full transition-colors text-text-muted hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="py-1">
+                {children}
+              </div>
+            </Motion.div>
           </Motion.div>
-        </Motion.div>
-      )}
-    </AnimatePresence>
-  );
+        )}
+      </AnimatePresence>,
+      document.body
+    );
+  };
 
   return (
     <div className="text-white pb-24">
@@ -1030,27 +1034,29 @@ const UserSettings = () => {
             <div className="relative cursor-pointer" onClick={handleAvatarClick}>
               <div className="w-24 h-24 rounded-full flex items-center justify-center relative">
                 {/* SVG Progress Ring */}
-                <svg className="absolute inset-0 transform -rotate-90" width="96" height="96">
-                  <circle
-                    stroke="rgba(255,255,255,0.05)"
-                    fill="transparent"
-                    strokeWidth="3.2"
-                    r="40"
-                    cx="48"
-                    cy="48"
-                  />
-                  <circle
-                    stroke={levelInfo.hex}
-                    fill="transparent"
-                    strokeWidth="3.2"
-                    strokeDasharray={2 * Math.PI * 40}
-                    strokeDashoffset={2 * Math.PI * 40 * (1 - levelInfo.progress)}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
-                    r="40"
-                    cx="48"
-                    cy="48"
-                  />
+                <svg className="absolute inset-0" width="96" height="96">
+                  <g transform="rotate(-90 48 48)">
+                    <circle
+                      stroke="rgba(255,255,255,0.05)"
+                      fill="transparent"
+                      strokeWidth="3.2"
+                      r="40"
+                      cx="48"
+                      cy="48"
+                    />
+                    <circle
+                      stroke={levelInfo.hex}
+                      fill="transparent"
+                      strokeWidth="3.2"
+                      strokeDasharray={2 * Math.PI * 40}
+                      strokeDashoffset={2 * Math.PI * 40 * (1 - levelInfo.progress)}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
+                      r="40"
+                      cx="48"
+                      cy="48"
+                    />
+                  </g>
                 </svg>
 
                 {/* Avatar Image */}
