@@ -30,6 +30,7 @@ Bu dosya, web arayüzünü sayfa sayfa modernleştirmek için kalıcı görev li
 - DONE: Web kategori değiştir CTA'sı desktop dashboard'da tek noktaya indirildi.
 - DONE: Mobil uygulamada kayıt sonrası kategori seçimine yönlendirme yapıldı.
 - DONE: Mobil uygulamada eski kategori cache'i yeni kullanıcıyı atlatmasın diye temizleniyor.
+- BACKLOG: Flutter admin kullanıcı detayında yapılan sınav geçmişi parity'si React admin kullanıcı detayına da taşınacak: son sınavlarda gerçek sınav adı, yanlış soru listesi, kullanıcının cevabı ve doğru cevap açılır detayda gösterilecek.
 
 ## NEXT
 
@@ -158,6 +159,12 @@ NEXT: Task 5 - Final QA ve Derleme Kontrolleri.
 
 - DONE 4.9: `src/pages/admin/AdminSettings.jsx`, `AdminProfile.jsx`
   - Ayarlar ve profil formları daha temiz bölümlenecek.
+
+- DONE 4.10: `src/pages/admin/AdminUsers.jsx`
+  - Flutter admin panelinde yapılan kullanıcı detay geliştirmesi React web admin'e de taşındı.
+  - Kullanıcı detayında son sınav sonuçlarında gerçek sınav adı gösteriliyor.
+  - Her sınav sonucu açılır detay haline getirildi; yanlış yapılan sorular, kullanıcının verdiği cevap ve doğru cevap listeleniyor.
+  - UI dili sakin admin panel stilinde kalarak mobil ve masaüstü görünüm taranabilirliği artırıldı.
 
 ## Task 5 - Final QA
 
