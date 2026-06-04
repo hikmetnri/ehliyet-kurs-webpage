@@ -157,9 +157,10 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const UserLessons = () => {
-  const { user } = useAuthStore();
+  const { user, setAuth, token } = useAuthStore();
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
+  const [mainCategories, setMainCategories] = useState([]);
   const [tree, setTree] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [expandedIds, setExpandedIds] = useState(new Set());
@@ -176,6 +177,10 @@ const UserLessons = () => {
         const res = await api.get('/categories/all');
         const cats = (res.data?.data || []).filter((category) => !isVideoRecord(category));
         
+        // Ana kategorileri bul (parent'ı olmayanlar)
+        const mains = cats.filter(c => !c.parent);
+        setMainCategories(mains);
+
         let finalTree = buildTree(cats);
         let finalFlat = cats;
 
@@ -210,6 +215,25 @@ const UserLessons = () => {
     };
     fetchAll();
   }, [user?.selectedCategoryId]);
+
+  const handleCategoryChange = async (catId) => {
+    const selectedCat = mainCategories.find(c => c._id === catId);
+    if (!selectedCat) return;
+    
+    try {
+      const res = await api.put('/auth/profile', {
+        selectedCategoryId: selectedCat._id,
+        selectedCategoryName: selectedCat.name
+      });
+      
+      if (res.data.success) {
+        setAuth({ ...user, ...res.data.user }, token);
+        setSelectedLesson(null);
+      }
+    } catch (err) {
+      console.error('Kategori değiştirilemedi:', err);
+    }
+  };
 
   // Sınav sonuçlarını çek — hangi konularda test geçilmiş?
   useEffect(() => {
@@ -349,6 +373,24 @@ const UserLessons = () => {
               {mobileLessons.length} konu
             </span>
           </div>
+
+          {/* Kategori Seçici */}
+          {mainCategories.length > 0 && (
+            <div className="mb-3.5">
+              <label className="mb-1 block text-[9px] font-black uppercase tracking-widest text-text-muted">Ehliyet Sınıfı</label>
+              <select
+                value={user?.selectedCategoryId || ''}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-black/45 px-3 py-2 text-xs font-black text-white outline-none transition focus:border-primary/50 focus:bg-primary/10 cursor-pointer"
+              >
+                {mainCategories.map(cat => (
+                  <option key={cat._id} value={cat._id} className="bg-[#11141b] text-white">
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="mb-3 hidden xl:block">
             <div className="mb-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
               <span className="text-text-muted">Okuma ilerlemesi</span>
