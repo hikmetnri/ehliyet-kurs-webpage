@@ -1,40 +1,59 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Search, TriangleAlert, Info, CircleStop, ArrowRight, Filter, X } from 'lucide-react';
-import { trafficSignsData, categories } from '../../data/trafficSignsData';
+import { getSignLibraryForCategoryName } from '../../data/signLibrariesData';
+import useAuthStore from '../../store/authStore';
+import { resolveMediaUrl } from '../../utils/mediaUrl';
 
 const normalizeText = (value) => String(value || '').toLocaleLowerCase('tr-TR');
 
-const categoryById = categories.reduce((acc, category) => {
-  acc[category.id] = category;
-  return acc;
-}, {});
-
 const UserTrafficSigns = () => {
+  const user = useAuthStore((state) => state.user);
+  const library = useMemo(
+    () => getSignLibraryForCategoryName(user?.selectedCategoryName),
+    [user?.selectedCategoryName]
+  );
+  const signsData = library.signs;
+  const categories = library.categories;
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSign, setSelectedSign] = useState(null);
+
+  useEffect(() => {
+    setActiveCategory('all');
+    setSelectedSign(null);
+    setSearchQuery('');
+  }, [library.id]);
+
+  const categoryById = useMemo(() => (
+    categories.reduce((acc, category) => {
+      acc[category.id] = category;
+      return acc;
+    }, {})
+  ), [categories]);
 
   const categoryStats = useMemo(() => (
     categories.map((category) => ({
       ...category,
       count: category.id === 'all'
-        ? trafficSignsData.length
-        : trafficSignsData.filter((sign) => sign.category === category.id).length,
+        ? signsData.length
+        : signsData.filter((sign) => sign.category === category.id).length,
     }))
-  ), []);
+  ), [categories, signsData]);
 
   const filteredSigns = useMemo(() => {
     const query = normalizeText(searchQuery);
-    return trafficSignsData.filter((sign) => {
+    return signsData.filter((sign) => {
       const matchesCategory = activeCategory === 'all' || sign.category === activeCategory;
-      const searchable = `${sign.title} ${sign.description} ${sign.code} ${categoryById[sign.category]?.label || ''}`;
+      const searchable = `${sign.title} ${sign.description} ${sign.code} ${categoryById[sign.category]?.label || ''} ${sign.subcategoryLabel || ''}`;
       return matchesCategory && normalizeText(searchable).includes(query);
     });
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, categoryById, searchQuery, signsData]);
 
   const activeCategoryLabel = categoryById[activeCategory]?.label || 'Tümü';
-  const knownSignCount = trafficSignsData.filter((sign) => !sign.title.includes(sign.code)).length;
+  const knownSignCount = library.id === 'traffic'
+    ? signsData.filter((sign) => !sign.title.includes(sign.code)).length
+    : categories.length - 1;
 
   return (
     <div className="space-y-6 pb-16">
@@ -44,17 +63,22 @@ const UserTrafficSigns = () => {
             <TriangleAlert className="h-3.5 w-3.5 text-primary-light" />
             <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Levha Kütüphanesi</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white">Trafik İşaretleri</h1>
+          <h1 className="text-3xl font-black tracking-tight text-white">{library.title}</h1>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
-            Trafik levhalarını kategori, kod veya anlamına göre ara; görseli ve açıklamayı hızlıca incele.
+            {library.description} Kategori, kod veya anlamına göre ara; görseli ve açıklamayı hızlıca incele.
           </p>
+          {user?.selectedCategoryName && (
+            <p className="mt-2 text-xs font-black uppercase tracking-widest text-primary-light">
+              Seçili eğitim: {user.selectedCategoryName}
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2">
           {[
-            ['Toplam', trafficSignsData.length],
+            ['Toplam', signsData.length],
             ['Listede', filteredSigns.length],
-            ['Tanımlı', knownSignCount],
+            [library.id === 'traffic' ? 'Tanımlı' : 'Kategori', knownSignCount],
           ].map(([label, value]) => (
             <div key={label} className="min-w-24 rounded-2xl bg-white/[0.035] px-4 py-3 text-center">
               <p className="text-lg font-black text-white">{value}</p>
@@ -118,7 +142,7 @@ const UserTrafficSigns = () => {
           <Search className="mb-4 h-14 w-14 text-white/15" />
           <h3 className="text-lg font-black text-white">Sonuç Bulunamadı</h3>
           <p className="mt-2 max-w-md text-sm font-semibold leading-relaxed text-text-muted">
-            Arama metnini veya kategori filtresini değiştirerek trafik işaretlerini yeniden listeleyebilirsin.
+            Arama metnini veya kategori filtresini değiştirerek levhaları yeniden listeleyebilirsin.
           </p>
         </div>
       ) : (
@@ -135,7 +159,7 @@ const UserTrafficSigns = () => {
             >
               <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-white/[0.035] p-4">
                 <img
-                  src={sign.image}
+                  src={resolveMediaUrl(sign.image)}
                   alt={sign.title}
                   className="max-h-full max-w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105"
                 />
@@ -174,7 +198,7 @@ const UserTrafficSigns = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.button
               type="button"
-              aria-label="Trafik işareti detayını kapat"
+              aria-label="Levha detayını kapat"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -190,7 +214,7 @@ const UserTrafficSigns = () => {
             >
               <div className="flex items-center justify-center border-b border-white/10 bg-white/[0.035] p-8 md:border-b-0 md:border-r">
                 <div className="flex aspect-square w-44 items-center justify-center rounded-3xl bg-white/[0.04] p-6 sm:w-52">
-                  <img src={selectedSign.image} alt={selectedSign.title} className="max-h-full max-w-full object-contain drop-shadow-2xl" />
+                  <img src={resolveMediaUrl(selectedSign.image)} alt={selectedSign.title} className="max-h-full max-w-full object-contain drop-shadow-2xl" />
                 </div>
               </div>
 

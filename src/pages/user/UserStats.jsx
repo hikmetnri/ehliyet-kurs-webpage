@@ -257,9 +257,9 @@ const UserStats = () => {
                             />
                           </g>
                         </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                          <span className="block text-2xl font-black text-white leading-none">%{accuracy}</span>
-                          <span className="mt-1 block text-[9px] font-black uppercase tracking-widest text-text-muted leading-none">Doğruluk</span>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-2 min-w-0">
+                          <span className="block text-2xl font-black text-white leading-none tracking-tighter whitespace-nowrap">%{accuracy}</span>
+                          <span className="mt-1 block text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-text-muted leading-none whitespace-nowrap">Doğruluk</span>
                         </div>
                       </div>
 

@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import fs from 'fs'
 import path from 'path'
 
-// Custom plugin to copy static files to dist after build (required for cPanel/Apache SPA routing/assets)
+// Custom plugin to copy Apache SPA routing config to dist after build.
 const copyStaticFiles = () => ({
   name: 'copy-static-files',
   closeBundle() {
@@ -15,23 +15,14 @@ const copyStaticFiles = () => ({
       console.log('✓ .htaccess copied to dist/')
     }
 
-    const signsSrc = path.resolve(__dirname, 'public/images/signs')
-    const signsDest = path.resolve(__dirname, 'dist/images/signs')
-    if (fs.existsSync(signsSrc)) {
-      fs.rmSync(signsDest, { recursive: true, force: true })
-      fs.mkdirSync(path.dirname(signsDest), { recursive: true })
-      fs.cpSync(signsSrc, signsDest, { recursive: true })
-      console.log('✓ traffic signs copied to dist/')
-    }
-
-    const contentSrc = path.resolve(__dirname, 'public/content')
-    const contentDest = path.resolve(__dirname, 'dist/content')
-    if (fs.existsSync(contentSrc)) {
-      fs.rmSync(contentDest, { recursive: true, force: true })
-      fs.mkdirSync(path.dirname(contentDest), { recursive: true })
-      fs.cpSync(contentSrc, contentDest, { recursive: true })
-      console.log('✓ lesson content images copied to dist/')
-    }
+    const remoteMediaDirs = [
+      path.resolve(__dirname, 'dist/images/signs'),
+      path.resolve(__dirname, 'dist/content'),
+    ]
+    remoteMediaDirs.forEach((dir) => {
+      fs.rmSync(dir, { recursive: true, force: true })
+    })
+    console.log('✓ remote media folders excluded from dist/')
   }
 })
 

@@ -165,8 +165,9 @@ export const trafficSignsData = Object.entries(signFiles).flatMap(([category, co
       title: known?.title || `${config.titlePrefix} ${code}`,
       description: known?.description || `${config.description} Levha kodu: ${code}.`,
       category,
-      image: `/images/signs/${imageKey}`,
+      image: `trafik-levhalari/${imageKey}`,
       code,
+      library: 'traffic',
     };
   })
 );

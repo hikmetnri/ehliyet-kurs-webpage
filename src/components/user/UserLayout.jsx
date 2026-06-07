@@ -16,7 +16,7 @@ const pageMeta = [
   { match: /^\/dashboard\/stats/, title: 'İstatistikler', kicker: 'Gelişim ve performans takibi' },
   { match: /^\/dashboard\/feed/, title: 'Topluluk', kicker: 'Duyurular ve paylaşımlar' },
   { match: /^\/dashboard\/support/, title: 'Destek', kicker: 'Talepler ve mesajlar' },
-  { match: /^\/dashboard\/traffic-signs/, title: 'Trafik İşaretleri', kicker: 'Levha pratiği' },
+  { match: /^\/dashboard\/traffic-signs/, title: 'Levha Kütüphanesi', kicker: 'Trafik ve iş sağlığı levha pratiği' },
   { match: /^\/dashboard\/videos/, title: 'Video Dersler', kicker: 'Görsel anlatımlar' },
   { match: /^\/dashboard\/driving-schools/, title: 'Sürücü Kursları', kicker: 'Kurs arama ve karşılaştırma' },
   { match: /^\/dashboard\/settings/, title: 'Ayarlar', kicker: 'Profil, hedef ve tercihler' },

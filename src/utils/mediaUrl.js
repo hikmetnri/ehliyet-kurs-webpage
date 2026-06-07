@@ -12,6 +12,10 @@
  *   http://...                      → already absolute, returned as-is
  */
 const MEDIA_BASE = (import.meta.env.VITE_MEDIA_BASE || '').replace(/\/$/, '');
+const CLOUDINARY_MEDIA_BASE = (
+  import.meta.env.VITE_CLOUDINARY_MEDIA_BASE ||
+  'https://res.cloudinary.com/drysbbsd1/image/upload/f_auto,q_auto'
+).replace(/\/$/, '');
 
 const IMAGE_FILE_RE = /\.(png|jpe?g|webp|gif|svg|avif)(\?.*)?$/i;
 
@@ -30,20 +34,35 @@ export const resolveMediaUrl = (src) => {
 
   if (assetPath.startsWith('assets/images/signs/')) {
     const signPath = assetPath.replace('assets/images/signs/', '');
-    return localPublicUrl(`images/signs/${signPath}`);
+    return `${CLOUDINARY_MEDIA_BASE}/trafik-levhalari/${signPath}`;
   }
 
   if (assetPath.startsWith('images/signs/')) {
-    return localPublicUrl(assetPath);
+    const signPath = assetPath.replace('images/signs/', '');
+    return `${CLOUDINARY_MEDIA_BASE}/trafik-levhalari/${signPath}`;
+  }
+
+  if (assetPath.startsWith('signs/')) {
+    const signPath = assetPath.replace('signs/', '');
+    return `${CLOUDINARY_MEDIA_BASE}/trafik-levhalari/${signPath}`;
+  }
+
+  if (assetPath.startsWith('trafik-levhalari/') || assetPath.startsWith('isg/')) {
+    return `${CLOUDINARY_MEDIA_BASE}/${assetPath}`;
   }
 
   if (assetPath.startsWith('assets/content/')) {
-    const contentPath = assetPath.replace('assets/content/', '');
-    return localPublicUrl(`content/${contentPath}`);
+    const contentPath = assetPath
+      .replace('assets/content/', '')
+      .replace('ekonomik_suruş.png', 'ekonomik_surus.png');
+    return `${CLOUDINARY_MEDIA_BASE}/content/${contentPath}`;
   }
 
   if (assetPath.startsWith('content/')) {
-    return localPublicUrl(assetPath);
+    const contentPath = assetPath
+      .replace('content/', '')
+      .replace('ekonomik_suruş.png', 'ekonomik_surus.png');
+    return `${CLOUDINARY_MEDIA_BASE}/content/${contentPath}`;
   }
 
   if (!assetPath.includes('/') && IMAGE_FILE_RE.test(assetPath)) {

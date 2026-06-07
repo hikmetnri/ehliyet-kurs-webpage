@@ -9,6 +9,7 @@ import {
   Folder, AlertTriangle, RefreshCw, Eye, EyeOff, Hash, Link,
 } from 'lucide-react';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+import { trafficSignsData } from '../../data/trafficSignsData';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DIFFICULTY_CONFIG = {
@@ -69,14 +70,13 @@ const resolveExamTestType = (exam, questions = []) => {
   return normalizeTestType(exam?.testType) || 'mock_exam';
 };
 
-// Her kategorideki levha isimleri  (fetch ile backend'den alacağız)
-const MEDIA_BASE = import.meta.env.VITE_MEDIA_BASE || '';
 const fetchSignsInCategory = async (category) => {
-  try {
-    const res = await fetch(`${MEDIA_BASE}/signs-list/${category}`);
-    if (res.ok) return await res.json();
-  } catch {}
-  return [];
+  const prefix = `${category}/`;
+  return trafficSignsData
+    .map(sign => sign.id)
+    .filter(id => id.startsWith(prefix))
+    .map(id => id.replace(prefix, ''))
+    .sort((a, b) => a.localeCompare(b));
 };
 
 // ─── Utility Components ───────────────────────────────────────────────────────
@@ -823,8 +823,8 @@ const SignPickerModal = ({ onClose, onSelect }) => {
           ) : (
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
               {filtered.map(filename => {
-                const previewUrl = `${API_BASE}/signs/${activeCat}/${filename}`;
                 const assetPath = `assets/images/signs/${activeCat}/${filename}`;
+                const previewUrl = resolveMediaUrl(assetPath);
                 const name = filename.replace('.png', '');
                 return (
                   <button

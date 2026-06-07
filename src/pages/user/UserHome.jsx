@@ -35,6 +35,7 @@ import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 import NotificationPanel from '../../components/user/NotificationPanel';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { isVideoRecord, limitQuoteText } from '../../utils/categoryContent';
+import { getSignLibraryForCategoryName } from '../../data/signLibrariesData';
 
 const getStoredExamDate = () => {
   try {
@@ -266,6 +267,10 @@ const UserHome = () => {
   const nextLevelTarget = Math.max(100, Math.ceil((totalScore + 1) / 500) * 500);
   const levelProgress = Math.min(100, Math.round((totalScore / nextLevelTarget) * 100));
   const selectedPackage = user?.selectedCategoryName || 'Sınıf seçilmedi';
+  const signLibrary = useMemo(
+    () => getSignLibraryForCategoryName(user?.selectedCategoryName),
+    [user?.selectedCategoryName]
+  );
 
   const actionCards = useMemo(() => ([
     {
@@ -285,8 +290,8 @@ const UserHome = () => {
     {
       to: '/dashboard/traffic-signs',
       icon: ShieldCheck,
-      label: 'Trafik İşaretleri',
-      text: 'Sınavda sık çıkan işaretleri tekrar et.',
+      label: signLibrary.title,
+      text: `${signLibrary.shortTitle} levhalarını kategori kategori tekrar et.`,
       tone: 'from-accent/15 to-white/[0.02]',
     },
     {
@@ -296,7 +301,7 @@ const UserHome = () => {
       text: 'Online video anlatımlarını kategori kategori izle.',
       tone: 'from-warning/15 to-primary/10',
     },
-  ]), []);
+  ]), [signLibrary.shortTitle, signLibrary.title]);
 
   const studyPlan = dailyPlan?.tasks?.length
     ? dailyPlan.tasks.slice(0, 3).map((task) => ({
@@ -470,9 +475,9 @@ const UserHome = () => {
       />
 
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      {/* DESKTOP VIEW (UNCHANGED) */}
+      {/* DESKTOP VIEW */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="hidden lg:block space-y-6 pb-20 sm:space-y-8 sm:pb-24">
+      <div className="hidden lg:block w-full space-y-5 pb-10">
         {isMockMode && mainCategories.length === 0 && (
           <Motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -490,7 +495,7 @@ const UserHome = () => {
         <Motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-md py-3.5 shadow-lg shadow-black/5"
+          className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0c0f15] py-2.5"
         >
           <div
             className="quote-marquee-track flex w-max items-center whitespace-nowrap"
@@ -512,91 +517,108 @@ const UserHome = () => {
         </Motion.div>
 
         {/* Top 4 Stats Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           {/* Card 1: Aktif Sınıf */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-primary/30 transition-all duration-300">
+          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-primary/30 transition-colors duration-300">
             <div>
               <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Ehliyet Sınıfı</p>
               <h3 className="text-base font-black text-white mt-1.5 truncate max-w-[150px]">{selectedPackage}</h3>
               <p className="text-[9px] font-bold text-primary-light uppercase tracking-wider mt-1">{user?.proStatus ? 'PRO Üye' : 'Ücretsiz Plan'}</p>
             </div>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-primary/10 text-primary-light border border-primary/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/10 text-primary-light border border-primary/20">
               <ShieldCheck className="w-6 h-6" />
             </div>
           </div>
 
           {/* Card 2: Toplam Sınav */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-accent/30 transition-all duration-300">
+          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-accent/30 transition-colors duration-300">
             <div>
               <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Toplam Sınav</p>
               <h3 className="text-2xl font-black text-white mt-1.5">{stats?.totalExams || 0}</h3>
               <p className="text-[9px] font-semibold text-text-muted mt-1">Çözülen deneme sınavı</p>
             </div>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-accent/10 text-accent-light border border-accent/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-accent/10 text-accent-light border border-accent/20">
               <ClipboardList className="w-6 h-6" />
             </div>
           </div>
 
           {/* Card 3: Toplam Doğru */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-success/30 transition-all duration-300">
+          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-success/30 transition-colors duration-300">
             <div>
               <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Doğru Cevap</p>
               <h3 className="text-2xl font-black text-white mt-1.5">{stats?.totalCorrect || 0}</h3>
               <p className="text-[9px] font-semibold text-text-muted mt-1">Tüm doğru işaretlemeler</p>
             </div>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-success/10 text-success border border-success/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-success/10 text-success border border-success/20">
               <CheckCircle2 className="w-6 h-6" />
             </div>
           </div>
 
           {/* Card 4: Çalışma Serisi */}
-          <div className="glass-card p-5 rounded-[24px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent flex items-center justify-between group hover:border-warning/30 transition-all duration-300">
+          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-warning/30 transition-colors duration-300">
             <div>
               <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Seri Takibi</p>
               <h3 className="text-2xl font-black text-white mt-1.5">{stats?.streak || 0} Gün</h3>
               <p className="text-[9px] font-semibold text-text-muted mt-1">Düzenli çalışma gün sayısı</p>
             </div>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-warning/10 text-warning border border-warning/20 group-hover:scale-110 transition-transform duration-300">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-warning/10 text-warning border border-warning/20">
               <Flame className="w-6 h-6 fill-current" />
             </div>
           </div>
         </div>
 
         {/* Dashboard Split Grid */}
-        <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="space-y-6">
+        <section className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_440px]">
+          <div className="space-y-5">
             {/* Welcome Banner */}
             <Motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              className="relative overflow-hidden rounded-[32px] border border-white/5 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-6 sm:p-8 shadow-xl shadow-black/10"
+              className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0d1017] p-6 shadow-sm shadow-black/10"
             >
-              <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 blur-[100px] pointer-events-none rounded-full" />
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="max-w-xl">
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary/50 via-accent/30 to-transparent" />
+              <div className="relative z-10 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-center">
+                <div className="max-w-3xl">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-primary-light" />
                     <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Sürücü Gelişim Alanı</span>
                   </div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                  <h1 className="text-3xl font-black text-white tracking-tight leading-tight 2xl:text-4xl">
                     Tekrar Hoş Geldin, <span className="gradient-text">{user?.firstName || 'Sürücü Adayı'}</span> 👋
                   </h1>
-                  <p className="mt-3 text-sm font-semibold leading-relaxed text-text-secondary">
+                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
                     Ehliyet sınav hazırlığında bugün ne yapacağını öğrenmek için sağdaki çalışma sırasını takip et. Kendini hazır hissettiğinde simülasyon sınavlarına geçebilirsin.
                   </p>
                 </div>
                 
-                <div className="flex flex-col gap-2.5 shrink-0">
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Bugünkü ilerleme</span>
+                    <span className="text-sm font-black text-white">%{dailyProgress}</span>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                    <Motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${dailyProgress}%` }}
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+                    />
+                  </div>
+                  <p className="mt-3 text-xs font-semibold text-text-muted">
+                    {todayQuestions}/{dailyGoal} soru çözüldü. {remainingQuestions === 0 ? 'Hedef tamamlandı.' : `${remainingQuestions} soru kaldı.`}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5 shrink-0 xl:col-start-2">
                   <Link
                     to="/dashboard/exams"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-light px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-light active:scale-95"
                   >
                     <PlayCircle className="h-4.5 w-4.5" />
                     Hemen Test Çöz
                   </Link>
                   <Link
                     to="/dashboard/lessons"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.02] active:scale-95"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-white/[0.07] active:scale-95"
                   >
                     <BookOpen className="h-4.5 w-4.5 text-accent-light" />
                     Ders Notlarını Oku
@@ -606,9 +628,9 @@ const UserHome = () => {
             </Motion.div>
 
             {/* progress bars row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Bugünkü Soru İlerlemesi */}
-              <div className="glass-card p-5 rounded-[24px] border border-white/5 flex flex-col justify-between shadow-lg shadow-black/10">
+              <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent/10 text-accent-light border border-accent/20">
@@ -642,7 +664,7 @@ const UserHome = () => {
               </div>
 
               {/* Seviye İlerlemesi */}
-              <div className="glass-card p-5 rounded-[24px] border border-white/5 flex flex-col justify-between shadow-lg shadow-black/10">
+              <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex flex-col justify-between">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-warning/10 text-warning border border-warning/20">
@@ -675,15 +697,15 @@ const UserHome = () => {
             </div>
 
             {/* Quick Actions Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
               {actionCards.map((card) => (
                 <Link
                   key={card.to}
                   to={card.to}
-                  className={`group flex flex-col justify-between min-h-[130px] rounded-[24px] border border-white/5 bg-gradient-to-br ${card.tone} p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 shadow-lg shadow-black/5 hover:shadow-primary/5`}
+                  className={`group flex flex-col justify-between min-h-[126px] rounded-2xl border border-white/10 bg-gradient-to-br ${card.tone} p-4 transition-colors duration-300 hover:border-primary/25`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/25">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/25">
                       <card.icon className="h-5.5 w-5.5 text-white" />
                     </div>
                     <ArrowRight className="h-4 w-4 text-text-muted transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
@@ -702,7 +724,7 @@ const UserHome = () => {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.04 }}
-            className="rounded-[32px] border border-white/5 bg-white/[0.01] backdrop-blur-md p-6 shadow-xl shadow-black/10 flex flex-col justify-between gap-6"
+            className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-sm shadow-black/10 flex flex-col justify-between gap-5"
           >
             <div>
               <div className="flex items-center justify-between gap-4">
@@ -716,8 +738,7 @@ const UserHome = () => {
               </div>
 
               {/* Bugün Ne Yapmalıyım Tutor Card */}
-              <div className="mt-5 rounded-2xl border border-white/5 bg-white/[0.02] p-4 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-2xl pointer-events-none rounded-full"></div>
+              <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-4 relative overflow-hidden group">
                 <div className="flex items-start gap-3">
                   <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${recommendationTone}`}>
                     {React.createElement(recommendation.icon, { className: 'h-4.5 w-4.5' })}
@@ -731,7 +752,7 @@ const UserHome = () => {
                 {recommendation.to ? (
                   <Link
                     to={recommendation.to}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-light text-xs font-black uppercase tracking-widest text-white py-3 shadow-lg shadow-primary/10 transition-all hover:scale-[1.01] active:scale-95"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary text-xs font-black uppercase tracking-widest text-white py-3 shadow-sm shadow-primary/10 transition-colors hover:bg-primary-light active:scale-95"
                   >
                     {recommendation.action}
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -740,7 +761,7 @@ const UserHome = () => {
                   <button
                     type="button"
                     onClick={recommendation.onClick}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-light text-xs font-black uppercase tracking-widest text-white py-3 shadow-lg shadow-primary/10 transition-all hover:scale-[1.01] active:scale-95"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary text-xs font-black uppercase tracking-widest text-white py-3 shadow-sm shadow-primary/10 transition-colors hover:bg-primary-light active:scale-95"
                   >
                     {recommendation.action}
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -829,7 +850,7 @@ const UserHome = () => {
         </section>
 
         {/* Selected Category Banner Section */}
-        <section className="space-y-5">
+        <section className="space-y-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Eğitim Paketi</p>
@@ -846,7 +867,7 @@ const UserHome = () => {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
-                className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-14 text-center"
+                className="rounded-2xl border border-dashed border-white/10 bg-[#0d1017] px-5 py-12 text-center"
               >
                 <ShieldCheck className="mx-auto mb-5 h-14 w-14 text-primary-light" />
                 <h3 className="text-xl font-black text-white">Eğitim sınıfı seçilmedi</h3>
@@ -863,10 +884,10 @@ const UserHome = () => {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
-                className="grid grid-cols-1 gap-5 rounded-[1.75rem] border border-primary/25 bg-gradient-to-br from-primary/10 to-white/[0.02] p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto]"
+                className="grid grid-cols-1 gap-5 rounded-2xl border border-primary/20 bg-[#0d1017] p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto]"
               >
                 <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary shadow-2xl shadow-primary/25 sm:h-20 sm:w-20 sm:rounded-3xl">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary shadow-sm shadow-primary/20 sm:h-[72px] sm:w-[72px]">
                     <ShieldCheck className="h-10 w-10 text-white" />
                   </div>
                   <div className="min-w-0">
@@ -885,7 +906,7 @@ const UserHome = () => {
                 </div>
                 <button
                   onClick={() => setShowCategoryModal(true)}
-                  className="inline-flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-black uppercase tracking-widest transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs font-black uppercase tracking-widest transition-colors hover:bg-white/[0.07]"
                 >
                   <Settings2 className="h-5 w-5 text-primary-light" />
                   Sınıfı Değiştir
@@ -902,10 +923,10 @@ const UserHome = () => {
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -18 }}
-              className="space-y-5"
+              className="space-y-4"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-accent/20 bg-accent/10">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
                   <LayoutGrid className="h-5 w-5 text-accent-light" />
                 </div>
                 <div>
@@ -926,12 +947,12 @@ const UserHome = () => {
                     >
                       <Link
                         to={`/dashboard/lessons?category=${category._id}`}
-                        className="group relative flex h-full min-h-[220px] flex-col rounded-[24px] border border-white/5 bg-white/[0.015] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 shadow-lg shadow-black/5"
+                        className="group relative flex h-full min-h-[210px] flex-col rounded-2xl border border-white/10 bg-[#0d1017] p-4 transition-colors duration-300 hover:border-white/20"
                       >
                         <div className="absolute top-0 inset-x-0 h-[3px] rounded-t-[24px] transition-all duration-300" style={{ backgroundColor: `${accentColor}30` }} />
                         
                         {category.image ? (
-                          <div className="mb-4 h-28 overflow-hidden rounded-2xl border border-white/5 bg-black/25 relative">
+                          <div className="mb-4 h-28 overflow-hidden rounded-xl border border-white/10 bg-black/25 relative">
                             <img
                               src={resolveMediaUrl(category.image)}
                               alt={category.name}
@@ -941,7 +962,7 @@ const UserHome = () => {
                           </div>
                         ) : (
                           <div className="mb-4 flex items-start justify-between gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/5 bg-white/[0.02]" style={{ borderColor: `${accentColor}20`, backgroundColor: `${accentColor}05` }}>
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]" style={{ borderColor: `${accentColor}20`, backgroundColor: `${accentColor}05` }}>
                               <BookOpen className="h-6 w-6" style={{ color: accentColor }} />
                             </div>
                             <ArrowRight className="h-5 w-5 text-text-muted transition-transform duration-300 group-hover:translate-x-1" style={{ color: accentColor }} />
@@ -974,7 +995,7 @@ const UserHome = () => {
             <Motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] px-5 py-14 text-center"
+              className="rounded-2xl border border-dashed border-white/10 bg-[#0d1017] px-5 py-12 text-center"
             >
               <AlertCircle className="mx-auto mb-4 h-12 w-12 text-text-muted opacity-50" />
               <p className="font-bold text-text-muted">Bu sınıfa ait çalışma konusu henüz eklenmemiş.</p>
@@ -1326,7 +1347,7 @@ const UserHome = () => {
             </div>
             <div className="text-left w-full min-w-0">
               <h4 className="text-xs font-black text-white leading-none">Levhalar</h4>
-              <p className="text-[9px] font-bold text-text-muted truncate mt-1.5 leading-none">Trafik İşaretleri</p>
+              <p className="text-[9px] font-bold text-text-muted truncate mt-1.5 leading-none">{signLibrary.shortTitle} Levhaları</p>
             </div>
           </div>
           <div

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
   CarFront, Target, Trophy, CheckCircle2, ChevronRight,
   Brain, Zap, Sparkles, Smartphone, Download, ChevronDown,
   Star, ShieldCheck, Map, PlayCircle, BarChart3, Clock,
-  Users, Award, ArrowRight, Quote, Check, BookOpen, User
+  Users, Award, ArrowRight, Quote, Check, BookOpen, User, Search, Filter, X
 } from 'lucide-react';
+import { signLibraryList } from '../data/signLibrariesData';
+import { resolveMediaUrl } from '../utils/mediaUrl';
 
 const FALLBACK_FAQS = [
   { _id: '1', question: "Ehliyet sınavına hazırlık için bu sistem yeterli mi?", answer: "Kesinlikle! MEB'in güncel 2026 müfredatına %100 uyumlu, daha önce çıkmış ve çıkma ihtimali yüksek sorulardan oluşan yapay zeka destekli havuzumuz tek başına yeterlidir." },
@@ -45,6 +47,8 @@ const courseCategories = [
   { title: "Motor ve Araç", icon: CarFront, count: "550+ Soru", color: "text-amber-400", bg: "bg-amber-400/10" },
   { title: "Trafik Adabı", icon: Users, count: "200+ Soru", color: "text-emerald-400", bg: "bg-emerald-400/10" }
 ];
+
+const normalizeText = (value) => String(value || '').toLocaleLowerCase('tr-TR');
 
 const badges = [
   { name: "Hızlı Sürücü", icon: Zap, color: "text-yellow-400" },
@@ -95,6 +99,47 @@ const LandingPage = () => {
   });
   const [faqList, setFaqList] = useState(FALLBACK_FAQS);
   const [playStoreUrl, setPlayStoreUrl] = useState('https://play.google.com/store/apps/details?id=com.ehliyetyolu.app');
+  const [landingSignLibraryId, setLandingSignLibraryId] = useState('traffic');
+  const [landingSignCategory, setLandingSignCategory] = useState('all');
+  const [landingSignSearch, setLandingSignSearch] = useState('');
+  const [selectedLandingSign, setSelectedLandingSign] = useState(null);
+
+  const landingSignLibrary = useMemo(
+    () => signLibraryList.find((library) => library.id === landingSignLibraryId) || signLibraryList[0],
+    [landingSignLibraryId]
+  );
+
+  const landingCategoryById = useMemo(() => (
+    landingSignLibrary.categories.reduce((acc, category) => {
+      acc[category.id] = category;
+      return acc;
+    }, {})
+  ), [landingSignLibrary]);
+
+  const landingCategoryStats = useMemo(() => (
+    landingSignLibrary.categories.map((category) => ({
+      ...category,
+      count: category.id === 'all'
+        ? landingSignLibrary.signs.length
+        : landingSignLibrary.signs.filter((sign) => sign.category === category.id).length,
+    }))
+  ), [landingSignLibrary]);
+
+  const filteredLandingSigns = useMemo(() => {
+    const query = normalizeText(landingSignSearch);
+    return landingSignLibrary.signs.filter((sign) => {
+      const matchesCategory = landingSignCategory === 'all' || sign.category === landingSignCategory;
+      const searchable = `${sign.title} ${sign.description} ${sign.code} ${landingCategoryById[sign.category]?.label || ''} ${sign.subcategoryLabel || ''}`;
+      return matchesCategory && normalizeText(searchable).includes(query);
+    });
+  }, [landingCategoryById, landingSignCategory, landingSignLibrary, landingSignSearch]);
+
+  const selectLandingLibrary = (libraryId) => {
+    setLandingSignLibraryId(libraryId);
+    setLandingSignCategory('all');
+    setLandingSignSearch('');
+    setSelectedLandingSign(null);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -201,6 +246,7 @@ const LandingPage = () => {
             <div className="hidden md:flex items-center gap-10 bg-white/[0.03] border border-white/5 rounded-full px-10 py-4 backdrop-blur-md">
               <a href="#features" className="text-base font-bold text-white/70 hover:text-white transition-colors">Özellikler</a>
               <a href="#categories" className="text-base font-bold text-white/70 hover:text-white transition-colors">Kategoriler</a>
+              <a href="#sign-libraries" className="text-base font-bold text-white/70 hover:text-white transition-colors">Levhalar</a>
               <a href="#how-it-works" className="text-base font-bold text-white/70 hover:text-white transition-colors">Nasıl Çalışır?</a>
             </div>
 
@@ -344,6 +390,202 @@ const LandingPage = () => {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Sign Libraries */}
+      <section id="sign-libraries" className="relative z-10 py-24 lg:py-32 bg-[#030305] border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-16">
+            <div className="max-w-3xl">
+              <h2 className="text-sm font-black text-cyan-300 uppercase tracking-widest mb-3">Levha Kütüphanesi</h2>
+              <h3 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">Trafik ve iş sağlığı levhaları ayrı listelenir.</h3>
+              <p className="mt-5 text-text-muted text-lg md:text-xl font-medium">
+                Trafik ve iş güvenliği levhalarını hesap açmadan inceleyebilirsin. Giriş yapan öğrencilerde seçili eğitim sınıfına göre doğru liste otomatik açılır.
+              </p>
+            </div>
+            <a href="#landing-sign-list" className="group flex items-center gap-3 text-white font-bold hover:text-cyan-300 transition-colors">
+              Girişsiz İncele <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </div>
+
+          <div id="landing-sign-list" className="rounded-[2rem] border border-white/10 bg-white/[0.025] p-4 sm:p-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className={`text-[10px] font-black uppercase tracking-widest ${landingSignLibrary.accent}`}>
+                  {landingSignLibrary.folder}
+                </p>
+                <h4 className="mt-2 text-2xl font-black text-white sm:text-3xl">{landingSignLibrary.title}</h4>
+                <p className="mt-2 text-sm font-medium leading-relaxed text-text-muted">
+                  {filteredLandingSigns.length} levha listeleniyor.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-black/20 p-1.5">
+                {signLibraryList.map((library) => {
+                  const active = landingSignLibrary.id === library.id;
+                  return (
+                    <button
+                      key={library.id}
+                      type="button"
+                      onClick={() => selectLandingLibrary(library.id)}
+                      className={`rounded-xl px-4 py-3 text-xs font-black uppercase tracking-widest transition ${
+                        active
+                          ? 'bg-white text-black'
+                          : 'text-text-muted hover:bg-white/[0.06] hover:text-white'
+                      }`}
+                    >
+                      {library.shortTitle}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:items-center">
+              <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-cyan-300/40">
+                <Search className="mr-3 h-5 w-5 text-cyan-300" />
+                <input
+                  type="text"
+                  value={landingSignSearch}
+                  onChange={(event) => setLandingSignSearch(event.target.value)}
+                  placeholder="Levha adı, kodu veya açıklama ara..."
+                  className="w-full border-none bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar xl:max-w-[58%] xl:pb-0">
+                <span className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[10px] font-black uppercase tracking-widest text-text-muted xl:inline-flex">
+                  <Filter className="h-3.5 w-3.5" />
+                  Kategori
+                </span>
+                {landingCategoryStats.map((category) => {
+                  const active = landingSignCategory === category.id;
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => setLandingSignCategory(category.id)}
+                      className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition ${
+                        active
+                          ? 'border-cyan-300/35 bg-cyan-300/15 text-cyan-200'
+                          : 'border-white/10 bg-white/[0.03] text-text-muted hover:border-white/20 hover:text-white'
+                      }`}
+                    >
+                      {category.id === 'all' ? 'Tümü' : category.label.replace(' İşaretleri', '')}
+                      <span className="ml-2 opacity-70">{category.count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
+              {filteredLandingSigns.map((sign) => (
+                <button
+                  key={sign.id}
+                  type="button"
+                  onClick={() => setSelectedLandingSign(sign)}
+                  className="group rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-left transition hover:border-cyan-300/30 hover:bg-white/[0.04]"
+                >
+                  <div className="flex aspect-square items-center justify-center rounded-xl bg-white/[0.035] p-4">
+                    <img
+                      src={resolveMediaUrl(sign.image)}
+                      alt={sign.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="max-h-full max-w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[9px] font-black uppercase tracking-widest text-text-muted">
+                      {sign.code}
+                    </span>
+                    <span className="truncate text-[9px] font-black uppercase tracking-wider text-cyan-200">
+                      {landingCategoryById[sign.category]?.label?.replace(' İşaretleri', '')}
+                    </span>
+                  </div>
+                  <h5 className="mt-2 line-clamp-2 min-h-[36px] text-xs font-black leading-snug text-white">
+                    {sign.title}
+                  </h5>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {selectedLandingSign && (
+              <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+                <motion.button
+                  type="button"
+                  aria-label="Levha detayını kapat"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setSelectedLandingSign(null)}
+                  className="absolute inset-0 bg-black/85 backdrop-blur-sm"
+                />
+
+                <motion.section
+                  initial={{ opacity: 0, scale: 0.96, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: 16 }}
+                  className="relative grid max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#101017] shadow-2xl md:grid-cols-[320px_minmax(0,1fr)]"
+                >
+                  <div className="flex items-center justify-center border-b border-white/10 bg-white/[0.035] p-8 md:border-b-0 md:border-r">
+                    <div className="flex aspect-square w-56 items-center justify-center rounded-3xl bg-white/[0.04] p-8">
+                      <img
+                        src={resolveMediaUrl(selectedLandingSign.image)}
+                        alt={selectedLandingSign.title}
+                        className="max-h-full max-w-full object-contain drop-shadow-2xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex min-w-0 flex-col overflow-y-auto p-6 sm:p-8">
+                    <div className="mb-6 flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-200">
+                          {selectedLandingSign.code}
+                        </div>
+                        <h2 className="text-2xl font-black leading-tight text-white sm:text-3xl">
+                          {selectedLandingSign.title}
+                        </h2>
+                        <p className="mt-3 text-xs font-black uppercase tracking-widest text-text-muted">
+                          {landingCategoryById[selectedLandingSign.category]?.label}
+                          {selectedLandingSign.subcategoryLabel ? ` / ${selectedLandingSign.subcategoryLabel}` : ''}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedLandingSign(null)}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-text-muted transition hover:text-white"
+                        aria-label="Kapat"
+                      >
+                        <X className="h-5 w-5" />
+                      </button>
+                    </div>
+
+                    <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+                      <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-cyan-200">Açıklama</h3>
+                      <p className="text-sm font-semibold leading-relaxed text-white/85">
+                        {selectedLandingSign.description}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLandingSign(null)}
+                      className="mt-6 inline-flex w-full items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/10"
+                    >
+                      Kapat
+                    </button>
+                  </div>
+                </motion.section>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </section>
 

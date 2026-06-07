@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, ChevronRight, ChevronDown, Loader2,
   Search, Lock, Folder, FolderOpen, FileText, X,
-  Zap, Play, CheckCircle2, ArrowRight, ZoomIn
+  Zap, Play, CheckCircle2, ArrowRight, ZoomIn,
+  ChevronLeft, LayoutGrid, Clock, Activity, AlertCircle,
+  Settings2, ShieldCheck, HelpCircle
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -15,6 +17,132 @@ import { trackEvent } from '../../utils/analytics';
 import { isVideoRecord } from '../../utils/categoryContent';
 
 const MotionDiv = motion.div;
+
+const getCategoryIcon = (name) => {
+  const lowercaseName = name.toLowerCase();
+  if (lowercaseName.includes('trafik') || lowercaseName.includes('levha') || lowercaseName.includes('işaret')) {
+    return AlertCircle;
+  }
+  if (lowercaseName.includes('motor') || lowercaseName.includes('araç') || lowercaseName.includes('teknik')) {
+    return Settings2;
+  }
+  if (lowercaseName.includes('ilkyardım') || lowercaseName.includes('ilk yardım') || lowercaseName.includes('sağlık')) {
+    return Activity;
+  }
+  if (lowercaseName.includes('adab') || lowercaseName.includes('çevre') || lowercaseName.includes('davranış')) {
+    return ShieldCheck;
+  }
+  return BookOpen;
+};
+
+const getCategoryColor = (name) => {
+  const lowercaseName = name.toLowerCase();
+  if (lowercaseName.includes('trafik')) return '#06b6d4'; // Cyan
+  if (lowercaseName.includes('motor')) return '#f59e0b'; // Amber/Orange
+  if (lowercaseName.includes('ilkyardım')) return '#ef4444'; // Red
+  if (lowercaseName.includes('adab')) return '#10b981'; // Green
+  return '#6366f1'; // Purple/Indigo
+};
+
+const MobileCategoryCard = ({ category, parentColor, onClick, user, completedIds, allCategories }) => {
+  const isContent = category.content && category.content.trim().length > 0;
+  const catColor = category.color && category.color !== '#6C63FF' ? category.color : parentColor;
+  const IconComponent = getCategoryIcon(category.name);
+  const isProLocked = category.isPro && !user?.proStatus;
+
+  const progressPercent = useMemo(() => {
+    const extractContentNodeIds = (node) => {
+      let ids = [];
+      if (node.content && node.content.trim().length > 0) {
+        ids.push(node._id);
+      }
+      if (node.children && node.children.length > 0) {
+        for (const child of node.children) {
+          ids.push(...extractContentNodeIds(child));
+        }
+      }
+      return ids;
+    };
+    
+    const fullNode = allCategories.find(c => c._id === category._id) || category;
+    const contentIds = extractContentNodeIds(fullNode);
+    if (contentIds.length === 0) return 0;
+    const completedCount = contentIds.filter(id => completedIds.includes(id)).length;
+    return Math.round((completedCount / contentIds.length) * 100);
+  }, [category, completedIds, allCategories]);
+
+  return (
+    <div
+      onClick={() => onClick(category)}
+      className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#151821] p-4 flex flex-col min-h-[160px] cursor-pointer transition-all active:scale-95 active:border-white/20 select-none shadow-lg shadow-black/25"
+    >
+      <div className="absolute -right-4 -bottom-4 text-white/[0.02] pointer-events-none">
+        <IconComponent className="w-24 h-24 stroke-[1]" />
+      </div>
+
+      <div className="flex items-start justify-between mb-3">
+        <div 
+          className="p-2.5 rounded-full flex items-center justify-center"
+          style={{ backgroundColor: `${catColor}20` }}
+        >
+          <IconComponent className="w-5 h-5" style={{ color: catColor }} />
+        </div>
+
+        <div className="flex flex-col items-end gap-1">
+          {category.isPro && (
+            <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-warning/15 border border-warning/30 text-[9px] font-black text-warning uppercase tracking-wider">
+              <Lock className="w-2.5 h-2.5" /> PRO
+            </span>
+          )}
+          {isContent && (
+            <span className="px-1.5 py-0.5 rounded bg-white/10 text-[9px] font-bold text-text-secondary">
+              İçerik
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col justify-end mb-3">
+        <h3 className="text-sm font-black text-white leading-tight line-clamp-2">
+          {category.name}
+        </h3>
+        {category.description && (
+          <p className="text-[10px] text-text-muted mt-1 truncate font-medium">
+            {category.description}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-auto">
+        <div className="flex items-center justify-between text-[9px] font-bold mb-1">
+          <span className={progressPercent >= 100 ? "text-success" : "text-text-muted"}>
+            {progressPercent >= 100 ? "Tamamlandı" : "İlerleme"}
+          </span>
+          <span className={progressPercent >= 100 ? "text-success font-black" : "text-white font-black"}>
+            {progressPercent >= 100 && "✓ "}%{progressPercent}
+          </span>
+        </div>
+        <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+          <div 
+            className="h-full rounded-full transition-all duration-300"
+            style={{ 
+              width: `${progressPercent}%`,
+              backgroundColor: progressPercent >= 100 ? '#10b981' : catColor 
+            }}
+          />
+        </div>
+      </div>
+
+      {isProLocked && (
+        <div className="absolute inset-0 bg-[#0e1015]/85 flex items-center justify-center backdrop-blur-[1px]">
+          <div className="w-10 h-10 rounded-full bg-warning flex items-center justify-center shadow-lg shadow-warning/20">
+            <Lock className="w-5 h-5 text-black" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Build a tree from a flat list
 const buildTree = (items, parentId = null) => {
@@ -172,6 +300,29 @@ const UserLessons = () => {
   const [passedTestIds, setPassedTestIds] = useState([]); // Testi geçilen kategori ID'leri
   const [previewImage, setPreviewImage] = useState(null);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1280);
+  const [mobileNavStack, setMobileNavStack] = useState([]);
+  const [isSyllabusOpen, setIsSyllabusOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1280);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    setScrollProgress(0);
+  }, [selectedLesson?._id]);
+
+  const handleScroll = (e) => {
+    const target = e.currentTarget;
+    const maxScroll = target.scrollHeight - target.clientHeight;
+    if (maxScroll > 0) {
+      setScrollProgress(target.scrollTop / maxScroll);
+    }
+  };
+
   useEffect(() => {
     const fetchAll = async () => {
       try {
@@ -235,6 +386,7 @@ const UserLessons = () => {
         setAuth({ ...user, ...res.data.user }, token);
         setActiveTopicId('all');
         setSelectedLesson(null);
+        setMobileNavStack([]);
       }
     } catch (err) {
       console.error('Kategori değiştirilemedi:', err);
@@ -244,12 +396,21 @@ const UserLessons = () => {
   const handleTopicClick = (topicId) => {
     setActiveTopicId(topicId);
     if (topicId !== 'all') {
+      const topicNode = topicCategories.find(c => c._id === topicId);
+      if (topicNode) {
+        setMobileNavStack([topicNode]);
+      } else {
+        setMobileNavStack([]);
+      }
       setExpandedIds(prev => {
         const next = new Set(prev);
         next.add(topicId);
         return next;
       });
+    } else {
+      setMobileNavStack([]);
     }
+    setSelectedLesson(null);
   };
 
   // Sınav sonuçlarını çek — hangi konularda test geçilmiş?
@@ -339,19 +500,42 @@ const UserLessons = () => {
   }, [tree, activeTopicId]);
 
   useEffect(() => {
+    if (isMobile) return;
     if (loading || filteredContentLessons.length === 0) return;
     const isStillValid = selectedLesson && filteredContentLessons.some((lesson) => lesson._id === selectedLesson._id);
     if (!isStillValid) {
       setSelectedLesson(filteredContentLessons[0]);
     }
-  }, [filteredContentLessons, loading]);
+  }, [filteredContentLessons, loading, isMobile]);
+
+  const getSyllabusLessons = useCallback(() => {
+    const activeNode = selectedLesson || mobileNavStack[mobileNavStack.length - 1];
+    if (!activeNode) return topicCategories;
+    
+    const parentId = activeNode.parent?._id || activeNode.parent;
+    if (!parentId || parentId === user?.selectedCategoryId) {
+      return topicCategories;
+    }
+    
+    const parentNode = allCategories.find(c => c._id === parentId);
+    return parentNode?.children || [];
+  }, [selectedLesson, mobileNavStack, topicCategories, user?.selectedCategoryId, allCategories]);
 
   const getNextLesson = useCallback(() => {
     if (!selectedLesson) return null;
-    const idx = filteredContentLessons.findIndex(c => c._id === selectedLesson._id);
-    if (idx >= 0 && idx < filteredContentLessons.length - 1) return filteredContentLessons[idx + 1];
-    return null;
-  }, [selectedLesson, filteredContentLessons]);
+    if (isMobile) {
+      const syllabus = getSyllabusLessons();
+      const currentIndex = syllabus.findIndex(c => c._id === selectedLesson._id);
+      if (currentIndex !== -1 && currentIndex + 1 < syllabus.length) {
+        return syllabus[currentIndex + 1];
+      }
+      return null;
+    } else {
+      const idx = filteredContentLessons.findIndex(c => c._id === selectedLesson._id);
+      if (idx >= 0 && idx < filteredContentLessons.length - 1) return filteredContentLessons[idx + 1];
+      return null;
+    }
+  }, [selectedLesson, isMobile, getSyllabusLessons, filteredContentLessons]);
 
   // Filter tree based on search (returns matching nodes as flat list)
   const filteredFlat = searchTerm.trim()
@@ -392,6 +576,629 @@ const UserLessons = () => {
     });
   }, [selectedLesson]);
 
+  const handleMobileNodeClick = (node) => {
+    const hasChildren = node.children && node.children.length > 0;
+    const hasContent = node.content && node.content.trim().length > 0;
+
+    if (hasContent) {
+      handleSelect(node);
+    } else if (hasChildren) {
+      setMobileNavStack(prev => [...prev, node]);
+      setActiveTopicId(node._id);
+    }
+  };
+
+  const renderMobileList = () => {
+    const currentCategory = mobileNavStack[mobileNavStack.length - 1] || null;
+
+    if (!currentCategory) {
+      // Root Topics View
+      return (
+        <div className="flex flex-col flex-1 px-4 py-3">
+          {/* Header Block */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-primary-light" />
+                </span>
+                <div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h2 className="text-sm font-black text-white uppercase tracking-widest">Dersler</h2>
+                    {user?.selectedCategoryName && mainCategories.length > 0 && (
+                      <div className="relative inline-block">
+                        <select
+                          value={user?.selectedCategoryId || ''}
+                          onChange={(e) => handleCategoryChange(e.target.value)}
+                          className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                        >
+                          {mainCategories.map(cat => (
+                            <option key={cat._id} value={cat._id} className="bg-[#11141b] text-white">
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider hover:bg-primary/20 transition duration-150">
+                          {user.selectedCategoryName}
+                          <ChevronDown className="w-2.5 h-2.5 text-primary-light/75" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-text-secondary">
+                {contentLessons.length} konu
+              </span>
+            </div>
+
+            {/* Search Input */}
+            <div className="flex items-center rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 mb-4">
+              <Search className="w-3.5 h-3.5 text-text-muted mr-2 shrink-0" />
+              <input
+                type="text"
+                placeholder="Konu ara..."
+                className="bg-transparent outline-none text-xs text-white placeholder-text-muted w-full"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="ml-1">
+                  <X className="w-3 h-3 text-text-muted hover:text-white" />
+                </button>
+              )}
+            </div>
+
+            {/* Video Dersler Quick Entry */}
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/videos')}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-accent/20 bg-accent/10 px-3 py-2.5 text-[10px] font-black uppercase tracking-widest text-accent-light transition hover:border-accent/35 hover:bg-accent/15"
+            >
+              <Play className="h-3.5 w-3.5 fill-current" />
+              Video Dersler
+            </button>
+          </div>
+
+          {/* Topic selection tabs */}
+          {topicCategories.length > 0 && !searchTerm && (
+            <div className="mb-4">
+              <label className="mb-1.5 block text-[9px] font-black uppercase tracking-widest text-text-muted">Konu Kategorisi</label>
+              <div className="flex gap-1.5 overflow-x-auto pb-1.5 custom-scrollbar">
+                <button
+                  type="button"
+                  onClick={() => handleTopicClick('all')}
+                  className={`shrink-0 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition ${
+                    activeTopicId === 'all'
+                      ? 'border-primary/45 bg-primary/10 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.15)]'
+                      : 'border-white/5 bg-white/[0.015] text-text-muted'
+                  }`}
+                >
+                  Tümü
+                </button>
+                {topicCategories.map(topic => (
+                  <button
+                    key={topic._id}
+                    type="button"
+                    onClick={() => handleTopicClick(topic._id)}
+                    className={`shrink-0 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition ${
+                      activeTopicId === topic._id
+                        ? 'border-primary/45 bg-primary/10 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.15)]'
+                        : 'border-white/5 bg-white/[0.015] text-text-muted'
+                    }`}
+                  >
+                    {topic.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Grid / List Content */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Yükleniyor...</span>
+              </div>
+            ) : searchTerm ? (
+              // Search Results
+              <div className="space-y-2">
+                {filteredFlat && filteredFlat.length > 0 ? (
+                  filteredFlat.map(cat => (
+                    <button
+                      key={cat._id}
+                      disabled={cat.isPro && !user?.proStatus}
+                      onClick={() => cat.content?.trim() && handleSelect(cat)}
+                      className={`w-full flex items-center gap-3 rounded-2xl p-3 text-left border ${
+                        selectedLesson?._id === cat._id 
+                          ? 'border-primary/35 bg-primary/10 text-white' 
+                          : 'border-white/5 bg-white/[0.02] text-text-secondary'
+                      } ${cat.isPro && !user?.proStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span className="w-10 h-10 rounded-xl bg-black/20 border border-white/5 flex items-center justify-center shrink-0">
+                        {cat.image ? (
+                          <img src={resolveMediaUrl(cat.image)} alt="" className="w-full h-full rounded-xl object-cover" />
+                        ) : (
+                          <FileText className="w-5 h-5 text-text-muted" />
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs font-black text-white truncate">{cat.name}</span>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">Arama sonucu</span>
+                      </span>
+                      {completedIds.includes(cat._id) && <CheckCircle2 className="w-4 h-4 text-success shrink-0" />}
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-xs text-text-muted italic text-center py-8">Sonuç bulunamadı.</p>
+                )}
+              </div>
+            ) : (
+              // 2-Column Grid of Topics / Active Category children
+              <div className="grid grid-cols-2 gap-3 pb-6">
+                {(activeTopicId === 'all' ? topicCategories : topicCategories.filter(c => c._id === activeTopicId)).map((cat) => (
+                  <MobileCategoryCard
+                    key={cat._id}
+                    category={cat}
+                    parentColor="#6c63ff"
+                    onClick={handleMobileNodeClick}
+                    user={user}
+                    completedIds={completedIds}
+                    allCategories={allCategories}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    } else {
+      // Subcategories Grid View (SubCategoryScreen Parity)
+      const children = currentCategory.children || [];
+      const catColor = currentCategory.color && currentCategory.color !== '#6C63FF' ? currentCategory.color : '#6c63ff';
+
+      return (
+        <div className="flex flex-col flex-1 px-4 py-3">
+          {/* Header with back button */}
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <button
+              onClick={() => {
+                setMobileNavStack(prev => prev.slice(0, -1));
+                if (mobileNavStack.length <= 1) {
+                  setActiveTopicId('all');
+                }
+              }}
+              className="p-1 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div className="flex-1 min-w-0 flex items-center gap-2">
+              <div 
+                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
+                style={{ backgroundColor: `${catColor}20`, borderColor: `${catColor}30`, color: catColor }}
+              >
+                <FolderOpen className="w-4 h-4" />
+              </div>
+              <h2 className="text-xs font-black text-white uppercase tracking-wider truncate">
+                {currentCategory.name}
+              </h2>
+            </div>
+
+            <button
+              onClick={() => setIsSyllabusOpen(true)}
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+          </div>
+
+          {currentCategory.description && (
+            <p className="text-xs text-text-muted mb-4 px-1 leading-relaxed">
+              {currentCategory.description}
+            </p>
+          )}
+
+          {/* Children Grid */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {children.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Folder className="w-12 h-12 text-text-muted opacity-20 mb-3" />
+                <p className="text-sm font-bold text-text-muted">Henüz alt başlık eklenmedi</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 pb-6">
+                {children.map((cat) => (
+                  <MobileCategoryCard
+                    key={cat._id}
+                    category={cat}
+                    parentColor={catColor}
+                    onClick={handleMobileNodeClick}
+                    user={user}
+                    completedIds={completedIds}
+                    allCategories={allCategories}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const renderMobileReader = () => {
+    const wordCount = selectedLesson.content ? selectedLesson.content.split(/\s+/).filter(Boolean).length : 0;
+    const readingTimeMin = Math.ceil(wordCount / 200);
+    const readingTimeStr = readingTimeMin > 1 ? `${readingTimeMin} dk` : '1 dk';
+
+    const nextLesson = getNextLesson();
+
+    return (
+      <div className="flex flex-col flex-1 h-full bg-[#0b0d12]">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10 bg-[#11141b]">
+          <button
+            onClick={() => setSelectedLesson(null)}
+            className="p-1 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <h2 className="flex-1 text-xs font-black text-white uppercase tracking-wider truncate text-center px-2">
+            {selectedLesson.name}
+          </h2>
+
+          <button
+            onClick={() => setIsSyllabusOpen(true)}
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Scroll Progress Bar */}
+        <div className="sticky top-0 left-0 w-full h-[2px] bg-white/5 z-20">
+          <div className="h-full bg-[#3ecfcf] transition-all duration-100" style={{ width: `${scrollProgress * 100}%` }} />
+        </div>
+
+        {/* Reader Scroll Body */}
+        <div 
+          className="flex-1 overflow-y-auto px-4 py-5 space-y-6 custom-scrollbar"
+          onScroll={handleScroll}
+        >
+          {/* Cover Card */}
+          <div className="w-full p-4 rounded-2xl border border-primary/20 bg-gradient-to-br from-[#1a1e38] to-[#111428] flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#6c63ff] to-[#3ecfcf] flex items-center justify-center text-white shrink-0 shadow-lg shadow-[#6c63ff]/20">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-black text-white leading-tight truncate">{selectedLesson.name}</h3>
+              <div className="flex items-center gap-1.5 mt-1 text-[10px] text-text-secondary">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{readingTimeStr} okuma süresi</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Markdown Body */}
+          {selectedLesson.isPro && !user?.proStatus ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+              <div className="w-16 h-16 rounded-[24px] border-2 border-dashed border-warning/30 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-warning/30" />
+              </div>
+              <div>
+                <h4 className="text-lg font-black text-white">PRO İçerik</h4>
+                <p className="text-text-muted text-xs max-w-xs mt-2 leading-relaxed">
+                  Bu ders içeriği yalnızca PRO üyelere açıktır. Mobil uygulamamız üzerinden premium üyelik edinebilirsiniz.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleProInterest}
+                className="rounded-xl bg-warning px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-black shadow-lg shadow-warning/15 transition-all"
+              >
+                PRO'ya Geç
+              </button>
+            </div>
+          ) : (
+            <div className="prose prose-invert prose-xs max-w-none 
+              prose-headings:font-black prose-headings:tracking-tight prose-headings:text-white
+              prose-h1:text-lg prose-h2:text-base prose-h2:border-b prose-h2:border-white/10 prose-h2:pb-2
+              prose-p:text-slate-200/90 prose-p:text-xs prose-p:leading-6
+              prose-strong:text-white prose-strong:font-black
+              prose-img:rounded-xl prose-img:shadow-md prose-img:border prose-img:border-white/10 prose-img:mx-auto prose-img:max-h-[220px] prose-img:object-contain
+              prose-li:text-white/85 prose-li:leading-6 prose-ul:space-y-1
+              prose-blockquote:border-l-4 prose-blockquote:border-l-primary prose-blockquote:bg-white/[0.01] prose-blockquote:px-4 prose-blockquote:py-2 prose-blockquote:rounded-r-xl prose-blockquote:text-text-secondary
+            ">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  img: ({ src, alt }) => (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewImage({ src: resolveMediaUrl(src), alt: alt || selectedLesson.name })}
+                      className="not-prose group relative mx-auto my-4 block overflow-hidden rounded-xl border border-white/10 bg-black/20"
+                    >
+                      <img
+                        src={resolveMediaUrl(src)}
+                        alt={alt || ''}
+                        className="max-h-[220px] max-w-full object-contain"
+                      />
+                      <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black/70 text-white shadow-lg">
+                        <ZoomIn className="h-3.5 w-3.5" />
+                      </span>
+                    </button>
+                  ),
+                }}
+              >
+                {selectedLesson.content}
+              </ReactMarkdown>
+
+              {selectedLessonImage && !contentIncludesSelectedImage && (
+                <div className="not-prose mt-6">
+                   <button
+                     type="button"
+                     onClick={() => setPreviewImage({ src: selectedLessonImage, alt: selectedLesson.name })}
+                     className="group relative mx-auto block w-full overflow-hidden rounded-xl border border-white/10 bg-black/20"
+                   >
+                     <img
+                       src={selectedLessonImage}
+                       alt={selectedLesson.name}
+                       className="w-full object-contain"
+                     />
+                     <span className="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-black/70 text-white shadow-lg">
+                       <ZoomIn className="h-3.5 w-3.5" />
+                     </span>
+                   </button>
+                </div>
+              )}
+
+              {/* Pekiştirme Kartı */}
+              <div className="mt-12 pt-8 border-t border-white/10 pb-6 not-prose">
+                <div className="relative overflow-hidden rounded-3xl border border-success/20 bg-gradient-to-br from-[#12221b] via-[#0d0f14] to-transparent p-5 text-center shadow-xl">
+                  <div className="relative z-10 flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-2xl bg-success/10 border border-success/30 flex items-center justify-center mb-4">
+                      <Zap className="w-6 h-6 text-success" />
+                    </div>
+                    <h4 className="text-base font-black text-white tracking-tight">Bu Konuyu Öğrendin mi?</h4>
+                    <p className="text-xs font-semibold text-text-secondary mt-2 leading-relaxed">
+                      Konuyu pekiştirmek için sana özel hazırlanan değerlendirme testine gir. Yanlışlarını anında detaylı açıklamalarla gör.
+                    </p>
+                    
+                    <button 
+                      onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
+                      className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-success hover:bg-success/90 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-success/20 transition-all active:scale-95 cursor-pointer"
+                    >
+                      <Play className="w-4.5 h-4.5 fill-white text-white" />
+                      Konu Testini Başlat
+                    </button>
+
+                    <div className="mt-4 flex flex-col w-full gap-2.5">
+                      {passedTestIds.includes(selectedLesson._id) ? (
+                        <button
+                          onClick={handleMarkComplete}
+                          className={`w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${
+                            completedIds.includes(selectedLesson._id)
+                              ? 'bg-success/20 border border-success/30 text-success'
+                              : 'bg-white/5 border border-white/10 text-text-secondary hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          {completedIds.includes(selectedLesson._id) ? 'TAMAMLANDI ✓' : 'KONUYU TAMAMLANDI İŞARETLE'}
+                        </button>
+                      ) : (
+                        <div className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 text-text-muted text-xs font-black uppercase tracking-widest opacity-50 cursor-not-allowed">
+                          <Lock className="w-4 h-4" />
+                          Önce testi geçmelisin
+                        </div>
+                      )}
+
+                      {nextLesson && (
+                        <button
+                          onClick={() => {
+                            if (nextLesson.content?.trim()) {
+                              handleSelect(nextLesson);
+                            } else {
+                              setSelectedLesson(null);
+                              const parentId = nextLesson.parent?._id || nextLesson.parent;
+                              const parentNode = allCategories.find(c => c._id === parentId);
+                              if (parentNode && parentNode._id !== user?.selectedCategoryId) {
+                                setMobileNavStack([parentNode, nextLesson]);
+                              } else {
+                                setMobileNavStack([nextLesson]);
+                              }
+                            }
+                          }}
+                          className="w-full inline-flex items-center justify-center gap-2 py-3 bg-primary/15 border border-primary/20 text-primary-light rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary/25 transition-all cursor-pointer"
+                        >
+                          Sıradaki Derse Geç <ArrowRight className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMobileDrawer = () => {
+    const lessons = getSyllabusLessons();
+    const currentActiveNode = selectedLesson || mobileNavStack[mobileNavStack.length - 1];
+
+    return (
+      <AnimatePresence>
+        {isSyllabusOpen && (
+          <div className="fixed inset-0 z-[250] flex justify-end">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black/65 backdrop-blur-sm"
+              onClick={() => setIsSyllabusOpen(false)}
+            />
+            
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative w-[80%] max-w-[320px] bg-[#11141b] border-l border-white/10 h-full flex flex-col z-10 shadow-2xl"
+            >
+              <div className="flex items-center justify-between p-5 border-b border-white/5 bg-white/[0.01]">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-[#3ECFCF]/10 border border-[#3ECFCF]/20 flex items-center justify-center">
+                    <BookOpen className="w-4.5 h-4.5 text-[#3ECFCF]" />
+                  </span>
+                  <span className="text-sm font-black text-white uppercase tracking-wider">Müfredat</span>
+                </div>
+                <button 
+                  onClick={() => setIsSyllabusOpen(false)}
+                  className="p-1 text-text-muted hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1 custom-scrollbar">
+                {lessons.length === 0 ? (
+                  <p className="text-xs text-text-muted italic text-center py-6">Konu bulunamadı.</p>
+                ) : (
+                  lessons.map((cat) => {
+                    const isCurrent = currentActiveNode && cat._id === currentActiveNode._id;
+                    const catColor = cat.color && cat.color !== '#6C63FF' ? cat.color : '#6366f1';
+                    const IconComponent = getCategoryIcon(cat.name);
+                    
+                    const extractContentNodeIds = (node) => {
+                      let ids = [];
+                      if (node.content && node.content.trim().length > 0) ids.push(node._id);
+                      if (node.children && node.children.length > 0) {
+                        for (const child of node.children) {
+                          ids.push(...extractContentNodeIds(child));
+                        }
+                      }
+                      return ids;
+                    };
+                    
+                    const contentIds = extractContentNodeIds(cat);
+                    const isCompleted = contentIds.length > 0 && contentIds.every(id => completedIds.includes(id));
+
+                    return (
+                      <button
+                        key={cat._id}
+                        onClick={() => {
+                          setIsSyllabusOpen(false);
+                          if (cat.content?.trim()) {
+                            handleSelect(cat);
+                          } else {
+                            setSelectedLesson(null);
+                            const parentId = cat.parent?._id || cat.parent;
+                            const parentNode = allCategories.find(c => c._id === parentId);
+                            if (parentNode && parentNode._id !== user?.selectedCategoryId) {
+                              setMobileNavStack([parentNode, cat]);
+                            } else {
+                              setMobileNavStack([cat]);
+                            }
+                            setActiveTopicId(cat._id);
+                          }
+                        }}
+                        className={`w-full flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${
+                          isCurrent
+                            ? 'bg-gradient-to-r from-primary/15 to-transparent text-white border-l-4 border-l-primary'
+                            : 'border-l-4 border-l-transparent text-text-secondary hover:bg-white/[0.03] hover:text-white'
+                        }`}
+                      >
+                        <div 
+                          className="p-2 rounded-lg flex items-center justify-center shrink-0"
+                          style={{ 
+                            backgroundColor: isCurrent ? `${catColor}25` : 'rgba(255,255,255,0.03)',
+                            color: isCurrent ? catColor : 'var(--text-muted)' 
+                          }}
+                        >
+                          <IconComponent className="w-4 h-4" />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <span className={`block text-xs font-black truncate ${isCurrent ? 'text-white' : 'text-text-secondary'}`}>
+                            {cat.name}
+                          </span>
+                        </div>
+
+                        {isCompleted && (
+                          <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    );
+  };
+
+  const renderPreviewModal = () => {
+    return (
+      <AnimatePresence>
+        {previewImage && (
+          <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/90 p-3 backdrop-blur-md sm:p-6">
+            <MotionDiv
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0"
+              onClick={() => setPreviewImage(null)}
+            />
+            <MotionDiv
+              initial={{ opacity: 0, scale: 0.94, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 18 }}
+              transition={{ duration: 0.2 }}
+              className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0e1016] shadow-2xl shadow-black/70"
+            >
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-black/30 px-4 py-3">
+                <p className="min-w-0 truncate text-sm font-black text-white">{previewImage.alt || 'Görsel'}</p>
+                <button
+                  type="button"
+                  onClick={() => setPreviewImage(null)}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/5 text-text-muted transition hover:bg-white/10 hover:text-white"
+                  aria-label="Görseli kapat"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-black/40 p-2 custom-scrollbar sm:p-4">
+                <img
+                  src={previewImage.src}
+                  alt={previewImage.alt || ''}
+                  className="max-h-[78vh] max-w-full object-contain"
+                />
+              </div>
+            </MotionDiv>
+          </div>
+        )}
+      </AnimatePresence>
+    );
+  };
+
+  if (isMobile) {
+    return (
+      <div className="min-h-[calc(100vh-88px)] bg-[#0b0d12] text-white flex flex-col relative pb-20">
+        {selectedLesson ? renderMobileReader() : renderMobileList()}
+        {renderMobileDrawer()}
+        {renderPreviewModal()}
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-2xl xl:border xl:border-white/10 xl:bg-[#0b0d12] xl:shadow-xl xl:shadow-black/20">
       
@@ -403,7 +1210,7 @@ const UserLessons = () => {
           <div className="mb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
-                <BookOpen className="w-4 h-4 text-primary-light" />
+                <BookOpen className="w-4.5 h-4.5 text-primary-light" />
               </span>
               <div>
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -630,7 +1437,6 @@ const UserLessons = () => {
               className="flex h-full min-h-[62vh] flex-col"
             >
               {/* Content Header */}
-              {/* Content Header */}
               <div className="flex shrink-0 items-start gap-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:bg-gradient-to-r xl:from-[#11131a] xl:to-[#0b0d12] xl:px-8 xl:py-5">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/30 to-accent/30 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.2)] xl:h-10 xl:w-10 xl:rounded-lg">
                   <FileText className="h-5 w-5" />
@@ -759,7 +1565,7 @@ const UserLessons = () => {
                             onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
                             className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-2xl bg-success hover:bg-success/90 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.03] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                           >
-                            <Play className="w-4 h-4 fill-white" />
+                            <Play className="w-4.5 h-4.5 fill-white" />
                             Konu Testini Başlat
                           </button>
 
@@ -833,7 +1639,7 @@ const UserLessons = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 18 }}
               transition={{ duration: 0.2 }}
-              className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-bg-card shadow-2xl shadow-black/70"
+              className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0e1016] shadow-2xl shadow-black/70"
             >
               <div className="flex shrink-0 items-center justify-between gap-3 border-b border-white/10 bg-black/30 px-4 py-3">
                 <p className="min-w-0 truncate text-sm font-black text-white">{previewImage.alt || 'Görsel'}</p>
@@ -857,7 +1663,6 @@ const UserLessons = () => {
           </div>
         )}
       </AnimatePresence>
-
     </div>
   );
 };

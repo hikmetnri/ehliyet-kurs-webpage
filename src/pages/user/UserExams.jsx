@@ -6,7 +6,7 @@ import {
   ClipboardList, Clock, Lock,
   Loader2, BookOpen, Target, FileQuestion,
   Play, ListChecks, AlertCircle, GraduationCap, CheckCircle2, XCircle,
-  ChevronDown
+  ChevronDown, ArrowRight
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import { trackEvent } from '../../utils/analytics';
@@ -56,7 +56,7 @@ const UserExams = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Tüm kategorileri çek
         const catRes = await api.get('/categories/all');
         const allCategories = (catRes.data?.data || catRes.data || []).filter((category) => !isVideoRecord(category));
@@ -163,9 +163,9 @@ const UserExams = () => {
     return pCat?.name || 'Diğer Ana Konular';
   };
 
-  const generalExams = exams.filter(e => !e.categoryId);
+  const generalExams = exams.filter(e => !e.categoryId && !e._isSynthetic && !e._isRealMeb && e.name.toLowerCase().includes('deneme'));
   const shortTests = exams.filter(e => e._isSynthetic);
-  const realSimExams = exams.filter(e => e._isRealMeb);
+  const realSimExams = exams.filter(e => e._isRealMeb || (!e.categoryId && !e._isSynthetic && !e.name.toLowerCase().includes('deneme')));
 
   const shortGroups = shortTests.reduce((acc, exam) => {
     const groupName = getParentName(exam.categoryId);
@@ -175,14 +175,18 @@ const UserExams = () => {
 
   const displayedExams = exams.filter(e => {
     const catId = e.categoryId?._id || e.categoryId;
-    
-    if (activeTab === 'general') return !catId && !e._isSynthetic && !e._isRealMeb;
+
+    if (activeTab === 'general') {
+      return !catId && !e._isSynthetic && !e._isRealMeb && e.name.toLowerCase().includes('deneme');
+    }
     if (activeTab === 'short_tests') {
       if (!e._isSynthetic) return false;
       return activeShortGroup === 'all' || getParentName(e.categoryId) === activeShortGroup;
     }
-    if (activeTab === 'real_sim_cat') return e._isRealMeb;
-    
+    if (activeTab === 'real_sim_cat') {
+      return e._isRealMeb || (!catId && !e._isSynthetic && !e.name.toLowerCase().includes('deneme'));
+    }
+
     return false;
   });
   const lockedExamIds = displayedExams
@@ -249,7 +253,7 @@ const UserExams = () => {
     <>
       {/* Desktop View */}
       <div className="hidden lg:block space-y-6 pb-10 text-white">
-        
+
         {/* Header */}
         <div className="rounded-2xl border border-white/10 bg-[#0f1117] p-5 shadow-xl shadow-black/10">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -454,12 +458,14 @@ const UserExams = () => {
         ) : (() => {
           const renderExamCard = (exam, i) => {
             const isLocked = exam.isPro && !user?.proStatus;
-            const isGeneral = !exam.categoryId;
             const isSimulation = exam._isRealMeb;
             const isShort = exam._isSynthetic;
+            const examNameLower = (exam.name || '').toLocaleLowerCase('tr-TR');
+            const isRealExam = activeTab === 'real_sim_cat' && !isSimulation && !isShort && !exam.categoryId && !examNameLower.includes('deneme');
+            const isGeneral = !exam.categoryId && !isRealExam;
             const catName = isShort ? getParentName(exam.categoryId) : getCategoryName(exam.categoryId);
-            const badgeLabel = isGeneral ? 'Deneme Sınavı' : isSimulation ? 'E-Sınav Simülatörü' : isShort ? 'Kısa Test' : 'Konu Sınavı';
-            const Icon = isGeneral ? Target : isSimulation ? GraduationCap : isShort ? FileQuestion : BookOpen;
+            const badgeLabel = isRealExam ? 'MEB E-Sınav' : isGeneral ? 'Deneme Sınavı' : isSimulation ? 'E-Sınav Simülatörü' : isShort ? 'Kısa Test' : 'Konu Sınavı';
+            const Icon = isRealExam ? GraduationCap : isGeneral ? Target : isSimulation ? GraduationCap : isShort ? FileQuestion : BookOpen;
             const resultKey = isShort ? `short_${exam._realCategoryId}` : exam._id;
             const lastResult = latestResults[resultKey];
             const score = Number(lastResult?.score || 0);
@@ -481,7 +487,7 @@ const UserExams = () => {
                 badgeStyle: 'bg-warning/10 text-warning border-warning/20',
                 btnStyle: 'bg-warning hover:bg-warning-light text-white'
               };
-            } else if (isSimulation) {
+            } else if (isSimulation || isRealExam) {
               cardTheme = {
                 borderHover: 'hover:border-success/30',
                 iconBg: 'bg-success/10 border-success/20 text-success',
@@ -504,6 +510,7 @@ const UserExams = () => {
 
               navigate(
                 isSimulation ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` :
+                isRealExam ? `/dashboard/exams/${exam._id}?mode=real` :
                 isShort ? `/dashboard/exams/short-test/${exam._realCategoryId}` :
                 `/dashboard/exams/${exam._id}`
               );
@@ -533,7 +540,7 @@ const UserExams = () => {
                     <div className={`w-11 h-11 rounded-lg flex items-center justify-center border shrink-0 transition-colors duration-300 ${cardTheme.iconBg}`}>
                       <Icon className="w-5.5 h-5.5" />
                     </div>
-                    
+
                     <div className="flex flex-col items-end gap-1.5">
                       {isLocked && (
                         <span className="flex items-center gap-1.5 px-2.5 py-1 bg-warning/15 text-warning border border-warning/20 rounded-lg text-[9px] font-black uppercase tracking-widest">
@@ -631,7 +638,7 @@ const UserExams = () => {
               </MotionDiv>
             );
           };
-    
+
           return (
             <MotionDiv layout className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <AnimatePresence>
@@ -644,388 +651,495 @@ const UserExams = () => {
 
       {/* Mobile View */}
       <div className="block lg:hidden space-y-6 pb-24 text-white">
-        {/* Premium Header Card */}
-        <div className="relative overflow-hidden rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-[#20193A] to-[#111827] shadow-xl">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-radial-gradient(circle, #6366f1, transparent)" />
-          </div>
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center text-white font-black text-lg shadow-lg shadow-primary/30 shrink-0">
-              {user?.firstName?.charAt(0).toUpperCase() || 'H'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-text-muted text-[11px] font-bold uppercase tracking-wider">Bugünkü pratik alanın</p>
-              <h1 className="text-white text-2xl font-black tracking-tight">Testler</h1>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              onClick={() => {
-                const incomplete = shortTests.find(t => !latestResults[`short_${t._realCategoryId}`]);
-                const target = incomplete || shortTests[0];
-                if (target) navigate(`/dashboard/exams/short-test/${target._realCategoryId}`);
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-warning/15 border border-warning/20 text-warning rounded-xl text-xs font-black uppercase tracking-wider hover:bg-warning/25 transition-all"
-            >
-              <Play className="w-3.5 h-3.5 fill-warning" /> Hızlı Çöz
-            </button>
-            <button
-              onClick={() => navigate('/dashboard/stats')}
-              className="flex items-center gap-1.5 px-3 py-2 bg-indigo-500/15 border border-indigo-500/20 text-indigo-300 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-500/25 transition-all"
-            >
-              <Target className="w-3.5 h-3.5" /> İlerleme Takibi
-            </button>
-          </div>
-        </div>
+        {activeTab === 'real_sim_cat' ? (
+          // MEB E-Sınav / Sınavlar View (ExamListScreen Parity)
+          <div className="space-y-6 animate-fadeIn">
+            {/* Premium Header Card */}
+            <div className="relative overflow-hidden rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-[#171927] to-[#11141b] shadow-xl">
+              {/* Orange/Deep gradient border top like Flutter */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#ff9f43] to-[#ff6b6b]" />
 
-        {/* Modern Tab Bar */}
-        <div className="p-1 bg-white/5 border border-white/5 rounded-full flex gap-1">
-          {[
-            { id: 'short_tests', label: 'Kısa Testler' },
-            { id: 'general', label: 'Deneme' },
-            { id: 'wrong_answers', label: 'Yanlışlarım' }
-          ].map((tab) => {
-            const isActive = activeTab === tab.id || (tab.id === 'general' && activeTab === 'real_sim_cat');
-            return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  handleTabChange(tab.id);
-                }}
-                className={`flex-1 text-center py-2.5 rounded-full text-xs font-bold transition-all duration-300 ${
-                  isActive
-                    ? 'bg-primary text-white shadow-lg shadow-primary/40'
-                    : 'text-text-muted hover:text-white'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Accordion list for Kısa Testler */}
-        {activeTab === 'short_tests' && (
-          <div className="space-y-3">
-            {Object.keys(shortGroups).length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <FileQuestion className="w-12 h-12 text-text-muted opacity-30 mb-3" />
-                <p className="text-sm font-bold text-text-muted">Kısa test bulunamadı.</p>
-              </div>
-            ) : (
-              Object.entries(shortGroups)
-                .sort(([a], [b]) => a.localeCompare(b, 'tr'))
-                .map(([groupName, count]) => {
-                  const isExpanded = expandedCategories[groupName];
-                  const groupExams = shortTests.filter(e => getParentName(e.categoryId) === groupName);
-                  
-                  // Find a matching category in validCategories for category color/icon if available
-                  const matchedCat = validCategories.find(c => c.name === groupName || getCategoryName(c._id) === groupName);
-                  const categoryColor = matchedCat?.color || '#6366f1';
-
-                  return (
-                    <div
-                      key={groupName}
-                      className="border border-white/5 bg-[#171927]/60 rounded-2xl overflow-hidden transition-all duration-300 shadow-md"
-                    >
-                      {/* Header */}
-                      <button
-                        onClick={() => toggleCategory(groupName)}
-                        className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors"
-                      >
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
-                          style={{
-                            backgroundColor: `${categoryColor}1f`,
-                            borderColor: `${categoryColor}33`,
-                            color: categoryColor
-                          }}
-                        >
-                          <BookOpen className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-sm text-white truncate">{groupName}</h3>
-                          <p className="text-[11px] text-text-muted mt-0.5">{count} Soru • Süreli değil</p>
-                        </div>
-                        <ChevronDown
-                          className={`w-5 h-5 text-text-muted transition-transform duration-300 ${
-                            isExpanded ? 'rotate-180 text-white' : ''
-                          }`}
-                        />
-                      </button>
-
-                      {/* Children List */}
-                      {isExpanded && (
-                        <div className="border-t border-white/5 bg-black/15 divide-y divide-white/5 px-2">
-                          {groupExams.map((exam) => {
-                            const resultKey = `short_${exam._realCategoryId}`;
-                            const lastResult = latestResults[resultKey];
-                            const score = Number(lastResult?.score || 0);
-                            const completed = Boolean(lastResult);
-                            const passed = Boolean(lastResult?.passed);
-                            const isLocked = exam.isPro && !user?.proStatus;
-
-                            return (
-                              <div key={exam._id} className="flex items-center justify-between p-3 gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-semibold text-xs text-white truncate">{exam.name}</p>
-                                  {completed ? (
-                                    <div className="flex items-center gap-1.5 mt-1">
-                                      <span className={`text-[10px] font-black uppercase tracking-wider ${passed ? 'text-success' : 'text-danger'}`}>
-                                        {passed ? 'GEÇİLDİ' : 'TEKRAR'}
-                                      </span>
-                                      <span className="text-[10px] text-text-muted">• Başarı: {score}%</span>
-                                    </div>
-                                  ) : (
-                                    <p className="text-[10px] text-text-muted mt-1">Konu Değerlendirme Testi</p>
-                                  )}
-                                </div>
-
-                                <button
-                                  onClick={() => {
-                                    if (isLocked) {
-                                      trackEvent('pro_clicked', {
-                                        surface: 'exam_card_mobile',
-                                        contentType: 'exam',
-                                        examId: exam._id,
-                                        examName: exam.name,
-                                      });
-                                      navigate('/dashboard/settings?tab=pro');
-                                      return;
-                                    }
-                                    navigate(`/dashboard/exams/short-test/${exam._realCategoryId}`);
-                                  }}
-                                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 ${
-                                    isLocked
-                                      ? 'bg-warning/10 text-warning border border-warning/20'
-                                      : completed
-                                        ? 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
-                                        : 'bg-primary text-white shadow-md shadow-primary/20 hover:scale-[1.01]'
-                                  }`}
-                                >
-                                  {isLocked ? (
-                                    <>
-                                      <Lock className="w-3 h-3" /> PRO
-                                    </>
-                                  ) : completed ? (
-                                    'TEKRAR'
-                                  ) : (
-                                    <>
-                                      <Play className="w-3 h-3 fill-white" /> BAŞLAT
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-            )}
-          </div>
-        )}
-
-        {/* Deneme Tab: lists both standard general denemes and MEB simulators */}
-        {(activeTab === 'general' || activeTab === 'real_sim_cat') && (
-          <div className="space-y-4">
-            {/* Real MEB simulator card at the top (prominent like Flutter) */}
-            {realSimExams.map((exam) => {
-              const resultKey = exam._id;
-              const lastResult = latestResults[resultKey];
-              const score = Number(lastResult?.score || 0);
-              const completed = Boolean(lastResult);
-              const passed = Boolean(lastResult?.passed);
-              
-              return (
-                <div
-                  key={exam._id}
-                  className="relative overflow-hidden rounded-2xl border border-success/20 bg-gradient-to-br from-success/[0.04] to-transparent p-5"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-success/10 border border-success/20 text-success flex items-center justify-center shrink-0">
-                      <GraduationCap className="w-6 h-6" />
-                    </div>
-                    <div className="flex flex-col items-end gap-1.5">
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-success/10 text-success border border-success/20">
-                        MEB E-SINAV
-                      </span>
-                      {completed && (
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                          passed ? 'bg-success/15 text-success border-success/20' : 'bg-danger/15 text-danger border-danger/20'
-                        }`}>
-                          {passed ? 'GEÇİLDİ' : 'TEKRAR'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <h3 className="text-white font-black text-base">{exam.name}</h3>
-                    <p className="text-xs text-text-muted mt-1 leading-relaxed">{exam.description}</p>
-                  </div>
-
-                  {completed && (
-                    <div className="mt-4 rounded-xl bg-black/25 p-3 border border-white/5">
-                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider mb-1.5">
-                        <span className={passed ? 'text-success' : 'text-danger'}>{passed ? 'BAŞARILI' : 'TAMAMLANDI'}</span>
-                        <span className="text-white">{score}%</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
-                          style={{ width: `${Math.max(5, score)}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="mt-4 flex items-center gap-4 text-[10px] font-black text-text-muted uppercase tracking-wider py-3 border-y border-white/5">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-primary-light" /> {exam.duration || 45} DK
-                    </div>
-                    <div className="w-1 h-1 rounded-full bg-white/10" />
-                    <div className="flex items-center gap-1">
-                      <FileQuestion className="w-3.5 h-3.5 text-warning" /> 50 SORU
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => navigate(`/dashboard/exams/real-test/${user?.selectedCategoryId}`)}
-                    className="mt-4 w-full flex items-center justify-center gap-1.5 py-3 bg-success hover:bg-success/90 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-success/10 transition-all active:scale-95"
-                  >
-                    <Play className="w-4 h-4 fill-white" /> Sınavı Başlat
-                  </button>
-                </div>
-              );
-            })}
-
-            {/* Standard Denemes */}
-            <div className="space-y-3">
-              <h4 className="text-text-muted text-xs font-bold uppercase tracking-wider px-1">Deneme Sınavları</h4>
-              {generalExams.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
-                  <Target className="w-10 h-10 text-text-muted opacity-30 mb-2" />
-                  <p className="text-xs text-text-muted">Deneme sınavı bulunamadı.</p>
-                </div>
-              ) : (
-                generalExams.map((exam) => {
-                  const resultKey = exam._id;
-                  const lastResult = latestResults[resultKey];
-                  const score = Number(lastResult?.score || 0);
-                  const completed = Boolean(lastResult);
-                  const passed = Boolean(lastResult?.passed);
-                  const isLocked = exam.isPro && !user?.proStatus;
-
-                  return (
-                    <div
-                      key={exam._id}
-                      className="p-4 rounded-2xl border border-white/5 bg-[#171927]/60 shadow-md flex items-center gap-3.5"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 text-warning flex items-center justify-center shrink-0">
-                        <Target className="w-5 h-5" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-white font-bold text-sm truncate">{exam.name}</h4>
-                        <div className="flex items-center gap-1.5 mt-1 text-[10px] text-text-muted font-bold uppercase tracking-wider">
-                          <span>{exam.duration || 45} Dk</span>
-                          <span>•</span>
-                          <span>50 Soru</span>
-                          {completed && (
-                            <>
-                              <span>•</span>
-                              <span className={passed ? 'text-success font-black' : 'text-danger font-black'}>
-                                {score}%
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          if (isLocked) {
-                            trackEvent('pro_clicked', {
-                              surface: 'exam_card_mobile',
-                              contentType: 'exam',
-                              examId: exam._id,
-                              examName: exam.name,
-                            });
-                            navigate('/dashboard/settings?tab=pro');
-                            return;
-                          }
-                          navigate(`/dashboard/exams/${exam._id}`);
-                        }}
-                        className={`flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 ${
-                          isLocked
-                            ? 'bg-warning/10 text-warning border border-warning/20'
-                            : completed
-                              ? 'bg-white/5 text-white border border-white/10'
-                              : 'bg-primary text-white shadow-md shadow-primary/20 hover:scale-[1.01]'
-                        }`}
-                      >
-                        {isLocked ? (
-                          <>
-                            <Lock className="w-3 h-3" /> PRO
-                          </>
-                        ) : completed ? (
-                          'TEKRAR'
-                        ) : (
-                          <>
-                            <Play className="w-3 h-3 fill-white" /> BAŞLAT
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Yanlışlarım Tab */}
-        {activeTab === 'wrong_answers' && (
-          <div className="space-y-4">
-            <div className={`rounded-2xl border p-5 ${
-              reviewDueCount > 0
-                ? 'border-primary/20 bg-primary/10'
-                : 'border-white/5 bg-[#171927]/60'
-            }`}>
-              <div className="flex items-center gap-4">
-                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${
-                  reviewDueCount > 0
-                    ? 'border-primary/30 bg-primary/15 text-primary-light'
-                    : 'border-white/10 bg-black/20 text-text-muted'
-                }`}>
-                  <ListChecks className="h-6 w-6" />
-                </div>
+              <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
-                  <p className="mt-1 text-xs text-text-muted font-medium">
-                    {reviewDueCount > 0
-                      ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
-                      : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
+                  {/* Verify Badge */}
+                  <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#ff9f43]/15 text-[#ff9f43] border border-[#ff9f43]/20 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#ff9f43] animate-pulse" />
+                    Sınav Merkezi
+                  </div>
+                  <h1 className="text-white text-2xl font-black tracking-tight mt-3">Sınavlar</h1>
+                  <p className="text-text-muted text-xs font-semibold leading-relaxed mt-2.5">
+                    Gerçek sınav temposunda çözün, süreyi yönetin ve sonucu net görün.
                   </p>
                 </div>
+
+                {/* Count Dial */}
+                <div className="w-16 h-16 rounded-full bg-[#ff9f43]/10 border border-[#ff9f43]/20 flex flex-col items-center justify-center shrink-0 shadow-lg shadow-[#ff9f43]/5">
+                  <span className="text-white font-black text-lg leading-none">{realSimExams.length}</span>
+                  <span className="text-[#ff9f43] text-[9px] font-black uppercase tracking-widest mt-1">Sınav</span>
+                </div>
               </div>
-              <button
-                disabled={reviewDueCount === 0}
-                onClick={() => navigate('/dashboard/exams/wrong-review')}
-                className={`mt-4 w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
-                  reviewDueCount > 0
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.01]'
-                    : 'border border-white/5 bg-white/5 text-text-muted cursor-not-allowed'
-                }`}
-              >
-                <Play className="w-4 h-4 fill-current" />
-                {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
-              </button>
+
+              {/* Metric Row */}
+              <div className="grid grid-cols-3 gap-2 py-4 my-4 border-y border-white/5">
+                {/* metric 1 */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#ff9f43]/10 text-[#ff9f43] flex items-center justify-center shrink-0">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white font-black text-xs leading-none">45 dk</p>
+                    <p className="text-text-muted text-[9px] font-bold mt-1">Süre</p>
+                  </div>
+                </div>
+                {/* metric 2 */}
+                <div className="flex items-center gap-2 border-l border-white/5 pl-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#a55eea]/10 text-[#a55eea] flex items-center justify-center shrink-0">
+                    <ClipboardList className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white font-black text-xs leading-none">50</p>
+                    <p className="text-text-muted text-[9px] font-bold mt-1">Soru</p>
+                  </div>
+                </div>
+                {/* metric 3 */}
+                <div className="flex items-center gap-2 border-l border-white/5 pl-2">
+                  <div className="w-8 h-8 rounded-xl bg-[#2bcbba]/10 text-[#2bcbba] flex items-center justify-center shrink-0">
+                    <Target className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white font-black text-xs leading-none">Analiz</p>
+                    <p className="text-text-muted text-[9px] font-bold mt-1">Sonuçlar</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Buttons Row */}
+              <div className="flex gap-2">
+                <button
+                  disabled={realSimExams.length === 0}
+                  onClick={() => {
+                    if (realSimExams.length > 0) {
+                      navigate(`/dashboard/exams/real-test/${user?.selectedCategoryId}`);
+                    }
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#ff9f43] to-[#ff6b6b] text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-[#ff9f43]/20 hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  <Play className="w-4 h-4 fill-white" />
+                  Sınav Moduna Başla
+                </button>
+                <button
+                  onClick={() => navigate('/dashboard/stats')}
+                  className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 text-[#2bcbba] flex items-center justify-center shrink-0 hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Target className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            <UserWrongAnswers onCountChange={setWrongAnswerCount} />
+            {/* List Header */}
+            <div className="flex items-center justify-between gap-3 px-1 mt-6">
+              <div>
+                <h2 className="text-base font-black text-white">Gerçek Sınavlar</h2>
+                <p className="text-xs text-text-muted mt-0.5">MEB temposunda çöz, sonucu analiz ekranında takip et.</p>
+              </div>
+              <span className="inline-flex rounded-full border border-[#ff9f43]/20 bg-[#ff9f43]/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#ff9f43]">
+                {realSimExams.length} sınav
+              </span>
+            </div>
+
+            {/* Real MEB simulator card list */}
+            <div className="space-y-4">
+              {realSimExams.map((exam) => {
+                const isSyntheticSimulator = exam._isRealMeb;
+                const resultKey = exam._id;
+                const lastResult = latestResults[resultKey];
+                const score = Number(lastResult?.score || 0);
+                const completed = Boolean(lastResult);
+                const passed = Boolean(lastResult?.passed);
+
+                return (
+                  <div
+                    key={exam._id}
+                    className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#171927]/60 p-5 shadow-lg flex flex-col justify-between gap-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-[#ff9f43]/10 border border-[#ff9f43]/20 text-[#ff9f43] flex items-center justify-center shrink-0">
+                        <GraduationCap className="w-6 h-6" />
+                      </div>
+                      <div className="flex flex-col items-end gap-1.5">
+                        <span className="px-2.5 py-1 bg-[#ff9f43]/10 text-[#ff9f43] border border-[#ff9f43]/20 rounded-xl text-[9px] font-black uppercase tracking-widest">
+                          MEB E-SINAV
+                        </span>
+                        {completed && (
+                          <span className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+                            passed ? 'bg-success/15 text-success border-success/20' : 'bg-danger/15 text-danger border-danger/20'
+                          }`}>
+                            {passed ? 'GEÇİLDİ' : 'TEKRAR'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-white font-black text-base">{exam.name}</h3>
+                      <p className="text-xs text-text-muted mt-2 leading-relaxed font-semibold">{exam.description}</p>
+                    </div>
+
+                    {completed && (
+                      <div className="rounded-2xl bg-black/20 p-3.5 border border-white/5">
+                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                          <span className={passed ? 'text-success' : 'text-danger'}>
+                            {passed ? 'BAŞARILI' : 'TAMAMLANDI'}
+                          </span>
+                          <span className="text-white font-black">{score}%</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                          <div
+                            className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
+                            style={{ width: `${Math.max(5, score)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3 py-3 border-y border-white/5 text-[10px] font-black text-text-secondary uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-[#ff9f43]" />
+                        <span>{exam.duration || 45} DAKİKA</span>
+                      </div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
+                      <div className="flex items-center gap-1.5">
+                        <ClipboardList className="w-3.5 h-3.5 text-[#a55eea]" />
+                        <span>50 SORU</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => navigate(
+                        isSyntheticSimulator
+                          ? `/dashboard/exams/real-test/${user?.selectedCategoryId}`
+                          : `/dashboard/exams/${exam._id}?mode=real`
+                      )}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#ff9f43] hover:bg-[#ff9f43]/90 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-[#ff9f43]/10 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Play className="w-4.5 h-4.5 fill-white" />
+                      Sınavı Başlat
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          // Soru Merkezi View (TestListScreen Parity)
+          <div className="space-y-6 animate-fadeIn">
+            {/* Premium Header Card */}
+            <div className="relative overflow-hidden rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-[#20193A] to-[#111827] shadow-xl">
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-radial-gradient(circle, #6366f1, transparent)" />
+              </div>
+
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-cyan-400 flex items-center justify-center text-white shrink-0 shadow-lg shadow-primary/30">
+                  <FileQuestion className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-text-muted text-[11px] font-bold uppercase tracking-wider">Soru ve sınav pratiği</p>
+                  <h1 className="text-white text-2xl font-black tracking-tight mt-0.5">Soru Merkezi</h1>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 relative z-10">
+                <button
+                  onClick={() => {
+                    const incomplete = shortTests.find(t => !latestResults[`short_${t._realCategoryId}`]);
+                    const target = incomplete || shortTests[0];
+                    if (target) navigate(`/dashboard/exams/short-test/${target._realCategoryId}`);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-warning/15 border border-warning/20 text-warning rounded-xl text-xs font-black uppercase tracking-wider hover:bg-warning/25 transition-all active:scale-95 cursor-pointer"
+                >
+                  <Play className="w-3.5 h-3.5 fill-warning" /> Hızlı Test <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => navigate('/dashboard/stats')}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-indigo-500/15 border border-indigo-500/20 text-indigo-300 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-indigo-500/25 transition-all active:scale-95 cursor-pointer"
+                >
+                  <Target className="w-3.5 h-3.5" /> İstatistikler <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modern Tab Bar */}
+            <div className="p-1 bg-white/5 border border-white/5 rounded-full flex gap-1">
+              {[
+                { id: 'short_tests', label: 'Kısa Testler' },
+                { id: 'general', label: 'Deneme' },
+                { id: 'wrong_answers', label: 'Yanlışlarım' }
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      handleTabChange(tab.id);
+                    }}
+                    className={`flex-1 text-center py-2.5 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? 'bg-primary text-white shadow-lg shadow-primary/40'
+                        : 'text-text-muted hover:text-white'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Tab Content */}
+            {activeTab === 'short_tests' && (
+              <div className="space-y-3">
+                {Object.keys(shortGroups).length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <FileQuestion className="w-12 h-12 text-text-muted opacity-30 mb-3" />
+                    <p className="text-sm font-bold text-text-muted">Kısa test bulunamadı.</p>
+                  </div>
+                ) : (
+                  Object.entries(shortGroups)
+                    .sort(([a], [b]) => a.localeCompare(b, 'tr'))
+                    .map(([groupName, count]) => {
+                      const isExpanded = expandedCategories[groupName];
+                      const groupExams = shortTests.filter(e => getParentName(e.categoryId) === groupName);
+                      const matchedCat = validCategories.find(c => c.name === groupName || getCategoryName(c._id) === groupName);
+                      const categoryColor = matchedCat?.color || '#6366f1';
+
+                      return (
+                        <div
+                          key={groupName}
+                          className="border border-white/5 bg-[#171927]/60 rounded-2xl overflow-hidden transition-all duration-300 shadow-md animate-fadeIn"
+                        >
+                          {/* Header */}
+                          <button
+                            onClick={() => toggleCategory(groupName)}
+                            className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors cursor-pointer"
+                          >
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center border shrink-0"
+                              style={{
+                                backgroundColor: `${categoryColor}1f`,
+                                borderColor: `${categoryColor}33`,
+                                color: categoryColor
+                              }}
+                            >
+                              <BookOpen className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-sm text-white truncate">{groupName}</h3>
+                              <p className="text-[11px] text-text-muted mt-0.5">{count} Soru • Süreli değil</p>
+                            </div>
+                            <ChevronDown
+                              className={`w-5 h-5 text-text-muted transition-transform duration-300 ${
+                                isExpanded ? 'rotate-180 text-white' : ''
+                              }`}
+                            />
+                          </button>
+
+                          {/* Children List */}
+                          {isExpanded && (
+                            <div className="border-t border-white/5 bg-black/15 divide-y divide-white/5 px-2 animate-slideDown">
+                              {groupExams.map((exam) => {
+                                const resultKey = `short_${exam._realCategoryId}`;
+                                const lastResult = latestResults[resultKey];
+                                const score = Number(lastResult?.score || 0);
+                                const completed = Boolean(lastResult);
+                                const passed = Boolean(lastResult?.passed);
+                                const isLocked = exam.isPro && !user?.proStatus;
+
+                                return (
+                                  <div key={exam._id} className="flex items-center justify-between p-3 gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-semibold text-xs text-white truncate">{exam.name}</p>
+                                      {completed ? (
+                                        <div className="flex items-center gap-1.5 mt-1">
+                                          <span className={`text-[10px] font-black uppercase tracking-wider ${passed ? 'text-success' : 'text-danger'}`}>
+                                            {passed ? 'GEÇİLDİ' : 'TEKRAR'}
+                                          </span>
+                                          <span className="text-[10px] text-text-muted">• Başarı: {score}%</span>
+                                        </div>
+                                      ) : (
+                                        <p className="text-[10px] text-text-muted mt-1">Konu Değerlendirme Testi</p>
+                                      )}
+                                    </div>
+
+                                    <button
+                                      onClick={() => {
+                                        if (isLocked) {
+                                          trackEvent('pro_clicked', {
+                                            surface: 'exam_card_mobile',
+                                            contentType: 'exam',
+                                            examId: exam._id,
+                                            examName: exam.name,
+                                          });
+                                          navigate('/dashboard/settings?tab=pro');
+                                          return;
+                                        }
+                                        navigate(`/dashboard/exams/short-test/${exam._realCategoryId}`);
+                                      }}
+                                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
+                                        isLocked
+                                          ? 'bg-warning/10 text-warning border border-warning/20'
+                                          : completed
+                                            ? 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
+                                            : 'bg-primary text-white shadow-md shadow-primary/20 hover:scale-[1.01]'
+                                      }`}
+                                    >
+                                      {isLocked ? (
+                                        <>
+                                          <Lock className="w-3 h-3" /> PRO
+                                        </>
+                                      ) : completed ? (
+                                        'TEKRAR'
+                                      ) : (
+                                        <>
+                                          <Play className="w-3 h-3 fill-white" /> BAŞLAT
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+            )}
+
+            {activeTab === 'general' && (
+              <div className="space-y-3">
+                <h4 className="text-text-muted text-xs font-bold uppercase tracking-wider px-1">Deneme Sınavları</h4>
+                {generalExams.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center bg-white/5 rounded-2xl border border-dashed border-white/10">
+                    <Target className="w-10 h-10 text-text-muted opacity-30 mb-2" />
+                    <p className="text-xs text-text-muted">Deneme sınavı bulunamadı.</p>
+                  </div>
+                ) : (
+                  generalExams.map((exam) => {
+                    const resultKey = exam._id;
+                    const lastResult = latestResults[resultKey];
+                    const score = Number(lastResult?.score || 0);
+                    const completed = Boolean(lastResult);
+                    const passed = Boolean(lastResult?.passed);
+                    const isLocked = exam.isPro && !user?.proStatus;
+
+                    return (
+                      <div
+                        key={exam._id}
+                        className="p-4 rounded-2xl border border-white/5 bg-[#171927]/60 shadow-md flex items-center gap-3.5 animate-fadeIn"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 text-warning flex items-center justify-center shrink-0">
+                          <Target className="w-5 h-5" />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-bold text-sm truncate">{exam.name}</h4>
+                          <div className="flex items-center gap-1.5 mt-1 text-[10px] text-text-muted font-bold uppercase tracking-wider">
+                            <span>{exam.duration || 45} Dk</span>
+                            <span>•</span>
+                            <span>50 Soru</span>
+                            {completed && (
+                              <>
+                                <span>•</span>
+                                <span className={passed ? 'text-success font-black' : 'text-danger font-black'}>
+                                  {score}%
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            if (isLocked) {
+                              trackEvent('pro_clicked', {
+                                surface: 'exam_card_mobile',
+                                contentType: 'exam',
+                                examId: exam._id,
+                                examName: exam.name,
+                              });
+                              navigate('/dashboard/settings?tab=pro');
+                              return;
+                            }
+                            navigate(`/dashboard/exams/${exam._id}`);
+                          }}
+                          className={`flex items-center gap-1 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shrink-0 cursor-pointer ${
+                            isLocked
+                              ? 'bg-warning/10 text-warning border border-warning/20'
+                              : completed
+                                ? 'bg-white/5 text-white border border-white/10'
+                                : 'bg-primary text-white shadow-md shadow-primary/20 hover:scale-[1.01]'
+                          }`}
+                        >
+                          {isLocked ? (
+                            <>
+                              <Lock className="w-3 h-3" /> PRO
+                            </>
+                          ) : completed ? (
+                            'TEKRAR'
+                          ) : (
+                            <>
+                              <Play className="w-3 h-3 fill-white" /> BAŞLAT
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+
+            {activeTab === 'wrong_answers' && (
+              <div className="space-y-4 animate-fadeIn">
+                <div className={`rounded-2xl border p-5 ${
+                  reviewDueCount > 0
+                    ? 'border-primary/20 bg-primary/10'
+                    : 'border-white/5 bg-[#171927]/60'
+                }`}>
+                  <div className="flex items-center gap-4">
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${
+                      reviewDueCount > 0
+                        ? 'border-primary/30 bg-primary/15 text-primary-light'
+                        : 'border-white/10 bg-black/20 text-text-muted'
+                    }`}>
+                      <AlertCircle className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
+                      <p className="mt-1 text-xs text-text-muted font-medium">
+                        {reviewDueCount > 0
+                          ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
+                          : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    disabled={reviewDueCount === 0}
+                    onClick={() => navigate('/dashboard/exams/wrong-review')}
+                    className={`mt-4 w-full flex items-center justify-center gap-1.5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                      reviewDueCount > 0
+                        ? 'bg-primary text-white shadow-lg shadow-primary/20 hover:scale-[1.01]'
+                        : 'border border-white/5 bg-white/5 text-text-muted cursor-not-allowed'
+                    }`}
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
+                  </button>
+                </div>
+                <UserWrongAnswers onCountChange={setWrongAnswerCount} />
+              </div>
+            )}
           </div>
         )}
       </div>

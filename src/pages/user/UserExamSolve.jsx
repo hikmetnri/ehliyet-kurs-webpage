@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -228,6 +228,7 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
 const UserExamSolve = ({ customType }) => {
   const { examId, categoryId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
 
   const [exam, setExam] = useState(null);
@@ -400,11 +401,16 @@ const UserExamSolve = ({ customType }) => {
     fetchExam();
   }, [examId, categoryId, customType, user?.selectedCategoryId, reloadKey]);
 
-  const mode = customType === 'short_test' ? 'short' :
+  const forceRealMode = searchParams.get('mode') === 'real';
+  const mode = forceRealMode ? 'real' :
+               customType === 'short_test' ? 'short' :
                customType === 'wrong_review' ? 'review' :
                customType === 'wrong_answers' ? 'wrong' :
                customType === 'real_test' ? 'real' :
-               (!exam?.categoryId ? 'mock' : 'real');
+               (exam?.name && !exam.name.toLowerCase().includes('deneme') ? 'real' : 'mock');
+  const persistedTestType = mode === 'real'
+    ? 'real_exam'
+    : customType || (exam?.categoryId ? 'mock_exam' : 'exam');
                
   const showFeedback = mode === 'short' || mode === 'mock' || mode === 'review' || mode === 'wrong';
   const reviewTotalCount = exam?.reviewTotalCount || questions.length;
@@ -481,7 +487,7 @@ const UserExamSolve = ({ customType }) => {
       const resultPayload = {
         examId: (customType === 'short_test' || customType === 'real_test' || isWrongPoolMode) ? null : examId,
         examName: exam?.name,
-        testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
+        testType: persistedTestType,
         categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
         categoryName: exam?.categoryName || (typeof exam?.categoryId === 'object' ? exam?.categoryId?.name : ''),
         totalQuestions: total,
@@ -499,7 +505,7 @@ const UserExamSolve = ({ customType }) => {
         correctQuestionIds,
         categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
         categoryName: exam?.categoryName || (typeof exam?.categoryId === 'object' ? exam?.categoryId?.name : ''),
-        testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
+        testType: persistedTestType,
       };
 
       const syncWrongAnswers = async () => api.post('/wrong-answers/bulk', wrongAnswerPayload).then((res) => {
