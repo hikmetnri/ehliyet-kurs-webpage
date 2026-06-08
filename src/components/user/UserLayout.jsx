@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link, useSearchParams } from 'react-router-dom';
 import UserSidebar from './UserSidebar';
 import UserBottomNav from './UserBottomNav';
+import FloatingAIChat from './FloatingAIChat';
 
 import CategorySelectorModal from './CategorySelectorModal';
 import NotificationPanel from './NotificationPanel';
@@ -44,8 +45,13 @@ const UserLayout = ({ fullscreen = false }) => {
   const showCategoryModal = Boolean(user && !user.selectedCategoryId);
   const fullName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Öğrenci';
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const currentPage = getPageMeta(location.pathname);
   const hideHeaderOnMobile = ['/dashboard', '/dashboard/', '/dashboard/settings', '/dashboard/settings/'].includes(location.pathname);
+  const isRealExamRoute =
+    location.pathname.startsWith('/dashboard/exams/real-test/') ||
+    (location.pathname.startsWith('/dashboard/exams/') && searchParams.get('mode') === 'real');
+  const hideFloatingAIChat = isRealExamRoute || location.pathname === '/dashboard/ai-chat';
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -141,7 +147,7 @@ const UserLayout = ({ fullscreen = false }) => {
             </div>
 
             {/* User XP Badge */}
-            <div className="flex items-center gap-2 border-l border-white/10 pl-2 sm:gap-3 sm:pl-3 lg:pl-4">
+            <Link to="/dashboard/settings" className="flex items-center gap-2 border-l border-white/10 pl-2 sm:gap-3 sm:pl-3 lg:pl-4 hover:opacity-85 transition-opacity cursor-pointer">
               <div className="hidden max-w-[180px] text-right sm:block lg:max-w-[220px]">
                 <p className="truncate text-xs font-bold leading-none text-white">{fullName}</p>
                 <div className="flex items-center justify-end gap-1.5 mt-1">
@@ -169,7 +175,7 @@ const UserLayout = ({ fullscreen = false }) => {
                   </div>
                 )}
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 
@@ -177,6 +183,7 @@ const UserLayout = ({ fullscreen = false }) => {
         <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto px-4 py-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:p-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
           <Outlet />
         </main>
+        {!hideFloatingAIChat && <FloatingAIChat />}
         {!fullscreen && <UserBottomNav />}
       </div>
     </div>

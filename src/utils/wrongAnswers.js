@@ -64,6 +64,7 @@ const mapWrongAnswerToQuestion = (item, source) => {
     userAnswer: item?.userAnswer,
     explanation: source?.explanation || item?.explanation || '',
     media: source?.media || item?.media || '',
+    mediaDescription: source?.mediaDescription || item?.mediaDescription || '',
     category: sourceCategory || item?.categoryId || '',
     categoryName: sourceCategory?.name || item?.categoryName || '',
     testType: source?.testType || item?.testType || 'wrong_answers',

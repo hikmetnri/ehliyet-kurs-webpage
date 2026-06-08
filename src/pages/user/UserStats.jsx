@@ -6,6 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search, BookOpen, PlayCircle, CheckCircle2, XCircle, HelpCircle, AlertCircle, Percent } from 'lucide-react';
 import ExamDetailModal from '../../components/user/ExamDetailModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
+import { buildScopedStats, filterResultsToCategoryTree } from '../../utils/scopedStats';
+import { normalizeId, readApiList } from '../../utils/wrongAnswers';
+import { clearAiPageContext, compactStatsContext, setAiPageContext } from '../../utils/aiPageContext';
 
 const ICON_MAP = { Award, Star, Trophy, Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart };
 
@@ -95,24 +98,54 @@ const UserStats = () => {
   const [lbLoading, setLbLoading] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [selectedResult, setSelectedResult] = useState(null);
+  const [scopeLabel, setScopeLabel] = useState('Tüm eğitimler');
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [statsRes, catRes, badgesRes, resultsRes] = await Promise.allSettled([
+        const [statsRes, catRes, badgesRes, resultsRes, categoryRes] = await Promise.allSettled([
           api.get('/exam-results/stats'),
           api.get('/exam-results/category-stats'),
           api.get('/badges/my'),
-          api.get('/exam-results?limit=10')
+          api.get('/exam-results?limit=500'),
+          user?.selectedCategoryId
+            ? api.get('/categories/all')
+            : Promise.resolve({ data: [] }),
         ]);
 
-        if (statsRes.status === 'fulfilled') setStats(statsRes.value.data);
-        if (catRes.status === 'fulfilled') setCatStats(catRes.value.data || []);
-        if (badgesRes.status === 'fulfilled') setBadges(badgesRes.value.data || []);
-        if (resultsRes.status === 'fulfilled') {
-          const data = resultsRes.value.data;
-          setRecentResults(data?.data || data || []);
+        const baseStats = statsRes.status === 'fulfilled' ? statsRes.value.data : {};
+        const allResults = resultsRes.status === 'fulfilled' ? readApiList(resultsRes.value) : [];
+        const categories = categoryRes.status === 'fulfilled' ? readApiList(categoryRes.value) : [];
+        const selectedCategoryId = normalizeId(user?.selectedCategoryId);
+        const scoped = buildScopedStats({
+          baseStats,
+          results: allResults,
+          categories,
+          selectedCategoryId,
+        });
+
+        setStats(scoped.stats);
+        if (catRes.status === 'fulfilled') {
+          const rawCatStats = catRes.value.data || [];
+          if (selectedCategoryId) {
+            const scopedCategoryIds = new Set(
+              filterResultsToCategoryTree(
+                categories.map((category) => ({ categoryId: category._id || category.id })),
+                categories,
+                selectedCategoryId,
+              ).map((item) => normalizeId(item.categoryId)),
+            );
+            setCatStats(rawCatStats.filter((item) => {
+              const categoryId = normalizeId(item.categoryId || item.category);
+              return !categoryId || scopedCategoryIds.has(categoryId);
+            }));
+          } else {
+            setCatStats(rawCatStats);
+          }
         }
+        if (badgesRes.status === 'fulfilled') setBadges(badgesRes.value.data || []);
+        setRecentResults(scoped.results.slice(0, 20));
+        setScopeLabel(selectedCategoryId ? (user?.selectedCategoryName || 'Seçili eğitim') : 'Tüm eğitimler');
       } catch (err) {
         console.error("Fetch Error:", err);
       } finally {
@@ -120,7 +153,24 @@ const UserStats = () => {
       }
     };
     fetchAll();
-  }, []);
+  }, [user?.selectedCategoryId, user?.selectedCategoryName]);
+
+  useEffect(() => {
+    if (!stats) {
+      clearAiPageContext('stats');
+      return undefined;
+    }
+
+    setAiPageContext(compactStatsContext({
+      stats,
+      catStats,
+      recentResults,
+      scopeLabel,
+      selectedCategoryName: user?.selectedCategoryName || '',
+    }));
+
+    return () => clearAiPageContext('stats');
+  }, [stats, catStats, recentResults, scopeLabel, user?.selectedCategoryName]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -273,6 +323,7 @@ const UserStats = () => {
                           </span>
                         </div>
                         <h2 className="mt-4 text-2xl font-black tracking-tight text-white">Performans Özeti</h2>
+                        <p className="mt-1 text-xs font-black uppercase tracking-widest text-primary-light">{scopeLabel}</p>
                         <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
                           {stats?.totalExams || 0} sınavda {totalQ} soru çözüldü. Doğru-yanlış dağılımı ve süre bilgileri aşağıdaki panellerde toplanıyor.
                         </p>

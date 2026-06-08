@@ -3,8 +3,8 @@ import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
-  User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, CalendarDays, Trash2, MapPinned, ArrowRight,
-  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles,
+  User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, ShieldCheck, CalendarDays, Trash2, MapPinned, ArrowRight,
+  BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles, Bot,
   Settings, RefreshCw, LayoutGrid
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
@@ -21,6 +21,30 @@ const getStoredExamDateInput = () => {
   } catch {
     return '';
   }
+};
+
+const getProfileSignLibraryLabel = (categoryName) => {
+  const normalized = String(categoryName || '')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/[ç]/g, 'c')
+    .replace(/[ğ]/g, 'g')
+    .replace(/[ıi]/g, 'i')
+    .replace(/[ö]/g, 'o')
+    .replace(/[ş]/g, 's')
+    .replace(/[ü]/g, 'u');
+
+  const isWorkSafety = [
+    'is makinesi',
+    'operator',
+    'forklift',
+    'vinc',
+    'kepce',
+    'g sinif',
+    'is guvenligi',
+    'isg',
+  ].some((keyword) => normalized.includes(keyword));
+
+  return isWorkSafety ? 'İş Sağlığı Levhaları' : 'Trafik Levhaları';
 };
 
 const UserSettings = () => {
@@ -300,6 +324,7 @@ const UserSettings = () => {
       title: 'Çalışma Kısayolları',
       items: [
         { to: '/dashboard/stats', icon: BarChart2, label: 'İstatistikler', description: 'Performans ve gelişim' },
+        { to: '/dashboard/ai-chat', icon: Bot, label: 'Sınav Koçu', description: 'Tam sayfa sohbet' },
         { to: '/dashboard/favorites', icon: Star, label: 'Favoriler', description: 'Kaydedilen sorular' },
         { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: 'Trafik İşaretleri', description: 'Levha kütüphanesi' },
         { to: '/dashboard/videos', icon: PlayCircle, label: 'Video Dersler', description: 'Görsel anlatımlar' },
@@ -430,6 +455,63 @@ const UserSettings = () => {
   const reminderLabel = `${String(notifData.notifHour).padStart(2, '0')}:${String(notifData.notifMinute).padStart(2, '0')}`;
   const examDateLabel = formatExamDate(notifData.examDate);
   const earnedBadges = DEFAULT_BADGES.filter((badge) => badge.isEarned).length;
+  const profileCompletionItems = [
+    Boolean(profileData.firstName && profileData.lastName),
+    Boolean(profileData.phone),
+    Boolean(profileData.city && profileData.district),
+    Boolean(profileData.bio),
+    Boolean(user?.avatarUrl),
+  ];
+  const profileCompletion = Math.round((profileCompletionItems.filter(Boolean).length / profileCompletionItems.length) * 100);
+  const desktopProfileHighlights = [
+    {
+      label: 'Eğitim Paketi',
+      value: user?.selectedCategoryName || 'Kategori seçilmedi',
+      detail: user?.selectedCategoryId ? 'Web arayüzünde sabit' : 'İlk seçim bekleniyor',
+      icon: LayoutGrid,
+      tone: 'primary',
+    },
+    {
+      label: 'Konum',
+      value: locationLabel,
+      detail: profileData.city ? 'Kurs önerileri için kullanılır' : 'Profilinden ekleyebilirsin',
+      icon: MapPinned,
+      tone: 'accent',
+    },
+    {
+      label: 'Günlük Hedef',
+      value: `${notifData.dailyGoal || 20} soru`,
+      detail: `${reminderLabel} hatırlatma saati`,
+      icon: Bell,
+      tone: 'success',
+    },
+    {
+      label: 'Sınav Tarihi',
+      value: examDateLabel,
+      detail: notifData.examDate ? 'Çalışma planına bağlı' : 'Tarih seçilmedi',
+      icon: CalendarDays,
+      tone: 'warning',
+    },
+  ];
+  const profileChecklist = [
+    { label: 'Ad soyad', detail: 'Panelde görünen kimlik', done: Boolean(profileData.firstName && profileData.lastName) },
+    { label: 'Telefon', detail: 'Kurs ve destek iletişimi', done: Boolean(profileData.phone) },
+    { label: 'Konum', detail: 'Yakındaki kurs önerileri', done: Boolean(profileData.city && profileData.district) },
+    { label: 'Hakkımda', detail: 'Profil özet alanı', done: Boolean(profileData.bio) },
+    { label: 'Fotoğraf', detail: 'Kişisel görünüm', done: Boolean(user?.avatarUrl) },
+  ];
+  const learningIdentity = [
+    { label: 'Seçili Eğitim', value: user?.selectedCategoryName || 'Seçilmedi', icon: LayoutGrid },
+    { label: 'Levha Seti', value: getProfileSignLibraryLabel(user?.selectedCategoryName), icon: TriangleAlert },
+    { label: 'Hatırlatma', value: notifData.notifEnabled ? reminderLabel : 'Kapalı', icon: Bell },
+    { label: 'Soru Hedefi', value: `${notifData.dailyGoal || 20} / gün`, icon: BookOpen },
+  ];
+  const profileActions = [
+    { label: 'Profili Düzenle', detail: 'Kimlik ve konum bilgileri', icon: User, onClick: () => setActiveTab('profile') },
+    { label: 'Hedefleri Ayarla', detail: 'Sınav tarihi ve günlük hedef', icon: CalendarDays, onClick: () => setActiveTab('notifications') },
+    { label: 'Şifre ve Güvenlik', detail: 'Hesap giriş bilgileri', icon: Lock, onClick: () => setActiveTab('account') },
+    { label: 'Destek Talebi', detail: 'Yardım ve mesajlar', icon: Headphones, onClick: () => navigate('/dashboard/support') },
+  ];
 
   // Helper to render responsive slide-up sheets
   const renderMobileModal = (isOpen, onClose, title, children) => {
@@ -484,7 +566,205 @@ const UserSettings = () => {
       )}
 
       {/* ── DESKTOP VIEW ── */}
-      <div className="hidden lg:block space-y-6">
+      <div className="hidden lg:block">
+        <div className="mx-auto grid max-w-[1240px] gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+          <aside className="space-y-4">
+            <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+              <button
+                type="button"
+                onClick={handleAvatarClick}
+                className="group relative mx-auto mb-5 flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]"
+                title="Profil fotoğrafını değiştir"
+              >
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Profil" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-10 w-10 text-primary-light" />
+                )}
+                <span className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition group-hover:opacity-100">
+                  <Camera className="h-7 w-7 text-white" />
+                </span>
+              </button>
+              <h2 className="truncate text-center text-2xl font-black text-white">{displayName}</h2>
+              <p className="mt-2 text-center text-sm font-semibold leading-6 text-text-muted">
+                {profileData.bio || 'Profil özetini doldurduğunda burası daha kişisel görünür.'}
+              </p>
+              <div className="mt-5 grid grid-cols-3 gap-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3 text-center">
+                  <p className="text-lg font-black text-white">{stats.totalExams || 0}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Test</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3 text-center">
+                  <p className="text-lg font-black text-white">{stats.successRate || 0}%</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Başarı</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-3 text-center">
+                  <p className="text-lg font-black text-white">{earnedBadges}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Rozet</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-4">
+              <p className="mb-3 px-1 text-[10px] font-black uppercase tracking-widest text-text-muted">Ayar Bölümleri</p>
+              <div className="space-y-2">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${
+                        isActive
+                          ? 'border-primary/25 bg-primary/10 text-white'
+                          : 'border-white/10 bg-white/[0.02] text-text-muted hover:bg-white/[0.05] hover:text-white'
+                      }`}
+                    >
+                      <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-primary-light' : ''}`} />
+                      <span className="text-sm font-black">{tab.label}</span>
+                      <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-4">
+              <p className="mb-3 px-1 text-[10px] font-black uppercase tracking-widest text-text-muted">Kısayollar</p>
+              <div className="grid gap-2">
+                {[
+                  { to: '/dashboard/stats', icon: BarChart2, label: 'İstatistikler' },
+                  { to: '/dashboard/ai-chat', icon: Bot, label: 'Sınav Koçu' },
+                  { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: getProfileSignLibraryLabel(user?.selectedCategoryName) },
+                  { to: '/dashboard/support', icon: Headphones, label: 'Destek' },
+                ].map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.to} to={item.to} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-bold text-text-secondary transition hover:bg-white/[0.05] hover:text-white">
+                      <Icon className="h-4.5 w-4.5 text-primary-light" />
+                      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                      <ArrowRight className="h-4 w-4 opacity-50" />
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+          </aside>
+
+          <main className="min-w-0 rounded-3xl border border-white/10 bg-[#0d1017] p-6">
+            <div className="mb-6 flex flex-col gap-3 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Profil ve Ayarlar</p>
+                <h1 className="mt-2 text-2xl font-black tracking-tight text-white">
+                  {tabs.find((tab) => tab.id === activeTab)?.label || 'Ayarlar'}
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-text-muted">
+                  Masaüstünde sadece gerekli alanlar gösterilir; detay kısayolları solda durur.
+                </p>
+              </div>
+              <span className={`w-fit rounded-full border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest ${
+                user?.proStatus
+                  ? 'border-success/25 bg-success/10 text-success'
+                  : 'border-white/10 bg-white/[0.035] text-text-secondary'
+              }`}>
+                {user?.proStatus ? 'PRO Üye' : 'Ücretsiz Plan'}
+              </span>
+            </div>
+
+            {activeTab === 'profile' && (
+              <form onSubmit={saveProfile} className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <DesktopField label="Ad">
+                    <input name="firstName" value={profileData.firstName} onChange={handleProfileChange} className={desktopFieldClass} placeholder="Adınız" />
+                  </DesktopField>
+                  <DesktopField label="Soyad">
+                    <input name="lastName" value={profileData.lastName} onChange={handleProfileChange} className={desktopFieldClass} placeholder="Soyadınız" />
+                  </DesktopField>
+                  <DesktopField label="Telefon">
+                    <input name="phone" value={profileData.phone} onChange={handleProfileChange} className={desktopFieldClass} placeholder="05xx xxx xx xx" />
+                  </DesktopField>
+                  <DesktopField label="Şehir">
+                    <select name="city" value={profileData.city} onChange={handleProfileCityChange} className={desktopFieldClass}>
+                      <option value="" className="bg-bg-card">Şehir seçin</option>
+                      {TURKEY_CITIES.map(city => <option key={city} value={city} className="bg-bg-card">{city}</option>)}
+                    </select>
+                  </DesktopField>
+                  <DesktopField label="İlçe">
+                    <select name="district" value={profileData.district} onChange={handleProfileChange} disabled={!profileData.city} className={desktopFieldClass}>
+                      <option value="" className="bg-bg-card">İlçe seçin</option>
+                      {profileDistrictOptions.map(district => <option key={district} value={district} className="bg-bg-card">{district}</option>)}
+                    </select>
+                  </DesktopField>
+                  <DesktopField label="Eğitim Paketi">
+                    <button type="button" onClick={() => setIsCategoryModalOpen(true)} className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 text-left text-sm font-black text-white transition hover:bg-white/[0.07]">
+                      <span className="truncate">{user?.selectedCategoryName || 'Kategori seçilmedi'}</span>
+                      <RefreshCw className="h-4 w-4 text-primary-light" />
+                    </button>
+                  </DesktopField>
+                </div>
+                <DesktopField label="Hakkımda">
+                  <textarea name="bio" value={profileData.bio} onChange={handleProfileChange} className={`${desktopFieldClass} min-h-[120px] resize-none`} placeholder="Kısa bir profil notu..." />
+                </DesktopField>
+                <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light disabled:opacity-60">
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Profili Kaydet
+                </button>
+              </form>
+            )}
+
+            {activeTab === 'account' && (
+              <form onSubmit={savePassword} className="max-w-2xl space-y-5">
+                <DesktopField label="Mevcut Şifre">
+                  <input type="password" name="currentPassword" value={passwordData.currentPassword} onChange={handlePasswordChange} className={desktopFieldClass} />
+                </DesktopField>
+                <DesktopField label="Yeni Şifre">
+                  <input type="password" name="newPassword" value={passwordData.newPassword} onChange={handlePasswordChange} className={desktopFieldClass} />
+                </DesktopField>
+                <DesktopField label="Yeni Şifre Tekrar">
+                  <input type="password" name="confirmPassword" value={passwordData.confirmPassword} onChange={handlePasswordChange} className={desktopFieldClass} />
+                </DesktopField>
+                <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light disabled:opacity-60">
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+                  Şifreyi Güncelle
+                </button>
+              </form>
+            )}
+
+            {activeTab === 'notifications' && (
+              <form onSubmit={savePreferences} className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <DesktopField label="Günlük Soru Hedefi">
+                    <input type="number" min="5" max="200" name="dailyGoal" value={notifData.dailyGoal} onChange={handleNotifChange} className={desktopFieldClass} />
+                  </DesktopField>
+                  <DesktopField label="Sınav Tarihi">
+                    <input ref={examDateInputRef} type="date" name="examDate" value={notifData.examDate} onChange={handleNotifChange} className={desktopFieldClass} onClick={openExamDatePicker} />
+                  </DesktopField>
+                  <DesktopField label="Hatırlatma Saati">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="number" min="0" max="23" name="notifHour" value={notifData.notifHour} onChange={handleNotifChange} className={desktopFieldClass} />
+                      <input type="number" min="0" max="59" name="notifMinute" value={notifData.notifMinute} onChange={handleNotifChange} className={desktopFieldClass} />
+                    </div>
+                  </DesktopField>
+                  <DesktopField label="Bildirim">
+                    <label className="flex min-h-[48px] items-center justify-between rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3">
+                      <span className="text-sm font-black text-white">Günlük hatırlatma</span>
+                      <input type="checkbox" name="notifEnabled" checked={notifData.notifEnabled} onChange={handleNotifChange} className="h-5 w-5 rounded border-white/20 bg-white/10 text-primary focus:ring-primary/40" />
+                    </label>
+                  </DesktopField>
+                </div>
+                <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light disabled:opacity-60">
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  Tercihleri Kaydet
+                </button>
+              </form>
+            )}
+          </main>
+        </div>
+      </div>
+
+      <div className="hidden">
         <div className="flex items-start justify-between gap-6">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5">
@@ -509,6 +789,202 @@ const UserSettings = () => {
             </span>
           </div>
         </div>
+
+        <section className="overflow-hidden rounded-3xl border border-white/10 bg-[#0d1017] shadow-sm shadow-black/20">
+          <div className="grid gap-0 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="relative p-6 xl:p-7">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary/60 via-accent/40 to-transparent" />
+              <div className="flex flex-col gap-6 md:flex-row md:items-center">
+                <button
+                  type="button"
+                  onClick={handleAvatarClick}
+                  className="group relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04]"
+                  title="Profil fotoğrafını değiştir"
+                >
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="Profil" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary/10">
+                      <User className="h-10 w-10 text-primary-light" />
+                    </div>
+                  )}
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition group-hover:opacity-100">
+                    <Camera className="h-7 w-7 text-white" />
+                  </span>
+                </button>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${levelInfo.bgColor}`}>
+                      {levelInfo.name}
+                    </span>
+                    <span className={`rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-widest ${
+                      user?.proStatus ? 'border-success/25 bg-success/10 text-success' : 'border-white/10 bg-white/[0.035] text-text-secondary'
+                    }`}>
+                      {user?.proStatus ? 'PRO Üye' : 'Ücretsiz Plan'}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 truncate text-3xl font-black tracking-tight text-white">{displayName}</h3>
+                  <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
+                    {profileData.bio || 'Profil özetini doldurduğunda çalışma panelin daha kişisel görünür.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {desktopProfileHighlights.map((item) => {
+                  const Icon = item.icon;
+                  const toneClass = {
+                    primary: 'text-primary-light bg-primary/10 border-primary/20',
+                    accent: 'text-accent-light bg-accent/10 border-accent/20',
+                    success: 'text-success bg-success/10 border-success/20',
+                    warning: 'text-warning bg-warning/10 border-warning/20',
+                  }[item.tone];
+
+                  return (
+                    <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
+                      <div className="mb-3 flex items-start justify-between gap-3">
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${toneClass}`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        {item.label === 'Eğitim Paketi' && (
+                          <button
+                            type="button"
+                            onClick={() => setIsCategoryModalOpen(true)}
+                            className="rounded-xl border border-primary/25 bg-primary/10 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+                          >
+                            Değiştir
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{item.label}</p>
+                      <p className="mt-1 truncate text-sm font-black text-white">{item.value}</p>
+                      <p className="mt-1 truncate text-[11px] font-semibold text-text-muted">{item.detail}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 bg-white/[0.02] p-6 xl:border-l xl:border-t-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Profil Tamlığı</p>
+                  <h4 className="mt-1 text-3xl font-black text-white">%{profileCompletion}</h4>
+                </div>
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+                  <ShieldCheck className="h-7 w-7 text-primary-light" />
+                </div>
+              </div>
+              <div className="mt-5 h-2 rounded-full bg-white/10">
+                <div className="h-full rounded-full bg-primary" style={{ width: `${profileCompletion}%` }} />
+              </div>
+              <div className="mt-5 grid grid-cols-3 gap-3">
+                <div className="rounded-2xl bg-white/[0.03] p-3">
+                  <p className="text-lg font-black text-white">{stats.totalExams || 0}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Sınav</p>
+                </div>
+                <div className="rounded-2xl bg-white/[0.03] p-3">
+                  <p className="text-lg font-black text-white">{stats.successRate || 0}%</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Başarı</p>
+                </div>
+                <div className="rounded-2xl bg-white/[0.03] p-3">
+                  <p className="text-lg font-black text-white">{earnedBadges}/{DEFAULT_BADGES.length}</p>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">Rozet</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_360px]">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Profil Kontrolü</p>
+                <h3 className="mt-1 text-lg font-black text-white">Tamamlanacak Alanlar</h3>
+              </div>
+              <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                %{profileCompletion}
+              </span>
+            </div>
+            <div className="space-y-3">
+              {profileChecklist.map((item) => (
+                <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
+                    item.done ? 'border-success/25 bg-success/10 text-success' : 'border-white/10 bg-white/[0.035] text-text-muted'
+                  }`}>
+                    {item.done ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-white">{item.label}</p>
+                    <p className="mt-0.5 text-[11px] font-semibold text-text-muted">{item.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+            <div className="mb-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Çalışma Kimliği</p>
+              <h3 className="mt-1 text-lg font-black text-white">Aktif Eğitim Durumu</h3>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {learningIdentity.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl border border-accent/20 bg-accent/10 text-accent-light">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{item.label}</p>
+                    <p className="mt-1 line-clamp-2 text-sm font-black text-white">{item.value}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/traffic-signs')}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.07]"
+            >
+              Levha Kütüphanesine Git
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+            <div className="mb-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-success">Hızlı İşlemler</p>
+              <h3 className="mt-1 text-lg font-black text-white">Sık Kullanılanlar</h3>
+            </div>
+            <div className="space-y-2">
+              {profileActions.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={item.onClick}
+                    className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3 text-left transition hover:bg-white/[0.05]"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.035] text-text-secondary transition group-hover:border-success/25 group-hover:bg-success/10 group-hover:text-success">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-white">{item.label}</p>
+                        <p className="mt-0.5 truncate text-[11px] font-semibold text-text-muted">{item.detail}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-text-muted transition group-hover:translate-x-0.5 group-hover:text-success" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
         <div className="grid grid-cols-[300px_minmax(0,1fr)] gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="space-y-4">
@@ -1172,7 +1648,7 @@ const UserSettings = () => {
                 className="flex items-center gap-1.2 px-2.5 py-2 bg-purple-500/12 border border-purple-500/18 rounded-xl text-purple-400 font-black text-[11px] hover:bg-purple-500/20 transition-colors"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span className="ml-1">Değiştir</span>
+                <span className="ml-1">{user?.selectedCategoryId ? 'Değiştir' : 'Seç'}</span>
               </button>
             </div>
           </div>

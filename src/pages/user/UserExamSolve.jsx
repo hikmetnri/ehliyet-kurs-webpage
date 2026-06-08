@@ -17,6 +17,7 @@ import {
   normalizeId,
   readApiList,
 } from '../../utils/wrongAnswers';
+import { clearAiPageContext, compactQuestionContext, setAiPageContext } from '../../utils/aiPageContext';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 const REVIEW_SESSION_LIMIT = 20;
@@ -315,29 +316,23 @@ const UserExamSolve = ({ customType }) => {
             categoryId: categoryId
           });
         } else if (customType === 'wrong_review') {
-          const reviewRes = await api.get(`/wrong-answers/review-due?limit=${REVIEW_SESSION_LIMIT}`);
-          const reviewItems = reviewRes.data?.data || [];
-          const reviewTotalCount = reviewRes.data?.count ?? reviewItems.length;
-          const reviewIds = reviewItems.map((item) => item.questionId).filter(Boolean);
-          const sourceQuestions = reviewIds.length > 0
-            ? await api.get(`/questions?ids=${reviewIds.join(',')}`)
-                .then((res) => res.data || [])
-                .catch(() => [])
-            : [];
-          const sourceQuestionMap = new Map(sourceQuestions.map((question) => [question._id, question]));
-          const qs = reviewItems.map((item) => ({
-            _id: item.questionId,
-            text: sourceQuestionMap.get(item.questionId)?.text || item.questionText,
-            options: sourceQuestionMap.get(item.questionId)?.options || item.options || [],
-            correctAnswer: sourceQuestionMap.get(item.questionId)?.correctAnswer ?? item.correctAnswer,
-            explanation: sourceQuestionMap.get(item.questionId)?.explanation || item.explanation,
-            media: sourceQuestionMap.get(item.questionId)?.media || item.media || '',
-            category: sourceQuestionMap.get(item.questionId)?.category || item.categoryId,
-            categoryName: sourceQuestionMap.get(item.questionId)?.category?.name || item.categoryName,
-            testType: sourceQuestionMap.get(item.questionId)?.testType || item.testType || 'wrong_review',
-            subject: sourceQuestionMap.get(item.questionId)?.subject || item.subject || '',
-            wrongCount: item.wrongCount || 1,
-          })).filter((question) => question._id && question.text && question.options.length > 0);
+          const [reviewRes, categoryRes] = await Promise.all([
+            api.get('/wrong-answers/review-due?limit=100'),
+            user?.selectedCategoryId
+              ? api.get('/categories/all').catch(() => ({ data: [] }))
+              : Promise.resolve({ data: [] }),
+          ]);
+          const reviewItems = readApiList(reviewRes);
+          const hydrated = await hydrateWrongAnswers(api, reviewItems);
+          const scoped = filterQuestionsToCategoryTree(
+            hydrated,
+            readApiList(categoryRes),
+            normalizeId(user?.selectedCategoryId),
+          );
+          const qs = scoped.filter((question) => (
+            question._id && question.text && Array.isArray(question.options) && question.options.length > 0
+          )).slice(0, REVIEW_SESSION_LIMIT);
+          const reviewTotalCount = scoped.length;
 
           setQuestions(qs);
           setExam({
@@ -468,6 +463,7 @@ const UserExamSolve = ({ customType }) => {
             correctAnswer: q.correctAnswer,
             explanation: q.explanation,
             media: q.media || '',
+            mediaDescription: q.mediaDescription || '',
             categoryId: typeof q.category === 'object' ? q.category?._id : q.category,
             categoryName: typeof q.category === 'object' ? q.category?.name : '',
             testType: q.testType,
@@ -540,6 +536,28 @@ const UserExamSolve = ({ customType }) => {
       setPhase('result');
     }
   };
+
+  const q = questions[currentIdx];
+  const currentAnswer = answers[currentIdx];
+  const hasCurrentAnswer = currentAnswer !== undefined;
+
+  useEffect(() => {
+    if (phase !== 'solving' || !q) {
+      clearAiPageContext('exam_solve');
+      return undefined;
+    }
+
+    setAiPageContext(compactQuestionContext({
+      question: q,
+      exam,
+      index: currentIdx,
+      total: questions.length,
+      answerIndex: currentAnswer,
+      showAnswer: showFeedback && hasCurrentAnswer,
+    }));
+
+    return () => clearAiPageContext('exam_solve');
+  }, [phase, q, exam, currentIdx, questions.length, currentAnswer, showFeedback, hasCurrentAnswer]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-64">
@@ -695,7 +713,6 @@ const UserExamSolve = ({ customType }) => {
   }
 
   // ─── SOLVING ───────────────────────────────────────────────────────
-  const q = questions[currentIdx];
   const answeredCount = Object.keys(answers).length;
   const emptyCount = questions.length - answeredCount;
   const completionPct = questions.length > 0 ? Math.round((answeredCount / questions.length) * 100) : 0;
@@ -717,9 +734,8 @@ const UserExamSolve = ({ customType }) => {
     mock: 'Deneme',
     real: 'Gerçek Simülasyon',
   }[mode] || 'Sınav';
-  const currentAnswer = answers[currentIdx];
-  const hasCurrentAnswer = currentAnswer !== undefined;
   const currentAnswerCorrect = hasCurrentAnswer && currentAnswer === q?.correctAnswer;
+
   const questionNavClass = (question, index) => {
     const answered = answers[index] !== undefined;
     const current = index === currentIdx;

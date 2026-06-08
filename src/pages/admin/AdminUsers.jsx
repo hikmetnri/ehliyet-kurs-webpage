@@ -737,6 +737,11 @@ const AdminUsers = () => {
                             <div className="flex items-center gap-3 text-lg font-bold text-white">
                               {selectedUserStats.user.firstName} {selectedUserStats.user.lastName}
                               {selectedUserStats.user.proStatus && <span className="rounded border border-amber-500/20 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-400">PRO</span>}
+                              {selectedUserStats.user.selectedCategoryName && (
+                                <span className="rounded border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary-light">
+                                  {selectedUserStats.user.selectedCategoryName}
+                                </span>
+                              )}
                             </div>
                             <div className="mt-1 flex items-center gap-2 text-sm font-medium text-white/50">
                                 <Mail className="w-3.5 h-3.5" /> {selectedUserStats.user.email}
@@ -755,6 +760,77 @@ const AdminUsers = () => {
                         <ReportCard title="Sınav" value={selectedUserStats.stats.totalExams} icon={Activity} color="text-indigo-300" bg="bg-indigo-500/10" border="border-indigo-500/20" />
                         <ReportCard title="Soru" value={selectedUserStats.stats.totalQuestions} icon={PieChart} color="text-amber-300" bg="bg-amber-500/10" border="border-amber-500/20" />
                         <ReportCard title="Seri" value={`${selectedUserStats.stats.streak} Gün`} icon={Flame} color="text-rose-300" bg="bg-rose-500/10" border="border-rose-500/20" />
+                     </div>
+
+                     {/* Category Performance */}
+                     <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-6">
+                       <div className="mb-5 flex items-center justify-between gap-3">
+                         <div>
+                           <h3 className="flex items-center gap-2 text-sm font-bold text-primary-light">
+                             <BarChart2 className="w-5 h-5" /> Kategori Bazlı Performans
+                           </h3>
+                           <p className="mt-1 text-xs font-semibold text-text-muted">
+                             B sınıfı, İş Sağlığı ve alt konu testleri ayrı ayrı izlenir.
+                           </p>
+                         </div>
+                         <span className="rounded-xl border border-white/10 bg-white/[0.02] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                           {selectedUserStats.stats.categoryPerformance?.length || 0} kategori
+                         </span>
+                       </div>
+
+                       {selectedUserStats.stats.categoryPerformance?.length > 0 ? (
+                         <div className="space-y-3">
+                           {selectedUserStats.stats.categoryPerformance.map((category) => {
+                             const success = Number(category.successRate || 0);
+                             const tone = success >= 75
+                               ? 'text-emerald-300 bg-emerald-500/10 border-emerald-500/20'
+                               : success >= 50
+                                 ? 'text-amber-300 bg-amber-500/10 border-amber-500/20'
+                                 : 'text-rose-300 bg-rose-500/10 border-rose-500/20';
+
+                             return (
+                               <div key={category.categoryId || category.categoryName} className="rounded-2xl border border-white/5 bg-black/10 p-4">
+                                 <div className="mb-3 flex items-center justify-between gap-3">
+                                   <div className="min-w-0">
+                                     <h4 className="truncate text-sm font-black text-white">{category.categoryName || 'Genel Sınav'}</h4>
+                                     <p className="mt-1 text-[11px] font-bold text-text-muted">
+                                       {category.totalExams} test • {category.totalQuestions} soru • {category.totalWrong} yanlış
+                                     </p>
+                                   </div>
+                                   <span className={`shrink-0 rounded-xl border px-3 py-1.5 text-xs font-black ${tone}`}>
+                                     %{success}
+                                   </span>
+                                 </div>
+                                 <div className="h-1.5 overflow-hidden rounded-full border border-white/5 bg-white/5">
+                                   <div
+                                     className={`h-full rounded-full ${success >= 75 ? 'bg-emerald-400' : success >= 50 ? 'bg-amber-400' : 'bg-rose-400'}`}
+                                     style={{ width: `${Math.min(100, Math.max(0, success))}%` }}
+                                   />
+                                 </div>
+                                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                                   <div className="rounded-xl border border-white/5 bg-white/[0.015] px-2 py-2">
+                                     <p className="text-[10px] font-bold text-text-muted">Doğru</p>
+                                     <p className="mt-1 text-sm font-black text-emerald-300">{category.totalCorrect}</p>
+                                   </div>
+                                   <div className="rounded-xl border border-white/5 bg-white/[0.015] px-2 py-2">
+                                     <p className="text-[10px] font-bold text-text-muted">Başarılı</p>
+                                     <p className="mt-1 text-sm font-black text-primary-light">{category.passedCount}</p>
+                                   </div>
+                                   <div className="rounded-xl border border-white/5 bg-white/[0.015] px-2 py-2">
+                                     <p className="text-[10px] font-bold text-text-muted">Başarısız</p>
+                                     <p className="mt-1 text-sm font-black text-rose-300">{category.failedCount}</p>
+                                   </div>
+                                 </div>
+                               </div>
+                             );
+                           })}
+                         </div>
+                       ) : (
+                         <div className="rounded-2xl border border-dashed border-white/10 bg-black/10 p-8 text-center">
+                           <BarChart2 className="mx-auto mb-3 h-8 w-8 text-white/20" />
+                           <p className="text-xs font-bold text-text-muted">Bu kullanıcı için kategori bazlı sınav verisi henüz yok.</p>
+                         </div>
+                       )}
                      </div>
 
                      {/* Progress Visualizer */}

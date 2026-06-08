@@ -149,18 +149,39 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState(localStorage.getItem('adminNote') || '');
 
+  // Kategori Filtresi Eyaletleri
+  const [rootCategories, setRootCategories] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('all');
+
+  useEffect(() => {
+    const fetchRootCategories = async () => {
+      try {
+        const res = await api.get('/categories/all');
+        const list = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
+        const roots = list.filter(cat => !cat.parent);
+        setRootCategories(roots);
+      } catch (err) {
+        console.error('Kategoriler alınamadı:', err);
+      }
+    };
+    fetchRootCategories();
+  }, []);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedCategoryId !== 'all') params.set('categoryId', selectedCategoryId);
+      const queryStr = params.toString() ? `?${params.toString()}` : '';
       
       const [overviewRes, postsRes, ticketsRes, reportsRes, logsRes, regTrendRes, catStatsRes, categoriesRes, maintenanceRes] = await Promise.all([
-        api.get('/admin/stats/overview').catch(() => ({ data: { totalUsers: 0, totalExams: 0, avgSuccessRate: 0 } })),
+        api.get(`/admin/stats/overview${queryStr}`).catch(() => ({ data: { totalUsers: 0, totalExams: 0, avgSuccessRate: 0 } })),
         api.get('/posts/admin/pending').catch(() => ({ data: { data: [] } })),
         api.get('/contact').catch(() => ({ data: { data: [] } })),
         api.get('/reports').catch(() => ({ data: { data: [] } })),
         api.get('/admin/logs').catch(() => ({ data: [] })),
-        api.get('/admin/stats/registration-trend').catch(() => ({ data: [] })),
-        api.get('/admin/stats/categories').catch(() => ({ data: [] })),
+        api.get(`/admin/stats/registration-trend${queryStr}`).catch(() => ({ data: [] })),
+        api.get(`/admin/stats/categories${queryStr}`).catch(() => ({ data: [] })),
         api.get('/categories/all').catch(() => ({ data: { data: [] } })),
         api.get('/admin/maintenance-status').catch(() => ({ data: { isMaintenance: false } }))
       ]);
@@ -205,7 +226,7 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedCategoryId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -363,6 +384,16 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value)}
+              className="rounded-2xl border border-white/10 bg-[#0d1017] px-4 py-3 text-xs font-bold text-white outline-none cursor-pointer hover:border-white/20 transition-all"
+            >
+              <option value="all">Tüm Eğitimler (Ortak)</option>
+              {rootCategories.map(cat => (
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
+              ))}
+            </select>
             <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-2">
               <p className="text-xs font-semibold text-text-muted">Bekleyen iş</p>
               <p className="text-lg font-black text-white">

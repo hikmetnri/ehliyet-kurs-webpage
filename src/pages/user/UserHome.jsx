@@ -36,6 +36,13 @@ import NotificationPanel from '../../components/user/NotificationPanel';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { isVideoRecord, limitQuoteText } from '../../utils/categoryContent';
 import { getSignLibraryForCategoryName } from '../../data/signLibrariesData';
+import { buildScopedStats } from '../../utils/scopedStats';
+import {
+  filterQuestionsToCategoryTree,
+  hydrateWrongAnswers,
+  normalizeId,
+  readApiList,
+} from '../../utils/wrongAnswers';
 
 const getStoredExamDate = () => {
   try {
@@ -173,14 +180,33 @@ const UserHome = () => {
         }
 
         try {
-          const statsRes = await api.get('/exam-results/stats');
-          if (statsRes.data && !statsRes.data.error) setStats(statsRes.data);
+          const [statsRes, resultsRes, categoryRes] = await Promise.all([
+            api.get('/exam-results/stats'),
+            api.get('/exam-results?limit=500').catch(() => ({ data: [] })),
+            user?.selectedCategoryId
+              ? api.get('/categories/all').catch(() => ({ data: [] }))
+              : Promise.resolve({ data: [] }),
+          ]);
+          if (statsRes.data && !statsRes.data.error) {
+            const scoped = buildScopedStats({
+              baseStats: statsRes.data,
+              results: readApiList(resultsRes),
+              categories: readApiList(categoryRes),
+              selectedCategoryId: normalizeId(user?.selectedCategoryId),
+            });
+            setStats(scoped.stats);
+          }
         } catch (err) {
           console.error('Stats error', err);
         }
 
         try {
-          const planRes = await api.get('/stats/daily-plan');
+          const planRes = await api.get('/stats/daily-plan', {
+            params: {
+              categoryId: user?.selectedCategoryId || undefined,
+              categoryName: user?.selectedCategoryName || undefined,
+            },
+          });
           const planData = planRes.data?.data || planRes.data;
           setDailyPlan(planData?.tasks ? planData : null);
         } catch (err) {
@@ -234,11 +260,22 @@ const UserHome = () => {
         }
 
         try {
-          const reviewRes = await api.get('/wrong-answers/review-due?limit=3');
-          const reviewItems = reviewRes.data?.data || [];
+          const [reviewRes, categoryRes] = await Promise.all([
+            api.get('/wrong-answers/review-due?limit=100'),
+            user?.selectedCategoryId
+              ? api.get('/categories/all').catch(() => ({ data: [] }))
+              : Promise.resolve({ data: [] }),
+          ]);
+          const reviewItems = readApiList(reviewRes);
+          const hydrated = await hydrateWrongAnswers(api, reviewItems);
+          const scoped = filterQuestionsToCategoryTree(
+            hydrated,
+            readApiList(categoryRes),
+            normalizeId(user?.selectedCategoryId),
+          );
           setReviewDue({
-            count: reviewRes.data?.count ?? reviewItems.length,
-            items: Array.isArray(reviewItems) ? reviewItems : [],
+            count: scoped.length,
+            items: scoped.slice(0, 3),
           });
         } catch (err) {
           console.error('Review due error', err);
@@ -303,6 +340,14 @@ const UserHome = () => {
     },
   ]), [signLibrary.shortTitle, signLibrary.title]);
 
+  const wrongCount = stats?.totalWrong || stats?.wrongCount || 0;
+  const desktopSummaryCards = [
+    { label: 'Bugünkü Hedef', value: `${todayQuestions}/${dailyGoal}`, helper: remainingQuestions === 0 ? 'Tamamlandı' : `${remainingQuestions} soru kaldı`, icon: Target, tone: 'text-primary-light bg-primary/10 border-primary/20' },
+    { label: 'Başarı', value: `%${stats?.successRate || 0}`, helper: `${stats?.totalExams || 0} test sonucu`, icon: CheckCircle2, tone: 'text-success bg-success/10 border-success/20' },
+    { label: 'Yanlışlar', value: reviewDue.count || wrongCount || 0, helper: reviewDue.count > 0 ? 'Bugün tekrar et' : 'Takipte soru', icon: RefreshCcw, tone: 'text-warning bg-warning/10 border-warning/20' },
+    { label: 'Seviye', value: level, helper: `${totalScore} XP`, icon: Star, tone: 'text-accent-light bg-accent/10 border-accent/20' },
+  ];
+
   const studyPlan = dailyPlan?.tasks?.length
     ? dailyPlan.tasks.slice(0, 3).map((task) => ({
       label: task.title,
@@ -316,7 +361,6 @@ const UserHome = () => {
       { label: 'Günlük hedef', detail: `${dailyGoal} soruluk hedef`, icon: Target, done: todayQuestions >= dailyGoal },
     ];
 
-  const wrongCount = stats?.totalWrong || stats?.wrongCount || 0;
   const recommendation = (() => {
     if (dailyPlan?.title) {
       const action = dailyPlan.primaryAction || {};
@@ -477,7 +521,194 @@ const UserHome = () => {
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* DESKTOP VIEW */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="hidden lg:block w-full space-y-5 pb-10">
+      <div className="hidden lg:block w-full pb-10">
+        <div className="mx-auto grid max-w-[1360px] gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
+          <section className="min-w-0 space-y-6">
+            <Motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-3xl border border-white/10 bg-[#0d1017] p-6"
+            >
+              <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                <div className="min-w-0">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-primary-light">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">{selectedPackage}</span>
+                  </div>
+                  <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-white">
+                    Hoş geldin, {user?.firstName || 'Sürücü Adayı'}
+                  </h1>
+                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-text-muted">
+                    Bugün önce çalışma önerini tamamla, sonra ders veya sınavdan devam et. Panel artık seçili eğitim paketinin verilerini gösterir.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link to="/dashboard/exams" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light">
+                    <PlayCircle className="h-4 w-4" />
+                    Test Çöz
+                  </Link>
+                  <Link to="/dashboard/lessons" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.07]">
+                    <BookOpen className="h-4 w-4 text-accent-light" />
+                    Derslere Git
+                  </Link>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {desktopSummaryCards.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                      <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl border ${item.tone}`}>
+                        <Icon className="h-4.5 w-4.5" />
+                      </div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{item.label}</p>
+                      <p className="mt-1 text-2xl font-black leading-none text-white">{item.value}</p>
+                      <p className="mt-2 text-xs font-semibold text-text-muted">{item.helper}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </Motion.div>
+
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
+              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-success">Bugünkü Plan</p>
+                    <h2 className="mt-1 text-xl font-black text-white">{recommendation.title}</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">{recommendation.detail}</p>
+                  </div>
+                  <div className={`hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl border sm:flex ${recommendationTone}`}>
+                    {React.createElement(recommendation.icon, { className: 'h-5 w-5' })}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {studyPlan.map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={idx} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${item.done ? 'border-success/25 bg-success/10 text-success' : 'border-white/10 bg-white/[0.035] text-text-muted'}`}>
+                          {item.done ? <CheckCircle2 className="h-4.5 w-4.5" /> : <Icon className="h-4.5 w-4.5" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-white">{item.label}</p>
+                          <p className="mt-0.5 truncate text-xs font-semibold text-text-muted">{item.detail}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {recommendation.to ? (
+                  <Link to={recommendation.to} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light">
+                    {recommendation.action}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                ) : (
+                  <button type="button" onClick={recommendation.onClick} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light">
+                    {recommendation.action}
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+                <div className="mb-5">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Hızlı Erişim</p>
+                  <h2 className="mt-1 text-xl font-black text-white">Sık Kullanılanlar</h2>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {actionCards.map((card) => (
+                    <Link key={card.to} to={card.to} className="group rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:bg-white/[0.05]">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/20">
+                          <card.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-text-muted transition group-hover:translate-x-1 group-hover:text-white" />
+                      </div>
+                      <h3 className="text-sm font-black text-white">{card.label}</h3>
+                      <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-text-muted">{card.text}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {user?.selectedCategoryId && subCategories.length > 0 && (
+              <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Müfredat</p>
+                    <h2 className="mt-1 text-xl font-black text-white">Kategori Konuları</h2>
+                  </div>
+                  <Link to="/dashboard/lessons" className="text-xs font-black uppercase tracking-widest text-primary-light hover:text-white">
+                    Tümünü Gör
+                  </Link>
+                </div>
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                  {subCategories.slice(0, 6).map((category) => {
+                    const Icon = getCategoryIcon(category.name);
+                    const accentColor = getCategoryColor(category.name);
+                    return (
+                      <Link key={category._id} to={`/dashboard/lessons?category=${category._id}`} className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:bg-white/[0.05]">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border" style={{ borderColor: `${accentColor}33`, backgroundColor: `${accentColor}12`, color: accentColor }}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-black text-white">{category.name}</p>
+                          <p className="mt-1 truncate text-xs font-semibold text-text-muted">{category.description || 'Konu anlatımı'}</p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-text-muted transition group-hover:translate-x-1 group-hover:text-white" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+          </section>
+
+          <aside className="space-y-4">
+            <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Aktif Eğitim</p>
+              <h3 className="mt-2 text-xl font-black text-white">{user?.selectedCategoryName || 'Kategori seçilmedi'}</h3>
+              <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
+                Ders, levha ve analizler bu pakete göre ayrılır.
+              </p>
+              <button type="button" onClick={() => setShowCategoryModal(true)} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary hover:text-white">
+                <RefreshCcw className="h-4 w-4" />
+                Kategori Değiştir
+              </button>
+            </div>
+
+            {examCountdown && (
+              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-success/20 bg-success/10 text-success">
+                    <CalendarDays className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">MEB E-Sınav</p>
+                    <h3 className="mt-1 text-lg font-black text-white">
+                      {examCountdown.isToday ? 'Bugün' : examCountdown.isPast ? 'Tarih Geçti' : `${examCountdown.days} Gün Kaldı`}
+                    </h3>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm font-semibold text-text-muted">{examCountdown.formatted}</p>
+              </div>
+            )}
+
+            {quote && (
+              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
+                <Quote className="mb-4 h-5 w-5 text-primary-light" />
+                <p className="text-sm font-bold leading-6 text-white">"{quoteText}"</p>
+                <p className="mt-3 text-xs font-black uppercase tracking-widest text-text-muted">{quoteAuthor}</p>
+              </div>
+            )}
+          </aside>
+        </div>
+      </div>
+
+      <div className="hidden">
         {isMockMode && mainCategories.length === 0 && (
           <Motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -858,6 +1089,16 @@ const UserHome = () => {
                 {!user?.selectedCategoryId ? 'Sınıfını seçerek başla' : user.selectedCategoryName}
               </h2>
             </div>
+            {user?.selectedCategoryId && (
+              <button
+                type="button"
+                onClick={() => setShowCategoryModal(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition-colors hover:bg-primary hover:text-white"
+              >
+                <RefreshCcw className="h-4 w-4" />
+                Kategori Değiştir
+              </button>
+            )}
           </div>
 
           <AnimatePresence mode="wait">
@@ -904,13 +1145,23 @@ const UserHome = () => {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowCategoryModal(true)}
-                  className="inline-flex items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs font-black uppercase tracking-widest transition-colors hover:bg-white/[0.07]"
-                >
-                  <Settings2 className="h-5 w-5 text-primary-light" />
-                  Sınıfı Değiştir
-                </button>
+                <div className="flex flex-col gap-2 sm:min-w-[220px] sm:justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowCategoryModal(true)}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-light active:scale-95"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    Kategori Değiştir
+                  </button>
+                  <Link
+                    to="/dashboard/settings"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs font-black uppercase tracking-widest text-text-secondary transition-colors hover:bg-white/[0.07] hover:text-white"
+                  >
+                    <Settings2 className="h-4 w-4" />
+                    Profil Ayarları
+                  </Link>
+                </div>
               </Motion.div>
             )}
           </AnimatePresence>
@@ -1011,26 +1262,34 @@ const UserHome = () => {
       <div className="block lg:hidden space-y-4 pb-24 px-1 sm:px-2">
         {/* Header (Flutter style) */}
         <div className="flex items-center justify-between py-3 px-1">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/dashboard/settings"
-              className="h-11 w-11 rounded-full border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-lg shadow-black/20"
-            >
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span className="font-black text-white text-base">
-                  {user?.firstName?.charAt(0) || 'Ö'}
-                </span>
-              )}
-            </Link>
-            <Link to="/dashboard/settings" className="block text-left">
-              <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider leading-none">Merhaba,</p>
-              <h2 className="text-base font-black text-white truncate mt-1 leading-none">
+          <Link
+            to="/dashboard/settings"
+            className="flex items-center gap-3 bg-white/[0.02] border border-white/5 hover:border-white/10 active:bg-white/[0.05] pl-2 pr-4 py-1.5 rounded-2xl transition-all max-w-[75%] group"
+          >
+            <div className="relative shrink-0">
+              <div className="h-11 w-11 rounded-full border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden shadow-lg shadow-black/20 group-hover:scale-105 transition-transform">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="font-black text-white text-base">
+                    {user?.firstName?.charAt(0) || 'Ö'}
+                  </span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] bg-primary text-white rounded-full flex items-center justify-center border border-bg-dark shadow-md">
+                <Settings2 className="w-2.5 h-2.5" />
+              </div>
+            </div>
+            <div className="min-w-0 text-left">
+              <div className="flex items-center gap-1 text-text-muted group-hover:text-primary transition-colors">
+                <p className="text-[9px] font-black uppercase tracking-widest leading-none">Profil & Ayarlar</p>
+                <ChevronRight className="w-2.5 h-2.5" />
+              </div>
+              <h2 className="text-sm font-black text-white truncate mt-1 leading-none group-hover:text-primary-light transition-colors">
                 {user?.firstName || 'Sürücü Adayı'}
               </h2>
-            </Link>
-          </div>
+            </div>
+          </Link>
 
           <div className="flex items-center gap-2">
             <button
@@ -1375,12 +1634,14 @@ const UserHome = () => {
               <p className="text-[10px] font-bold text-text-muted mt-1 leading-none">{selectedPackage}</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowCategoryModal(true)}
-            className="px-3 py-1.5 bg-primary/10 border border-primary/25 rounded-xl text-[10px] font-black text-primary-light uppercase shrink-0 active:scale-95 transition-transform flex items-center gap-1"
-          >
-            <RefreshCcw className="w-3 h-3" /> Değiştir
-          </button>
+          {!user?.selectedCategoryId && (
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className="px-3 py-1.5 bg-primary/10 border border-primary/25 rounded-xl text-[10px] font-black text-primary-light uppercase shrink-0 active:scale-95 transition-transform flex items-center gap-1"
+            >
+              <RefreshCcw className="w-3 h-3" /> Seç
+            </button>
+          )}
         </div>
 
         {/* Konular Listesi Grid (curriculum) */}

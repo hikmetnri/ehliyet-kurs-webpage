@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  BookOpen, ChevronRight, ChevronDown, Loader2,
+  BookOpen, ChevronRight, Loader2,
   Search, Lock, Folder, FolderOpen, FileText, X,
   Zap, Play, CheckCircle2, ArrowRight, ZoomIn,
   ChevronLeft, LayoutGrid, Clock, Activity, AlertCircle,
@@ -15,6 +15,7 @@ import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
 import { isVideoRecord } from '../../utils/categoryContent';
+import { clearAiPageContext, compactLessonContext, setAiPageContext } from '../../utils/aiPageContext';
 
 const MotionDiv = motion.div;
 
@@ -285,7 +286,7 @@ const TreeNode = ({ node, level = 0, selectedId, onSelect, expandedIds, toggleEx
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const UserLessons = () => {
-  const { user, setAuth, token } = useAuthStore();
+  const { user } = useAuthStore();
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
   const [mainCategories, setMainCategories] = useState([]);
@@ -314,6 +315,19 @@ const UserLessons = () => {
   useEffect(() => {
     setScrollProgress(0);
   }, [selectedLesson?._id]);
+
+  useEffect(() => {
+    if (!selectedLesson) {
+      clearAiPageContext('lesson_reader');
+      return undefined;
+    }
+
+    setAiPageContext(compactLessonContext(selectedLesson, {
+      categoryName: user?.selectedCategoryName || '',
+    }));
+
+    return () => clearAiPageContext('lesson_reader');
+  }, [selectedLesson, user?.selectedCategoryName]);
 
   const handleScroll = (e) => {
     const target = e.currentTarget;
@@ -371,27 +385,6 @@ const UserLessons = () => {
     };
     fetchAll();
   }, [user?.selectedCategoryId]);
-
-  const handleCategoryChange = async (catId) => {
-    const selectedCat = mainCategories.find(c => c._id === catId);
-    if (!selectedCat) return;
-    
-    try {
-      const res = await api.put('/auth/profile', {
-        selectedCategoryId: selectedCat._id,
-        selectedCategoryName: selectedCat.name
-      });
-      
-      if (res.data.success) {
-        setAuth({ ...user, ...res.data.user }, token);
-        setActiveTopicId('all');
-        setSelectedLesson(null);
-        setMobileNavStack([]);
-      }
-    } catch (err) {
-      console.error('Kategori değiştirilemedi:', err);
-    }
-  };
 
   const handleTopicClick = (topicId) => {
     setActiveTopicId(topicId);
@@ -605,24 +598,10 @@ const UserLessons = () => {
                 <div>
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <h2 className="text-sm font-black text-white uppercase tracking-widest">Dersler</h2>
-                    {user?.selectedCategoryName && mainCategories.length > 0 && (
-                      <div className="relative inline-block">
-                        <select
-                          value={user?.selectedCategoryId || ''}
-                          onChange={(e) => handleCategoryChange(e.target.value)}
-                          className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                        >
-                          {mainCategories.map(cat => (
-                            <option key={cat._id} value={cat._id} className="bg-[#11141b] text-white">
-                              {cat.name}
-                            </option>
-                          ))}
-                        </select>
-                        <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider hover:bg-primary/20 transition duration-150">
-                          {user.selectedCategoryName}
-                          <ChevronDown className="w-2.5 h-2.5 text-primary-light/75" />
-                        </span>
-                      </div>
+                    {user?.selectedCategoryName && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider">
+                        {user.selectedCategoryName}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -1215,24 +1194,10 @@ const UserLessons = () => {
               <div>
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <h2 className="text-sm font-black text-white uppercase tracking-widest">Dersler</h2>
-                  {user?.selectedCategoryName && mainCategories.length > 0 && (
-                    <div className="relative inline-block">
-                      <select
-                        value={user?.selectedCategoryId || ''}
-                        onChange={(e) => handleCategoryChange(e.target.value)}
-                        className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                      >
-                        {mainCategories.map(cat => (
-                          <option key={cat._id} value={cat._id} className="bg-[#11141b] text-white">
-                            {cat.name}
-                          </option>
-                        ))}
-                      </select>
-                      <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider hover:bg-primary/20 transition duration-150">
-                        {user.selectedCategoryName}
-                        <ChevronDown className="w-2.5 h-2.5 text-primary-light/75" />
-                      </span>
-                    </div>
+                  {user?.selectedCategoryName && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider">
+                      {user.selectedCategoryName}
+                    </span>
                   )}
                 </div>
                 <p className="text-[10px] font-bold text-text-muted">{completedContentCount}/{contentLessons.length} tamamlandı</p>

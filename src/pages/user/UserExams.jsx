@@ -11,6 +11,7 @@ import {
 import useAuthStore from '../../store/authStore';
 import { trackEvent } from '../../utils/analytics';
 import { isVideoRecord } from '../../utils/categoryContent';
+import { normalizeId } from '../../utils/wrongAnswers';
 import UserWrongAnswers from './UserWrongAnswers';
 
 const examTabIds = ['short_tests', 'general', 'real_sim_cat', 'wrong_answers'];
@@ -97,14 +98,20 @@ const UserExams = () => {
         const [examRes, resultRes, reviewRes, wrongRes] = await Promise.all([
           api.get('/exams'),
           api.get('/exam-results').catch(() => ({ data: [] })),
-          api.get('/wrong-answers/review-due?limit=1').catch(() => ({ data: { count: 0 } })),
+          api.get('/wrong-answers/review-due?limit=100').catch(() => ({ data: { data: [] } })),
           api.get('/wrong-answers').catch(() => ({ data: { data: [] } })),
         ]);
         const allExams = examRes.data?.exams || examRes.data || [];
         const resultRows = resultRes.data?.results || resultRes.data || [];
-        setReviewDueCount(Number(reviewRes.data?.count || 0));
+        const validCatSet = new Set(validCatIds.map((id) => normalizeId(id)).filter(Boolean));
+        const reviewRows = reviewRes.data?.data || reviewRes.data || [];
+        setReviewDueCount(Array.isArray(reviewRows)
+          ? reviewRows.filter((item) => validCatSet.size === 0 || validCatSet.has(normalizeId(item.categoryId || item.category))).length
+          : 0);
         const wrongRows = wrongRes.data?.data || wrongRes.data || [];
-        setWrongAnswerCount(Array.isArray(wrongRows) ? wrongRows.length : 0);
+        setWrongAnswerCount(Array.isArray(wrongRows)
+          ? wrongRows.filter((item) => validCatSet.size === 0 || validCatSet.has(normalizeId(item.categoryId || item.category))).length
+          : 0);
         const resultMap = {};
 
         resultRows.forEach((result) => {
@@ -457,7 +464,9 @@ const UserExams = () => {
           </div>
         ) : (() => {
           const renderExamCard = (exam, i) => {
-            const isLocked = exam.isPro && !user?.proStatus;
+            const adUnlockedIds = new Set((user?.adUnlockedExamIds || []).map(String));
+            const isAdUnlocked = adUnlockedIds.has(String(exam._id));
+            const isLocked = (exam.isPro && !user?.proStatus) || (!exam.isPro && !user?.proStatus && index >= 5 && !isAdUnlocked);
             const isSimulation = exam._isRealMeb;
             const isShort = exam._isSynthetic;
             const examNameLower = (exam.name || '').toLocaleLowerCase('tr-TR');
@@ -952,7 +961,8 @@ const UserExams = () => {
                                 const score = Number(lastResult?.score || 0);
                                 const completed = Boolean(lastResult);
                                 const passed = Boolean(lastResult?.passed);
-                                const isLocked = exam.isPro && !user?.proStatus;
+                                const adUnlockedIds = new Set((user?.adUnlockedExamIds || []).map(String));
+                                const isLocked = (exam.isPro && !user?.proStatus) || (!exam.isPro && !user?.proStatus && index >= 5 && !adUnlockedIds.has(String(exam._id)));
 
                                 return (
                                   <div key={exam._id} className="flex items-center justify-between p-3 gap-3">
@@ -1031,7 +1041,8 @@ const UserExams = () => {
                     const score = Number(lastResult?.score || 0);
                     const completed = Boolean(lastResult);
                     const passed = Boolean(lastResult?.passed);
-                    const isLocked = exam.isPro && !user?.proStatus;
+                    const adUnlockedIds = new Set((user?.adUnlockedExamIds || []).map(String));
+                    const isLocked = (exam.isPro && !user?.proStatus) || (!exam.isPro && !user?.proStatus && index >= 5 && !adUnlockedIds.has(String(exam._id)));
 
                     return (
                       <div

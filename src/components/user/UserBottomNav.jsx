@@ -4,19 +4,13 @@ import {
   FileQuestion,
   GraduationCap,
   Home,
-  User,
   Radio,
+  User,
 } from 'lucide-react';
 
 const items = [
   { to: '/dashboard', label: 'Ana Sayfa', icon: Home, exact: true },
-  {
-    to: '/dashboard/exams?tab=short_tests',
-    label: 'Sorular',
-    icon: FileQuestion,
-    match: ['/dashboard/exams'],
-    tab: 'short_tests',
-  },
+  { to: '/dashboard/feed', label: 'Akış', icon: Radio },
   {
     to: '/dashboard/exams?tab=real_sim_cat',
     label: 'Sınavlar',
@@ -24,21 +18,14 @@ const items = [
     match: ['/dashboard/exams'],
     tab: 'exam_modes',
   },
-  { to: '/dashboard/feed', label: 'Akış', icon: Radio },
   {
-    to: '/dashboard/settings',
-    label: 'Profil',
-    icon: User,
-    match: [
-      '/dashboard/settings',
-      '/dashboard/stats',
-      '/dashboard/favorites',
-      '/dashboard/support',
-      '/dashboard/driving-schools',
-      '/dashboard/traffic-signs',
-      '/dashboard/videos',
-    ],
+    to: '/dashboard/exams?tab=short_tests',
+    label: 'Sorular',
+    icon: FileQuestion,
+    match: ['/dashboard/exams'],
+    tab: 'short_tests',
   },
+  { to: '/dashboard/settings', label: 'Profil', icon: User },
 ];
 
 const UserBottomNav = () => {

@@ -77,16 +77,26 @@ const UserWrongAnswers = ({ onCountChange }) => {
   const loadDueQuestions = useCallback(async () => {
     try {
       setDueLoading(true);
-      const res = await api.get('/wrong-answers/review-due?limit=100');
-      const dueItems = readApiList(res);
+      const [dueRes, categoryRes] = await Promise.all([
+        api.get('/wrong-answers/review-due?limit=100'),
+        user?.selectedCategoryId
+          ? api.get('/categories/all').catch(() => ({ data: [] }))
+          : Promise.resolve({ data: [] }),
+      ]);
+      const dueItems = readApiList(dueRes);
       const hydrated = await hydrateWrongAnswers(api, dueItems);
-      setDueQuestions(hydrated);
+      const scoped = filterQuestionsToCategoryTree(
+        hydrated,
+        readApiList(categoryRes),
+        normalizeId(user?.selectedCategoryId),
+      );
+      setDueQuestions(scoped);
     } catch {
       setDueQuestions([]);
     } finally {
       setDueLoading(false);
     }
-  }, []);
+  }, [user?.selectedCategoryId]);
 
   useEffect(() => {
     loadWrongAnswers();

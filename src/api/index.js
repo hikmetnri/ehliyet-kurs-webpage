@@ -11,6 +11,11 @@ const getToken = () => {
   return sessionStorage.getItem('token')
 }
 
+const shouldRedirectToLogin = () => {
+  const path = window.location.pathname
+  return path === '/settings' || path.startsWith('/dashboard') || path.startsWith('/admin')
+}
+
 // Request interceptor — JWT token ekle
 api.interceptors.request.use(
   (config) => {
@@ -39,7 +44,7 @@ api.interceptors.response.use(
       localStorage.removeItem('last_visited_icon')
       localStorage.removeItem('last_visited_type')
       localStorage.removeItem('last_visited_ts')
-      if (window.location.pathname !== '/login') {
+      if (shouldRedirectToLogin() && window.location.pathname !== '/login') {
          window.location.href = '/login'
       }
     }

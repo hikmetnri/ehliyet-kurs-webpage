@@ -72,19 +72,38 @@ const AdminStats = () => {
   const [activeSection, setActiveSection] = useState('overview');
   const [loading, setLoading] = useState(true);
 
+  // Kategori Filtresi Eyaletleri
+  const [rootCategories, setRootCategories] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState('all');
+
   useEffect(() => {
-    fetchStats();
+    const fetchRootCategories = async () => {
+      try {
+        const res = await api.get('/categories/all');
+        const list = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
+        const roots = list.filter(cat => !cat.parent);
+        setRootCategories(roots);
+      } catch (err) {
+        console.error('Kategoriler alınamadı:', err);
+      }
+    };
+    fetchRootCategories();
   }, []);
 
   useEffect(() => {
+    fetchStats();
+  }, [selectedCategoryId]);
+
+  useEffect(() => {
     if (!loading) fetchJourneyStats();
-  }, [journeyDays, journeySource]);
+  }, [journeyDays, journeySource, selectedCategoryId]);
 
   const fetchJourneyStats = async ({ silent = false } = {}) => {
     try {
       if (!silent) setJourneyLoading(true);
       const params = new URLSearchParams({ days: journeyDays });
       if (journeySource !== 'all') params.set('source', journeySource);
+      if (selectedCategoryId !== 'all') params.set('categoryId', selectedCategoryId);
       const res = await api.get(`/admin/stats/journey?${params.toString()}`);
       setJourneyAnalytics(res.data);
     } catch (err) {
@@ -98,13 +117,17 @@ const AdminStats = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedCategoryId !== 'all') params.set('categoryId', selectedCategoryId);
+      const queryStr = params.toString() ? `?${params.toString()}` : '';
+
       const results = await Promise.allSettled([
-        api.get('/admin/stats/overview'),
-        api.get('/admin/stats/categories'),
-        api.get('/admin/stats/difficult-questions'),
-        api.get('/admin/stats/qr'),
-        api.get('/admin/stats/registration-trend'),
-        api.get('/admin/stats/daily-goals')
+        api.get(`/admin/stats/overview${queryStr}`),
+        api.get(`/admin/stats/categories${queryStr}`),
+        api.get(`/admin/stats/difficult-questions${queryStr}`),
+        api.get(`/admin/stats/qr${queryStr}`),
+        api.get(`/admin/stats/registration-trend${queryStr}`),
+        api.get(`/admin/stats/daily-goals${queryStr}`)
       ]);
 
       setOverview(results[0].status === 'fulfilled' ? results[0].value.data : null);
@@ -228,12 +251,26 @@ const AdminStats = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Merkezi Analitik Dashboard</h1>
           <p className="text-text-secondary text-sm mt-1">Sistemin performans verileri ve kullanıcı davranış analizleri.</p>
         </div>
-        <button
-          onClick={fetchStats}
-          className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all"
-        >
-          <Activity className="w-4 h-4 text-primary-light" /> Verileri Tazele
-        </button>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+          <select
+            value={selectedCategoryId}
+            onChange={(e) => setSelectedCategoryId(e.target.value)}
+            className="w-full sm:w-56 rounded-2xl border border-white/10 bg-[#0d1017] px-4 py-2.5 text-xs font-bold text-white outline-none cursor-pointer hover:border-white/20 transition-all"
+          >
+            <option value="all">Tüm Eğitimler (Ortak)</option>
+            {rootCategories.map(cat => (
+              <option key={cat._id} value={cat._id}>{cat.name}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={fetchStats}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all"
+          >
+            <Activity className="w-4 h-4 text-primary-light" /> Verileri Tazele
+          </button>
+        </div>
       </div>
 
       <StatsSectionTabs
