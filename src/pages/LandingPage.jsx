@@ -233,8 +233,8 @@ const LandingPage = () => {
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gray-200 shadow-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
-                <img src="/logo-small.png" alt="Ehliyet Yolu Logo" width="64" height="64" decoding="async" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gray-100 border border-white/20 shadow-xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
+                <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" width="48" height="48" decoding="async" className="w-full h-full object-contain scale-[1.05]" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                 <CarFront className="w-6 h-6 sm:w-8 sm:h-8 text-primary hidden" />
               </div>
               <span className="text-xl sm:text-3xl font-black tracking-tighter text-white">
@@ -775,7 +775,7 @@ const LandingPage = () => {
                     <div className="text-white font-black">Ayşe Yılmaz</div>
                   </div>
                   <div className="w-12 h-12 rounded-full bg-gray-200 shadow-lg flex items-center justify-center overflow-hidden">
-                    <img src="/logo-small.png" className="w-full h-full object-contain scale-[1.3]" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
+                    <img src="/logo_v2.png" className="w-full h-full object-contain scale-[1.3]" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
                   </div>
                 </div>
 
@@ -829,7 +829,7 @@ const LandingPage = () => {
             <div className="md:col-span-2">
               <Link to="/" className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center overflow-hidden">
-                    <img src="/logo-small.png" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; }} />
+                    <img src="/logo_v2.png" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; }} />
                 </div>
                 <span className="font-black text-white text-2xl tracking-tighter">Ehliyet<span className="text-primary-light">Yolu</span></span>
               </Link>

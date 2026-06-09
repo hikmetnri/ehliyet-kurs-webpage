@@ -99,7 +99,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
           <Link to="/admin" onClick={() => setIsOpen(false)} className="group flex min-w-0 items-center gap-3">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] p-1.5 transition-all group-hover:border-primary/30 group-hover:bg-primary/5">
             <img
-              src="/logo/logo.png"
+              src="/logo_v2.png"
               alt="Ehliyet Yolu"
               className="h-full w-full object-contain"
             />

@@ -156,7 +156,7 @@ const Login = () => {
           
           <div className="text-center mb-10">
             <div className="w-24 h-24 mx-auto mb-4 rounded-3xl bg-white shadow-2xl shadow-primary/20 ring-1 ring-white/70 flex items-center justify-center overflow-hidden">
-              <img src="/logo/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-20 h-20 object-contain drop-shadow-sm animate-pulse" />
+              <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-20 h-20 object-contain drop-shadow-sm animate-pulse" />
             </div>
             <h2 className="text-3xl font-black tracking-tight text-white mb-2">Hoş Geldiniz</h2>
             <p className="text-text-muted font-medium">Ehliyet Yolu eğitim platformuna giriş yapın</p>

@@ -54,7 +54,7 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 lg:h-11 lg:w-11 lg:rounded-xl lg:bg-white/10 lg:shadow-none">
               <div className="w-full h-full bg-bg-dark rounded-[14px] flex items-center justify-center lg:rounded-[10px] lg:bg-[#07080c]">
                 <img
-                  src="/logo/logo.png"
+                  src="/logo_v2.png"
                   alt="Ehliyet Yolu"
                   className="w-[86%] h-[86%] object-contain drop-shadow-md"
                 />

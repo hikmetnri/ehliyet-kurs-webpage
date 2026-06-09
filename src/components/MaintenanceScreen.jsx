@@ -229,7 +229,7 @@ const MaintenanceScreen = ({ onLogout, onAdminAccess }) => {
 
       <main className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col items-center justify-center text-center">
         <div className="mb-8 flex h-28 w-28 items-center justify-center rounded-3xl border border-white/15 bg-white shadow-2xl shadow-cyan-400/20 [animation:maintenanceSpin_8s_linear_infinite]">
-          <img src="/logo/logo_v2.png" alt="Ehliyet Yolu" className="h-24 w-24 object-contain" />
+          <img src="/logo_v2.png" alt="Ehliyet Yolu" className="h-24 w-24 object-contain" />
         </div>
 
         <div className="inline-flex items-center gap-2 rounded-lg border border-cyan-300/25 bg-cyan-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-cyan-100 shadow-lg shadow-cyan-400/10">
