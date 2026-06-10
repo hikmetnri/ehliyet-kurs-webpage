@@ -127,8 +127,8 @@ const knownSigns = {
     description: 'Yakınlarda araç tamirhanesi bulunduğunu bildirir.',
   },
   'Bilgi_B/b-19.png': {
-    title: 'Akaryakıt İstasyonu',
-    description: 'Yakınlarda bir akaryakıt istasyonu bulunduğunu bildirir.',
+    title: 'Otoyol Sonu',
+    description: 'Otoyolun sona erdiğini ve otoyol kurallarının bittiğini bildirir.',
   },
   'Bilgi_B/b-22.png': {
     title: 'Durak',
