@@ -109,7 +109,7 @@ const AdminBadges = () => {
       }
       setIsModalOpen(false);
       fetchBadges();
-    } catch (err) {
+    } catch {
       alert("Rozet kaydedilirken hata oluştu.");
     } finally {
       setIsSaving(false);
@@ -121,7 +121,7 @@ const AdminBadges = () => {
     try {
       await api.delete(`/badges/${id}`);
       fetchBadges();
-    } catch (err) {
+    } catch {
       alert("Rozet silinemedi.");
     }
   };

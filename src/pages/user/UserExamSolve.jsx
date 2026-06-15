@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
+import { soundService } from '../../services/soundService';
 import {
   Loader2, Clock, ChevronLeft, ChevronRight,
   CheckCircle2, XCircle, AlertCircle, BarChart2,
@@ -25,10 +26,12 @@ const MotionDiv = motion.div;
 const MotionButton = motion.button;
 
 const cleanOptionText = (option, index) => {
-  if (typeof option !== 'string') return option;
+  if (typeof option !== 'string') return `${OPTION_LABELS[index] || index + 1} Şıkkı`;
   const label = OPTION_LABELS[index];
-  if (!label) return option.trim();
-  return option.replace(new RegExp(`^\\s*${label}\\s*[).:\\-]\\s*`, 'i'), '').trim();
+  const cleaned = label
+    ? option.replace(new RegExp(`^\\s*${label}\\s*[).:\\-]\\s*`, 'i'), '').trim()
+    : option.trim();
+  return cleaned || `${label || index + 1} Şıkkı`;
 };
 
 // ─── Timer Hook ──────────────────────────────────────────────────────────────
@@ -411,14 +414,36 @@ const UserExamSolve = ({ customType }) => {
   const reviewTotalCount = exam?.reviewTotalCount || questions.length;
   const reviewPendingAfterSession = Math.max(0, reviewTotalCount - questions.length);
 
+  const handleSubmitRef = useRef(null);
+
   const handleExpire = useCallback(() => {
-    handleSubmit(true);
-  }, [answers, questions]);
+    handleSubmitRef.current?.(true);
+  }, []);
 
   const timer = useTimer(exam?.duration || 45, handleExpire, phase === 'solving');
 
+  const prevIdxRef = useRef(currentIdx);
+  useEffect(() => {
+    if (phase === 'solving' && prevIdxRef.current !== currentIdx) {
+      soundService.playClick();
+    }
+    prevIdxRef.current = currentIdx;
+  }, [currentIdx, phase]);
+
   const handleAnswer = (optionIdx) => {
     if (showFeedback && answers[currentIdx] !== undefined) return; // Kilitliyse tıklanamaz
+    
+    if (showFeedback) {
+      const isCorrect = optionIdx === questions[currentIdx]?.correctAnswer;
+      if (isCorrect) {
+        soundService.playCorrect();
+      } else {
+        soundService.playWrong();
+      }
+    } else {
+      soundService.playClick();
+    }
+
     setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
   };
 
@@ -529,6 +554,12 @@ const UserExamSolve = ({ customType }) => {
         await api.post('/exam-results', resultPayload);
         await syncWrongAnswers();
       }
+
+      if (passed) {
+        soundService.playClapping();
+      } else {
+        soundService.playFailed();
+      }
     } catch (err) {
       console.error('Sonuç kaydedilemedi:', err);
     } finally {
@@ -536,6 +567,7 @@ const UserExamSolve = ({ customType }) => {
       setPhase('result');
     }
   };
+  handleSubmitRef.current = handleSubmit;
 
   const q = questions[currentIdx];
   const currentAnswer = answers[currentIdx];

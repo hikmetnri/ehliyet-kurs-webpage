@@ -6,7 +6,7 @@ import {
   Send, ChevronRight, CheckCircle2, Clock, XCircle,
   AlertCircle, History, Inbox, MoreVertical, Trash2, Mail
 } from 'lucide-react';
-import useAuthStore from '../../store/authStore';
+
 
 const AdminSupport = () => {
   const [tickets, setTickets] = useState([]);
@@ -18,7 +18,6 @@ const AdminSupport = () => {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const chatEndRef = useRef(null);
-  const currentUser = useAuthStore((state) => state.user);
 
   useEffect(() => {
     fetchTickets();
@@ -70,7 +69,7 @@ const AdminSupport = () => {
         setTickets(prev => prev.map(t => t._id === selectedTicket._id ? res.data.data : t));
         setReplyText('');
       }
-    } catch (err) {
+    } catch {
       alert("Yanıt gönderilirken hata oluştu.");
     } finally {
       setSending(false);
@@ -87,7 +86,7 @@ const AdminSupport = () => {
                   setSelectedTicket(prev => ({ ...prev, status: 'closed' }));
               }
           }
-      } catch (err) {
+      } catch {
           alert("Talep kapatılamadı.");
       }
   };

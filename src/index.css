@@ -10,12 +10,118 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
-  --color-bg-dark: #07070a;
-  --color-bg-card: #101017;
-  --color-bg-card2: #16161f;
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
+  --color-bg-dark: var(--bg-dark);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card2: var(--bg-card2);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-color: var(--border-color);
+  --color-border-color-mid: var(--border-color-mid);
+}
+
+:root {
+  --bg-dark: #07070a;
+  --bg-card: #101017;
+  --bg-card2: #16161f;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-mid: rgba(255, 255, 255, 0.15);
+}
+
+:root[data-theme-mode="light"] {
+  --bg-dark: #f6f8fc;
+  --bg-card: #ffffff;
+  --bg-card2: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-color: rgba(99, 102, 241, 0.08);
+  --border-color-mid: rgba(99, 102, 241, 0.15);
+}
+
+:root[data-theme="emerald"] {
+  --color-primary: #10b981;
+  --color-primary-light: #34d399;
+  --color-primary-dark: #047857;
+  --color-accent: #0f766e;
+  --color-accent-light: #14b8a6;
+}
+
+:root[data-theme="midnight"] {
+  --color-primary: #3b82f6;
+  --color-primary-light: #60a5fa;
+  --color-primary-dark: #1d4ed8;
+  --color-accent: #a855f7;
+  --color-accent-light: #c084fc;
+}
+
+:root[data-theme="obsidian"] {
+  --color-primary: #f59e0b; /* Altın */
+  --color-primary-light: #fbbf24;
+  --color-primary-dark: #d97706;
+  --color-accent: #ef4444; /* Neon Kırmızı */
+  --color-accent-light: #f87171;
+  --bg-dark: #000000;
+  --bg-card: #0a0a0a;
+  --bg-card2: #121212;
+}
+
+:root[data-theme="sunset"] {
+  --color-primary: #f97316;
+  --color-primary-light: #fb923c;
+  --color-primary-dark: #ea580c;
+  --color-accent: #db2777;
+  --color-accent-light: #f472b6;
+  --bg-dark: #0f0b08;
+  --bg-card: #15100c;
+  --bg-card2: #1e1712;
+}
+
+:root[data-theme="lavender"] {
+  --color-primary: #d946ef;
+  --color-primary-light: #f0abfc;
+  --color-primary-dark: #c084fc;
+  --color-accent: #6366f1;
+  --color-accent-light: #818cf8;
+  --bg-dark: #0a060e;
+  --bg-card: #110b17;
+  --bg-card2: #17101f;
+}
+
+:root[data-theme="ruby"] {
+  --color-primary: #dc2626;
+  --color-primary-light: #ef4444;
+  --color-primary-dark: #991b1b;
+  --color-accent: #f43f5e;
+  --color-accent-light: #fb7185;
+  --bg-dark: #0c0505;
+  --bg-card: #120a0a;
+  --bg-card2: #1c1010;
+}
+
+:root[data-theme="arctic"] {
+  --color-primary: #06b6d4;
+  --color-primary-light: #22d3ee;
+  --color-primary-dark: #0891b2;
+  --color-accent: #0d9488;
+  --color-accent-light: #14b8a6;
+  --bg-dark: #050a0f;
+  --bg-card: #081119;
+  --bg-card2: #0e1b26;
+}
+
+:root[data-theme="amethyst"] {
+  --color-primary: #8b5cf6;
+  --color-primary-light: #a78bfa;
+  --color-primary-dark: #7c3aed;
+  --color-accent: #ec4899;
+  --color-accent-light: #f472b6;
+  --bg-dark: #0b0512;
+  --bg-card: #12091c;
+  --bg-card2: #1b0e2a;
 }
 
 @layer base {
@@ -146,4 +252,153 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
   background-size: 200px 200px;
   pointer-events: none;
+}
+
+/* ── Premium Light Theme Custom Overrides ── */
+:root[data-theme-mode="light"] {
+  /* Invert hardcoded dark backgrounds to light card background */
+  .bg-\[\#0d1017\],
+  .bg-\[\#0c0f15\],
+  .bg-\[\#07070a\],
+  .bg-\[\#0b0d12\],
+  .bg-\[\#0f1118\],
+  .bg-\[\#0d0d14\],
+  .bg-\[\#16161f\],
+  .bg-bg-card,
+  .lg\:bg-\[\#0b0d12\] {
+    background-color: var(--bg-card) !important;
+  }
+  
+  /* Invert main body bg if it's hardcoded */
+  .bg-bg-dark {
+    background-color: var(--bg-dark) !important;
+  }
+
+  /* Handle white card highlights/borders */
+  .border-white\/5,
+  .border-white\/10,
+  .border-white\/15,
+  .border-white\/20,
+  .border-border-color {
+    border-color: var(--border-color) !important;
+  }
+
+  /* Handle white/transparent background highlights */
+  .bg-white\/5,
+  .bg-white\/\[0\.01\],
+  .bg-white\/\[0\.02\],
+  .bg-white\/\[0\.025\],
+  .bg-white\/\[0\.03\],
+  .bg-white\/\[0\.035\],
+  .bg-white\/\[0\.05\],
+  .bg-white\/\[0\.06\],
+  .bg-white\/\[0\.07\] {
+    background-color: rgba(99, 102, 241, 0.04) !important;
+  }
+
+  /* Handle hovers */
+  .hover\:bg-white\/\[0\.05\]:hover,
+  .hover\:bg-white\/\[0\.07\]:hover,
+  .hover\:bg-white\/\[0\.1\]:hover,
+  .hover\:bg-white\/\[0\.01\]:hover {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+  }
+
+  /* Invert text-white to dark text unless it has a dark bg (like primary button/badge) */
+  .text-white:not(.bg-primary *):not(.btn-primary *):not(.bg-gradient-to-br *):not(.bg-gradient-to-r *):not(.bg-success *):not(.bg-danger *):not(.bg-warning *):not(.text-white-keep) {
+    color: var(--text-primary) !important;
+  }
+  
+  /* Make sure svg/icons that use text-white also transition nicely */
+  .text-white svg {
+    stroke: var(--text-primary);
+  }
+
+  /* Handle headers and settings opacity text labels */
+  .text-white\/90 {
+    color: var(--text-secondary) !important;
+  }
+  .text-white\/70,
+  .text-white\/60 {
+    color: var(--text-muted) !important;
+  }
+
+  /* Invert bg-black/20 or similar dark overlays in light mode to soft light grey */
+  .bg-black\/20,
+  .bg-black\/25,
+  .bg-black\/30 {
+    background-color: rgba(99, 102, 241, 0.06) !important;
+  }
+
+  /* Special Gradient Cards (like quote card or welcome card) */
+  .bg-gradient-to-br.from-\[\#21183e\].to-\[\#101827\],
+  .bg-gradient-to-br.from-\[\#21183e\].to-\[\#101827\] * {
+    background-image: linear-gradient(to bottom right, #f5f3ff, #eef2ff) !important;
+    border-color: rgba(99, 102, 241, 0.12) !important;
+    color: #312e81 !important;
+  }
+  
+  .bg-gradient-to-br.from-\[\#21183e\].to-\[\#101827\] .text-text-muted {
+    color: #4f46e5 !important;
+  }
+
+  /* Floating AI chatbot or user profile links in header */
+  .bg-white\/\[0\.025\] {
+    background-color: rgba(99, 102, 241, 0.03) !important;
+  }
+
+  /* Specific widgets that need crisp shadow and border in light mode */
+  .rounded-3xl, .rounded-2xl {
+    box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.04), 0 2px 8px -1px rgba(99, 102, 241, 0.02) !important;
+  }
+
+  /* Sidebar active element overrides in light mode */
+  .lg\:bg-white\/\[0\.06\] {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+    color: var(--color-primary) !important;
+  }
+  .lg\:text-white {
+    color: var(--color-primary) !important;
+  }
+
+  /* Bottom Nav overrides */
+  nav.fixed.inset-x-0.bottom-0.bg-\[\#16161f\]\/95 {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-top: 1px solid var(--border-color) !important;
+    box-shadow: 0 -4px 20px rgba(99, 102, 241, 0.06) !important;
+  }
+
+  /* Input fields overrides */
+  .input-field,
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color-mid) !important;
+  }
+  
+  .input-field::placeholder,
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder,
+  input[type="password"]::placeholder,
+  textarea::placeholder {
+    color: var(--text-muted) !important;
+  }
+
+  /* Dropdown selection cards in settings */
+  select {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color-mid) !important;
+  }
+
+  /* Correct check circle or trophy icon containers on dashboard */
+  .bg-primary\/10 {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+  }
+  .text-primary-light {
+    color: var(--color-primary-dark) !important;
+  }
 }

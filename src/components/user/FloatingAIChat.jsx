@@ -38,17 +38,56 @@ const getContextHint = (pathname) => {
 };
 
 const markdownComponents = {
-  p: ({ node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
-  ul: ({ node, ...props }) => <ul className="mb-2 list-disc space-y-1 pl-5" {...props} />,
-  ol: ({ node, ...props }) => <ol className="mb-2 list-decimal space-y-1 pl-5" {...props} />,
-  li: ({ node, ...props }) => <li className="font-medium" {...props} />,
-  strong: ({ node, ...props }) => <strong className="font-black text-primary-light" {...props} />,
+  p: ({ node: _node, ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+  ul: ({ node: _node, ...props }) => <ul className="mb-2 list-disc space-y-1 pl-5" {...props} />,
+  ol: ({ node: _node, ...props }) => <ol className="mb-2 list-decimal space-y-1 pl-5" {...props} />,
+  li: ({ node: _node, ...props }) => <li className="font-medium" {...props} />,
+  strong: ({ node: _node, ...props }) => <strong className="font-black text-primary-light" {...props} />,
+};
+
+const TypewriterMarkdown = ({ content, speed = 8, scrollRef, onComplete }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    let currentText = '';
+    let index = 0;
+    setDisplayedContent('▎');
+
+    const interval = setInterval(() => {
+      if (index < content.length) {
+        currentText += content[index];
+        setDisplayedContent(currentText + '▎');
+        index++;
+        if (scrollRef && scrollRef.current) {
+          scrollRef.current.scrollIntoView({ behavior: 'auto' });
+        }
+      } else {
+        clearInterval(interval);
+        setDisplayedContent(content);
+        onCompleteRef.current?.();
+      }
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [content, speed, scrollRef]);
+
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+      {displayedContent}
+    </ReactMarkdown>
+  );
 };
 
 export default function FloatingAIChat() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const isSolvePage = location.pathname.includes('/exams/') && location.pathname !== '/dashboard/exams';
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState(() => {
     try {
@@ -65,6 +104,8 @@ export default function FloatingAIChat() {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [errorText, setErrorText] = useState('');
   const [pageContext, setPageContext] = useState(() => getAiPageContext());
+  const [assistantLabelIndex, setAssistantLabelIndex] = useState(0);
+  const [showAssistantLabel, setShowAssistantLabel] = useState(true);
   const messagesEndRef = useRef(null);
 
   const contextHint = useMemo(() => getContextHint(location.pathname), [location.pathname]);
@@ -95,6 +136,31 @@ export default function FloatingAIChat() {
     return () => window.removeEventListener('ai-page-context-change', syncContext);
   }, [location.pathname]);
 
+  useEffect(() => {
+    let timer;
+
+    const cycleLabel = (visible, index) => {
+      timer = window.setTimeout(() => {
+        if (visible) {
+          setShowAssistantLabel(false);
+          cycleLabel(false, index);
+        } else {
+          const nextIndex = (index + 1) % 2;
+          setAssistantLabelIndex(nextIndex);
+          setShowAssistantLabel(true);
+          cycleLabel(true, nextIndex);
+        }
+      }, visible ? 2400 : 650);
+    };
+
+    cycleLabel(true, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const markMessageAsTyped = (msgIndex) => {
+    setMessages((prev) => prev.map((m, idx) => idx === msgIndex ? { ...m, isNew: false } : m));
+  };
+
   const handleSend = async (textToSend) => {
     const text = textToSend || inputText;
     if (!text.trim() || loading) return;
@@ -117,7 +183,7 @@ export default function FloatingAIChat() {
         messages: contextMessages,
         pageContext: getAiPageContext(),
       }, { timeout: 45000 });
-      const assistantMessage = { role: 'assistant', content: res.data?.reply || 'Şu an yanıt üretemedim.' };
+      const assistantMessage = { role: 'assistant', content: res.data?.reply || 'Şu an yanıt üretemedim.', isNew: true };
       setMessages((prev) => [...prev, assistantMessage]);
       if (res.data?.promptCount !== undefined) setPromptCount(res.data.promptCount);
       if (res.data?.limit !== undefined) setLimit(res.data.limit);
@@ -130,7 +196,7 @@ export default function FloatingAIChat() {
       } else {
         setErrorText(
           err.code === 'ECONNABORTED'
-            ? 'Sınav Koçu yanıtı biraz uzun sürdü. Lütfen tekrar deneyin.'
+            ? 'Yola yanıtı biraz uzun sürdü. Lütfen tekrar deneyin.'
             : (err.response?.data?.error || 'Bir hata oluştu. Lütfen tekrar deneyin.')
         );
       }
@@ -154,15 +220,15 @@ export default function FloatingAIChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="fixed bottom-[6.25rem] right-3 z-50 flex h-[min(680px,calc(100vh-8rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#0b0d13] shadow-2xl shadow-black/50 lg:bottom-6 lg:right-6"
+            className="fixed bottom-[6.25rem] right-3 z-50 flex h-[min(680px,calc(100vh-8rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-[32px] border border-white/[0.08] bg-gradient-to-b from-[#0b0d13] to-[#06080c] shadow-[0_20px_50px_rgba(0,0,0,0.5)] lg:bottom-6 lg:right-6"
           >
-            <header className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.025] px-4 py-3">
+            <header className="flex items-center justify-between gap-3 border-b border-white/[0.08] bg-white/[0.015] px-4 py-3">
               <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary-light">
-                  <Bot className="h-5 w-5" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-gradient-to-br from-primary-light/20 to-accent/20 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+                  <Bot className="h-5 w-5 animate-pulse" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="truncate text-sm font-black text-white">Sınav Koçu</h2>
+                  <h2 className="truncate text-sm font-black text-white">Yolla AI</h2>
                   <p className="truncate text-[10px] font-bold uppercase tracking-widest text-text-muted">
                     {user?.proStatus ? 'Sınırsız PRO' : `${remainingPrompts}/${limit} hak kaldı`}
                   </p>
@@ -185,28 +251,30 @@ export default function FloatingAIChat() {
 
             <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
               {messages.length === 0 ? (
-                <div className="flex min-h-full flex-col justify-center">
-                  <div className="mb-5 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-3xl border border-primary/25 bg-primary/15 text-primary-light">
+                <div className="flex min-h-full flex-col justify-center relative">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-44 h-44 rounded-full bg-primary/5 blur-[40px] pointer-events-none" />
+                  
+                  <div className="mb-5 text-center relative z-10">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[22px] border border-primary/30 bg-gradient-to-br from-primary-light/15 to-accent/15 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.2)] animate-pulse">
                       <Sparkles className="h-7 w-7" />
                     </div>
-                    <h3 className="text-lg font-black text-white">Bulunduğun yerde sor</h3>
-                    <p className="mx-auto mt-2 max-w-xs text-sm font-semibold leading-6 text-text-muted">{contextHint}</p>
+                    <h3 className="text-lg font-black text-white">Bulunduğun Yerde Sor</h3>
+                    <p className="mx-auto mt-2 max-w-xs text-xs font-semibold leading-5 text-text-muted">{contextHint}</p>
                     {pageContext?.page && (
-                      <p className="mx-auto mt-3 w-fit rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary-light">
+                      <p className="mx-auto mt-3 w-fit rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-primary-light">
                         Ekran bağlamı aktif
                       </p>
                     )}
                   </div>
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 relative z-10">
                     {QUICK_PROMPTS.map((prompt) => (
                       <button
                         key={prompt.text}
                         onClick={() => handleSend(prompt.text)}
-                        className="group rounded-2xl border border-white/10 bg-white/[0.02] p-3 text-left transition hover:bg-white/[0.05]"
+                        className="group rounded-2xl border border-white/[0.06] bg-white/[0.015] p-3 text-left transition hover:bg-white/[0.04] hover:border-primary/25 hover:shadow-[0_4px_15px_rgba(99,102,241,0.05)] cursor-pointer"
                       >
                         <p className="line-clamp-2 text-xs font-bold leading-5 text-white/90">"{prompt.text}"</p>
-                        <span className="mt-2 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-primary-light">
+                        <span className="mt-2 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-primary-light">
                           {prompt.category}
                           <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
                         </span>
@@ -223,18 +291,36 @@ export default function FloatingAIChat() {
                         key={`${msg.role}-${index}`}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
+                        className={`flex gap-3 items-start ${isUser ? 'flex-row-reverse' : ''}`}
                       >
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl border text-xs font-black ${isUser ? 'border-white/10 bg-white/10 text-white' : 'border-primary/25 bg-primary/15 text-primary-light'}`}>
-                          {isUser ? 'S' : <Bot className="h-4 w-4" />}
-                        </div>
-                        <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-6 ${isUser ? 'rounded-tr-none bg-primary text-white' : 'rounded-tl-none border border-white/10 bg-white/[0.04] text-white/90'}`}>
+                        {isUser ? (
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-white/10 bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-[10px] shadow-md">
+                            {user?.firstName ? user.firstName[0].toUpperCase() : 'U'}
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border border-primary/30 bg-gradient-to-br from-primary-light/20 to-accent/20 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+                            <Bot className="h-4.5 w-4.5 text-primary-light" />
+                          </div>
+                        )}
+                        <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-xs leading-5 ${
+                          isUser 
+                            ? 'rounded-tr-none bg-gradient-to-br from-primary to-primary-dark text-white font-semibold shadow-[0_3px_10px_rgba(99,102,241,0.15)]' 
+                            : 'rounded-tl-none border border-white/[0.06] bg-white/[0.03] backdrop-blur-md text-white/90 shadow-[0_5px_15px_rgba(0,0,0,0.1)]'
+                        }`}>
                           {isUser ? (
-                            <div className="whitespace-pre-wrap font-semibold">{msg.content}</div>
+                            <div className="whitespace-pre-wrap">{msg.content}</div>
                           ) : (
-                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                              {msg.content}
-                            </ReactMarkdown>
+                            msg.isNew ? (
+                              <TypewriterMarkdown
+                                content={msg.content}
+                                scrollRef={messagesEndRef}
+                                onComplete={() => markMessageAsTyped(index)}
+                              />
+                            ) : (
+                              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                                {msg.content}
+                              </ReactMarkdown>
+                            )
                           )}
                         </div>
                       </motion.div>
@@ -242,12 +328,12 @@ export default function FloatingAIChat() {
                   })}
                   {loading && (
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-2xl border border-primary/25 bg-primary/15 text-primary-light">
-                        <Bot className="h-4 w-4 animate-bounce" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-primary/30 bg-gradient-to-br from-primary-light/20 to-accent/20 text-primary-light animate-pulse shadow-[0_0_10px_rgba(99,102,241,0.2)]">
+                        <Bot className="h-4.5 w-4.5 animate-bounce text-primary-light" />
                       </div>
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-bold text-text-muted">
-                        <Loader2 className="mr-2 inline h-4 w-4 animate-spin text-primary-light" />
-                        Yanıt hazırlanıyor...
+                      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-md px-4 py-3 text-xs font-bold text-text-muted flex items-center gap-2">
+                        <Loader2 className="inline h-3.5 w-3.5 animate-spin text-primary-light" />
+                        Yolla AI yanıt hazırlıyor...
                       </div>
                     </div>
                   )}
@@ -267,22 +353,22 @@ export default function FloatingAIChat() {
                 event.preventDefault();
                 handleSend();
               }}
-              className="border-t border-white/10 bg-[#090b10] p-3"
+              className="border-t border-white/[0.08] bg-black/40 backdrop-blur-md p-3"
             >
-              <div className="flex gap-2">
+              <div className="flex gap-2.5">
                 <input
                   value={inputText}
                   onChange={(event) => setInputText(event.target.value)}
                   disabled={loading}
                   placeholder="Sorunu yaz..."
-                  className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-semibold text-white outline-none transition placeholder:text-text-muted focus:border-primary/40 focus:ring-4 focus:ring-primary/10 disabled:opacity-50"
+                  className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3 text-sm font-semibold text-white outline-none transition placeholder:text-text-muted focus:border-primary/45 focus:ring-4 focus:ring-primary/10 disabled:opacity-50 shadow-inner"
                 />
                 <button
                   type="submit"
                   disabled={!inputText.trim() || loading}
-                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-white transition hover:bg-primary-light disabled:opacity-40"
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary-dark hover:from-primary-light hover:to-primary text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 transition duration-200"
                 >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {loading ? <Loader2 className="h-4.5 w-4.5 animate-spin" /> : <Send className="h-4.5 w-4.5" />}
                 </button>
               </div>
             </form>
@@ -290,19 +376,41 @@ export default function FloatingAIChat() {
         )}
       </AnimatePresence>
 
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className={`fixed bottom-[6.25rem] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary text-white shadow-2xl shadow-primary/25 transition hover:bg-primary-light active:scale-95 lg:bottom-6 lg:right-6 ${open ? 'pointer-events-none opacity-0' : 'opacity-100'}`}
-        aria-label="AI danışmanı aç"
-      >
-        <MessageCircle className="h-6 w-6" />
-        {!user?.proStatus && remainingPrompts > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#07080c] bg-success px-1 text-[10px] font-black text-white">
-            {remainingPrompts > 9 ? '9+' : remainingPrompts}
-          </span>
-        )}
-      </button>
+      <div className={`fixed z-40 flex items-center gap-2 ${
+        isSolvePage 
+          ? 'bottom-[5.25rem] right-4 lg:bottom-[5.5rem] lg:right-6' 
+          : 'bottom-[6.25rem] right-4 lg:bottom-6 lg:right-6'
+      } ${open ? 'pointer-events-none' : ''}`}>
+        <AnimatePresence mode="wait">
+          {!open && showAssistantLabel && (
+            <motion.button
+              key={assistantLabelIndex}
+              type="button"
+              onClick={() => setOpen(true)}
+              initial={{ opacity: 0, x: 24, scaleX: 0.75 }}
+              animate={{ opacity: 1, x: 0, scaleX: 1 }}
+              exit={{ opacity: 0, x: 18, scaleX: 0.82 }}
+              transition={{ duration: 0.32, ease: 'easeOut' }}
+              className="origin-right whitespace-nowrap rounded-2xl border border-primary/25 bg-[#111424]/95 px-4 py-2.5 text-xs font-black text-white shadow-xl shadow-black/30 backdrop-blur-md"
+            >
+              {assistantLabelIndex === 0 ? 'Yolla AI' : 'Yolla AI Asistanı'}
+            </motion.button>
+          )}
+        </AnimatePresence>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className={`relative flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary text-white shadow-2xl shadow-primary/25 transition hover:bg-primary-light active:scale-95 ${open ? 'opacity-0' : 'opacity-100'}`}
+          aria-label="Yolla AI asistanını aç"
+        >
+          <MessageCircle className="h-6 w-6" />
+          {!user?.proStatus && remainingPrompts > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#07080c] bg-success px-1 text-[10px] font-black text-white">
+              {remainingPrompts > 9 ? '9+' : remainingPrompts}
+            </span>
+          )}
+        </button>
+      </div>
 
       <AnimatePresence>
         {showLimitModal && (

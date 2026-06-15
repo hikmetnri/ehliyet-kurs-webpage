@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import api from '../../api';
 import { AnimatePresence, motion as Motion } from 'framer-motion';
 import {
@@ -28,7 +28,11 @@ import {
   Zap,
   Quote,
   X,
-  Play
+  Play,
+  Sun,
+  Moon,
+  Lock,
+  Monitor
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
@@ -119,6 +123,7 @@ const getCategoryColor = (name) => {
 };
 
 const UserHome = () => {
+  const { themeMode, toggleThemeMode, isThemeLocked } = useOutletContext();
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -289,7 +294,7 @@ const UserHome = () => {
     };
 
     fetchData();
-  }, [user?.selectedCategoryId]);
+  }, [user?.selectedCategoryId, user?.selectedCategoryName]);
 
   const planProgress = dailyPlan?.progress || {};
   const dailyGoal = planProgress.dailyGoal || stats?.dailyGoal || 20;
@@ -1291,7 +1296,47 @@ const UserHome = () => {
             </div>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Tema Değiştirici */}
+            <div className="relative flex items-center">
+              <button
+                onClick={toggleThemeMode}
+                className={`relative w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 border ${
+                  isThemeLocked
+                    ? 'bg-white/[0.02] border-border-color cursor-not-allowed opacity-60'
+                    : themeMode === 'dark'
+                      ? 'bg-[#2d2f4e]/80 border-primary/20 hover:border-primary/45'
+                      : themeMode === 'system'
+                        ? 'bg-teal-500/10 border-teal-500/25 hover:border-teal-500/45'
+                        : 'bg-primary/10 border-primary/25 hover:border-primary/45'
+                }`}
+                title={isThemeLocked ? "Özel tema etkinken renk modu değiştirilemez" : "Temayı Değiştir (Koyu - Açık - Sistem)"}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+                    isThemeLocked
+                      ? 'translate-x-0 bg-text-muted/40'
+                      : themeMode === 'dark'
+                        ? 'translate-x-0 bg-gradient-to-r from-primary to-accent'
+                        : themeMode === 'system'
+                          ? 'translate-x-3.5 bg-gradient-to-r from-teal-500 to-indigo-400'
+                          : 'translate-x-7 bg-gradient-to-r from-amber-500 to-orange-400'
+                  }`}
+                >
+                  {isThemeLocked ? (
+                    <Lock className="w-2.5 h-2.5 text-text-muted" />
+                  ) : themeMode === 'dark' ? (
+                    <Moon className="w-2.5 h-2.5 text-white fill-white" />
+                  ) : themeMode === 'system' ? (
+                    <Monitor className="w-2.5 h-2.5 text-white" />
+                  ) : (
+                    <Sun className="w-2.5 h-2.5 text-white" />
+                  )}
+                </div>
+              </button>
+            </div>
+
+            {/* Bildirimler */}
             <button
               onClick={() => setShowNotifications(true)}
               className="relative w-9 h-9 flex items-center justify-center rounded-full bg-white/[0.03] border border-white/5 text-text-muted hover:text-white"

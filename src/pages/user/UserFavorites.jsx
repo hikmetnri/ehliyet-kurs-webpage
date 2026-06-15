@@ -76,7 +76,7 @@ const UserFavorites = () => {
       await api.delete(`/users/favorites/${qId}`);
       setFavorites((prev) => prev.filter((question) => question._id !== qId));
       if (selectedQuestion?._id === qId) setSelectedQuestion(null);
-    } catch (err) {
+    } catch {
       alert('Hata oluştu');
     }
   };

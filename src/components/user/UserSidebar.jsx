@@ -41,18 +41,18 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
 
       <aside className={`
         fixed lg:sticky top-0 h-screen z-50 flex flex-col
-        bg-bg-card border-r border-white/5 transition-all duration-300
-        lg:bg-[#0a0c12] lg:border-white/10
+        bg-bg-card border-r border-border-color transition-all duration-300
+        lg:bg-bg-card lg:border-border-color
         ${collapsed ? '-translate-x-full lg:translate-x-0 lg:w-[88px]' : 'translate-x-0 w-72 lg:w-[280px]'}
       `}>
         {/* Glow effect back */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[80px] pointer-events-none rounded-full lg:hidden" />
 
         {/* Logo */}
-        <div className={`p-6 border-b border-white/5 flex items-center gap-4 ${collapsed ? 'lg:justify-center lg:px-4' : 'lg:px-5'} relative z-10 lg:border-white/10`}>
+        <div className={`p-6 border-b border-border-color flex items-center gap-4 ${collapsed ? 'lg:justify-center lg:px-4' : 'lg:px-5'} relative z-10 lg:border-border-color`}>
           <div className="relative">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 lg:h-11 lg:w-11 lg:rounded-xl lg:bg-white/10 lg:shadow-none">
-              <div className="w-full h-full bg-bg-dark rounded-[14px] flex items-center justify-center lg:rounded-[10px] lg:bg-[#07080c]">
+              <div className="w-full h-full bg-bg-dark rounded-[14px] flex items-center justify-center lg:rounded-[10px] lg:bg-bg-dark">
                 <img
                   src="/logo_v2.png"
                   alt="Ehliyet Yolu"
@@ -115,9 +115,9 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
         </nav>
 
         {/* User + Logout */}
-        <div className="p-4 border-t border-white/5 space-y-3 relative z-10 lg:border-white/10 lg:px-3">
+        <div className="p-4 border-t border-border-color space-y-3 relative z-10 lg:border-border-color lg:px-3">
           {!collapsed && (
-            <div className="bg-gradient-to-br from-white/[0.05] to-transparent p-4 rounded-2xl border border-white/5 relative overflow-hidden group lg:rounded-xl lg:bg-white/[0.03] lg:p-3">
+            <div className="bg-gradient-to-br from-white/[0.05] to-transparent p-4 rounded-2xl border border-border-color relative overflow-hidden group lg:rounded-xl lg:bg-white/[0.03] lg:p-3">
               <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 lg:hidden" />
               <p className="text-xs font-medium text-text-secondary leading-relaxed relative z-10">
                 <span className="text-white font-bold block mb-1">PRO'ya Yüksel</span>

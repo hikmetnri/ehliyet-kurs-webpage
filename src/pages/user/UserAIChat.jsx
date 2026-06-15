@@ -13,6 +13,8 @@ import { compactStatsContext, getAiPageContext } from '../../utils/aiPageContext
 import { buildScopedStats, filterResultsToCategoryTree } from '../../utils/scopedStats';
 import { normalizeId, readApiList } from '../../utils/wrongAnswers';
 
+const MotionDiv = motion.div;
+
 const QUICK_PROMPTS = [
   { text: 'Kavşaklarda geçiş üstünlüğü kuralları nelerdir?', category: 'Trafik' },
   { text: 'İlk yardımda Rentek manevrası ne zaman ve nasıl yapılır?', category: 'İlk Yardım' },
@@ -105,7 +107,7 @@ export default function UserAIChat() {
           selectedCategoryName: user?.selectedCategoryName || '',
         }));
       } catch (err) {
-        console.error('Sınav Koçu istatistik bağlamı hazırlanamadı:', err);
+        console.error('Yola istatistik bağlamı hazırlanamadı:', err);
         setPageContext(getAiPageContext());
       }
     };
@@ -179,7 +181,7 @@ export default function UserAIChat() {
       } else {
         setErrorText(
           err.code === 'ECONNABORTED'
-            ? 'Sınav Koçu yanıtı biraz uzun sürdü. Lütfen tekrar deneyin.'
+            ? 'Yola yanıtı biraz uzun sürdü. Lütfen tekrar deneyin.'
             : (err.response?.data?.error || 'Bir hata oluştu. Lütfen tekrar deneyin.')
         );
       }
@@ -207,10 +209,10 @@ export default function UserAIChat() {
             <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Yapay Zeka Teknolojisi</span>
           </div>
           <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-            Sınav Koçunuz <span className="text-xs font-bold px-2 py-0.5 rounded bg-primary/20 border border-primary/30 text-primary-light uppercase">DeepSeek</span>
+            Yolla AI <span className="text-xs font-bold px-2 py-0.5 rounded bg-primary/20 border border-primary/30 text-primary-light uppercase">Yapay Zeka Asistanı</span>
           </h1>
           <p className="text-text-muted text-xs mt-1 font-semibold">
-            Trafik, motor, ilk yardım ve sınav konularında aklınıza takılan her şeyi sorun.
+            Anlamadığınız yerde Yolla AI'a yollayın, o cevaplasın! 🚀
           </p>
           {pageContext?.page === 'stats' && (
             <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-emerald-300">
@@ -249,35 +251,44 @@ export default function UserAIChat() {
       </div>
 
       {/* Main Chat Panel */}
-      <div className="flex-1 bg-white/[0.02] border border-white/5 rounded-3xl flex flex-col min-h-0 relative overflow-hidden">
+      <div className="flex-1 bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-2xl border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.4)] rounded-[32px] flex flex-col min-h-0 relative overflow-hidden">
         {messages.length === 0 ? (
           /* Landing/Intro State */
-          <div className="flex-1 overflow-y-auto p-6 sm:p-10 flex flex-col justify-center items-center text-center">
-            <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 flex items-center justify-center mb-6">
-              <div className="w-full h-full bg-[#0a0c12] rounded-[22px] flex items-center justify-center">
-                <Bot className="w-10 h-10 text-primary-light" />
+          <div className="flex-1 overflow-y-auto p-6 sm:p-10 flex flex-col justify-center items-center text-center relative">
+            {/* Subtle glow background */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
+
+            <div className="relative w-20 h-20 rounded-[28px] bg-gradient-to-br from-primary via-primary-light to-accent p-[2px] shadow-lg shadow-primary/25 flex items-center justify-center mb-6 hover:scale-105 transition-transform duration-300">
+              <div className="w-full h-full bg-[#07070a] rounded-[26px] flex items-center justify-center">
+                <Bot className="w-10 h-10 text-primary-light animate-pulse" />
               </div>
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+              </span>
             </div>
             
-            <h3 className="text-xl font-black text-white tracking-tight">Sınav Koçuna Merhaba Deyin!</h3>
-            <p className="text-text-secondary text-sm max-w-md mt-2 font-medium">
-              Ehliyet sınavınızda başarılı olmanız için tüm müfredatı ezbere biliyorum. Sorularınızı bekliyorum!
+            <h3 className="text-2xl font-black text-white tracking-tight">Yolla AI'a Merhaba Deyin!</h3>
+            <p className="text-text-secondary text-sm max-w-md mt-3 font-semibold leading-relaxed">
+              Anlamadığınız yerde Yolla AI'a yollayın, o cevaplasın! 🚀
             </p>
             
             {/* Quick Prompts Container */}
-            <div className="mt-8 w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="mt-10 w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
               {QUICK_PROMPTS.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => handleSend(prompt.text)}
-                  className="p-4 text-left rounded-2xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300 group flex flex-col justify-between h-28 cursor-pointer"
+                  className="p-5 text-left rounded-2xl border border-white/[0.06] bg-white/[0.015] hover:bg-white/[0.04] hover:border-primary/30 transition-all duration-300 group flex flex-col justify-between h-28 cursor-pointer hover:shadow-[0_10px_25px_rgba(99,102,241,0.08)] hover:-translate-y-0.5 active:translate-y-0"
                 >
-                  <span className="text-xs text-white/90 font-semibold leading-relaxed line-clamp-2">
+                  <span className="text-xs text-white/90 font-bold leading-relaxed line-clamp-2">
                     "{prompt.text}"
                   </span>
                   <span className="flex items-center justify-between w-full mt-2">
-                    <span className="text-[10px] uppercase font-black tracking-widest text-primary-light">{prompt.category}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-text-muted group-hover:text-white group-hover:translate-x-1 transition-all" />
+                    <span className="text-[9px] uppercase font-black tracking-widest text-primary-light bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-md">{prompt.category}</span>
+                    <span className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                      <ArrowRight className="w-3.5 h-3.5 text-text-muted group-hover:text-white transition-all" />
+                    </span>
                   </span>
                 </button>
               ))}
@@ -285,57 +296,59 @@ export default function UserAIChat() {
           </div>
         ) : (
           /* Active Chat Conversation */
-          <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar min-h-0">
             {messages.map((msg, index) => {
               const isUser = msg.role === 'user';
               return (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className={`flex gap-3.5 ${isUser ? 'flex-row-reverse' : ''}`}
+                  className={`flex gap-4 items-start ${isUser ? 'flex-row-reverse' : ''}`}
                 >
-                  {/* Icon Profile */}
-                  <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 border text-xs font-bold ${
-                    isUser
-                      ? 'bg-white/10 border-white/5 text-white'
-                      : 'bg-primary/20 border-primary/20 text-primary-light shadow-[0_0_10px_rgba(99,102,241,0.2)]'
-                  }`}>
-                    {isUser ? '👤' : <Bot className="w-4 h-4" />}
-                  </div>
+                  {/* Avatar Profile */}
+                  {isUser ? (
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border border-white/10 bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-xs shadow-lg">
+                      {user?.firstName ? user.firstName[0].toUpperCase() : 'U'}
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border border-primary/30 bg-gradient-to-br from-primary-light/20 to-accent/20 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                      <Bot className="w-5 h-5 text-primary-light animate-pulse" />
+                    </div>
+                  )}
                   
                   {/* Bubble Content */}
                   <div className={`flex max-w-[80%] flex-col ${isUser ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed ${
+                    <div className={`px-5 py-3.5 rounded-3xl text-sm leading-relaxed ${
                       isUser
-                        ? 'bg-primary border border-primary/20 text-white rounded-tr-none'
-                        : 'bg-[#141624] border border-white/5 text-white/90 rounded-tl-none markdown-content'
+                        ? 'bg-gradient-to-br from-primary to-primary-dark text-white rounded-tr-none shadow-[0_4px_15px_rgba(99,102,241,0.25)] font-semibold'
+                        : 'bg-white/[0.03] backdrop-blur-md border border-white/[0.06] text-white/90 rounded-tl-none shadow-[0_10px_30px_rgba(0,0,0,0.15)] markdown-content font-medium'
                     }`}>
                       {isUser ? (
-                        <div className="whitespace-pre-wrap font-semibold">{msg.content}</div>
+                        <div className="whitespace-pre-wrap">{msg.content}</div>
                       ) : (
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                            ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-2 space-y-1" {...props} />,
-                            ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-2 space-y-1" {...props} />,
-                            li: ({node, ...props}) => <li className="font-medium" {...props} />,
-                            h3: ({node, ...props}) => <h3 className="text-white font-black text-sm mt-3 mb-1.5" {...props} />,
-                            h4: ({node, ...props}) => <h4 className="text-white font-bold text-xs mt-2 mb-1" {...props} />,
-                            strong: ({node, ...props}) => <strong className="text-primary-light font-black" {...props} />,
-                            table: ({node, ...props}) => <table className="w-full border-collapse border border-white/10 my-2 text-xs" {...props} />,
-                            th: ({node, ...props}) => <th className="border border-white/10 bg-white/5 px-2.5 py-1.5 font-bold text-white text-left" {...props} />,
-                            td: ({node, ...props}) => <td className="border border-white/10 px-2.5 py-1.5" {...props} />,
+                            p: ({ ...props }) => <p className="mb-2 last:mb-0" {...props} />,
+                            ul: ({ ...props }) => <ul className="list-disc pl-5 mb-2 space-y-1 text-text-secondary" {...props} />,
+                            ol: ({ ...props }) => <ol className="list-decimal pl-5 mb-2 space-y-1 text-text-secondary" {...props} />,
+                            li: ({ ...props }) => <li className="font-semibold" {...props} />,
+                            h3: ({ ...props }) => <h3 className="text-white font-black text-sm mt-3 mb-1.5" {...props} />,
+                            h4: ({ ...props }) => <h4 className="text-white font-bold text-xs mt-2 mb-1" {...props} />,
+                            strong: ({ ...props }) => <strong className="text-primary-light font-black" {...props} />,
+                            table: ({ ...props }) => <table className="w-full border-collapse border border-white/10 my-2 text-xs" {...props} />,
+                            th: ({ ...props }) => <th className="border border-white/10 bg-white/5 px-2.5 py-1.5 font-bold text-white text-left" {...props} />,
+                            td: ({ ...props }) => <td className="border border-white/10 px-2.5 py-1.5 text-text-secondary" {...props} />,
                           }}
                         >
                           {msg.content}
                         </ReactMarkdown>
                       )}
                     </div>
-                    <span className="text-[9px] text-text-muted mt-1 px-1 font-bold tracking-wider uppercase">
-                      {isUser ? 'Siz' : 'Sınav Koçu'}
+                    <span className="text-[9px] text-text-muted mt-1.5 px-2 font-bold tracking-wider uppercase">
+                      {isUser ? 'Siz' : 'Yolla AI'}
                     </span>
                   </div>
                 </motion.div>
@@ -344,14 +357,14 @@ export default function UserAIChat() {
             
             {/* Thinking / Loader state */}
             {loading && (
-              <div className="flex gap-3.5">
-                <div className="w-9 h-9 rounded-2xl bg-primary/20 border border-primary/20 text-primary-light flex items-center justify-center shrink-0 animate-pulse">
-                  <Bot className="w-4 h-4 animate-bounce" />
+              <div className="flex gap-4 items-start">
+                <div className="w-10 h-10 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary-light/20 to-accent/20 text-primary-light flex items-center justify-center shrink-0 animate-pulse shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                  <Bot className="w-5 h-5 animate-bounce text-primary-light" />
                 </div>
                 <div className="flex flex-col items-start max-w-[80%]">
-                  <div className="px-5 py-4 rounded-2xl bg-[#141624] border border-white/5 flex items-center gap-2 rounded-tl-none text-text-secondary text-xs font-semibold">
+                  <div className="px-5 py-4 rounded-3xl bg-white/[0.03] backdrop-blur-md border border-white/[0.06] flex items-center gap-2.5 rounded-tl-none text-text-secondary text-xs font-bold shadow-lg">
                     <Loader2 className="w-4 h-4 animate-spin text-primary-light" />
-                    Sınav Koçu düşünüyor ve yanıt üretiyor...
+                    Yolla AI düşünüyor ve yanıt üretiyor...
                   </div>
                 </div>
               </div>
@@ -370,13 +383,13 @@ export default function UserAIChat() {
         )}
 
         {/* Chat Input Field Composer */}
-        <div className="p-4 border-t border-white/5 bg-[#090b10] shrink-0">
+        <div className="p-4 border-t border-white/[0.08] bg-black/40 backdrop-blur-md shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSend();
             }}
-            className="flex gap-2"
+            className="flex gap-3"
           >
             <input
               type="text"
@@ -384,12 +397,12 @@ export default function UserAIChat() {
               onChange={(e) => setInputText(e.target.value)}
               disabled={loading}
               placeholder="Trafik, sınav veya sürüşle ilgili sorun..."
-              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-white focus:outline-none focus:border-primary/40 focus:ring-4 focus:ring-primary/10 transition placeholder:text-text-muted disabled:opacity-50 font-semibold"
+              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.025] px-5 py-4 text-sm text-white focus:outline-none focus:border-primary/45 focus:ring-4 focus:ring-primary/10 transition placeholder:text-text-muted disabled:opacity-50 font-semibold shadow-inner"
             />
             <button
               type="submit"
               disabled={!inputText.trim() || loading}
-              className="px-6 py-4 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40 transition bg-primary hover:bg-primary-light shadow-lg shadow-primary/15"
+              className="px-6 py-4 rounded-2xl font-black text-sm text-white flex items-center justify-center gap-2 disabled:opacity-40 transition bg-gradient-to-r from-primary to-primary-dark hover:from-primary-light hover:to-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 duration-200"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -443,7 +456,7 @@ export default function UserAIChat() {
               
               <div className="my-5 p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-left text-xs font-semibold space-y-2 text-text-muted">
                 <p className="text-white font-bold flex items-center gap-1.5"><Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" /> PRO Üyelik Ayrıcalıkları:</p>
-                <p>• Sınırsız Sınav Koçu kullanımı</p>
+                <p>• Sınırsız Yolla AI kullanımı</p>
                 <p>• Reklamsız Sınav Çözümü</p>
                 <p>• Tüm Konu Anlatımları ve Soru Bankası</p>
               </div>

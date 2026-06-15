@@ -466,7 +466,7 @@ const UserExams = () => {
           const renderExamCard = (exam, i) => {
             const adUnlockedIds = new Set((user?.adUnlockedExamIds || []).map(String));
             const isAdUnlocked = adUnlockedIds.has(String(exam._id));
-            const isLocked = (exam.isPro && !user?.proStatus) || (!exam.isPro && !user?.proStatus && index >= 5 && !isAdUnlocked);
+            const isLocked = (exam.isPro && !user?.proStatus) || (!exam.isPro && !user?.proStatus && i >= 5 && !isAdUnlocked);
             const isSimulation = exam._isRealMeb;
             const isShort = exam._isSynthetic;
             const examNameLower = (exam.name || '').toLocaleLowerCase('tr-TR');
@@ -955,7 +955,7 @@ const UserExams = () => {
                           {/* Children List */}
                           {isExpanded && (
                             <div className="border-t border-white/5 bg-black/15 divide-y divide-white/5 px-2 animate-slideDown">
-                              {groupExams.map((exam) => {
+                              {groupExams.map((exam, index) => {
                                 const resultKey = `short_${exam._realCategoryId}`;
                                 const lastResult = latestResults[resultKey];
                                 const score = Number(lastResult?.score || 0);
@@ -1035,7 +1035,7 @@ const UserExams = () => {
                     <p className="text-xs text-text-muted">Deneme sınavı bulunamadı.</p>
                   </div>
                 ) : (
-                  generalExams.map((exam) => {
+                  generalExams.map((exam, index) => {
                     const resultKey = exam._id;
                     const lastResult = latestResults[resultKey];
                     const score = Number(lastResult?.score || 0);

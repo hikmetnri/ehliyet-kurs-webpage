@@ -7,6 +7,8 @@ import {
   AlertCircle, Lock, Sparkles, ChevronRight, Search
 } from 'lucide-react';
 
+const MotionDiv = motion.div;
+
 const STATUS_MAP = {
   new:     { label: 'Yeni',        color: 'text-primary-light bg-primary/10 border-primary/30',    icon: Sparkles },
   read:    { label: 'Okundu',      color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/30', icon: CheckCircle2 },
@@ -73,7 +75,7 @@ export default function UserSupport() {
       setTickets(prev => [res.data.data, ...prev]);
       setNewSubject(''); setNewMessage('');
       setView('list');
-    } catch (e) {
+    } catch {
       alert('Talep gönderilemedi.');
     } finally {
       setSending(false);
@@ -89,7 +91,7 @@ export default function UserSupport() {
       setSelected(res.data.data);
       setTickets(prev => prev.map(t => t._id === selected._id ? res.data.data : t));
       setReplyText('');
-    } catch (e) {
+    } catch {
       alert('Yanıt gönderilemedi.');
     } finally {
       setSending(false);

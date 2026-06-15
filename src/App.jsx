@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import useAuthStore from './store/authStore'
 import api from './api'
 import MaintenanceScreen from './components/MaintenanceScreen'
+import { startWebPushForegroundListener } from './services/webPushService'
 
 const LandingPage = lazy(() => import('./pages/LandingPage'))
 const Login = lazy(() => import('./pages/Login'))
@@ -100,6 +101,10 @@ const UserRoute = ({ children }) => {
 }
 
 function App() {
+  useEffect(() => {
+    startWebPushForegroundListener()
+  }, [])
+
   return (
     <Router>
       <Suspense fallback={<RouteFallback />}>

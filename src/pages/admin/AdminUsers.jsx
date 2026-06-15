@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -38,11 +38,7 @@ const AdminUsers = () => {
 
   const currentUser = useAuthStore((state) => state.user);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [sortMode]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       // Backend'deki varsayılan 20 limit sınırını aşıp eski kullanıcıları (Admin/PRO) görebilmek için limit=1000 eklendi.
@@ -55,14 +51,18 @@ const AdminUsers = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sortMode]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleRoleToggle = async (userId, currentRole) => {
     try {
       const newRole = currentRole === 'admin' ? 'user' : 'admin';
       await api.put(`/users/${userId}/role`, { role: newRole });
       setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
-    } catch (err) {
+    } catch {
       alert("Rol güncellenirken hata oluştu.");
     }
   };
@@ -71,7 +71,7 @@ const AdminUsers = () => {
     try {
       const res = await api.put(`/users/${userId}/pro`);
       setUsers(users.map(u => u._id === userId ? { ...u, proStatus: res.data.proStatus } : u));
-    } catch (err) {
+    } catch {
       alert("Pro statüsü güncellenirken hata oluştu.");
     }
   };
@@ -88,7 +88,7 @@ const AdminUsers = () => {
     try {
       const res = await api.put(`/users/${userId}/status`);
       setUsers(users.map(u => u._id === userId ? { ...u, isActive: res.data.isActive } : u));
-    } catch (err) {
+    } catch {
       alert("Kullanıcı durumu güncellenirken hata oluştu.");
     }
   };
@@ -104,7 +104,7 @@ const AdminUsers = () => {
     try {
       await api.delete(`/users/${userId}`);
       setUsers(users.filter(u => u._id !== userId));
-    } catch (err) {
+    } catch {
       alert("Kullanıcı silinirken hata oluştu.");
     }
   };
@@ -126,7 +126,7 @@ const AdminUsers = () => {
           badges: badgesRes.data // This is expected to be the result from badgeController.getUserBadges
         });
       }
-    } catch (err) {
+    } catch {
       alert("İstatistikler yüklenirken hata oluştu.");
       setStatsModalOpen(false);
     } finally {
@@ -150,7 +150,7 @@ const AdminUsers = () => {
   const getAnswerText = (options, answerIndex) => {
     const idx = parseInt(answerIndex, 10);
     if (isNaN(idx) || idx < 0 || !options || idx >= options.length) return '-';
-    return options[idx]?.toString() || '-';
+    return options[idx]?.toString().trim() || `${String.fromCharCode(65 + idx)} Şıkkı`;
   };
 
   const handleOpenNotifModal = (user = null) => {
@@ -176,7 +176,7 @@ const AdminUsers = () => {
         setNotifData({ title: '', body: '' });
         setSelectedUserIds([]);
       }
-    } catch (err) {
+    } catch {
       alert("Bildirim gönderilirken hata oluştu.");
     } finally {
       setSendingNotif(false);
@@ -896,7 +896,7 @@ const AdminUsers = () => {
                              const passed = res.passed;
                              const score = Number(res.score || 0);
                              const totalQ = res.totalQuestions || 50;
-                             const correct = res.correctAnswers || 0;
+                             const correct = res.correctCount ?? res.correctAnswers ?? 0;
                              const wrongQuestions = res.wrongQuestions || [];
                              
                              const date = res.createdAt ? new Date(res.createdAt) : null;

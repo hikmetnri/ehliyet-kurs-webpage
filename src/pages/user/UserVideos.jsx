@@ -21,6 +21,8 @@ import {
 } from '../../utils/categoryContent';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 
+const MotionDiv = motion.div;
+
 const isDirectVideoUrl = (url) => /\.(mp4|m3u8|mov|m4v|webm)(\?|#|$)/i.test(url);
 
 const sortByOrderAndName = (a, b) => {
@@ -288,7 +290,9 @@ const getEmbedUrl = (url) => {
       try {
         const urlParams = new URLSearchParams(url.split('?')[1]);
         videoId = urlParams.get('v') || '';
-      } catch (e) {}
+      } catch {
+        // ignore url params parse errors
+      }
     } else if (lowerUrl.includes('youtu.be/')) {
       videoId = url.split('youtu.be/')[1]?.split('?')[0]?.split('/')[0] || '';
     } else if (lowerUrl.includes('youtube.com/embed/')) {

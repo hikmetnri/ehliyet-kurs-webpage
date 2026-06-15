@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -219,27 +219,29 @@ const QuestionCard = ({ q, idx, onEdit, onDelete, onCopy, isShortTest }) => {
   );
 };
 
+const BASE_EMPTY_FORM = {
+  text: '',
+  options: ['', '', '', ''],
+  correctAnswer: 0,
+  difficulty: 'medium',
+  explanation: '',
+  coefficient: '1.0',
+  media: '',
+  subject: '',
+};
+
 // ─── Question Form Modal ───────────────────────────────────────────────────────
 const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exams, initialCategoryId, initialExamId, existingQuestion, isCopy }) => {
   const isEdit = existingQuestion && !isCopy;
   const isShortTest = testType === 'short_test';
   const fileInputRef = useRef(null);
 
-  const emptyForm = {
-    text: '',
-    options: ['', '', '', ''],
-    correctAnswer: 0,
+  const [form, setForm] = useState(() => ({
+    ...BASE_EMPTY_FORM,
     category: initialCategoryId || '',
     exam: initialExamId || '',
-    difficulty: 'medium',
-    explanation: '',
     testType,
-    coefficient: '1.0',
-    media: '',
-    subject: '',
-  };
-
-  const [form, setForm] = useState(emptyForm);
+  }));
   const [imagePreview, setImagePreview] = useState(null); // görüntülenecek URL
   const [imageFile, setImageFile] = useState(null);       // dosya yükleme için
   const [signPickerOpen, setSignPickerOpen] = useState(false);
@@ -275,7 +277,12 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           }
         }
       } else {
-        setForm({ ...emptyForm, category: initialCategoryId || '', exam: initialExamId || '', testType });
+        setForm({
+          ...BASE_EMPTY_FORM,
+          category: initialCategoryId || '',
+          exam: initialExamId || '',
+          testType,
+        });
         setImagePreview(null);
       }
       setImageFile(null);
@@ -745,14 +752,23 @@ const SignPickerModal = ({ onClose, onSelect }) => {
   const [signs, setSigns] = useState([]);
   const [search, setSearch] = useState('');
   const [loadingSigns, setLoadingSigns] = useState(false);
+  const [prevActiveCat, setPrevActiveCat] = useState(activeCat);
 
-  useEffect(() => {
+  if (activeCat !== prevActiveCat) {
+    setPrevActiveCat(activeCat);
     setLoadingSigns(true);
     setSigns([]);
+  }
+
+  useEffect(() => {
+    let active = true;
     fetchSignsInCategory(activeCat).then(files => {
-      setSigns(files);
-      setLoadingSigns(false);
+      if (active) {
+        setSigns(files);
+        setLoadingSigns(false);
+      }
     });
+    return () => { active = false; };
   }, [activeCat]);
 
   const filtered = search
@@ -865,7 +881,7 @@ const SignPickerModal = ({ onClose, onSelect }) => {
 // ─── Exam Form Modal ───────────────────────────────────────────────────────────
 const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, forceMiniTest = false, testType = 'mock_exam' }) => {
   const isEdit = !!existingExam;
-  const buildCategoryOptions = () => {
+  const catOptions = useMemo(() => {
     const roots = categories.filter(c => !c.parent?._id && !c.parent);
     const result = [];
     const addLevel = (cats, level) => {
@@ -878,8 +894,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
     };
     addLevel(roots, 0);
     return result;
-  };
-  const catOptions = buildCategoryOptions();
+  }, [categories]);
 
   const [form, setForm] = useState({ name: '', description: '', duration: '45', categoryId: '', isPro: false, isMiniTest: forceMiniTest, testType });
   const [loading, setLoading] = useState(false);
@@ -902,7 +917,7 @@ const ExamFormModal = ({ isOpen, onClose, onSaved, categories, existingExam, for
       }
       setError('');
     }
-  }, [isOpen, existingExam, forceMiniTest, testType]);
+  }, [isOpen, existingExam, forceMiniTest, testType, catOptions]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

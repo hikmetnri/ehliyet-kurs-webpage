@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, ChevronRight, Loader2,
   Search, Lock, Folder, FolderOpen, FileText, X,
-  Zap, Play, CheckCircle2, ArrowRight, ZoomIn,
-  ChevronLeft, LayoutGrid, Clock, Activity, AlertCircle,
+  Zap, Play, CheckCircle2, ArrowRight, ZoomIn, Volume2, VolumeX,
+  ChevronLeft, LayoutGrid, Clock, Activity, AlertCircle, Languages,
   Settings2, ShieldCheck, HelpCircle
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -18,6 +18,58 @@ import { isVideoRecord } from '../../utils/categoryContent';
 import { clearAiPageContext, compactLessonContext, setAiPageContext } from '../../utils/aiPageContext';
 
 const MotionDiv = motion.div;
+
+const stripMarkdownForSpeech = (input = '') =>
+  String(input)
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '$1')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^>\s+/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '')
+    .replace(/^-{3,}$/gm, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/[*_~]/g, ' ')
+    .replace(/\n+/g, '. ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const chunkSpeechText = (text, maxLength = 180) => {
+  const words = text.split(/\s+/);
+  const chunks = [];
+  let current = '';
+
+  for (const word of words) {
+    if (!word) continue;
+
+    if (!current) {
+      current = word;
+      continue;
+    }
+
+    if ((current + ' ' + word).length > maxLength) {
+      chunks.push(current);
+      current = word;
+    } else {
+      current = `${current} ${word}`;
+    }
+  }
+
+  if (current) chunks.push(current);
+  return chunks.length > 0 ? chunks : [text];
+};
+
+const getVoiceKey = (voice) => `${voice?.voiceURI || ''}|${voice?.lang || ''}|${voice?.name || ''}`;
+const getVoiceLabel = (voice) => `${voice?.name || 'Ses'} (${voice?.lang || 'unknown'})`;
+const sortVoices = (voices = []) =>
+  [...voices].sort((a, b) => {
+    const aIsTr = `${a?.lang || ''}`.toLowerCase().startsWith('tr') ? 0 : 1;
+    const bIsTr = `${b?.lang || ''}`.toLowerCase().startsWith('tr') ? 0 : 1;
+    if (aIsTr !== bIsTr) return aIsTr - bIsTr;
+    return getVoiceLabel(a).localeCompare(getVoiceLabel(b), 'tr');
+  });
 
 const getCategoryIcon = (name) => {
   const lowercaseName = name.toLowerCase();
@@ -36,19 +88,11 @@ const getCategoryIcon = (name) => {
   return BookOpen;
 };
 
-const getCategoryColor = (name) => {
-  const lowercaseName = name.toLowerCase();
-  if (lowercaseName.includes('trafik')) return '#06b6d4'; // Cyan
-  if (lowercaseName.includes('motor')) return '#f59e0b'; // Amber/Orange
-  if (lowercaseName.includes('ilkyardım')) return '#ef4444'; // Red
-  if (lowercaseName.includes('adab')) return '#10b981'; // Green
-  return '#6366f1'; // Purple/Indigo
-};
 
 const MobileCategoryCard = ({ category, parentColor, onClick, user, completedIds, allCategories }) => {
   const isContent = category.content && category.content.trim().length > 0;
   const catColor = category.color && category.color !== '#6C63FF' ? category.color : parentColor;
-  const IconComponent = getCategoryIcon(category.name);
+  const icon = getCategoryIcon(category.name);
   const isProLocked = category.isPro && !user?.proStatus;
 
   const progressPercent = useMemo(() => {
@@ -78,7 +122,7 @@ const MobileCategoryCard = ({ category, parentColor, onClick, user, completedIds
       className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#151821] p-4 flex flex-col min-h-[160px] cursor-pointer transition-all active:scale-95 active:border-white/20 select-none shadow-lg shadow-black/25"
     >
       <div className="absolute -right-4 -bottom-4 text-white/[0.02] pointer-events-none">
-        <IconComponent className="w-24 h-24 stroke-[1]" />
+        {React.createElement(icon, { className: "w-24 h-24 stroke-[1]" })}
       </div>
 
       <div className="flex items-start justify-between mb-3">
@@ -86,7 +130,7 @@ const MobileCategoryCard = ({ category, parentColor, onClick, user, completedIds
           className="p-2.5 rounded-full flex items-center justify-center"
           style={{ backgroundColor: `${catColor}20` }}
         >
-          <IconComponent className="w-5 h-5" style={{ color: catColor }} />
+          {React.createElement(icon, { className: "w-5 h-5", style: { color: catColor } })}
         </div>
 
         <div className="flex flex-col items-end gap-1">
@@ -289,7 +333,6 @@ const UserLessons = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [allCategories, setAllCategories] = useState([]);
-  const [mainCategories, setMainCategories] = useState([]);
   const [topicCategories, setTopicCategories] = useState([]);
   const [activeTopicId, setActiveTopicId] = useState('all');
   const [tree, setTree] = useState([]);
@@ -300,6 +343,11 @@ const UserLessons = () => {
   const [completedIds, setCompletedIds] = useState(getCompletedLessons());
   const [passedTestIds, setPassedTestIds] = useState([]); // Testi geçilen kategori ID'leri
   const [previewImage, setPreviewImage] = useState(null);
+  const [isReadingLesson, setIsReadingLesson] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [selectedVoiceKey, setSelectedVoiceKey] = useState(() => localStorage.getItem('lesson_reader_voice_key') || '');
+  const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState(false);
+  const speechSessionRef = React.useRef(0);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1280);
   const [mobileNavStack, setMobileNavStack] = useState([]);
@@ -314,6 +362,58 @@ const UserLessons = () => {
 
   useEffect(() => {
     setScrollProgress(0);
+  }, [selectedLesson?._id]);
+
+  useEffect(() => {
+    const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
+    if (!synth) return undefined;
+
+    const syncVoices = () => {
+      const voices = sortVoices(synth.getVoices() || []);
+      setAvailableVoices(voices);
+    };
+
+    syncVoices();
+    synth.addEventListener?.('voiceschanged', syncVoices);
+
+    return () => {
+      synth.removeEventListener?.('voiceschanged', syncVoices);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!availableVoices.length) return;
+    if (selectedVoiceKey && availableVoices.some((voice) => getVoiceKey(voice) === selectedVoiceKey)) {
+      return;
+    }
+    const stored = localStorage.getItem('lesson_reader_voice_key') || '';
+    if (stored && availableVoices.some((voice) => getVoiceKey(voice) === stored)) {
+      setSelectedVoiceKey(stored);
+      return;
+    }
+    const defaultVoice =
+      availableVoices.find((voice) => `${voice.lang || ''}`.toLowerCase().startsWith('tr')) ||
+      availableVoices[0];
+    if (defaultVoice) {
+      setSelectedVoiceKey(getVoiceKey(defaultVoice));
+    }
+  }, [availableVoices, selectedVoiceKey]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsReadingLesson(false);
+    setIsVoiceMenuOpen(false);
+    speechSessionRef.current += 1;
   }, [selectedLesson?._id]);
 
   useEffect(() => {
@@ -344,10 +444,6 @@ const UserLessons = () => {
         const res = await api.get('/categories/all');
         const cats = (res.data?.data || []).filter((category) => !isVideoRecord(category));
         
-        // Ana kategorileri bul (parent'ı olmayanlar)
-        const mains = cats.filter(c => !c.parent);
-        setMainCategories(mains);
-
         let finalTree = buildTree(cats);
         let finalFlat = cats;
         let topics = [];
@@ -464,6 +560,89 @@ const UserLessons = () => {
     setCompletedIds([...updated]);
   }, [selectedLesson]);
 
+  const stopLessonReading = useCallback(() => {
+    speechSessionRef.current += 1;
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsReadingLesson(false);
+  }, []);
+
+  const handleSelectVoice = useCallback((voiceKey) => {
+    setSelectedVoiceKey(voiceKey);
+    localStorage.setItem('lesson_reader_voice_key', voiceKey);
+    setIsVoiceMenuOpen(false);
+  }, []);
+
+  const speakLessonChunks = useCallback((chunks, sessionId, index = 0) => {
+    if (
+      typeof window === 'undefined' ||
+      !window.speechSynthesis ||
+      speechSessionRef.current !== sessionId
+    ) {
+      return;
+    }
+
+    if (index >= chunks.length) {
+      setIsReadingLesson(false);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(chunks[index]);
+    utterance.lang = 'tr-TR';
+    utterance.rate = 0.98;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    const selectedVoice = availableVoices.find((voice) => getVoiceKey(voice) === selectedVoiceKey);
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      utterance.lang = selectedVoice.lang || utterance.lang;
+    }
+    utterance.onend = () => speakLessonChunks(chunks, sessionId, index + 1);
+    utterance.onerror = () => {
+      if (speechSessionRef.current === sessionId) {
+        setIsReadingLesson(false);
+      }
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }, [availableVoices, selectedVoiceKey]);
+
+  const handleToggleLessonReading = useCallback(() => {
+    if (
+      typeof window === 'undefined' ||
+      !window.speechSynthesis ||
+      !selectedLesson ||
+      (selectedLesson.isPro && !user?.proStatus)
+    ) {
+      return;
+    }
+
+    if (window.speechSynthesis.speaking || isReadingLesson) {
+      stopLessonReading();
+      return;
+    }
+
+    const speechText = stripMarkdownForSpeech(
+      `${selectedLesson.name}. ${selectedLesson.description ? `${selectedLesson.description}. ` : ''}${selectedLesson.content}`,
+    );
+
+    if (!speechText) return;
+
+    const chunks = chunkSpeechText(speechText);
+    speechSessionRef.current += 1;
+    const sessionId = speechSessionRef.current;
+
+    window.speechSynthesis.cancel();
+    setIsReadingLesson(true);
+    speakLessonChunks(chunks, sessionId, 0);
+  }, [isReadingLesson, selectedLesson, speakLessonChunks, stopLessonReading, user?.proStatus]);
+
+  const selectedVoice = useMemo(
+    () => availableVoices.find((voice) => getVoiceKey(voice) === selectedVoiceKey) || null,
+    [availableVoices, selectedVoiceKey],
+  );
+
   // İçeriği olan tüm derslerin düz listesi (sıradaki ders için)
   const contentLessons = useMemo(
     () => allCategories.filter(c => c.content && c.content.trim().length > 0),
@@ -499,7 +678,7 @@ const UserLessons = () => {
     if (!isStillValid) {
       setSelectedLesson(filteredContentLessons[0]);
     }
-  }, [filteredContentLessons, loading, isMobile]);
+  }, [filteredContentLessons, loading, isMobile, selectedLesson]);
 
   const getSyllabusLessons = useCallback(() => {
     const activeNode = selectedLesson || mobileNavStack[mobileNavStack.length - 1];
@@ -587,7 +766,7 @@ const UserLessons = () => {
     if (!currentCategory) {
       // Root Topics View
       return (
-        <div className="flex flex-col flex-1 px-4 py-3">
+        <div className="relative flex flex-col flex-1 px-4 py-3">
           {/* Header Block */}
           <div className="mb-4">
             <div className="flex items-center justify-between gap-3 mb-3">
@@ -771,6 +950,51 @@ const UserLessons = () => {
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
+            <div className="relative">
+              <button
+                onClick={() => setIsVoiceMenuOpen((prev) => !prev)}
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
+                aria-label={selectedVoice ? `Anlatıcı seç (${getVoiceLabel(selectedVoice)})` : 'Anlatıcı seç'}
+                title={selectedVoice ? `Anlatıcı: ${getVoiceLabel(selectedVoice)}` : 'Anlatıcı seç'}
+              >
+                <Languages className="w-4 h-4" />
+              </button>
+              {isVoiceMenuOpen && (
+                <div className="absolute right-0 top-12 z-30 w-72 max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-[#121521] p-2 shadow-2xl shadow-black/40">
+                  <div className="px-2 pb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                    Anlatıcı Seç
+                  </div>
+                  {availableVoices.length === 0 ? (
+                    <div className="px-2 py-3 text-xs text-text-muted">Anlatıcılar hazırlanıyor...</div>
+                  ) : (
+                    availableVoices.map((voice) => {
+                      const key = getVoiceKey(voice);
+                      const isSelected = key === selectedVoiceKey;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => handleSelectVoice(key)}
+                          className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition ${
+                            isSelected
+                              ? 'bg-primary/15 text-white'
+                              : 'text-text-secondary hover:bg-white/5 hover:text-white'
+                          }`}
+                        >
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-semibold">{getVoiceLabel(voice)}</span>
+                            <span className="block text-[10px] text-text-muted">
+                              {voice.localService ? 'Yerel anlatıcı' : 'Çevrim içi anlatıcı'}
+                            </span>
+                          </span>
+                          {isSelected && <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {currentCategory.description && (
@@ -817,7 +1041,7 @@ const UserLessons = () => {
     return (
       <div className="flex flex-col flex-1 h-full bg-[#0b0d12]">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 p-4 border-b border-white/10 bg-[#11141b]">
+        <div className="relative flex items-center justify-between gap-3 p-4 border-b border-white/10 bg-[#11141b]">
           <button
             onClick={() => setSelectedLesson(null)}
             className="p-1 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
@@ -835,6 +1059,60 @@ const UserLessons = () => {
           >
             <LayoutGrid className="w-4 h-4" />
           </button>
+          <button
+            onClick={handleToggleLessonReading}
+            disabled={selectedLesson.isPro && !user?.proStatus}
+            className="p-2 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+            aria-label={isReadingLesson ? 'Dinletmeyi durdur' : 'Konuyu dinlet'}
+            title={isReadingLesson ? 'Dinletmeyi durdur' : 'Konuyu dinlet'}
+          >
+            {isReadingLesson ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsVoiceMenuOpen((prev) => !prev)}
+              className="p-2 rounded-xl bg-white/5 border border-white/10 text-text-secondary hover:text-white"
+              aria-label={selectedVoice ? `Anlatıcı seç (${getVoiceLabel(selectedVoice)})` : 'Anlatıcı seç'}
+              title={selectedVoice ? `Anlatıcı: ${getVoiceLabel(selectedVoice)}` : 'Anlatıcı seç'}
+            >
+              <Languages className="w-4 h-4" />
+            </button>
+            {isVoiceMenuOpen && (
+              <div className="absolute right-0 top-12 z-30 w-72 max-h-72 overflow-y-auto rounded-2xl border border-white/10 bg-[#121521] p-2 shadow-2xl shadow-black/40">
+                <div className="px-2 pb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                  Anlatıcı Seç
+                </div>
+                {availableVoices.length === 0 ? (
+                  <div className="px-2 py-3 text-xs text-text-muted">Anlatıcılar hazırlanıyor...</div>
+                ) : (
+                  availableVoices.map((voice) => {
+                    const key = getVoiceKey(voice);
+                    const isSelected = key === selectedVoiceKey;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => handleSelectVoice(key)}
+                        className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition ${
+                          isSelected
+                            ? 'bg-primary/15 text-white'
+                            : 'text-text-secondary hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-semibold">{getVoiceLabel(voice)}</span>
+                          <span className="block text-[10px] text-text-muted">
+                            {voice.localService ? 'Yerel anlatıcı' : 'Çevrim içi anlatıcı'}
+                          </span>
+                        </span>
+                        {isSelected && <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Scroll Progress Bar */}
@@ -1052,7 +1330,7 @@ const UserLessons = () => {
                   lessons.map((cat) => {
                     const isCurrent = currentActiveNode && cat._id === currentActiveNode._id;
                     const catColor = cat.color && cat.color !== '#6C63FF' ? cat.color : '#6366f1';
-                    const IconComponent = getCategoryIcon(cat.name);
+                    const icon = getCategoryIcon(cat.name);
                     
                     const extractContentNodeIds = (node) => {
                       let ids = [];
@@ -1100,7 +1378,7 @@ const UserLessons = () => {
                             color: isCurrent ? catColor : 'var(--text-muted)' 
                           }}
                         >
-                          <IconComponent className="w-4 h-4" />
+                          {React.createElement(icon, { className: "w-4 h-4" })}
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -1402,7 +1680,7 @@ const UserLessons = () => {
               className="flex h-full min-h-[62vh] flex-col"
             >
               {/* Content Header */}
-              <div className="flex shrink-0 items-start gap-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:bg-gradient-to-r xl:from-[#11131a] xl:to-[#0b0d12] xl:px-8 xl:py-5">
+              <div className="relative flex shrink-0 items-start gap-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:bg-gradient-to-r xl:from-[#11131a] xl:to-[#0b0d12] xl:px-8 xl:py-5">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/30 to-accent/30 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.2)] xl:h-10 xl:w-10 xl:rounded-lg">
                   <FileText className="h-5 w-5" />
                 </div>
@@ -1430,7 +1708,62 @@ const UserLessons = () => {
                         Tamamlandı
                       </span>
                     )}
+                    <button
+                      type="button"
+                      onClick={handleToggleLessonReading}
+                      disabled={selectedLesson.isPro && !user?.proStatus}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-white hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      {isReadingLesson ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                      <span>{isReadingLesson ? 'Durdur' : 'Dinlet'}</span>
+                    </button>
                   </div>
+                </div>
+                <div className="relative ml-auto hidden xl:block">
+                  <button
+                    type="button"
+                    onClick={() => setIsVoiceMenuOpen((prev) => !prev)}
+                    className="mt-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-white hover:bg-white/[0.06]"
+                    aria-label="Anlatıcı seç"
+                    title="Anlatıcı seç"
+                  >
+                    <Languages className="h-4 w-4" />
+                  </button>
+                  {isVoiceMenuOpen && (
+                    <div className="absolute right-0 top-14 z-30 w-80 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#121521] p-2 shadow-2xl shadow-black/40">
+                      <div className="px-2 pb-2 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                        Anlatıcı Seç
+                      </div>
+                      {availableVoices.length === 0 ? (
+                        <div className="px-2 py-3 text-xs text-text-muted">Anlatıcılar hazırlanıyor...</div>
+                      ) : (
+                        availableVoices.map((voice) => {
+                          const key = getVoiceKey(voice);
+                          const isSelected = key === selectedVoiceKey;
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => handleSelectVoice(key)}
+                              className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition ${
+                                isSelected
+                                  ? 'bg-primary/15 text-white'
+                                  : 'text-text-secondary hover:bg-white/5 hover:text-white'
+                              }`}
+                            >
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate font-semibold">{getVoiceLabel(voice)}</span>
+                                <span className="block text-[10px] text-text-muted">
+                                  {voice.localService ? 'Yerel anlatıcı' : 'Çevrim içi anlatıcı'}
+                                </span>
+                              </span>
+                              {isSelected && <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />}
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

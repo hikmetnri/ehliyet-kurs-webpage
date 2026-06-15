@@ -24,7 +24,6 @@ const ExamDetailModal = ({ result, onClose }) => {
   const wrongQuestions = result.wrongQuestions || [];
   const totalWrong = result.wrongCount || wrongQuestions.length;
   const totalCorrect = result.correctCount || 0;
-  const totalQ = result.totalQuestions || (totalCorrect + totalWrong);
   const score = result.score || 0;
   const passed = result.passed;
   const examName = result.examName || result.categoryName || 'Deneme Sınavı';

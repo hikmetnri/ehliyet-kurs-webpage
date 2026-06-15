@@ -70,7 +70,7 @@ export default function UserFeedDetail() {
     try {
       setActionLoading('post-like');
       await api.post(`/posts/${post._id}/like`);
-    } catch (err) {
+    } catch {
       setPost(prev => ({
         ...prev,
         likes: liked ? [...(prev.likes || []), userId] : prev.likes.filter(id => id !== userId),
@@ -93,7 +93,7 @@ export default function UserFeedDetail() {
         comments: [...(prev.comments || []), newComment],
       }));
       setCommentText('');
-    } catch (err) {
+    } catch {
       setError('Yorum gönderilemedi. Lütfen tekrar dene.');
     } finally {
       setActionLoading(null);
@@ -123,7 +123,7 @@ export default function UserFeedDetail() {
     try {
       setActionLoading(`comment-like-${commentId}`);
       await api.post(`/posts/${post._id}/comment/${commentId}/like`);
-    } catch (err) {
+    } catch {
       setPost(prev => ({
         ...prev,
         comments: prev.comments.map(comment => {

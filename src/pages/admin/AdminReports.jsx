@@ -44,7 +44,7 @@ const AdminReports = () => {
           setSelectedReport(prev => ({ ...prev, status: newStatus }));
         }
       }
-    } catch (err) {
+    } catch {
       alert("Durum güncellenirken hata oluştu.");
     } finally {
       setUpdating(false);
@@ -60,7 +60,7 @@ const AdminReports = () => {
         setReports(prev => prev.filter(r => r._id !== reportId));
         if (selectedReport?._id === reportId) setSelectedReport(null);
       }
-    } catch (err) {
+    } catch {
       alert("Rapor silinemedi.");
     } finally {
       setUpdating(false);

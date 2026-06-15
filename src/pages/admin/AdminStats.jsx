@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -19,6 +19,148 @@ const ChartEmptyState = ({ text }) => (
   <div className="flex h-full min-h-[220px] flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.01] px-6 text-center">
     <Activity className="mb-3 h-8 w-8 text-white/25" />
     <p className="text-xs font-bold leading-relaxed text-text-muted">{text}</p>
+  </div>
+);
+
+const InsightGuide = ({ title, description, chips = [], actions = [] }) => (
+  <MotionDiv
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5"
+  >
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Nereden başlamalı?</p>
+        <h2 className="mt-1 text-lg font-black text-white">{title}</h2>
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-text-muted">{description}</p>
+      </div>
+      {actions.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {actions.map((action) => (
+            <button
+              key={action.label}
+              type="button"
+              onClick={action.onClick}
+              className={`rounded-2xl border px-4 py-3 text-sm font-black transition-colors ${action.className}`}
+            >
+              {action.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+    {chips.length > 0 && (
+      <div className="mt-4 flex flex-wrap gap-2">
+        {chips.map((chip) => (
+          <span
+            key={chip.label}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/70"
+          >
+            <span className={`h-2 w-2 rounded-full ${chip.dot || 'bg-primary-light'}`} />
+            {chip.label}: <span className="text-white">{chip.value}</span>
+          </span>
+        ))}
+      </div>
+    )}
+  </MotionDiv>
+);
+
+const analysisGuideItems = [
+  {
+    title: 'Genel Bakış',
+    shows: 'Toplam üye, aktif kullanıcı, PRO oranı, genel başarı, kayıt ve QR hareketlerini gösterir.',
+    interpret: 'Aktiflik veya yeni kayıt düşerken toplam üye artıyorsa kullanıcıların uygulamaya geri dönüşü zayıflıyor olabilir.',
+    action: 'Kayıt düşüşünde pazarlamayı; aktiflik düşüşünde bildirim ve kullanıcı yolculuğunu incele.',
+  },
+  {
+    title: 'Kullanıcı Yolculuğu',
+    shows: 'Kayıttan kategori seçimine, ilk teste, yanlış tekrarına ve PRO ilgisine kadar geçişleri gösterir.',
+    interpret: 'Bir adımdan sonraki adıma geçiş oranı belirgin düşüyorsa kullanıcılar o aşamada takılıyor demektir.',
+    action: 'Düşüş yaşanan ekranı sadeleştir, yönlendirme metnini güçlendir veya ilgili kullanıcı grubuna bildirim gönder.',
+  },
+  {
+    title: 'Etkileşim ve Dönüşüm',
+    shows: 'Kayıt kaynaklarını, bildirim açılmalarını, paywall tıklamalarını ve riskli kullanıcıları gösterir.',
+    interpret: 'Yüksek görüntülenme ancak düşük tıklama, mesajın veya teklifin kullanıcıyı ikna etmediğini gösterir.',
+    action: 'Kaynak bazlı sonuçları karşılaştır; düşük dönüşümlü kampanya, bildirim veya paywall metnini iyileştir.',
+  },
+  {
+    title: 'Eğitim Performansı',
+    shows: 'Konu başarı oranlarını, çözüm sayılarını ve öğrencilerin en çok zorlandığı soruları gösterir.',
+    interpret: '%50 altı konular öncelikli; yüksek hata alan sorular ise içerik veya soru kalitesi açısından kontrol edilmelidir.',
+    action: 'Zayıf konu anlatımını geliştir, kritik soruların görselini, açıklamasını ve doğru cevabını doğrula.',
+  },
+];
+
+const AnalysisGuideModal = ({ onClose }) => (
+  <MotionDiv
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3 backdrop-blur-sm sm:p-6"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    onClick={onClose}
+  >
+    <MotionDiv
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 12, scale: 0.98 }}
+      onClick={(event) => event.stopPropagation()}
+      className="max-h-[88vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-[#11141d] p-4 shadow-2xl custom-scrollbar sm:p-6"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Yönetici Rehberi</p>
+          <h2 className="mt-1 text-xl font-black text-white">İstatistikleri nasıl yorumlamalısın?</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
+            Her bölümün neyi gösterdiğini, sonucu nasıl okuyacağını ve sonrasında hangi aksiyonu alabileceğini buradan görebilirsin.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-xl border border-white/10 bg-white/5 p-2 text-text-muted transition hover:bg-white/10 hover:text-white"
+          aria-label="Analiz rehberini kapat"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {analysisGuideItems.map((item) => (
+          <div key={item.title} className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+            <h3 className="text-base font-black text-white">{item.title}</h3>
+            <div className="mt-4 space-y-4">
+              <GuideDetail label="Bu neyi gösterir?" text={item.shows} tone="text-cyan-300" />
+              <GuideDetail label="Nasıl yorumlanır?" text={item.interpret} tone="text-amber-300" />
+              <GuideDetail label="Hangi aksiyon alınmalı?" text={item.action} tone="text-emerald-300" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-3xl border border-primary/20 bg-primary/10 p-5">
+        <h3 className="text-sm font-black text-white">Hızlı yorumlama eşikleri</h3>
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <GuideThreshold label="%70 ve üzeri" description="Güçlü veya sağlıklı alan" tone="text-emerald-300" />
+          <GuideThreshold label="%50 - %69" description="İzlenmesi gereken alan" tone="text-amber-300" />
+          <GuideThreshold label="%50 altı" description="Öncelikli iyileştirme alanı" tone="text-rose-300" />
+        </div>
+      </div>
+    </MotionDiv>
+  </MotionDiv>
+);
+
+const GuideDetail = ({ label, text, tone }) => (
+  <div>
+    <p className={`text-[10px] font-black uppercase tracking-widest ${tone}`}>{label}</p>
+    <p className="mt-1 text-xs font-semibold leading-5 text-text-muted">{text}</p>
+  </div>
+);
+
+const GuideThreshold = ({ label, description, tone }) => (
+  <div className="rounded-2xl border border-white/10 bg-black/20 p-3">
+    <p className={`text-sm font-black ${tone}`}>{label}</p>
+    <p className="mt-1 text-[11px] font-semibold text-text-muted">{description}</p>
   </div>
 );
 
@@ -70,6 +212,7 @@ const AdminStats = () => {
   const [timelineEvents, setTimelineEvents] = useState([]);
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
+  const [analysisGuideOpen, setAnalysisGuideOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Kategori Filtresi Eyaletleri
@@ -90,15 +233,7 @@ const AdminStats = () => {
     fetchRootCategories();
   }, []);
 
-  useEffect(() => {
-    fetchStats();
-  }, [selectedCategoryId]);
-
-  useEffect(() => {
-    if (!loading) fetchJourneyStats();
-  }, [journeyDays, journeySource, selectedCategoryId]);
-
-  const fetchJourneyStats = async ({ silent = false } = {}) => {
+  const fetchJourneyStats = useCallback(async ({ silent = false } = {}) => {
     try {
       if (!silent) setJourneyLoading(true);
       const params = new URLSearchParams({ days: journeyDays });
@@ -112,9 +247,9 @@ const AdminStats = () => {
     } finally {
       if (!silent) setJourneyLoading(false);
     }
-  };
+  }, [journeyDays, journeySource, selectedCategoryId]);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -142,7 +277,15 @@ const AdminStats = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedCategoryId, fetchJourneyStats]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  useEffect(() => {
+    if (!loading) fetchJourneyStats();
+  }, [loading, fetchJourneyStats]);
 
   const openTimeline = async (user) => {
     if (!user?.id) return;
@@ -202,12 +345,59 @@ const AdminStats = () => {
   ].filter(Boolean).filter(item => item !== 'all'))];
   const hasRegistrationData = hasChartValue(registrationTrend, 'users');
   const hasCategoryData = categoryStats.length > 0;
+  const weakestCategory = hasCategoryData
+    ? [...categoryStats].sort((a, b) => (a.avgSuccessRate || 0) - (b.avgSuccessRate || 0))[0]
+    : null;
+  const strongestCategory = hasCategoryData
+    ? [...categoryStats].sort((a, b) => (b.avgSuccessRate || 0) - (a.avgSuccessRate || 0))[0]
+    : null;
+  const hardestQuestion = difficultQuestions[0] || null;
+  const guideTitle = hasCategoryData
+    ? 'Önce zayıf konu, sonra zor sorular'
+    : 'Önce genel bakış, sonra eğitim verileri';
+  const guideDescription = hasCategoryData
+    ? `${weakestCategory?.categoryName || 'Bir konu'} şu anda en zayıf alan gibi görünüyor. Orayı toparladıktan sonra zor sorular ve trendler çok daha anlamlı olur.`
+    : 'Kategori verisi azsa önce genel KPI ve kayıt trendini incele, ardından eğitim sekmesine geç.';
+  const guideActions = [
+    {
+      label: 'Analiz rehberi',
+      className: 'bg-primary/10 border-primary/20 text-primary-light hover:bg-primary/20',
+      onClick: () => setAnalysisGuideOpen(true),
+    },
+    {
+      label: 'Eğitim sekmesi',
+      className: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20',
+      onClick: () => setActiveSection('education'),
+    },
+    {
+      label: 'Yolculuk sekmesi',
+      className: 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300 hover:bg-cyan-500/20',
+      onClick: () => setActiveSection('journey'),
+    },
+  ];
+  const guideChips = [
+    {
+      label: 'En zayıf konu',
+      value: weakestCategory ? `%${Math.round(weakestCategory.avgSuccessRate || 0)}` : '-',
+      dot: 'bg-rose-400',
+    },
+    {
+      label: 'En güçlü konu',
+      value: strongestCategory ? `%${Math.round(strongestCategory.avgSuccessRate || 0)}` : '-',
+      dot: 'bg-emerald-400',
+    },
+    {
+      label: 'Kritik soru',
+      value: hardestQuestion?.text ? 'Var' : 'Yok',
+      dot: 'bg-amber-400',
+    },
+  ];
   const hasJourneyTrend = journeyTrend.some(item => item.registered || item.firstTest || item.wrongReview || item.paywallSeen || item.proClicked);
   const sectionTabs = [
-    { id: 'overview', label: 'Genel Bakış', icon: Activity, helper: 'KPI, kayıt, QR ve üyelik' },
-    { id: 'journey', label: 'Yolculuk', icon: TrendingUp, helper: 'Huni, trend ve kullanıcı akışı' },
-    { id: 'campaigns', label: 'Etkileşim', icon: Filter, helper: 'Kaynak, bildirim, paywall ve risk' },
-    { id: 'education', label: 'Eğitim', icon: BrainCircuit, helper: 'Konu başarısı ve zor sorular' },
+    { id: 'overview', label: 'Genel Bakış', icon: Activity, helper: 'Özet, kayıt, QR ve üyelik dengesi' },
+    { id: 'journey', label: 'Yolculuk', icon: TrendingUp, helper: 'Adım adım kayıt ve aktivasyon akışı' },
+    { id: 'campaigns', label: 'Etkileşim', icon: Filter, helper: 'Kaynak, bildirim, paywall ve risk grubu' },
+    { id: 'education', label: 'Eğitim', icon: BrainCircuit, helper: 'Konu başarısı ve zorlanılan sorular' },
   ];
   const renderJourneyFilters = () => (
     <div className="flex flex-col gap-2 sm:items-end">
@@ -248,8 +438,8 @@ const AdminStats = () => {
       {/* --- HEADER --- */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Merkezi Analitik Dashboard</h1>
-          <p className="text-text-secondary text-sm mt-1">Sistemin performans verileri ve kullanıcı davranış analizleri.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Merkezi Analitik</h1>
+          <p className="text-text-secondary text-sm mt-1">Hangi bölümün ne anlattığını hızlıca gör, sonra ayrıntıya in.</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
@@ -258,10 +448,10 @@ const AdminStats = () => {
             onChange={(e) => setSelectedCategoryId(e.target.value)}
             className="w-full sm:w-56 rounded-2xl border border-white/10 bg-[#0d1017] px-4 py-2.5 text-xs font-bold text-white outline-none cursor-pointer hover:border-white/20 transition-all"
           >
-            <option value="all">Tüm Eğitimler (Ortak)</option>
-            {rootCategories.map(cat => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
-            ))}
+          <option value="all">Tüm Eğitimler (Ortak)</option>
+          {rootCategories.map(cat => (
+            <option key={cat._id} value={cat._id}>{cat.name}</option>
+          ))}
           </select>
 
           <button
@@ -279,12 +469,19 @@ const AdminStats = () => {
         onChange={setActiveSection}
       />
 
+      <InsightGuide
+        title={guideTitle}
+        description={guideDescription}
+        chips={guideChips}
+        actions={guideActions}
+      />
+
       {/* --- TOP KPIs --- */}
       {activeSection === 'overview' && (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
-          icon={Users} title="Toplam Öğrenci" value={overview?.totalUsers || 0}
-          trend={`+${overview?.newUsersThisWeek || 0}`} trendLabel="Bu Hafta"
+          icon={Users} title="Toplam Üye" value={overview?.totalUsers || 0}
+          trend={`+${overview?.newUsersThisWeek || 0}`} trendLabel="Bu hafta yeni"
           color="text-primary-light" bg="bg-primary/10"
         />
         <StatsCard
@@ -299,7 +496,7 @@ const AdminStats = () => {
         />
         <StatsCard
           icon={Target} title="Genel Başarı" value={`%${overview?.avgSuccessRate || 0}`}
-          trend="Stabil" trendLabel="Genel Durum"
+          trend="Ortalama" trendLabel="Genel performans"
           color="text-emerald-400" bg="bg-emerald-400/10"
         />
       </div>
@@ -353,7 +550,7 @@ const AdminStats = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <div>
             <h2 className="text-lg font-black text-white">Kullanıcı Yolculuğu Hunisi</h2>
-            <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Kayıttan tekrar çözümüne ve PRO niyetine kadar ana adımlar</p>
+            <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Kayıttan ilk çözüme, tekrar davranışına ve PRO niyetine kadar</p>
           </div>
           <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
             {journeyDays} gün · {journeySource === 'all' ? 'tüm kaynaklar' : journeySource}
@@ -387,7 +584,7 @@ const AdminStats = () => {
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-black text-white">Event Bazlı Dönüşüm</h2>
-            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-text-muted">Web ve mobil temas noktalarından gelen gerçek olay kayıtları</p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-text-muted">Web ve mobildeki gerçek temas noktaları</p>
           </div>
           <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
             {journeyAnalytics?.filters?.source || 'all'}
@@ -418,7 +615,7 @@ const AdminStats = () => {
               </div>
               <div>
                 <h2 className="text-lg font-black text-white">Yolculuk Trendleri</h2>
-                <p className="text-xs text-text-muted mt-0.5">Kayıt, ilk test ve yanlış tekrar hareketi.</p>
+                <p className="text-xs text-text-muted mt-0.5">Kayıt, ilk test, yanlış tekrar ve PRO temasları.</p>
               </div>
             </div>
           </div>
@@ -506,9 +703,9 @@ const AdminStats = () => {
               <Filter className="h-6 w-6 text-cyan-300" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Kaynak Performansı</h2>
+            <h2 className="text-lg font-bold text-white">Kaynak Performansı</h2>
               <p className="mt-0.5 text-xs text-text-muted">Kayıt kaynağına göre aktivasyon ve PRO dönüşümü.</p>
-            </div>
+          </div>
           </div>
           <div className="space-y-3">
             {sourceBreakdown.length > 0 ? (
@@ -532,7 +729,7 @@ const AdminStats = () => {
             <div>
               <h2 className="text-lg font-bold text-white">Kohort Aktivasyonu</h2>
               <p className="mt-0.5 text-xs text-text-muted">Kayıt günü bazında ilk test ve yanlış tekrar geçişi.</p>
-            </div>
+          </div>
           </div>
           <div className="space-y-3">
             {cohorts.length > 0 ? (
@@ -551,7 +748,7 @@ const AdminStats = () => {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-3xl border border-white/10 bg-white/[0.02] p-4 sm:p-6 shadow-sm"
         >
-          <MetricPanelHeader icon={Bell} title="Bildirim Etkisi" subtitle="Gönderim ve açılma hareketi" color="text-sky-300" bg="bg-sky-500/10" border="border-sky-500/20" />
+              <MetricPanelHeader icon={Bell} title="Bildirim Etkisi" subtitle="Gönderim, açılma ve geri dönüş" color="text-sky-300" bg="bg-sky-500/10" border="border-sky-500/20" />
           <div className="grid grid-cols-2 gap-3">
             <MiniMetric label="Kampanya" value={notificationEffect.campaigns || 0} />
             <MiniMetric label="In-App" value={notificationEffect.inAppSent || 0} />
@@ -604,7 +801,7 @@ const AdminStats = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
             <div>
               <h2 className="text-lg font-bold text-white">Grafiksel Kayıt Akışı</h2>
-              <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Son 7 Günlük Kayıtlar</p>
+              <p className="text-xs text-text-muted mt-1 uppercase tracking-widest font-bold">Son 7 günde kayıt hareketi</p>
             </div>
             <div className="w-fit px-3 py-1 bg-primary/10 rounded-full border border-primary/20 text-[10px] font-bold text-primary-light uppercase tracking-widest">
               Gerçek Zamanlı
@@ -658,7 +855,7 @@ const AdminStats = () => {
             className="rounded-3xl border border-white/10 bg-white/[0.02] p-4 sm:p-6 shadow-sm flex flex-col items-center justify-center text-center"
         >
            <h2 className="text-lg font-bold text-white mb-1">Üyelik Dağılımı</h2>
-           <p className="text-xs text-text-muted mb-6 uppercase tracking-widest font-bold">Gelir Modeli Yapısı</p>
+           <p className="text-xs text-text-muted mb-6 uppercase tracking-widest font-bold">PRO ve ücretsiz kullanıcı dengesi</p>
 
            <div className="relative h-[220px] w-full flex items-center justify-center">
              <ResponsiveContainer width="100%" height="100%">
@@ -714,7 +911,7 @@ const AdminStats = () => {
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">QR Tıklanma Grafiği</h2>
-              <p className="text-xs text-text-muted mt-0.5">Basılı QR kodun günlük tıklanma performansı.</p>
+              <p className="text-xs text-text-muted mt-0.5">Basılı QR kodun günlük tıklanma akışı.</p>
             </div>
           </div>
           <div className="h-[220px] sm:h-[260px]">
@@ -774,7 +971,7 @@ const AdminStats = () => {
             </div>
             <div>
               <h2 className="text-lg font-bold text-white">Konu Performans Barometresi</h2>
-              <p className="text-xs text-text-muted mt-0.5">En çok çalışılması gereken konulardan en başarılılara.</p>
+              <p className="text-xs text-text-muted mt-0.5">En zayıf konudan en güçlü konuya doğru sıralama.</p>
             </div>
           </div>
 
@@ -806,7 +1003,7 @@ const AdminStats = () => {
                 </div>
                 <div>
                     <h2 className="text-lg font-bold text-white">Kritik Hata Noktaları</h2>
-                    <p className="text-xs text-text-muted mt-0.5">Öğrencileri en çok eleyen sorular.</p>
+                    <p className="text-xs text-text-muted mt-0.5">Öğrencileri en çok zorlayan sorular.</p>
                 </div>
             </div>
           </div>
@@ -819,7 +1016,7 @@ const AdminStats = () => {
                          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                          <span className="text-[10px] font-bold text-rose-400 uppercase tracking-widest">Kritik Soru</span>
                       </div>
-                      <span className="text-[10px] font-bold text-white/30">{q.wrongCount} Toplam Hata</span>
+                         <span className="text-[10px] font-bold text-white/30">{q.wrongCount} toplam hata</span>
                    </div>
                    <p className="text-sm font-semibold text-white/80 leading-relaxed italic line-clamp-2">"{q.text}"</p>
                    <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden border border-white/5">
@@ -841,21 +1038,21 @@ const AdminStats = () => {
           <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4 flex items-center justify-between hover:bg-white/[0.025] transition-all">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Soru Havuzu</p>
-              <h4 className="text-lg font-bold text-white mt-1">{overview?.totalQuestions || 0} Soru</h4>
+              <h4 className="text-lg font-bold text-white mt-1">{overview?.totalQuestions || 0} soru</h4>
             </div>
             <BrainCircuit className="h-5 w-5 text-violet-400" />
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4 flex items-center justify-between hover:bg-white/[0.025] transition-all">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Bildirim Kapalı</p>
-              <h4 className="text-lg font-bold text-white mt-1">{overview?.notifDisabledCount || 0} Öğrenci</h4>
+              <h4 className="text-lg font-bold text-white mt-1">{overview?.notifDisabledCount || 0} öğrenci</h4>
             </div>
             <Bell className="h-5 w-5 text-rose-400" />
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.015] p-4 flex items-center justify-between hover:bg-white/[0.025] transition-all">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-text-muted">QR Dönüşümü</p>
-              <h4 className="text-lg font-bold text-white mt-1">{qrStats?.count || 0} Tarama</h4>
+              <h4 className="text-lg font-bold text-white mt-1">{qrStats?.count || 0} tarama</h4>
             </div>
             <QrCode className="h-5 w-5 text-indigo-400" />
           </div>
@@ -874,12 +1071,12 @@ const AdminStats = () => {
            <InsightCard
               icon={Bell} title="Bildirim Etkileşimi"
               value={`%${Math.round((overview?.notifEnabledCount/overview?.totalUsers)*100) || 0}`}
-              desc={`${overview?.notifEnabledCount || 0} Kullanıcı bildirimleri açık.`}
+              desc={`${overview?.notifEnabledCount || 0} kullanıcının bildirimi açık.`}
            />
            <InsightCard
               icon={Clock} title="Favori Saat"
               value={`${overview?.mostCommonNotifHour || 0}:00`}
-              desc="Kullanıcılar en çok bu saatte çalışıyor."
+              desc="Kullanıcılar en çok bu saatte etkin."
            />
            <InsightCard
               icon={DownloadCloud} title="Haftalık Büyüme"
@@ -891,6 +1088,9 @@ const AdminStats = () => {
       )}
 
       <AnimatePresence>
+        {analysisGuideOpen && (
+          <AnalysisGuideModal onClose={() => setAnalysisGuideOpen(false)} />
+        )}
         {timelineUser && (
           <MotionDiv
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6"

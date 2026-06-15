@@ -32,7 +32,7 @@ const SectionCard = ({ children, className = '' }) => (
   </div>
 );
 
-const CardHeader = ({ icon: Icon, iconColor = 'from-primary to-primary-dark', title, subtitle, action }) => (
+const CardHeader = ({ icon: Icon, _iconColor = 'from-primary to-primary-dark', title, subtitle, action }) => (
   <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between lg:p-6">
     <div className="flex min-w-0 items-center gap-4">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
@@ -202,7 +202,7 @@ const AdminSettings = () => {
         privacy_policy: d.privacy_policy || '',
         kvkk_text:      d.kvkk_text      || '',
       });
-    } catch (err) {
+    } catch {
       showToast('Ayarlar yüklenirken hata oluştu.', 'error');
     } finally {
       setLoading(false);
@@ -214,7 +214,8 @@ const AdminSettings = () => {
       setLoading(true);
       const res = await api.get('/notifications/broadcast-history');
       setBroadcastHistory(res.data.data || []);
-    } catch { } finally { setLoading(false); }
+    } catch { // ignore
+    } finally { setLoading(false); }
   }, []);
 
   const fetchQuotes = useCallback(async () => {
@@ -224,22 +225,33 @@ const AdminSettings = () => {
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setQuotes(data.map((quote) => ({ ...quote, text: limitQuoteText(quote.text, QUOTE_MAX_LENGTH) })));
     }
-    catch { } finally { setLoading(false); }
+    catch { // ignore
+    } finally { setLoading(false); }
   }, []);
 
   const fetchFaqs = useCallback(async () => {
     try { setLoading(true); const res = await api.get('/admin/faqs'); setFaqs(res.data); }
-    catch { } finally { setLoading(false); }
+    catch { // ignore
+    } finally { setLoading(false); }
   }, []);
 
   const fetchMaintenanceStatus = useCallback(async () => {
     try { const res = await api.get('/admin/maintenance-status'); setIsMaintenance(res.data.isMaintenance); }
-    catch { }
+    catch { // ignore
+    }
   }, []);
 
   const fetchLogs = useCallback(async () => {
     try { setLoading(true); const res = await api.get('/admin/logs'); setLogs(res.data || []); }
-    catch { } finally { setLoading(false); }
+    catch { // ignore
+    } finally { setLoading(false); }
+  }, []);
+
+  const fetchUsersForSelection = useCallback(async () => {
+    try {
+      const res = await api.get('/users?limit=1000');
+      if (res.data.success) setAllUsers(res.data.users);
+    } catch (err) { console.error('Kullanıcılar alınamadı', err); }
   }, []);
 
   useEffect(() => {
@@ -254,14 +266,7 @@ const AdminSettings = () => {
       fetchBroadcastHistory();
       fetchUsersForSelection();
     }
-  }, [activeTab]);
-
-  const fetchUsersForSelection = async () => {
-    try {
-      const res = await api.get('/users?limit=1000');
-      if (res.data.success) setAllUsers(res.data.users);
-    } catch (err) { console.error('Kullanıcılar alınamadı', err); }
-  };
+  }, [activeTab, fetchBroadcastHistory, fetchFaqs, fetchLogs, fetchMaintenanceStatus, fetchQuotes, fetchSettingsMap, fetchUsersForSelection, setSearchParams]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 

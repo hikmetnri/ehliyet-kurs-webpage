@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { registerWebPushToken } from '../services/webPushService'
 
 const getStoredUser = () => {
   try {
@@ -29,6 +30,12 @@ const syncCategorySession = (user) => {
   }
 }
 
+const registerPushAfterAuth = () => {
+  registerWebPushToken().catch((error) => {
+    console.info('Web push token kaydedilemedi:', error?.message || error)
+  })
+}
+
 const useAuthStore = create((set) => ({
   user: getStoredUser(),
   token: getStoredToken(),
@@ -40,6 +47,7 @@ const useAuthStore = create((set) => ({
     sessionStorage.setItem('token', token)
     localStorage.removeItem('token')
     syncCategorySession(user)
+    registerPushAfterAuth()
     set({ user, token, error: null })
   },
 
@@ -55,6 +63,7 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     sessionStorage.removeItem('token')
+    sessionStorage.removeItem('web_push_token_key')
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     clearCategorySession()

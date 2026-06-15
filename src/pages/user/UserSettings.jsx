@@ -1,16 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, ShieldCheck, CalendarDays, Trash2, MapPinned, ArrowRight,
   BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles, Bot,
-  Settings, RefreshCw, LayoutGrid
+  Settings, RefreshCw, LayoutGrid, Sun, Moon, Monitor
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
 import { TURKEY_CITIES, getDistrictsForCity } from '../../data/turkeyLocations';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
+import { soundService } from '../../services/soundService';
 
 const getStoredExamDateInput = () => {
   try {
@@ -23,31 +24,10 @@ const getStoredExamDateInput = () => {
   }
 };
 
-const getProfileSignLibraryLabel = (categoryName) => {
-  const normalized = String(categoryName || '')
-    .toLocaleLowerCase('tr-TR')
-    .replace(/[ç]/g, 'c')
-    .replace(/[ğ]/g, 'g')
-    .replace(/[ıi]/g, 'i')
-    .replace(/[ö]/g, 'o')
-    .replace(/[ş]/g, 's')
-    .replace(/[ü]/g, 'u');
 
-  const isWorkSafety = [
-    'is makinesi',
-    'operator',
-    'forklift',
-    'vinc',
-    'kepce',
-    'g sinif',
-    'is guvenligi',
-    'isg',
-  ].some((keyword) => normalized.includes(keyword));
-
-  return isWorkSafety ? 'İş Sağlığı Levhaları' : 'Trafik Levhaları';
-};
 
 const UserSettings = () => {
+  const { themeMode, toggleThemeMode, changeThemeMode, isThemeLocked } = useOutletContext() || {};
   const { user, setAuth, token, logout } = useAuthStore();
   const fileInputRef = useRef(null);
   const examDateInputRef = useRef(null);
@@ -166,6 +146,8 @@ const UserSettings = () => {
     notifHour: user?.notifHour || 20,
     notifMinute: user?.notifMinute || 0,
     examDate: user?.examDate ? user.examDate.slice(0, 10) : getStoredExamDateInput(),
+    soundEnabled: localStorage.getItem('sound_enabled') !== 'false',
+    theme: user?.theme || 'default',
   });
 
   const showMessage = (type, text) => {
@@ -268,11 +250,14 @@ const UserSettings = () => {
         notifEnabled: notifData.notifEnabled,
         notifHour: notifData.notifHour,
         notifMinute: notifData.notifMinute,
-        examDate: notifData.examDate || null
+        examDate: notifData.examDate || null,
+        theme: notifData.theme || 'default'
       });
       if (res.data.success) {
         if (notifData.examDate) localStorage.setItem('exam_date', new Date(notifData.examDate).toISOString());
         else localStorage.removeItem('exam_date');
+        soundService.setSoundEnabled(notifData.soundEnabled);
+        soundService.playSave();
         setAuth({ ...user, ...res.data.user }, token);
         showMessage('success', 'Tercihleriniz başarıyla kaydedildi.');
         return true;
@@ -283,6 +268,22 @@ const UserSettings = () => {
       setLoading(false);
     }
     return false;
+  };
+
+  const handleThemeChange = async (newTheme) => {
+    setNotifData(prev => ({ ...prev, theme: newTheme }));
+    try {
+      const res = await api.put('/auth/profile', {
+        theme: newTheme
+      });
+      if (res.data.success) {
+        soundService.playSave();
+        setAuth({ ...user, ...res.data.user }, token);
+        showMessage('success', 'Tema tercihi başarıyla güncellendi.');
+      }
+    } catch {
+      showMessage('error', 'Tema güncellenirken hata oluştu.');
+    }
   };
 
   const handleAvatarClick = () => {
@@ -313,11 +314,6 @@ const UserSettings = () => {
     }
   };
 
-  const tabs = [
-    { id: 'profile', icon: User, label: 'Profil Bilgileri' },
-    { id: 'account', icon: Lock, label: 'Hesap Güvenliği' },
-    { id: 'notifications', icon: Bell, label: 'Tercihler' },
-  ];
 
   const desktopTabs = [
     { id: 'profile', icon: User, label: 'Profil Bilgileri' },
@@ -328,25 +324,6 @@ const UserSettings = () => {
     { id: 'faq', icon: HelpCircle, label: 'Yardım & SSS' },
   ];
 
-  const settingsShortcutGroups = [
-    {
-      title: 'Çalışma Kısayolları',
-      items: [
-        { to: '/dashboard/stats', icon: BarChart2, label: 'İstatistikler', description: 'Performans ve gelişim' },
-        { to: '/dashboard/ai-chat', icon: Bot, label: 'Sınav Koçu', description: 'Tam sayfa sohbet' },
-        { to: '/dashboard/favorites', icon: Star, label: 'Favoriler', description: 'Kaydedilen sorular' },
-        { to: '/dashboard/traffic-signs', icon: TriangleAlert, label: 'Trafik İşaretleri', description: 'Levha kütüphanesi' },
-        { to: '/dashboard/videos', icon: PlayCircle, label: 'Video Dersler', description: 'Görsel anlatımlar' },
-      ],
-    },
-    {
-      title: 'Hesap ve Destek',
-      items: [
-        { to: '/dashboard/driving-schools', icon: MapPinned, label: 'Sürücü Kursları', description: 'Kurs arama' },
-        { to: '/dashboard/support', icon: Headphones, label: 'Destek Talepleri', description: 'Mesaj ve yardım' },
-      ],
-    },
-  ];
 
   const profileDistrictOptions = getDistrictsForCity(profileData.city);
 
@@ -460,7 +437,6 @@ const UserSettings = () => {
   };
 
   const displayName = [profileData.firstName, profileData.lastName].filter(Boolean).join(' ') || user?.name || 'Sürücü Adayı';
-  const locationLabel = [profileData.district, profileData.city].filter(Boolean).join(' / ') || 'Konum eklenmedi';
   const reminderLabel = `${String(notifData.notifHour).padStart(2, '0')}:${String(notifData.notifMinute).padStart(2, '0')}`;
   const examDateLabel = formatExamDate(notifData.examDate);
   const earnedBadges = DEFAULT_BADGES.filter((badge) => badge.isEarned).length;
@@ -472,54 +448,12 @@ const UserSettings = () => {
     Boolean(user?.avatarUrl),
   ];
   const profileCompletion = Math.round((profileCompletionItems.filter(Boolean).length / profileCompletionItems.length) * 100);
-  const desktopProfileHighlights = [
-    {
-      label: 'Eğitim Paketi',
-      value: user?.selectedCategoryName || 'Kategori seçilmedi',
-      detail: user?.selectedCategoryId ? 'Web arayüzünde sabit' : 'İlk seçim bekleniyor',
-      icon: LayoutGrid,
-      tone: 'primary',
-    },
-    {
-      label: 'Konum',
-      value: locationLabel,
-      detail: profileData.city ? 'Kurs önerileri için kullanılır' : 'Profilinden ekleyebilirsin',
-      icon: MapPinned,
-      tone: 'accent',
-    },
-    {
-      label: 'Günlük Hedef',
-      value: `${notifData.dailyGoal || 20} soru`,
-      detail: `${reminderLabel} hatırlatma saati`,
-      icon: Bell,
-      tone: 'success',
-    },
-    {
-      label: 'Sınav Tarihi',
-      value: examDateLabel,
-      detail: notifData.examDate ? 'Çalışma planına bağlı' : 'Tarih seçilmedi',
-      icon: CalendarDays,
-      tone: 'warning',
-    },
-  ];
   const profileChecklist = [
     { label: 'Ad soyad', detail: 'Panelde görünen kimlik', done: Boolean(profileData.firstName && profileData.lastName) },
     { label: 'Telefon', detail: 'Kurs ve destek iletişimi', done: Boolean(profileData.phone) },
     { label: 'Konum', detail: 'Yakındaki kurs önerileri', done: Boolean(profileData.city && profileData.district) },
     { label: 'Hakkımda', detail: 'Profil özet alanı', done: Boolean(profileData.bio) },
     { label: 'Fotoğraf', detail: 'Kişisel görünüm', done: Boolean(user?.avatarUrl) },
-  ];
-  const learningIdentity = [
-    { label: 'Seçili Eğitim', value: user?.selectedCategoryName || 'Seçilmedi', icon: LayoutGrid },
-    { label: 'Levha Seti', value: getProfileSignLibraryLabel(user?.selectedCategoryName), icon: TriangleAlert },
-    { label: 'Hatırlatma', value: notifData.notifEnabled ? reminderLabel : 'Kapalı', icon: Bell },
-    { label: 'Soru Hedefi', value: `${notifData.dailyGoal || 20} / gün`, icon: BookOpen },
-  ];
-  const profileActions = [
-    { label: 'Profili Düzenle', detail: 'Kimlik ve konum bilgileri', icon: User, onClick: () => setActiveTab('profile') },
-    { label: 'Hedefleri Ayarla', detail: 'Sınav tarihi ve günlük hedef', icon: CalendarDays, onClick: () => setActiveTab('notifications') },
-    { label: 'Şifre ve Güvenlik', detail: 'Hesap giriş bilgileri', icon: Lock, onClick: () => setActiveTab('account') },
-    { label: 'Destek Talebi', detail: 'Yardım ve mesajlar', icon: Headphones, onClick: () => navigate('/dashboard/support') },
   ];
 
   // Helper to render responsive slide-up sheets
@@ -910,6 +844,281 @@ const UserSettings = () => {
                         />
                       </DesktopField>
 
+                      <div className="md:col-span-2 space-y-3 pt-3 border-t border-border-color">
+                        <label className="text-xs font-black text-text-muted uppercase tracking-wider block">Sistem Teması</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          {/* Klasik Mor (Default) */}
+                          <button
+                            type="button"
+                            onClick={() => handleThemeChange('default')}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer ${
+                              notifData.theme === 'default'
+                                ? 'border-indigo-500 bg-indigo-500/10 shadow-[0_0_15px_rgba(99,102,241,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#6C63FF] border-2 border-white/20" />
+                              {notifData.theme === 'default' && (
+                                <span className="w-2 h-2 rounded-full bg-indigo-400" />
+                              )}
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white">Klasik Mor</h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Varsayılan Tema</p>
+                            </div>
+                          </button>
+
+                          {/* Zümrüt Yeşili (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Zümrüt Yeşili teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('emerald');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'emerald'
+                                ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#10B981] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Zümrüt Yeşili
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Canlı Yeşil Tonları</p>
+                            </div>
+                          </button>
+
+                          {/* Gece Mavisi (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Gece Mavisi teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('midnight');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'midnight'
+                                ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#3B82F6] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Gece Mavisi
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Kraliyet Mavisi</p>
+                            </div>
+                          </button>
+
+                          {/* Obsidyen AMOLED (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Obsidyen AMOLED teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('obsidian');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'obsidian'
+                                ? 'border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-black border-2 border-amber-500/50" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Obsidyen AMOLED
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Sonsuz Siyah & Altın</p>
+                            </div>
+                          </button>
+
+                          {/* Gün Batımı (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Gün Batımı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('sunset');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'sunset'
+                                ? 'border-orange-500 bg-orange-500/10 shadow-[0_0_15px_rgba(249,115,22,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#f97316] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Gün Batımı
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Sıcak Turuncu Tonları</p>
+                            </div>
+                          </button>
+
+                          {/* Lavanta Rüyası (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Lavanta Rüyası teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('lavender');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'lavender'
+                                ? 'border-fuchsia-500 bg-fuchsia-500/10 shadow-[0_0_15px_rgba(217,70,239,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#d946ef] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Lavanta Rüyası
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Eflatun & Lavanta</p>
+                            </div>
+                          </button>
+
+                          {/* Yakut Kırmızısı (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Yakut Kırmızısı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('ruby');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'ruby'
+                                ? 'border-red-500 bg-red-500/10 shadow-[0_0_15px_rgba(220,38,38,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#dc2626] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Yakut Kırmızısı
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Derin Kırmızı & Gül</p>
+                            </div>
+                          </button>
+
+                          {/* Kutup Ayazı (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Kutup Ayazı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('arctic');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'arctic'
+                                ? 'border-cyan-500 bg-cyan-500/10 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#06b6d4] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Kutup Ayazı
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Futuristik Buz Mavisi</p>
+                            </div>
+                          </button>
+
+                          {/* Ametist (PRO) */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!user?.proStatus) {
+                                showMessage('error', "Ametist teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                              } else {
+                                handleThemeChange('amethyst');
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between h-[100px] cursor-pointer relative ${
+                              notifData.theme === 'amethyst'
+                                ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_15px_rgba(139,92,246,0.2)]'
+                                : 'border-border-color bg-bg-card hover:bg-white/[0.02]'
+                            }`}
+                          >
+                            {!user?.proStatus && (
+                              <Lock className="absolute top-4 right-4 w-3.5 h-3.5 text-text-muted/65" />
+                            )}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="w-5 h-5 rounded-full bg-[#8b5cf6] border-2 border-white/20" />
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-black text-white flex items-center gap-1">
+                                Ametist
+                                {!user?.proStatus && <span className="text-[8px] bg-warning/15 text-warning px-1 py-0.5 rounded border border-warning/20">PRO</span>}
+                              </h5>
+                              <p className="text-[10px] text-text-muted mt-0.5">Asil Kristal Moru</p>
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
                       <div className="flex justify-end pt-2">
                         <button
                           type="submit"
@@ -1100,7 +1309,19 @@ const UserSettings = () => {
                             />
                           </label>
                         </DesktopField>
-                      </div>
+
+                        <DesktopField label="Ses Tercihleri">
+                          <label className="flex h-[46px] items-center justify-between rounded-2xl border border-white/10 bg-white/[0.015] px-4 cursor-pointer hover:bg-white/[0.03] transition">
+                            <span className="text-sm font-semibold text-white">Uygulama Sesleri</span>
+                            <input
+                              type="checkbox"
+                              name="soundEnabled"
+                              checked={notifData.soundEnabled}
+                              onChange={handleNotifChange}
+                              className="h-5 w-5 rounded border-white/20 bg-white/10 text-primary focus:ring-primary/40 focus:ring-offset-0 focus:outline-none"
+                            />
+                          </label>
+                        </DesktopField>
 
                       <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/[0.01] p-4 text-xs font-semibold text-text-muted">
                         <div className="flex items-center gap-2">
@@ -1877,13 +2098,236 @@ const UserSettings = () => {
                 <ChevronRight className="w-4 h-4 text-text-muted shrink-0" />
               </button>
 
-              <div className="w-full flex items-center justify-between p-4 text-left">
-                <div>
-                  <div className="text-xs font-black text-white">Tema</div>
-                  <div className="text-xs text-text-muted mt-1 font-bold">Karanlık Mod (Varsayılan)</div>
+              <div className="w-full flex flex-col gap-3 p-4 text-left">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-black text-white">Tema</div>
+                    <div className="text-[10px] text-text-muted mt-1 font-bold">
+                      {isThemeLocked
+                        ? "Özel tema aktifken renk modu değiştirilemez"
+                        : themeMode === 'dark'
+                          ? "Karanlık Mod aktif"
+                          : themeMode === 'system'
+                            ? "Sistem varsayılanı aktif"
+                            : "Aydınlık Mod aktif"}
+                    </div>
+                  </div>
+                  {isThemeLocked && (
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-white/5 bg-white/[0.02] text-text-muted opacity-60">
+                      <Lock className="w-4 h-4" />
+                    </div>
+                  )}
                 </div>
-                <div className="relative inline-flex items-center cursor-not-allowed">
-                  <div className="w-9 h-5 bg-success rounded-full after:content-[''] after:absolute after:top-[2px] after:left-[16px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div>
+                {!isThemeLocked && (
+                  <div className="grid grid-cols-3 bg-white/[0.02] border border-white/5 rounded-2xl p-1 gap-1">
+                    {/* Aydınlık */}
+                    <button
+                      onClick={() => changeThemeMode('light')}
+                      className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        themeMode === 'light'
+                          ? 'bg-primary text-white shadow-md'
+                          : 'text-text-muted hover:text-white'
+                      }`}
+                    >
+                      <Sun className="w-3.5 h-3.5" />
+                      <span>Açık</span>
+                    </button>
+                    
+                    {/* Karanlık */}
+                    <button
+                      onClick={() => changeThemeMode('dark')}
+                      className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        themeMode === 'dark'
+                          ? 'bg-primary text-white shadow-md'
+                          : 'text-text-muted hover:text-white'
+                      }`}
+                    >
+                      <Moon className="w-3.5 h-3.5" />
+                      <span>Koyu</span>
+                    </button>
+                    
+                    {/* Sistem */}
+                    <button
+                      onClick={() => changeThemeMode('system')}
+                      className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        themeMode === 'system'
+                          ? 'bg-primary text-white shadow-md'
+                          : 'text-text-muted hover:text-white'
+                      }`}
+                    >
+                      <Monitor className="w-3.5 h-3.5" />
+                      <span>Sistem</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full flex flex-col gap-2 p-4 text-left border-t border-white/5">
+                <div className="text-xs font-black text-white">Arayüz Teması</div>
+                <div className="flex gap-3 overflow-x-auto pb-2 pt-1 custom-scrollbar">
+                  {/* Klasik Mor */}
+                  <button
+                    type="button"
+                    onClick={() => handleThemeChange('default')}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition ${
+                      notifData.theme === 'default' ? 'border-[#6C63FF] bg-[#6C63FF]/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Klasik Mor"
+                  >
+                    <span className="w-5 h-5 rounded-full bg-[#6C63FF]" />
+                  </button>
+
+                  {/* Zümrüt Yeşili */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Zümrüt Yeşili teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('emerald');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'emerald' ? 'border-[#10B981] bg-[#10B981]/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Zümrüt Yeşili"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#10B981]" />
+                  </button>
+
+                  {/* Gece Mavisi */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Gece Mavisi teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('midnight');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'midnight' ? 'border-[#3B82F6] bg-[#3B82F6]/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Gece Mavisi"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#3B82F6]" />
+                  </button>
+
+                  {/* Obsidyen */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Obsidyen AMOLED teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('obsidian');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'obsidian' ? 'border-amber-500 bg-amber-500/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Obsidyen AMOLED"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-black border border-amber-500/50" />
+                  </button>
+
+                  {/* Gün Batımı */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Gün Batımı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('sunset');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'sunset' ? 'border-orange-500 bg-orange-500/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Gün Batımı"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#f97316]" />
+                  </button>
+
+                  {/* Lavanta Rüyası */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Lavanta Rüyası teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('lavender');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'lavender' ? 'border-fuchsia-500 bg-fuchsia-500/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Lavanta Rüyası"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#d946ef]" />
+                  </button>
+
+                  {/* Yakut Kırmızısı */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Yakut Kırmızısı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('ruby');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'ruby' ? 'border-red-500 bg-red-500/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Yakut Kırmızısı"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#dc2626]" />
+                  </button>
+
+                  {/* Kutup Ayazı */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Kutup Ayazı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('arctic');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'arctic' ? 'border-cyan-500 bg-cyan-500/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Kutup Ayazı"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#06b6d4]" />
+                  </button>
+
+                  {/* Ametist */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user?.proStatus) {
+                        showMessage('error', "Ametist teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                      } else {
+                        handleThemeChange('amethyst');
+                      }
+                    }}
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 cursor-pointer transition relative ${
+                      notifData.theme === 'amethyst' ? 'border-purple-500 bg-purple-500/15' : 'border-border-color bg-bg-card'
+                    }`}
+                    title="Ametist"
+                  >
+                    {!user?.proStatus && <Lock className="absolute -top-1 -right-1 w-3 h-3 text-text-muted" />}
+                    <span className="w-5 h-5 rounded-full bg-[#8b5cf6]" />
+                  </button>
                 </div>
               </div>
 
@@ -2125,6 +2569,20 @@ const UserSettings = () => {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-wider">Uygulama Sesleri</label>
+            <label className="flex h-11 items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 cursor-pointer hover:bg-white/10 transition">
+              <span className="text-xs font-semibold text-white">Ses Efektleri</span>
+              <input
+                type="checkbox"
+                name="soundEnabled"
+                checked={notifData.soundEnabled}
+                onChange={handleNotifChange}
+                className="h-5 w-5 rounded border-white/20 bg-white/10 text-primary focus:ring-primary/40 focus:ring-offset-0 focus:outline-none"
+              />
+            </label>
           </div>
 
           <button

@@ -189,7 +189,7 @@ const LandingPage = () => {
         if (!cancelled && res.data?.playstore_url) {
           setPlayStoreUrl(res.data.playstore_url);
         }
-      } catch (err) {
+      } catch {
         // Fallback URL kullanılır
       }
     };

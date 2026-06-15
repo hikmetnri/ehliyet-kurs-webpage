@@ -1,9 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Search, TriangleAlert, Info, CircleStop, ArrowRight, Filter, X } from 'lucide-react';
 import { getSignLibraryForCategoryName } from '../../data/signLibrariesData';
 import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
+
+const MotionButton = motion.button;
+const MotionSection = motion.section;
 
 const normalizeText = (value) => String(value || '').toLocaleLowerCase('tr-TR');
 
@@ -18,12 +21,14 @@ const UserTrafficSigns = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSign, setSelectedSign] = useState(null);
+  const [prevLibraryId, setPrevLibraryId] = useState(library.id);
 
-  useEffect(() => {
+  if (library.id !== prevLibraryId) {
+    setPrevLibraryId(library.id);
     setActiveCategory('all');
     setSelectedSign(null);
     setSearchQuery('');
-  }, [library.id]);
+  }
 
   const categoryById = useMemo(() => (
     categories.reduce((acc, category) => {
@@ -148,7 +153,7 @@ const UserTrafficSigns = () => {
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
           {filteredSigns.map((sign, index) => (
-            <motion.button
+            <MotionButton
               key={sign.id}
               type="button"
               initial={{ opacity: 0, y: 10 }}
@@ -188,7 +193,7 @@ const UserTrafficSigns = () => {
                   <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                 </span>
               </div>
-            </motion.button>
+            </MotionButton>
           ))}
         </div>
       )}
@@ -196,7 +201,7 @@ const UserTrafficSigns = () => {
       <AnimatePresence>
         {selectedSign && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.button
+            <MotionButton
               type="button"
               aria-label="Levha detayını kapat"
               initial={{ opacity: 0 }}
@@ -206,7 +211,7 @@ const UserTrafficSigns = () => {
               className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
 
-            <motion.section
+            <MotionSection
               initial={{ opacity: 0, scale: 0.96, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 16 }}
@@ -259,7 +264,7 @@ const UserTrafficSigns = () => {
                   Kapat
                 </button>
               </div>
-            </motion.section>
+            </MotionSection>
           </div>
         )}
       </AnimatePresence>

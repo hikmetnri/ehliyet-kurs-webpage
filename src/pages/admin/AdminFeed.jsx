@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -17,18 +17,7 @@ const AdminFeed = () => {
   const [processingId, setProcessingId] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [statusFilter]);
-
-  useEffect(() => {
-    if (selectedPost && posts.length > 0) {
-      const updated = posts.find(p => p._id === selectedPost._id);
-      if (updated) setSelectedPost(updated);
-    }
-  }, [posts]);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const url = statusFilter === 'all' ? '/posts/admin/all' : `/posts/admin/all?status=${statusFilter}`;
@@ -39,14 +28,25 @@ const AdminFeed = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  useEffect(() => {
+    if (selectedPost && posts.length > 0) {
+      const updated = posts.find(p => p._id === selectedPost._id);
+      if (updated) setSelectedPost(updated);
+    }
+  }, [posts, selectedPost]);
 
   const handleApprove = async (postId) => {
     try {
       setProcessingId(postId);
       await api.patch(`/posts/${postId}/approve`);
       setPosts(prev => prev.map(p => p._id === postId ? { ...p, status: 'approved' } : p));
-    } catch (err) {
+    } catch {
       alert("Gönderi onaylanamadı.");
     } finally {
       setProcessingId(null);
@@ -61,7 +61,7 @@ const AdminFeed = () => {
       setProcessingId(postId);
       await api.patch(`/posts/${postId}/reject`, { adminNote: note });
       setPosts(prev => prev.map(p => p._id === postId ? { ...p, status: 'rejected', adminNote: note } : p));
-    } catch (err) {
+    } catch {
       alert("Gönderi reddedilemedi.");
     } finally {
       setProcessingId(null);
@@ -75,7 +75,7 @@ const AdminFeed = () => {
       setProcessingId(postId);
       await api.delete(`/posts/${postId}`);
       setPosts(prev => prev.filter(p => p._id !== postId));
-    } catch (err) {
+    } catch {
       alert("Gönderi silinemedi.");
     } finally {
       setProcessingId(null);

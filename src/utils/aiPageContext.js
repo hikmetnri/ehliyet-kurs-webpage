@@ -81,6 +81,9 @@ export const compactLessonContext = (lesson, extra = {}) => {
 
 export const compactQuestionContext = ({ question, exam, index, total, answerIndex, showAnswer }) => {
   if (!question) return null;
+  const explicitMediaDescription = String(question.mediaDescription || question.imageDescription || question.visualHint || '').trim();
+  const fallbackMediaDescription = getMediaFilenameHint(question.media);
+  const mediaDescription = explicitMediaDescription || fallbackMediaDescription;
   return {
     page: 'exam_solve',
     questionId: question._id || question.id || '',
@@ -90,10 +93,10 @@ export const compactQuestionContext = ({ question, exam, index, total, answerInd
     categoryName: question.categoryName || exam?.categoryName || '',
     questionText: trimText(question.text, 1400),
     media: question.media || '',
-    mediaDescription: trimText(
-      question.mediaDescription || question.imageDescription || question.visualHint || getMediaFilenameHint(question.media),
-      1000,
-    ),
+    mediaDescription: trimText(mediaDescription, 1000),
+    mediaDescriptionSource: explicitMediaDescription
+      ? 'stored'
+      : (fallbackMediaDescription ? 'filename_hint' : 'none'),
     options: Array.isArray(question.options)
       ? question.options.slice(0, 6).map((option) => trimText(option, 300))
       : [],

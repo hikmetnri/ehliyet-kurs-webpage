@@ -4,7 +4,7 @@ import useAuthStore from '../store/authStore';
 import api from '../api';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { UserPlus, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
+import { UserPlus, ChevronLeft, Loader2, AlertCircle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 import { getAcquisitionContext } from '../utils/analytics';
@@ -56,6 +56,12 @@ const Register = () => {
 
     if (formData.password !== formData.passwordConfirm) {
       setErrorObj('Şifreler birbiriyle uyuşmuyor.');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setErrorObj('Şifre en az 6 karakter olmalıdır.');
       setLoading(false);
       return;
     }
@@ -258,6 +264,11 @@ const Register = () => {
                   minLength="6"
                 />
               </div>
+            </div>
+
+            <div className="flex items-start gap-1.5 text-xs text-text-muted mt-1 ml-1 leading-relaxed">
+              <Info className="w-3.5 h-3.5 text-accent-light shrink-0 mt-0.5" />
+              <span>Şifre en az 6 karakter olmalıdır.</span>
             </div>
 
             <div className="pt-6 space-y-3">

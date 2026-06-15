@@ -126,6 +126,47 @@ const ChartEmptyState = ({ text }) => (
   </div>
 );
 
+const PriorityBanner = ({ title, description, actionLabel, onAction, tone, chips }) => (
+  <MotionDiv
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5"
+  >
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex min-w-0 items-start gap-3">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${tone.bg} ${tone.text} ${tone.border}`}>
+          <AlertTriangle className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Bugün önce buna bak</p>
+          <h2 className="mt-1 text-lg font-black leading-tight text-white">{title}</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-text-muted">{description}</p>
+        </div>
+      </div>
+      <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
+        <button
+          type="button"
+          onClick={onAction}
+          className={`rounded-2xl border px-4 py-3 text-sm font-black transition-colors ${tone.bg} ${tone.text} ${tone.border} hover:opacity-90`}
+        >
+          {actionLabel}
+        </button>
+      </div>
+    </div>
+    <div className="mt-4 flex flex-wrap gap-2">
+      {chips.map((chip) => (
+        <span
+          key={chip.label}
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/70"
+        >
+          <span className={`h-2 w-2 rounded-full ${chip.dot}`} />
+          {chip.label}: <span className="text-white">{chip.value}</span>
+        </span>
+      ))}
+    </div>
+  </MotionDiv>
+);
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -242,7 +283,7 @@ const AdminDashboard = () => {
       await api.post('/admin/maintenance', { enabled: nextVal });
       setIsMaintenance(nextVal);
       alert(`Bakım modu ${nextVal ? 'aktif edildi' : 'kapatıldı'}.`);
-    } catch (err) {
+    } catch {
       alert('Bakım modu değiştirilemedi.');
     } finally {
       setProcessingAction(null);
@@ -258,7 +299,7 @@ const AdminDashboard = () => {
       } else {
         alert('Yedekleme başarısız oldu.');
       }
-    } catch (err) {
+    } catch {
       alert('Yedekleme hatası oluştu.');
     } finally {
       setProcessingAction(null);
@@ -359,6 +400,49 @@ const AdminDashboard = () => {
   ];
   const hasRegistrationData = hasChartValue(regData, 'users');
   const hasCategoryData = categoryStats.length > 0;
+  const priorityItems = [
+    {
+      label: 'Bekleyen gönderi',
+      value: stats.pendingPostsCount,
+      path: '/admin/feed',
+      tone: { bg: 'bg-amber-500/10', text: 'text-amber-300', border: 'border-amber-500/20' },
+      dot: 'bg-amber-400',
+      description: 'Topluluk onay kuyruğu',
+    },
+    {
+      label: 'Açık destek',
+      value: stats.activeSupportCount,
+      path: '/admin/support',
+      tone: { bg: 'bg-pink-500/10', text: 'text-pink-300', border: 'border-pink-500/20' },
+      dot: 'bg-pink-400',
+      description: 'Yanıt bekleyen talepler',
+    },
+    {
+      label: 'Açık rapor',
+      value: stats.activeReportsCount,
+      path: '/admin/reports',
+      tone: { bg: 'bg-red-500/10', text: 'text-red-300', border: 'border-red-500/20' },
+      dot: 'bg-red-400',
+      description: 'İncelenmesi gereken içerikler',
+    },
+    {
+      label: 'Eksik içerik',
+      value: contentHealth.missingContentCount,
+      path: '/admin/content',
+      tone: { bg: 'bg-violet-500/10', text: 'text-violet-300', border: 'border-violet-500/20' },
+      dot: 'bg-violet-400',
+      description: 'Tamamlanması gereken konu sayısı',
+    },
+  ].sort((a, b) => b.value - a.value);
+  const prioritySignal = priorityItems[0];
+  const priorityTitle =
+    prioritySignal?.value > 0
+      ? `${prioritySignal.label} önde`
+      : 'Acil kuyruk yok';
+  const priorityDescription =
+    prioritySignal?.value > 0
+      ? `${prioritySignal.description} şu anda en yüksek öncelikte görünüyor.`
+      : 'Bekleyen gönderi, destek, rapor veya eksik içerik görünmüyor.';
 
   if (loading) {
     return (
@@ -373,7 +457,7 @@ const AdminDashboard = () => {
     <>
       {/* Masaüstü Görünümü */}
       <div className="hidden lg:block w-full space-y-5 pb-10">
-        <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
             <p className="mb-2 text-xs font-black text-primary-light">Operasyon özeti</p>
@@ -414,6 +498,19 @@ const AdminDashboard = () => {
           </div>
         </div>
       </section>
+
+      <PriorityBanner
+        title={priorityTitle}
+        description={priorityDescription}
+        actionLabel={prioritySignal?.value > 0 ? 'Öncelikli kuyruğa git' : 'İçeriği gözden geçir'}
+        onAction={() => navigate(prioritySignal?.value > 0 ? prioritySignal.path : '/admin/content')}
+        tone={prioritySignal?.tone || { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20' }}
+        chips={priorityItems.map((item) => ({
+          label: item.label,
+          value: item.value.toLocaleString('tr-TR'),
+          dot: item.dot,
+        }))}
+      />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {statCards.map((stat, i) => <StatCard key={i} {...stat} />)}

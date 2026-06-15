@@ -3,7 +3,9 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import fs from 'fs'
 import path from 'path'
+import { fileURLToPath } from 'url'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // Custom plugin to copy Apache SPA routing config to dist after build.
 const copyStaticFiles = () => ({
   name: 'copy-static-files',

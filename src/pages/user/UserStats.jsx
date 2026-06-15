@@ -18,6 +18,8 @@ const BadgeIcon = ({ name, ...props }) => {
 };
 import useAuthStore from '../../store/authStore';
 
+const MotionDiv = motion.div;
+
 const EmptyAction = ({ icon: Icon, title, text, action, to }) => (
   <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-4 py-8 text-center">
     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
