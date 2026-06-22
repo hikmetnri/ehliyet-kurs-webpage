@@ -27,7 +27,7 @@ const getStoredExamDateInput = () => {
 
 
 const UserSettings = () => {
-  const { themeMode, toggleThemeMode, changeThemeMode, isThemeLocked } = useOutletContext() || {};
+  const { themeMode, changeThemeMode, isThemeLocked } = useOutletContext() || {};
   const { user, setAuth, token, logout } = useAuthStore();
   const fileInputRef = useRef(null);
   const examDateInputRef = useRef(null);
@@ -1322,6 +1322,7 @@ const UserSettings = () => {
                             />
                           </label>
                         </DesktopField>
+                      </div>
 
                       <div className="flex items-center justify-between rounded-2xl border border-white/5 bg-white/[0.01] p-4 text-xs font-semibold text-text-muted">
                         <div className="flex items-center gap-2">

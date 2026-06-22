@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion as Motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -11,6 +11,7 @@ import {
   Phone,
   RefreshCw,
   Search,
+  Send,
   Settings,
   Sparkles,
 } from 'lucide-react';
@@ -30,6 +31,42 @@ const withProtocol = (value) => {
 
 const normalize = (value) => (value || '').toLocaleLowerCase('tr-TR').trim();
 
+const sponsorDateTime = (value, boundary = 'start') => {
+  if (!value) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const [year, month, day] = value.split('-').map(Number);
+    const date = boundary === 'end'
+      ? new Date(year, month - 1, day, 23, 59, 59, 999)
+      : new Date(year, month - 1, day, 0, 0, 0, 0);
+    return date.getTime();
+  }
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? null : time;
+};
+
+const isSponsorActive = (school) => {
+  if (!school?.isSponsored) return false;
+  if (school.sponsorIsActive === false) return false;
+  const now = Date.now();
+  const startAt = sponsorDateTime(school.sponsorStartAt, 'start');
+  const endAt = sponsorDateTime(school.sponsorEndAt, 'end');
+  if (startAt && startAt > now) return false;
+  if (endAt && endAt < now) return false;
+  return true;
+};
+
+const sortSponsoredFirst = (a, b) => {
+  const aSponsored = isSponsorActive(a);
+  const bSponsored = isSponsorActive(b);
+  if (aSponsored !== bSponsored) return aSponsored ? -1 : 1;
+  if (aSponsored && bSponsored) {
+    const priorityDiff = Number(b.sponsorPriority || 0) - Number(a.sponsorPriority || 0);
+    if (priorityDiff !== 0) return priorityDiff;
+    return (sponsorDateTime(a.sponsorEndAt, 'end') || Infinity) - (sponsorDateTime(b.sponsorEndAt, 'end') || Infinity);
+  }
+  return normalize(a.name).localeCompare(normalize(b.name), 'tr');
+};
+
 const findByTurkishName = (items, value) => {
   const normalizedValue = normalize(value);
   return items.find((item) => normalize(item) === normalizedValue) || '';
@@ -42,6 +79,7 @@ const getProfileLocation = (user) => {
 };
 
 const UserDrivingSchools = () => {
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const { profileCity, profileDistrict } = useMemo(() => getProfileLocation(user), [user]);
   const [schools, setSchools] = useState([]);
@@ -144,6 +182,20 @@ const UserDrivingSchools = () => {
       return matchesCity && matchesDistrict && (!search || normalize(text).includes(search));
     });
   }, [schools, city, district, query]);
+
+  const featuredSchool = useMemo(
+    () => [...filteredSchools]
+      .filter(isSponsorActive)
+      .sort(sortSponsoredFirst)[0],
+    [filteredSchools],
+  );
+
+  const visibleSchools = useMemo(
+    () => [...filteredSchools]
+      .filter((school) => school._id !== featuredSchool?._id)
+      .sort(sortSponsoredFirst),
+    [filteredSchools, featuredSchool],
+  );
 
   const stats = useMemo(() => ({
     total: schools.length,
@@ -310,8 +362,76 @@ const UserDrivingSchools = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-          {filteredSchools.map((school) => (
+        <>
+          {featuredSchool && (
+            <Motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="overflow-hidden rounded-[2rem] border border-amber-400/20 bg-gradient-to-r from-[#1a1430] via-[#111827] to-[#10203a] p-[1px] shadow-2xl shadow-amber-500/10"
+            >
+              <div className="rounded-[2rem] bg-white/[0.03] p-5 sm:p-6">
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-300">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      {featuredSchool.sponsorLabel || 'Sponsorlu'}
+                    </div>
+                    <h2 className="mt-4 text-2xl font-black tracking-tight text-white">
+                      {featuredSchool.name}
+                    </h2>
+                    <p className="mt-2 text-sm font-semibold leading-relaxed text-text-muted">
+                      {featuredSchool.sponsorNote || 'Bu kurs bulunduğun şehir için öne çıkarılmış sponsorlu karttır.'}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white/70">
+                        <MapPin className="h-3 w-3 text-amber-300" />
+                        {[featuredSchool.city, featuredSchool.district].filter(Boolean).join(' / ') || 'Konum yok'}
+                      </span>
+                      {featuredSchool.sponsorEndAt ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-300">
+                          Sponsorlu süreli
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="grid shrink-0 grid-cols-1 gap-2 sm:grid-cols-3 lg:min-w-[280px]">
+                    {featuredSchool.phone ? (
+                      <a href={`tel:${featuredSchool.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-xs font-black text-white transition hover:bg-white/[0.12]">
+                        <Phone className="h-3.5 w-3.5" />
+                        Ara
+                      </a>
+                    ) : null}
+                    {featuredSchool.locationUrl ? (
+                      <a href={withProtocol(featuredSchool.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs font-black text-amber-300 transition hover:bg-amber-400/20">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Konum
+                      </a>
+                    ) : null}
+                    {featuredSchool.websiteUrl ? (
+                      <a href={withProtocol(featuredSchool.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-xs font-black text-cyan-light transition hover:bg-cyan-400/20">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        Başvuru
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+
+                {/* Kayıt Başvuru Butonu */}
+                <div className="mt-6 border-t border-white/10 pt-5">
+                  <button
+                    onClick={() => navigate(`/dashboard/driving-schools/${featuredSchool._id}/apply`)}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-5 py-3 text-sm font-bold text-amber-300 transition hover:bg-amber-400/20 cursor-pointer"
+                  >
+                    <Send className="h-4 w-4" />
+                    Başvur
+                  </button>
+                </div>
+              </div>
+            </Motion.div>
+          )}
+
+          <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
+            {visibleSchools.map((school) => (
             <Motion.article
               key={school._id}
               initial={{ opacity: 0, y: 14 }}
@@ -333,6 +453,18 @@ const UserDrivingSchools = () => {
 
               {school.address && <p className="mt-4 text-sm font-semibold leading-relaxed text-text-secondary">{school.address}</p>}
 
+              {isSponsorActive(school) && (
+                <div className="mt-4 rounded-2xl border border-amber-400/20 bg-gradient-to-r from-amber-400/10 via-fuchsia-500/10 to-cyan-400/10 p-4">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-300">
+                    <Sparkles className="h-4 w-4" />
+                    {school.sponsorLabel || 'Sponsorlu'}
+                  </div>
+                  {school.sponsorNote && (
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">{school.sponsorNote}</p>
+                  )}
+                </div>
+              )}
+
               {school.licenseClasses?.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {school.licenseClasses.map((item) => (
@@ -349,7 +481,7 @@ const UserDrivingSchools = () => {
                 </p>
               )}
 
-              <div className="mt-6 grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {school.phone ? (
                   <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-3.5 text-xs font-black text-white transition hover:bg-white/10">
                     <Phone className="h-3.5 w-3.5" />
@@ -374,10 +506,18 @@ const UserDrivingSchools = () => {
                 ) : (
                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Web yok</span>
                 )}
+                <button
+                  onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Başvur
+                </button>
               </div>
             </Motion.article>
           ))}
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

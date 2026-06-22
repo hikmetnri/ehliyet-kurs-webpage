@@ -13,6 +13,7 @@ import UserSettings from './user/UserSettings';
 import UserFavorites from './user/UserFavorites';
 import UserTrafficSigns from './user/UserTrafficSigns';
 import UserDrivingSchools from './user/UserDrivingSchools';
+import UserDrivingSchoolApply from './user/UserDrivingSchoolApply';
 import UserVideos from './user/UserVideos';
 import UserAIChat from './user/UserAIChat';
 
@@ -50,6 +51,7 @@ const UserDashboard = () => {
         <Route path="traffic-signs" element={<UserTrafficSigns />} />
         <Route path="videos" element={<UserVideos />} />
         <Route path="driving-schools" element={<UserDrivingSchools />} />
+        <Route path="driving-schools/:id/apply" element={<UserDrivingSchoolApply />} />
         <Route path="ai-chat" element={<UserAIChat />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

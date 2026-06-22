@@ -2,7 +2,8 @@ import React from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home, BookOpen, ClipboardList,
-  MessagesSquare, ChevronRight, LogOut, Settings
+  MessagesSquare, ChevronRight, LogOut, Settings,
+  Building2
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 
@@ -10,6 +11,7 @@ const navItems = [
   { to: '/dashboard', icon: Home, label: 'Ana Sayfa', exact: true },
   { to: '/dashboard/lessons', icon: BookOpen, label: 'Dersler' },
   { to: '/dashboard/exams', icon: ClipboardList, label: 'Sınav Merkezi' },
+  { to: '/dashboard/driving-schools', icon: Building2, label: 'Sürücü Kursları' },
   { to: '/dashboard/feed', icon: MessagesSquare, label: 'Topluluk' },
   { to: '/dashboard/settings', icon: Settings, label: 'Ayarlar' },
 ];

@@ -17,6 +17,7 @@ const Register = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     password: '',
     passwordConfirm: ''
   });
@@ -73,6 +74,7 @@ const Register = () => {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        phone: formData.phone,
         password: formData.password,
         source: acquisition.source,
         platform: 'web',
@@ -232,6 +234,21 @@ const Register = () => {
                 placeholder="isim@ornek.com"
                 className="input-field py-3"
                 value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-text-secondary mb-1.5 ml-1">
+                Telefon Numarası
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                placeholder="05xx xxx xx xx"
+                className="input-field py-3"
+                value={formData.phone}
                 onChange={handleChange}
                 required
               />

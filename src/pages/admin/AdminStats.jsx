@@ -164,6 +164,27 @@ const GuideThreshold = ({ label, description, tone }) => (
   </div>
 );
 
+const QuickStartRail = ({ items = [] }) => (
+  <div className="grid grid-cols-1 gap-3 rounded-3xl border border-white/10 bg-white/[0.025] p-4 sm:grid-cols-2 xl:grid-cols-4">
+    {items.map((item, index) => (
+      <div
+        key={item.title}
+        className="rounded-2xl border border-white/10 bg-black/20 p-4"
+      >
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-[11px] font-black text-primary-light">
+            {index + 1}
+          </span>
+          <p className="text-sm font-black text-white">{item.title}</p>
+        </div>
+        <p className="mt-3 text-xs font-semibold leading-6 text-text-muted">
+          {item.text}
+        </p>
+      </div>
+    ))}
+  </div>
+);
+
 const StatsSectionTabs = ({ tabs, activeSection, onChange }) => (
   <div className="grid grid-cols-1 gap-2 rounded-3xl border border-white/10 bg-white/[0.02] p-2 sm:grid-cols-2 xl:grid-cols-4 shadow-sm">
     {tabs.map(tab => {
@@ -392,6 +413,24 @@ const AdminStats = () => {
       dot: 'bg-amber-400',
     },
   ];
+  const quickStartItems = [
+    {
+      title: 'Önce Genel Bakış',
+      text: 'Toplam kullanıcı, aktiflik ve ortalama başarıyla tabloyu hızlıca oku.',
+    },
+    {
+      title: 'Sonra Yolculuk',
+      text: 'Kayıttan ilk teste kadar nerede düşüş olduğunu gör.',
+    },
+    {
+      title: 'Sonra Etkileşim',
+      text: 'Bildirim, paywall ve kaynak performansını karşılaştır.',
+    },
+    {
+      title: 'En Son Eğitim',
+      text: 'Zayıf konuları ve zor soruları alıp içerik tarafına dön.',
+    },
+  ];
   const hasJourneyTrend = journeyTrend.some(item => item.registered || item.firstTest || item.wrongReview || item.paywallSeen || item.proClicked);
   const sectionTabs = [
     { id: 'overview', label: 'Genel Bakış', icon: Activity, helper: 'Özet, kayıt, QR ve üyelik dengesi' },
@@ -475,6 +514,8 @@ const AdminStats = () => {
         chips={guideChips}
         actions={guideActions}
       />
+
+      <QuickStartRail items={quickStartItems} />
 
       {/* --- TOP KPIs --- */}
       {activeSection === 'overview' && (

@@ -159,8 +159,16 @@ const AdminSettings = () => {
   // Global loading
   const [loading, setLoading] = useState(false);
 
-  // ── Legal State ──
-  const [legalSettings, setLegalSettings] = useState({ privacy_policy: '', kvkk_text: '' });
+  // ── Legal & General Settings State ──
+  const [settingsMap, setSettingsMap] = useState({
+    privacy_policy: '',
+    kvkk_text: '',
+    contact_email: '',
+    app_version_android: '1.0.0',
+    app_version_ios: '1.0.0',
+    playstore_url: '',
+    appstore_url: ''
+  });
   const [legalSaving, setLegalSaving] = useState('');
 
   // ── Notification State ──
@@ -198,9 +206,14 @@ const AdminSettings = () => {
       setLoading(true);
       const res = await api.get('/admin/settings-map');
       const d = res.data;
-      setLegalSettings({
+      setSettingsMap({
         privacy_policy: d.privacy_policy || '',
         kvkk_text:      d.kvkk_text      || '',
+        contact_email:  d.contact_email  || '',
+        app_version_android: d.app_version_android || '1.0.0',
+        app_version_ios:     d.app_version_ios     || '1.0.0',
+        playstore_url:  d.playstore_url  || '',
+        appstore_url:   d.appstore_url   || '',
       });
     } catch {
       showToast('Ayarlar yüklenirken hata oluştu.', 'error');
@@ -256,7 +269,7 @@ const AdminSettings = () => {
 
   useEffect(() => {
     setSearchParams({ tab: activeTab });
-    if (activeTab === 'legal') fetchSettingsMap();
+    if (activeTab === 'legal' || activeTab === 'system') fetchSettingsMap();
     if (activeTab === 'notifications') fetchBroadcastHistory();
     if (activeTab === 'quotes') fetchQuotes();
     if (activeTab === 'faqs') fetchFaqs();
@@ -270,11 +283,11 @@ const AdminSettings = () => {
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
-  const handleSaveLegal = async (key) => {
+  const handleSaveSetting = async (key) => {
     try {
       setLegalSaving(key);
-      await api.put(`/admin/settings-map/${key}`, { value: legalSettings[key] });
-      showToast(key === 'privacy_policy' ? 'Gizlilik Politikası kaydedildi!' : 'KVKK metni kaydedildi!');
+      await api.put(`/admin/settings-map/${key}`, { value: settingsMap[key] });
+      showToast('Ayar başarıyla kaydedildi!');
     } catch { showToast('Kayıt hatası.', 'error'); }
     finally { setLegalSaving(''); }
   };
@@ -519,7 +532,7 @@ const AdminSettings = () => {
                   subtitle="Landing page ve mobil uygulama tarafından okunur"
                   action={
                     <button
-                      onClick={() => handleSaveLegal('privacy_policy')}
+                      onClick={() => handleSaveSetting('privacy_policy')}
                       disabled={legalSaving === 'privacy_policy'}
                       className="flex h-10 items-center gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500 hover:text-white disabled:opacity-50"
                     >
@@ -531,8 +544,8 @@ const AdminSettings = () => {
                 <div className="p-4 sm:p-6 lg:p-8">
                   <textarea
                     rows={14}
-                    value={legalSettings.privacy_policy}
-                    onChange={e => setLegalSettings(p => ({ ...p, privacy_policy: e.target.value }))}
+                    value={settingsMap.privacy_policy}
+                    onChange={e => setSettingsMap(p => ({ ...p, privacy_policy: e.target.value }))}
                     placeholder="Gizlilik politikası metnini buraya yazın..."
                     className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white/90 placeholder-white/20 focus:outline-none focus:border-emerald-500/50 transition-all resize-none custom-scrollbar font-mono leading-relaxed"
                   />
@@ -551,7 +564,7 @@ const AdminSettings = () => {
                   subtitle="Kişisel Verilerin Korunması Kanunu uyarınca zorunlu bildirim"
                   action={
                     <button
-                      onClick={() => handleSaveLegal('kvkk_text')}
+                      onClick={() => handleSaveSetting('kvkk_text')}
                       disabled={legalSaving === 'kvkk_text'}
                       className="flex h-10 items-center gap-2 rounded-2xl border border-teal-500/20 bg-teal-500/10 px-4 text-sm font-bold text-teal-400 transition-colors hover:bg-teal-500 hover:text-white disabled:opacity-50"
                     >
@@ -563,8 +576,8 @@ const AdminSettings = () => {
                 <div className="p-4 sm:p-6 lg:p-8">
                   <textarea
                     rows={14}
-                    value={legalSettings.kvkk_text}
-                    onChange={e => setLegalSettings(p => ({ ...p, kvkk_text: e.target.value }))}
+                    value={settingsMap.kvkk_text}
+                    onChange={e => setSettingsMap(p => ({ ...p, kvkk_text: e.target.value }))}
                     placeholder="KVKK aydınlatma metnini buraya yazın..."
                     className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white/90 placeholder-white/20 focus:outline-none focus:border-teal-500/50 transition-all resize-none custom-scrollbar font-mono leading-relaxed"
                   />
@@ -884,6 +897,119 @@ const AdminSettings = () => {
           {/* ══════════ TAB: SYSTEM ══════════ */}
           {activeTab === 'system' && (
             <motion.div key="system" variants={contentVariants} initial="initial" animate="animate" exit="exit" className="space-y-6 max-w-3xl">
+
+              {/* Genel Sistem Ayarları */}
+              <SectionCard>
+                <CardHeader
+                  icon={Settings2}
+                  title="Genel Sistem Ayarları"
+                  subtitle="Uygulama genelindeki iletişim, sürüm ve mağaza linki yapılandırmaları"
+                />
+                <div className="p-6 space-y-6">
+                  {/* Başvuru Bildirim E-postası */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                    <div>
+                      <FieldLabel>Başvuru & İletişim E-postası</FieldLabel>
+                      <TextInput
+                        type="email"
+                        value={settingsMap.contact_email}
+                        onChange={e => setSettingsMap(p => ({ ...p, contact_email: e.target.value }))}
+                        placeholder="iletisim@ehliyetyolu.com"
+                      />
+                      <p className="text-[10px] text-text-muted mt-1.5 leading-relaxed">
+                        Sürücü kursu başvuruları ve genel sistem bildirimleri bu e-posta adresine gönderilir.
+                      </p>
+                    </div>
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSetting('contact_email')}
+                        disabled={legalSaving === 'contact_email'}
+                        className="inline-flex h-11 items-center gap-2 rounded-2xl bg-primary px-5 text-sm font-bold text-white transition hover:bg-primary-light disabled:opacity-50"
+                      >
+                        {legalSaving === 'contact_email' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                        E-postayı Kaydet
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/5 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Android Sürüm */}
+                    <div className="space-y-2">
+                      <FieldLabel>Android Minimum Sürüm</FieldLabel>
+                      <TextInput
+                        value={settingsMap.app_version_android}
+                        onChange={e => setSettingsMap(p => ({ ...p, app_version_android: e.target.value }))}
+                        placeholder="1.0.0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSetting('app_version_android')}
+                        disabled={legalSaving === 'app_version_android'}
+                        className="inline-flex h-10 items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
+                      >
+                        Android Sürümünü Güncelle
+                      </button>
+                    </div>
+
+                    {/* iOS Sürüm */}
+                    <div className="space-y-2">
+                      <FieldLabel>iOS Minimum Sürüm</FieldLabel>
+                      <TextInput
+                        value={settingsMap.app_version_ios}
+                        onChange={e => setSettingsMap(p => ({ ...p, app_version_ios: e.target.value }))}
+                        placeholder="1.0.0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSetting('app_version_ios')}
+                        disabled={legalSaving === 'app_version_ios'}
+                        className="inline-flex h-10 items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
+                      >
+                        iOS Sürümünü Güncelle
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/5 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Play Store Link */}
+                    <div className="space-y-2">
+                      <FieldLabel>Google Play Store Bağlantısı</FieldLabel>
+                      <TextInput
+                        value={settingsMap.playstore_url}
+                        onChange={e => setSettingsMap(p => ({ ...p, playstore_url: e.target.value }))}
+                        placeholder="https://play.google.com/store/apps/details?id=..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSetting('playstore_url')}
+                        disabled={legalSaving === 'playstore_url'}
+                        className="inline-flex h-10 items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
+                      >
+                        Google Play Linkini Güncelle
+                      </button>
+                    </div>
+
+                    {/* App Store Link */}
+                    <div className="space-y-2">
+                      <FieldLabel>Apple App Store Bağlantısı</FieldLabel>
+                      <TextInput
+                        value={settingsMap.appstore_url}
+                        onChange={e => setSettingsMap(p => ({ ...p, appstore_url: e.target.value }))}
+                        placeholder="https://apps.apple.com/app/id..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSaveSetting('appstore_url')}
+                        disabled={legalSaving === 'appstore_url'}
+                        className="inline-flex h-10 items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
+                      >
+                        App Store Linkini Güncelle
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </SectionCard>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Maintenance */}
