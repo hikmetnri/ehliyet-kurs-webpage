@@ -12,6 +12,7 @@ import api from '../../api';
 import { TURKEY_CITIES, getDistrictsForCity } from '../../data/turkeyLocations';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 import { soundService } from '../../services/soundService';
+import { registerWebPushToken } from '../../services/webPushService';
 
 const getStoredExamDateInput = () => {
   try {
@@ -1310,6 +1311,28 @@ const UserSettings = () => {
                           </label>
                         </DesktopField>
 
+                        <DesktopField label="Cihaz Push Bildirimleri">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                const token = await registerWebPushToken();
+                                if (token) {
+                                  showMessage('success', 'Harika! Bu cihaz için anlık bildirim izinleri başarıyla tanımlandı.');
+                                } else {
+                                  showMessage('error', 'Bildirim izni alınamadı veya engellendi. Tarayıcı adres çubuğundaki kilit ikonundan izin vermeniz gerekebilir.');
+                                }
+                              } catch (err) {
+                                showMessage('error', 'İzin alınırken bir sorun oluştu: ' + err.message);
+                              }
+                            }}
+                            className="w-full flex h-[46px] items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 px-4 cursor-pointer hover:bg-primary/10 transition text-sm font-semibold text-primary-light"
+                          >
+                            <span>Bu Cihazda Bildirimleri Etkinleştir</span>
+                            <Bell className="w-4 h-4 text-primary" />
+                          </button>
+                        </DesktopField>
+
                         <DesktopField label="Ses Tercihleri">
                           <label className="flex h-[46px] items-center justify-between rounded-2xl border border-white/10 bg-white/[0.015] px-4 cursor-pointer hover:bg-white/[0.03] transition">
                             <span className="text-sm font-semibold text-white">Uygulama Sesleri</span>
@@ -2570,6 +2593,29 @@ const UserSettings = () => {
                 ))}
               </select>
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-wider">Cihaz Bildirimleri</label>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const token = await registerWebPushToken();
+                  if (token) {
+                    showMessage('success', 'Harika! Bu cihaz için anlık bildirim izinleri başarıyla tanımlandı.');
+                  } else {
+                    showMessage('error', 'Bildirim izni alınamadı veya engellendi. Lütfen tarayıcı/sistem ayarlarına izin verin.');
+                  }
+                } catch (err) {
+                  showMessage('error', 'İzin alınırken hata: ' + err.message);
+                }
+              }}
+              className="w-full flex h-11 items-center justify-between rounded-xl border border-primary/20 bg-primary/5 px-3 cursor-pointer hover:bg-primary/10 transition text-xs font-semibold text-primary-light"
+            >
+              <span>Bu Cihazda Bildirimleri Aktif Et</span>
+              <Bell className="w-4 h-4 text-primary" />
+            </button>
           </div>
 
           <div className="space-y-1.5">
