@@ -50,12 +50,19 @@ const UserRoute = ({ children }) => {
   const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
   const logout = useAuthStore((state) => state.logout)
+  const startGuestMode = useAuthStore((state) => state.startGuestMode)
   const shouldCheckMaintenance = Boolean(token && user && user.role !== 'admin')
   const maintenanceKey = shouldCheckMaintenance ? `${token}:${user.role}` : 'skip'
   const [maintenanceStatus, setMaintenanceStatus] = useState({
     key: 'init',
     maintenance: false,
   })
+
+  useEffect(() => {
+    if (!token || !user) {
+      startGuestMode()
+    }
+  }, [token, user, startGuestMode])
 
   useEffect(() => {
     if (!shouldCheckMaintenance) return undefined
@@ -86,7 +93,7 @@ const UserRoute = ({ children }) => {
   const checkingMaintenance = shouldCheckMaintenance && maintenanceStatus.key !== maintenanceKey
   const maintenance = shouldCheckMaintenance && maintenanceStatus.key === maintenanceKey && maintenanceStatus.maintenance
   
-  if (!token || !user) return <Navigate to="/login" replace />
+  if (!token || !user) return <RouteFallback />
   if (user.role === 'admin') return <Navigate to="/admin" replace />
   if (checkingMaintenance) return <RouteFallback />
   if (maintenance) {
