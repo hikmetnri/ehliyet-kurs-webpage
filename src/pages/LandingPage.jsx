@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
   CarFront, Target, Trophy, CheckCircle2, ChevronRight,
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { signLibraryList } from '../data/signLibrariesData';
 import { resolveMediaUrl } from '../utils/mediaUrl';
+import useAuthStore from '../store/authStore';
 
 const FALLBACK_FAQS = [
   { _id: '1', question: "Ehliyet sınavına hazırlık için bu sistem yeterli mi?", answer: "Kesinlikle! MEB'in güncel 2026 müfredatına %100 uyumlu, daha önce çıkmış ve çıkma ihtimali yüksek sorulardan oluşan yapay zeka destekli havuzumuz tek başına yeterlidir." },
@@ -86,6 +87,14 @@ const FAQItem = ({ faq, index }) => {
 };
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const startGuestMode = useAuthStore((state) => state.startGuestMode);
+
+  const handleGuestEntry = () => {
+    startGuestMode();
+    navigate('/dashboard');
+  };
+
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 1000], [0, 200]);
@@ -252,6 +261,12 @@ const LandingPage = () => {
 
             {/* CTA Buttons */}
             <div className="flex items-center gap-3 sm:gap-6 pr-1 sm:pr-0">
+              <button 
+                onClick={handleGuestEntry} 
+                className="hidden xs:block text-sm sm:text-base font-bold text-white/50 hover:text-white transition-colors px-2 py-2"
+              >
+                Giriş Yapmadan Devam Et
+              </button>
               <Link to="/login" className="text-sm sm:text-base font-bold text-white/80 hover:text-white transition-colors px-3 sm:px-6 py-2 sm:py-3">Giriş</Link>
               <Link to="/register" className="bg-white hover:bg-gray-100 text-black py-2.5 sm:py-4 px-4 sm:px-10 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 text-xs sm:text-base font-black shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]">
                 Kayıt Ol <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 hidden xs:block" />

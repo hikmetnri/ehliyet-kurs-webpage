@@ -116,10 +116,13 @@ export default function UserAIChat() {
   }, [user?.selectedCategoryId, user?.selectedCategoryName]);
 
   const fetchPromptCount = async () => {
+    if (user?.isGuest) {
+      const credits = parseInt(localStorage.getItem('guest_ai_credits') ?? '5', 10);
+      setLimit(5);
+      setPromptCount(5 - credits);
+      return;
+    }
     try {
-      // We can check local storage or make a dummy request, or backend returns it.
-      // Since we don't have a separate GET stats route, we can read user profile or check previous count.
-      // Let's fetch the current user profile from backend to get the latest aiPromptCount.
       const res = await api.get('/users/me');
       if (res.data?.data) {
         setPromptCount(res.data.data.aiPromptCount || 0);
@@ -137,8 +140,13 @@ export default function UserAIChat() {
     const text = textToSend || inputText;
     if (!text.trim() || loading) return;
 
-    // Client-side limit check for non-PRO users as a fallback
-    if (!user?.proStatus && promptCount >= limit) {
+    // Client-side limit check for guest and non-PRO users
+    const currentPromptCount = user?.isGuest 
+      ? (5 - parseInt(localStorage.getItem('guest_ai_credits') ?? '5', 10))
+      : promptCount;
+    const currentLimit = user?.isGuest ? 5 : limit;
+
+    if (currentPromptCount >= currentLimit) {
       setShowLimitModal(true);
       return;
     }
@@ -150,7 +158,7 @@ export default function UserAIChat() {
     setErrorText('');
 
     try {
-      // Send message history to keep context (max 10 recent messages for context size/cost limits)
+      // Send message history to keep context
       const contextMessages = [...messages, newUserMessage].slice(-10);
       
       const res = await api.post('/ai/chat', {
@@ -162,11 +170,18 @@ export default function UserAIChat() {
         const assistantMessage = { role: 'assistant', content: res.data.reply };
         setMessages((prev) => [...prev, assistantMessage]);
         
-        if (res.data.promptCount !== undefined) {
-          setPromptCount(res.data.promptCount);
-        }
-        if (res.data.limit !== undefined) {
-          setLimit(res.data.limit);
+        if (user?.isGuest) {
+          const currentCredits = parseInt(localStorage.getItem('guest_ai_credits') ?? '5', 10);
+          const newCredits = Math.max(0, currentCredits - 1);
+          localStorage.setItem('guest_ai_credits', String(newCredits));
+          setPromptCount(5 - newCredits);
+        } else {
+          if (res.data.promptCount !== undefined) {
+            setPromptCount(res.data.promptCount);
+          }
+          if (res.data.limit !== undefined) {
+            setLimit(res.data.limit);
+          }
         }
       }
     } catch (err) {
@@ -413,7 +428,21 @@ export default function UserAIChat() {
           </form>
           
           {/* Footer Warning Counter */}
-          {!user?.proStatus && (
+          {user?.isGuest ? (
+            <div className="mt-2 text-center text-[10px] text-text-muted font-bold tracking-wide uppercase">
+              Misafir ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {limit}. Daha fazla hak için{' '}
+              <span 
+                onClick={() => {
+                  const logout = useAuthStore.getState().logout;
+                  logout();
+                  navigate('/login');
+                }} 
+                className="text-primary-light underline cursor-pointer hover:text-white transition-colors"
+              >
+                Üye Olun
+              </span>.
+            </div>
+          ) : !user?.proStatus ? (
             <div className="mt-2 text-center text-[10px] text-text-muted font-bold tracking-wide uppercase">
               Günlük ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {limit}. Daha fazla hak için{' '}
               <span 
@@ -423,7 +452,7 @@ export default function UserAIChat() {
                 PRO Sürüme Geçin
               </span>.
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -449,27 +478,48 @@ export default function UserAIChat() {
                 <Crown className="w-8 h-8 text-amber-400 fill-amber-400/20" />
               </div>
               
-              <h3 className="text-lg font-black text-white tracking-tight">Günlük AI Sınırına Ulaştınız</h3>
+              <h3 className="text-lg font-black text-white tracking-tight">
+                {user?.isGuest ? 'AI Sınırına Ulaştınız' : 'Günlük AI Sınırına Ulaştınız'}
+              </h3>
               <p className="text-text-secondary text-sm font-semibold mt-2.5 leading-relaxed">
-                Ücretsiz planda günlük yapay zeka danışmanlığı limitiniz (20 soru) dolmuştur.
+                {user?.isGuest 
+                  ? 'Misafir modu için tanımlanan 5 adet ücretsiz mesaj limitiniz dolmuştur.' 
+                  : `Ücretsiz planda günlük yapay zeka danışmanlığı limitiniz (${limit} soru) dolmuştur.`}
               </p>
               
               <div className="my-5 p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-left text-xs font-semibold space-y-2 text-text-muted">
-                <p className="text-white font-bold flex items-center gap-1.5"><Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" /> PRO Üyelik Ayrıcalıkları:</p>
-                <p>• Sınırsız Yolla AI kullanımı</p>
-                <p>• Reklamsız Sınav Çözümü</p>
-                <p>• Tüm Konu Anlatımları ve Soru Bankası</p>
+                {user?.isGuest ? (
+                  <>
+                    <p className="text-white font-bold flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5 text-primary-light shrink-0" /> Üye Olmanın Avantajları:</p>
+                    <p>• Sınırsız veya daha yüksek Yolla AI mesaj hakkı</p>
+                    <p>• Sınavlar ve Sorular sayfalarında test çözebilme</p>
+                    <p>• Hatalarınızı kaydedip tekrar çözebilme</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-white font-bold flex items-center gap-1.5"><Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" /> PRO Üyelik Ayrıcalıkları:</p>
+                    <p>• Sınırsız Yolla AI kullanımı</p>
+                    <p>• Reklamsız Sınav Çözümü</p>
+                    <p>• Tüm Konu Anlatımları ve Soru Bankası</p>
+                  </>
+                )}
               </div>
 
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => {
                     setShowLimitModal(false);
-                    navigate('/dashboard/settings');
+                    if (user?.isGuest) {
+                      const logout = useAuthStore.getState().logout;
+                      logout();
+                      navigate('/login');
+                    } else {
+                      navigate('/dashboard/settings');
+                    }
                   }}
-                  className="w-full h-12 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white font-black text-xs uppercase tracking-wider hover:opacity-90 active:scale-98 transition shadow-lg shadow-amber-500/10"
+                  className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-xs uppercase tracking-wider hover:opacity-90 active:scale-98 transition shadow-lg"
                 >
-                  PRO Sürüme Geç
+                  {user?.isGuest ? 'Giriş Yap / Üye Ol' : 'PRO Sürüme Geç'}
                 </button>
                 <button
                   onClick={() => setShowLimitModal(false)}

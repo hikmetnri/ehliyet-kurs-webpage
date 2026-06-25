@@ -481,7 +481,7 @@ const UserDrivingSchools = () => {
                 </p>
               )}
 
-              <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className={`mt-6 grid grid-cols-2 gap-2 ${isSponsorActive(school) ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}>
                 {school.phone ? (
                   <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-3.5 text-xs font-black text-white transition hover:bg-white/10">
                     <Phone className="h-3.5 w-3.5" />
@@ -506,13 +506,15 @@ const UserDrivingSchools = () => {
                 ) : (
                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Web yok</span>
                 )}
-                <button
-                  onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
-                >
-                  <Send className="h-3.5 w-3.5" />
-                  Başvur
-                </button>
+                {isSponsorActive(school) && (
+                  <button
+                    onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Başvur
+                  </button>
+                )}
               </div>
             </Motion.article>
           ))}

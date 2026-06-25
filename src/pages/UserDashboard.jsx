@@ -16,6 +16,16 @@ import UserDrivingSchools from './user/UserDrivingSchools';
 import UserDrivingSchoolApply from './user/UserDrivingSchoolApply';
 import UserVideos from './user/UserVideos';
 import UserAIChat from './user/UserAIChat';
+import useAuthStore from '../store/authStore';
+import GuestBlocker from '../components/user/GuestBlocker';
+
+const GuestGate = ({ children, title, description }) => {
+  const user = useAuthStore((state) => state.user);
+  if (user?.isGuest) {
+    return <GuestBlocker title={title} description={description} />;
+  }
+  return children;
+};
 
 const UserDashboard = () => {
   return (
@@ -42,12 +52,49 @@ const UserDashboard = () => {
         <Route index element={<UserHome />} />
         <Route path="lessons" element={<UserLessons />} />
         <Route path="exams" element={<UserExams />} />
-        <Route path="stats" element={<UserStats />} />
-        <Route path="feed" element={<UserFeed />} />
-        <Route path="feed/:postId" element={<UserFeedDetail />} />
+        
+        <Route 
+          path="stats" 
+          element={
+            <GuestGate title="İstatistiklerinizi Görün" description="Çözdüğünüz sınavların analizlerini, başarı oranınızı ve gelişim grafiklerinizi takip etmek için üye olun.">
+              <UserStats />
+            </GuestGate>
+          } 
+        />
+        <Route 
+          path="feed" 
+          element={
+            <GuestGate title="Sürücü Akışına Katılın" description="Diğer sürücü adaylarıyla yardımlaşmak, soru paylaşmak ve güncel haberleri takip etmek için üye olun.">
+              <UserFeed />
+            </GuestGate>
+          } 
+        />
+        <Route 
+          path="feed/:postId" 
+          element={
+            <GuestGate title="Sürücü Akışına Katılın" description="Gönderileri ve yapılan yorumları incelemek için lütfen giriş yapın.">
+              <UserFeedDetail />
+            </GuestGate>
+          } 
+        />
         <Route path="support" element={<UserSupport />} />
-        <Route path="settings" element={<UserSettings />} />
-        <Route path="favorites" element={<UserFavorites />} />
+        <Route 
+          path="settings" 
+          element={
+            <GuestGate title="Profilinizi Yönetin" description="Kişisel bilgilerinizi, uygulama temasını ve push bildirim ayarlarını değiştirmek için üye olun.">
+              <UserSettings />
+            </GuestGate>
+          } 
+        />
+        <Route 
+          path="favorites" 
+          element={
+            <GuestGate title="Favori Sorularım" description="Zorlandığınız veya daha sonra tekrar çözmek istediğiniz soruları favorilerinize eklemek için üye olun.">
+              <UserFavorites />
+            </GuestGate>
+          } 
+        />
+        
         <Route path="traffic-signs" element={<UserTrafficSigns />} />
         <Route path="videos" element={<UserVideos />} />
         <Route path="driving-schools" element={<UserDrivingSchools />} />

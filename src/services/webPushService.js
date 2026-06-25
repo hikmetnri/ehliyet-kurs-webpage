@@ -37,8 +37,9 @@ const serviceWorkerUrl = () => {
 };
 
 const getRegistration = async () => {
+  const targetUrl = new URL(serviceWorkerUrl(), window.location.origin).toString();
   const existing = await navigator.serviceWorker.getRegistration('/');
-  if (existing?.active?.scriptURL?.includes('/firebase-messaging-sw.js')) {
+  if (existing?.active?.scriptURL === targetUrl) {
     return existing;
   }
 

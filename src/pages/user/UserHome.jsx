@@ -1481,12 +1481,11 @@ const UserHome = () => {
             </div>
           </div>
 
-          {/* Action button */}
           <button
             onClick={() => {
               const actionType = dailyPlan?.primaryAction?.type || 'short_test';
               if (actionType === 'select_category') setShowCategoryModal(true);
-              else navigate(dailyPlan?.primaryAction?.target || planRouteByAction[actionType] || '/dashboard/exams');
+              else navigate(dailyPlan?.primaryAction?.target || planRouteByAction[actionType] || '/dashboard/exams', { state: { fromQuickStart: true } });
             }}
             className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-accent font-black text-xs uppercase tracking-widest text-white mt-4 flex items-center justify-center gap-2 shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform"
           >

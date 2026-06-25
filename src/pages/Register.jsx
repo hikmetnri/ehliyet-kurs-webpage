@@ -323,6 +323,19 @@ const Register = () => {
                 </svg>
                 Google ile Kayıt Ol
               </button>
+
+              <button 
+                type="button"
+                onClick={() => {
+                  const startGuestMode = useAuthStore.getState().startGuestMode;
+                  startGuestMode();
+                  navigate('/dashboard');
+                }}
+                disabled={loading}
+                className="w-full flex justify-center items-center gap-2 py-3.5 bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary-light rounded-xl transition-colors font-semibold disabled:opacity-50"
+              >
+                Giriş Yapmadan Devam Et (Misafir Girişi)
+              </button>
             </div>
             
             <p className="text-xs text-text-muted text-center mt-4">

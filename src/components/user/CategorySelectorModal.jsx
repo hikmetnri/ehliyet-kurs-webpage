@@ -46,6 +46,17 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
     setSelectedCat(cat._id);
     setLoading(true);
     try {
+      if (user?.isGuest) {
+        const updatedUser = {
+          ...user,
+          selectedCategoryId: cat._id,
+          selectedCategoryName: cat.name
+        };
+        setAuth(updatedUser, token);
+        onClose?.();
+        return;
+      }
+
       const res = await api.put('/auth/profile', {
         selectedCategoryId: cat._id,
         selectedCategoryName: cat.name

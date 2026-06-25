@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { soundService } from '../../services/soundService';
@@ -12,6 +12,7 @@ import useAuthStore from '../../store/authStore';
 import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
+import GuestBlocker from '../../components/user/GuestBlocker';
 import {
   filterQuestionsToCategoryTree,
   hydrateWrongAnswers,
@@ -232,8 +233,35 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
 const UserExamSolve = ({ customType }) => {
   const { examId, categoryId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
+
+  const fromQuickStart = location.state?.fromQuickStart;
+
+  if (user?.isGuest) {
+    const solvedCount = parseInt(localStorage.getItem('guest_solved_test_count') || '0', 10);
+    if (!fromQuickStart) {
+      return (
+        <div className="min-h-screen bg-[#050508] text-white pt-16 flex items-center justify-center">
+          <GuestBlocker 
+            title="Sınav Çözmek İçin Üye Olun" 
+            description="Tüm sınav modlarına erişmek, testleri çözmek ve ilerlemenizi kaydetmek için lütfen giriş yapın veya yeni bir hesap oluşturun." 
+          />
+        </div>
+      );
+    }
+    if (solvedCount >= 4) {
+      return (
+        <div className="min-h-screen bg-[#050508] text-white pt-16 flex items-center justify-center">
+          <GuestBlocker 
+            title="Günlük Test Limitine Ulaştınız" 
+            description="Misafir modu için belirlenen 4 adet ücretsiz test çözme limitini doldurdunuz. Sınırsız test çözmek, yanlış sorularınızı takip etmek ve ilerlemek için lütfen üye olun." 
+          />
+        </div>
+      );
+    }
+  }
 
   const [exam, setExam] = useState(null);
   const [questions, setQuestions] = useState([]);
@@ -254,6 +282,7 @@ const UserExamSolve = ({ customType }) => {
   }, []);
 
   const fetchFavorites = async () => {
+    if (user?.isGuest) return;
     try {
       const res = await api.get('/users/favorites');
       const ids = res.data.favorites.map(f => f._id || f);
@@ -265,6 +294,10 @@ const UserExamSolve = ({ customType }) => {
 
   const toggleFavorite = async (qId) => {
     if (favLoading) return;
+    if (user?.isGuest) {
+      alert('Soruları favorilerinize eklemek için üye olmanız gerekmektedir.');
+      return;
+    }
     setFavLoading(true);
     const isFav = favoriteIds.includes(qId);
     try {
@@ -540,19 +573,47 @@ const UserExamSolve = ({ customType }) => {
         setReviewSync({ status: 'error', wrongCount: wrongQuestions.length });
       });
 
-      if (isReviewMode) {
-        await syncWrongAnswers();
-        await api.post('/exam-results', resultPayload).catch((err) => {
-          console.warn('Tekrar testi sonucu geçmişe kaydedilemedi:', err);
+      if (user?.isGuest) {
+        // Save test results locally
+        const localResults = JSON.parse(localStorage.getItem('guest_saved_results') || '[]');
+        localResults.push(resultPayload);
+        localStorage.setItem('guest_saved_results', JSON.stringify(localResults));
+
+        // Save wrong questions locally
+        if (wrongQuestions.length > 0) {
+          const localWrong = JSON.parse(localStorage.getItem('guest_wrong_answers') || '[]');
+          wrongQuestions.forEach(wq => {
+            if (!localWrong.some(item => item.questionId === wq.questionId)) {
+              localWrong.push(wq);
+            }
+          });
+          localStorage.setItem('guest_wrong_answers', JSON.stringify(localWrong));
+        }
+
+        // Increment solved test count
+        const currentCount = parseInt(localStorage.getItem('guest_solved_test_count') || '0', 10);
+        localStorage.setItem('guest_solved_test_count', String(currentCount + 1));
+
+        setReviewSync({
+          status: 'success',
+          wrongCount: wrongQuestions.length,
+          summary: { added: wrongQuestions.length, removed: 0 }
         });
-      } else if (isWrongPoolMode) {
-        await api.post('/exam-results', resultPayload).catch((err) => {
-          console.warn('Yanlışlar testi sonucu geçmişe kaydedilemedi:', err);
-        });
-        await syncWrongAnswers();
       } else {
-        await api.post('/exam-results', resultPayload);
-        await syncWrongAnswers();
+        if (isReviewMode) {
+          await syncWrongAnswers();
+          await api.post('/exam-results', resultPayload).catch((err) => {
+            console.warn('Tekrar testi sonucu geçmişe kaydedilemedi:', err);
+          });
+        } else if (isWrongPoolMode) {
+          await api.post('/exam-results', resultPayload).catch((err) => {
+            console.warn('Yanlışlar testi sonucu geçmişe kaydedilemedi:', err);
+          });
+          await syncWrongAnswers();
+        } else {
+          await api.post('/exam-results', resultPayload);
+          await syncWrongAnswers();
+        }
       }
 
       if (passed) {
