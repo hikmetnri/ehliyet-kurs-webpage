@@ -20,7 +20,7 @@ const shouldRedirectToLogin = () => {
 api.interceptors.request.use(
   (config) => {
     const token = getToken()
-    if (token) {
+    if (token && token !== 'guest-token') {
       config.headers.Authorization = `Bearer ${token}`
     }
     return config
@@ -35,7 +35,9 @@ api.interceptors.response.use(
     const suspended = error.response?.status === 403 &&
       String(error.response?.data?.error || error.response?.data?.message || '').includes('askıya')
 
-    if (error.response?.status === 401 || suspended) {
+    const hadAuthHeader = error.config?.headers?.Authorization || error.config?.headers?.authorization
+
+    if ((error.response?.status === 401 || suspended) && hadAuthHeader) {
       sessionStorage.removeItem('token')
       localStorage.removeItem('token')
       localStorage.removeItem('user')
