@@ -4,7 +4,7 @@ import useAuthStore from '../store/authStore';
 import api from '../api';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { LogIn, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
+import { LogIn, ChevronLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 import { getAcquisitionContext } from '../utils/analytics';
@@ -137,12 +137,24 @@ const Login = () => {
       <div className="absolute inset-0 animated-bg z-0 pointer-events-none opacity-60"></div>
       <div className="absolute inset-0 noise z-0 pointer-events-none"></div>
 
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary/20 blur-[120px] rounded-full"></div>
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-accent/20 blur-[120px] rounded-full"></div>
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#6C63FF]/15 blur-[120px] rounded-full pointer-events-none z-0"></div>
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#3ECFCF]/12 blur-[120px] rounded-full pointer-events-none z-0"></div>
       
       <Link to="/" className="absolute top-4 left-4 md:top-8 md:left-8 flex items-center gap-2 text-sm md:text-base text-text-secondary hover:text-white transition-colors z-20 font-medium">
         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Ana Sayfaya Dön
       </Link>
+
+      <button
+        type="button"
+        onClick={() => {
+          const startGuestMode = useAuthStore.getState().startGuestMode;
+          startGuestMode();
+          navigate('/dashboard');
+        }}
+        className="absolute top-4 right-4 md:top-8 md:right-8 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 flex items-center gap-1.5 text-sm font-semibold text-text-primary hover:text-white transition-all duration-200 cursor-pointer z-20"
+      >
+        Geç <ChevronRight className="w-3.5 h-3.5" />
+      </button>
 
       <MotionDiv
         initial={{ opacity: 0, scale: 0.95 }}
@@ -156,7 +168,7 @@ const Login = () => {
           
           <div className="text-center mb-10">
             <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-white shadow-2xl shadow-primary/20 ring-1 ring-white/70 flex items-center justify-center overflow-hidden p-1.5">
-              <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-full h-full object-contain drop-shadow-sm animate-pulse" />
+              <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-full h-full object-contain rounded-full drop-shadow-sm animate-pulse" />
             </div>
             <h2 className="text-3xl font-black tracking-tight text-white mb-2">Hoş Geldiniz</h2>
             <p className="text-text-muted font-medium">Ehliyet Yolu eğitim platformuna giriş yapın</p>
@@ -185,7 +197,7 @@ const Login = () => {
               <input
                 type="email"
                 placeholder="isim@ornek.com"
-                className="input-field"
+                className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-4 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -195,12 +207,12 @@ const Login = () => {
             <div>
               <div className="flex justify-between items-center mb-2 ml-1">
                 <label className="block text-sm font-semibold text-text-secondary">Şifre</label>
-                <Link to="/forgot-password" className="text-xs text-primary-light hover:text-white transition-colors">Şifremi Unuttum</Link>
+                <Link to="/forgot-password" className="text-xs text-[#6C63FF] hover:text-[#8A30FF] transition-colors">Şifremi Unuttum</Link>
               </div>
               <input
                 type="password"
                 placeholder="••••••••"
-                className="input-field"
+                className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-4 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -211,7 +223,7 @@ const Login = () => {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="btn-primary w-full flex justify-center items-center gap-2 py-4 shadow-primary/20"
+                className="w-full flex justify-center items-center gap-2 py-4 bg-gradient-to-r from-[#6C63FF] to-[#8A30FF] hover:from-[#5b52f2] hover:to-[#7924eb] text-white font-semibold rounded-xl transition-all duration-300 shadow-[0_6px_20px_rgba(108,99,255,0.35)] hover:shadow-[0_8px_25px_rgba(108,99,255,0.5)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

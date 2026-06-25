@@ -4,7 +4,7 @@ import useAuthStore from '../store/authStore';
 import api from '../api';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { UserPlus, ChevronLeft, Loader2, AlertCircle, Info } from 'lucide-react';
+import { UserPlus, ChevronLeft, ChevronRight, Loader2, AlertCircle, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 import { getAcquisitionContext } from '../utils/analytics';
@@ -158,12 +158,24 @@ const Register = () => {
       <div className="absolute inset-0 animated-bg z-0 pointer-events-none opacity-60"></div>
       <div className="absolute inset-0 noise z-0 pointer-events-none"></div>
 
-      <div className="absolute top-10 right-10 w-96 h-96 bg-accent/20 blur-[120px] rounded-full"></div>
-      <div className="absolute bottom-10 left-10 w-96 h-96 bg-primary/20 blur-[120px] rounded-full"></div>
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#6C63FF]/15 blur-[120px] rounded-full pointer-events-none z-0"></div>
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#3ECFCF]/12 blur-[120px] rounded-full pointer-events-none z-0"></div>
       
       <Link to="/login" className="absolute top-4 left-4 md:top-8 md:left-8 flex items-center gap-2 text-sm md:text-base text-text-secondary hover:text-white transition-colors z-20 font-medium">
         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Giriş Ekranına Dön
       </Link>
+
+      <button
+        type="button"
+        onClick={() => {
+          const startGuestMode = useAuthStore.getState().startGuestMode;
+          startGuestMode();
+          navigate('/dashboard');
+        }}
+        className="absolute top-4 right-4 md:top-8 md:right-8 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 flex items-center gap-1.5 text-sm font-semibold text-text-primary hover:text-white transition-all duration-200 cursor-pointer z-20"
+      >
+        Geç <ChevronRight className="w-3.5 h-3.5" />
+      </button>
 
       <MotionDiv
         initial={{ opacity: 0, scale: 0.95 }}
@@ -175,8 +187,8 @@ const Register = () => {
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-accent-light to-transparent opacity-80"></div>
           
           <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-3 rounded-3xl bg-white shadow-2xl shadow-accent/20 ring-1 ring-white/70 flex items-center justify-center overflow-hidden">
-              <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-16 h-16 object-contain drop-shadow-sm animate-pulse" />
+            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-white shadow-2xl shadow-accent/20 ring-1 ring-white/70 flex items-center justify-center overflow-hidden p-1">
+              <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-full h-full object-contain rounded-full drop-shadow-sm animate-pulse" />
             </div>
             <h2 className="text-3xl font-black tracking-tight text-white mb-2">Hemen Katılın</h2>
             <p className="text-text-muted font-medium">Ehliyet Yolu ile başarıya ilk adımı atın</p>
@@ -206,7 +218,7 @@ const Register = () => {
                   type="text"
                   name="firstName"
                   placeholder="Ahmet"
-                  className="input-field py-3"
+                  className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-3 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                   value={formData.firstName}
                   onChange={handleChange}
                   required
@@ -218,7 +230,7 @@ const Register = () => {
                   type="text"
                   name="lastName"
                   placeholder="Yılmaz"
-                  className="input-field py-3"
+                  className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-3 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                   value={formData.lastName}
                   onChange={handleChange}
                   required
@@ -232,7 +244,7 @@ const Register = () => {
                 type="email"
                 name="email"
                 placeholder="isim@ornek.com"
-                className="input-field py-3"
+                className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-3 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -247,7 +259,7 @@ const Register = () => {
                 type="tel"
                 name="phone"
                 placeholder="05xx xxx xx xx"
-                className="input-field py-3"
+                className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-3 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -261,7 +273,7 @@ const Register = () => {
                   type="password"
                   name="password"
                   placeholder="••••••••"
-                  className="input-field py-3"
+                  className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-3 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                   value={formData.password}
                   onChange={handleChange}
                   required
@@ -274,7 +286,7 @@ const Register = () => {
                   type="password"
                   name="passwordConfirm"
                   placeholder="••••••••"
-                  className="input-field py-3"
+                  className="w-full bg-white/5 border border-white/10 focus:border-[#6C63FF] focus:ring-4 focus:ring-[#6C63FF]/20 focus:bg-[#6C63FF]/5 rounded-xl px-5 py-3 text-white placeholder-text-muted transition-all duration-300 focus:outline-none"
                   value={formData.passwordConfirm}
                   onChange={handleChange}
                   required
@@ -292,7 +304,7 @@ const Register = () => {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="btn-primary w-full flex justify-center items-center gap-2 py-4 shadow-primary/20 bg-gradient-to-br from-accent to-primary"
+                className="w-full flex justify-center items-center gap-2 py-4 bg-gradient-to-r from-[#6C63FF] to-[#8A30FF] hover:from-[#5b52f2] hover:to-[#7924eb] text-white font-semibold rounded-xl transition-all duration-300 shadow-[0_6px_20px_rgba(108,99,255,0.35)] hover:shadow-[0_8px_25px_rgba(108,99,255,0.5)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

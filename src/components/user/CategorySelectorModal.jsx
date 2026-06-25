@@ -1,10 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { Car, Truck, Bike, ShieldCheck, Loader2, AlertCircle } from 'lucide-react';
+import { Car, Truck, Bike, ShieldCheck, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
 import { isVideoRecord } from '../../utils/categoryContent';
+
+// HSL tabanlı ton kaydırma helper'ı
+const getCategoryColors = (hex) => {
+  if (!hex || !hex.startsWith('#')) return ['#6C63FF', '#8A30FF'];
+  
+  // HEX -> RGB
+  let r = parseInt(hex.slice(1, 3), 16);
+  let g = parseInt(hex.slice(3, 5), 16);
+  let b = parseInt(hex.slice(5, 7), 16);
+  
+  // RGB -> HSL
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0; // achromatic
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+  
+  h = Math.round(h * 360);
+  s = Math.round(s * 100);
+  l = Math.round(l * 100);
+
+  // Hue değerini 40 derece kaydır, lightness değerini %60 yap
+  const h2 = (h + 40) % 360;
+  const s2 = s;
+  const l2 = 60;
+
+  return [
+    `hsl(${h}, ${s}%, ${l}%)`,
+    `hsl(${h2}, ${s2}%, ${l2}%)`
+  ];
+};
 
 // İkon eşleştirme tablosu
 const iconMap = {
@@ -126,31 +168,89 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
                      <p className="font-bold">Henüz kategori eklenmemiş!</p>
                   </div>
                 ) : (
-                  <div className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-5 lg:mb-0 lg:grid-cols-3 lg:gap-4">
+                  <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:mb-0 lg:grid-cols-3 lg:gap-4">
                     {dbCategories.map((cat) => {
                       const isSelected = selectedCat === cat._id;
                       const Icon = iconMap[cat.icon] || ShieldCheck;
+                      const [color1, color2] = getCategoryColors(cat.color);
+                      const baseColor = cat.color || '#6C63FF';
+                      const isDark = document.documentElement.getAttribute('data-theme-mode') !== 'light';
+                      
                       return (
                         <button
                           key={cat._id}
                           onClick={() => handleQuickSelect(cat)}
                           disabled={loading}
+                          style={{
+                            borderColor: isSelected ? color1 : (isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'),
+                            boxShadow: isSelected 
+                              ? `0 10px 25px -5px ${baseColor}33, 0 8px 10px -6px ${baseColor}33`
+                              : 'none',
+                          }}
                           className={`
-                            relative overflow-hidden rounded-3xl border-2 p-5 transition-all duration-300 transform group sm:p-8 lg:rounded-2xl lg:p-5 lg:text-left lg:hover:-translate-y-0.5
-                            ${isSelected
-                              ? 'border-primary bg-primary/10 scale-105 shadow-xl shadow-primary/10 opacity-70 lg:scale-100 lg:shadow-none'
-                              : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 lg:border-white/10'
-                            }
+                            relative h-[154px] w-full text-left overflow-hidden rounded-[28px] border-[1.5px] p-5 transition-all duration-300 transform group hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between
+                            ${isDark ? 'bg-white/[0.03] hover:bg-white/[0.06]' : 'bg-black/[0.02] hover:bg-black/[0.04]'}
+                            ${isSelected ? 'scale-[1.02]' : ''}
                           `}
                         >
-                          <div className={`w-14 h-14 rounded-2xl mb-4 mx-auto flex items-center justify-center transition-all lg:mx-0 lg:h-11 lg:w-11 lg:rounded-xl ${isSelected ? 'bg-primary text-white' : 'bg-white/5 text-text-muted group-hover:text-white'}`}>
-                            {loading && isSelected ? <Loader2 className="w-7 h-7 animate-spin lg:h-5 lg:w-5" /> : <Icon className="w-7 h-7 lg:h-5 lg:w-5" />}
-                          </div>
-                          <h3 className={`text-xl font-black mb-1 lg:text-base ${isSelected ? 'text-white' : 'text-text-primary'}`}>{cat.name}</h3>
-                          <p className="text-[10px] uppercase font-black tracking-widest text-text-muted">Göz At</p>
+                          {/* Radial Background Glow */}
+                          <div 
+                            className="absolute -top-12 -right-12 w-40 h-40 rounded-full pointer-events-none blur-2xl transition-opacity duration-300 opacity-60 group-hover:opacity-100"
+                            style={{
+                              background: `radial-gradient(circle, ${baseColor}2d 0%, transparent 70%)`
+                            }}
+                          />
 
+                          {/* Decorative Large Background Icon */}
+                          <div className="absolute -right-2 -top-2 opacity-5 pointer-events-none transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
+                            <Icon className="w-28 h-28" style={{ color: baseColor }} />
+                          </div>
+
+                          {/* Icon Badge */}
+                          <div 
+                            className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300"
+                            style={{
+                              background: `linear-gradient(135deg, ${color1}, ${color2})`,
+                              boxShadow: `0px 4px 12px ${baseColor}59`,
+                            }}
+                          >
+                            {loading && isSelected ? (
+                              <Loader2 className="w-5 h-5 animate-spin text-white" />
+                            ) : (
+                              <Icon className="w-5 h-5 text-white" />
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="z-10 mt-2">
+                            <h3 className={`text-[17px] font-extrabold mb-1 transition-colors leading-snug ${isDark ? 'text-white' : 'text-text-primary'}`}>
+                              {cat.name}
+                            </h3>
+                            <p className="text-[11px] font-medium text-text-muted line-clamp-2">
+                              {cat.description || 'Eğitim paketini incele ve başla'}
+                            </p>
+                          </div>
+
+                          {/* Glowing Arrow Button */}
+                          <div 
+                            className="absolute right-4 bottom-4 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 transform group-hover:translate-x-0.5"
+                            style={{
+                              background: `linear-gradient(135deg, ${color1}, ${color2})`,
+                              boxShadow: `0px 3px 8px ${baseColor}40`,
+                            }}
+                          >
+                            <ArrowRight className="w-4 h-4 text-white" />
+                          </div>
+
+                          {/* Selection indicator dot */}
                           {isSelected && (
-                            <Motion.div layoutId="modalSelected" className="absolute top-3 right-3 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(108,99,255,0.8)] lg:shadow-none" />
+                            <div 
+                              className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full"
+                              style={{
+                                backgroundColor: baseColor,
+                                boxShadow: `0 0 10px ${baseColor}`,
+                              }}
+                            />
                           )}
                         </button>
                       );
