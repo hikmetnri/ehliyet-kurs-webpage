@@ -128,7 +128,7 @@ const UserLayout = ({ fullscreen = false }) => {
   }, [fetchUnreadCount]);
 
   return (
-    <div className="flex bg-bg-dark min-h-screen text-text-primary overflow-hidden lg:bg-bg-dark">
+    <div className="min-h-screen bg-black text-text-primary flex items-center justify-center overflow-hidden">
       
       {/* Onboarding Modals */}
 
@@ -137,32 +137,17 @@ const UserLayout = ({ fullscreen = false }) => {
         required
       />
 
-      <UserSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
+      {/* Main Content (Centered Mobile Viewport) */}
+      <div className="w-full max-w-[480px] h-screen bg-bg-dark border-x border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] relative flex flex-col overflow-hidden">
         {/* Topbar */}
-        <header className={`h-14 lg:h-[72px] bg-bg-card/95 backdrop-blur-xl border-b border-border-color flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-8 sticky top-0 z-10 shrink-0 ${hideHeaderOnMobile ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded-xl border border-white/5 bg-white/[0.03] text-text-muted transition-colors hover:bg-white/5 hover:text-white hidden"
-              aria-label="Menüyü aç"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="min-w-0 lg:hidden">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-light">
-                Ehliyet Yolu
+        <header className="h-14 bg-bg-card/95 backdrop-blur-xl border-b border-border-color flex items-center justify-between gap-3 px-4 sticky top-0 z-10 shrink-0">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-primary-light">
+                {currentPage.title === 'Ana Sayfa' ? 'Ehliyet Yolu' : currentPage.kicker}
               </p>
               <h2 className="truncate text-sm font-black leading-tight tracking-tight text-text-primary">
-                Öğrenci Paneli
-              </h2>
-            </div>
-            <div className="hidden min-w-0 lg:block">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-text-muted">{currentPage.kicker}</p>
-              <h2 className="mt-1 max-w-[42vw] truncate text-xl font-black leading-tight tracking-tight text-text-primary">
-                {currentPage.title}
+                {currentPage.title === 'Ana Sayfa' ? 'Öğrenci Paneli' : currentPage.title}
               </h2>
             </div>
           </div>
@@ -234,15 +219,6 @@ const UserLayout = ({ fullscreen = false }) => {
 
             {/* User XP Badge */}
             <Link to="/dashboard/settings" className="flex items-center gap-2 border-l border-border-color pl-2 sm:gap-3 sm:pl-3 lg:pl-4 hover:opacity-85 transition-opacity cursor-pointer">
-              <div className="hidden max-w-[180px] text-right sm:block lg:max-w-[220px]">
-                <p className="truncate text-xs font-bold leading-none text-text-primary">{fullName}</p>
-                <div className="flex items-center justify-end gap-1.5 mt-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-success" />
-                  <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
-                    Seviye {user?.level || 1} • {user?.totalScore || 0} XP
-                  </p>
-                </div>
-              </div>
               <div className="relative">
                 <div className="h-9 w-9 rounded-[13px] bg-gradient-to-br from-primary to-accent p-[2px] shadow-lg shadow-primary/20 sm:h-10 sm:w-10 sm:rounded-[14px] lg:bg-white/10 lg:shadow-none">
                   <div className="w-full h-full bg-bg-dark rounded-[12px] flex items-center justify-center overflow-hidden lg:bg-bg-card">
@@ -266,7 +242,7 @@ const UserLayout = ({ fullscreen = false }) => {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto px-4 py-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:p-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
+        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0 pb-[84px]' : 'overflow-y-auto px-4 py-4 pb-[84px] custom-scrollbar'}`}>
           <Outlet context={{ themeMode, toggleThemeMode, changeThemeMode, isThemeLocked }} />
         </main>
         {!hideFloatingAIChat && <FloatingAIChat />}

@@ -510,7 +510,7 @@ const UserSettings = () => {
       )}
 
       {/* ── DESKTOP VIEW ── */}
-      <div className="hidden lg:block">
+      <div className="hidden">
         <div className="mx-auto max-w-[1360px] px-4">
           <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_1fr_340px] gap-6 items-start">
             
@@ -1710,7 +1710,7 @@ const UserSettings = () => {
       </div>
 
       {/* ── MOBILE VIEW (Aligns with Flutter profile_screen.dart) ── */}
-      <div className="block lg:hidden space-y-6 px-1 pb-32">
+      <div className="block space-y-6 px-1 pb-10">
         {/* Header Block */}
         <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-[#20193A] to-[#101827] p-5 shadow-lg shadow-black/25">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />

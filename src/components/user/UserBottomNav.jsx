@@ -46,7 +46,7 @@ const UserBottomNav = () => {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#16161f]/95 shadow-[0_-6px_18px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:hidden">
+    <nav className="absolute inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#16161f]/95 shadow-[0_-6px_18px_rgba(0,0,0,0.3)] backdrop-blur-xl">
       <div className="grid h-[74px] grid-cols-5 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
           const active = isActive(item);

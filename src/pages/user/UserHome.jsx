@@ -526,7 +526,7 @@ const UserHome = () => {
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* DESKTOP VIEW */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="hidden lg:block w-full pb-10">
+      <div className="hidden">
         <div className="mx-auto grid max-w-[1360px] gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
           <section className="min-w-0 space-y-6">
             <Motion.div
@@ -1264,7 +1264,7 @@ const UserHome = () => {
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* MOBILE VIEW (FLUTTER DASHBOARD STYLE) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="block lg:hidden space-y-4 pb-24 px-1 sm:px-2">
+      <div className="block space-y-4 pb-10 px-1 sm:px-2">
         {/* Header (Flutter style) */}
         <div className="flex items-center justify-between py-3 px-1">
           <Link
