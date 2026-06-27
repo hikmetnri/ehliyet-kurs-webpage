@@ -481,41 +481,39 @@ const UserDrivingSchools = () => {
                 </p>
               )}
 
-              <div className={`mt-6 grid grid-cols-2 gap-2 ${isSponsorActive(school) ? 'sm:grid-cols-4' : 'sm:grid-cols-3'}`}>
-                {school.phone ? (
-                  <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-3.5 text-xs font-black text-white transition hover:bg-white/10">
-                    <Phone className="h-3.5 w-3.5" />
-                    Ara
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Telefon yok</span>
-                )}
-                {school.locationUrl ? (
-                  <a href={withProtocol(school.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20">
-                    <MapPin className="h-3.5 w-3.5" />
-                    Konum
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Konum yok</span>
-                )}
-                {school.websiteUrl ? (
-                  <a href={withProtocol(school.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-3.5 text-xs font-black text-primary-light transition hover:bg-primary/20">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Web
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Web yok</span>
-                )}
-                {isSponsorActive(school) && (
-                  <button
-                    onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
-                  >
-                    <Send className="h-3.5 w-3.5" />
-                    Başvur
-                  </button>
-                )}
-              </div>
+               <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                 {school.phone ? (
+                   <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-3.5 text-xs font-black text-white transition hover:bg-white/10">
+                     <Phone className="h-3.5 w-3.5" />
+                     Ara
+                   </a>
+                 ) : (
+                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Telefon yok</span>
+                 )}
+                 {school.locationUrl ? (
+                   <a href={withProtocol(school.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20">
+                     <MapPin className="h-3.5 w-3.5" />
+                     Konum
+                   </a>
+                 ) : (
+                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Konum yok</span>
+                 )}
+                 {school.websiteUrl ? (
+                   <a href={withProtocol(school.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-3.5 text-xs font-black text-primary-light transition hover:bg-primary/20">
+                     <ExternalLink className="h-3.5 w-3.5" />
+                     Web
+                   </a>
+                 ) : (
+                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Web yok</span>
+                 )}
+                 <button
+                   onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
+                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
+                 >
+                   <Send className="h-3.5 w-3.5" />
+                   Başvur
+                 </button>
+               </div>
             </Motion.article>
           ))}
           </div>
