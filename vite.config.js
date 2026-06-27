@@ -31,6 +31,26 @@ const copyStaticFiles = () => ({
 export default defineConfig({
   plugins: [react(), tailwindcss(), copyStaticFiles()],
   base: './',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts') || id.includes('d3')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            return 'vendor-core';
+          }
+        }
+      }
+    }
+  },
   server: {
     host: '127.0.0.1',
     port: 5173,

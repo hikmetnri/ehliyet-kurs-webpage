@@ -167,8 +167,11 @@ const Login = () => {
           <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary-light to-transparent opacity-80"></div>
           
           <div className="text-center mb-10">
-            <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-white shadow-2xl shadow-primary/20 ring-1 ring-white/70 flex items-center justify-center overflow-hidden p-1.5">
-              <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-full h-full object-contain rounded-full drop-shadow-sm animate-pulse" />
+            <div className="w-24 h-24 mx-auto mb-5 rounded-[24px] p-[3px] bg-gradient-to-tr from-primary via-[#8A30FF] to-cyan-400 shadow-[0_0_30px_rgba(108,99,255,0.4)] flex items-center justify-center relative group select-none">
+              <div className="absolute inset-0 rounded-[24px] bg-primary/20 blur-md -z-10 group-hover:bg-primary/30 transition-colors"></div>
+              <div className="w-full h-full bg-[#121422] rounded-[21px] flex items-center justify-center overflow-hidden">
+                <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" className="w-[86%] h-[86%] object-contain drop-shadow-sm group-hover:scale-110 transition-transform duration-500" />
+              </div>
             </div>
             <h2 className="text-3xl font-black tracking-tight text-white mb-2">Hoş Geldiniz</h2>
             <p className="text-text-muted font-medium">Ehliyet Yolu eğitim platformuna giriş yapın</p>

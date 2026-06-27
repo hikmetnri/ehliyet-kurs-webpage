@@ -99,7 +99,13 @@ export default function FloatingAIChat() {
   });
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [promptCount, setPromptCount] = useState(0);
+  const [promptCount, setPromptCount] = useState(() => {
+    if (user?.isGuest) {
+      const credits = parseInt(localStorage.getItem('guest_ai_credits') ?? '5', 10);
+      return 5 - credits;
+    }
+    return 0;
+  });
   const [limit, setLimit] = useState(20);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [errorText, setErrorText] = useState('');
@@ -109,7 +115,8 @@ export default function FloatingAIChat() {
   const messagesEndRef = useRef(null);
 
   const contextHint = useMemo(() => getContextHint(location.pathname), [location.pathname]);
-  const remainingPrompts = Math.max(0, limit - promptCount);
+  const activeLimit = user?.isGuest ? 5 : limit;
+  const remainingPrompts = Math.max(0, activeLimit - promptCount);
 
   useEffect(() => {
     sessionStorage.setItem('ehliyet_yolu_ai_chat', JSON.stringify(messages));
@@ -117,6 +124,16 @@ export default function FloatingAIChat() {
   }, [messages, open]);
 
   useEffect(() => {
+    if (user?.isGuest) {
+      const syncGuestCredits = () => {
+        const credits = parseInt(localStorage.getItem('guest_ai_credits') ?? '5', 10);
+        setPromptCount(5 - credits);
+      };
+      syncGuestCredits();
+      window.addEventListener('storage', syncGuestCredits);
+      return () => window.removeEventListener('storage', syncGuestCredits);
+    }
+
     const fetchPromptCount = async () => {
       try {
         const res = await api.get('/users/me');
@@ -127,7 +144,7 @@ export default function FloatingAIChat() {
       }
     };
     fetchPromptCount();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const syncContext = () => setPageContext(getAiPageContext());
@@ -165,7 +182,7 @@ export default function FloatingAIChat() {
     const text = textToSend || inputText;
     if (!text.trim() || loading) return;
 
-    if (!user?.proStatus && promptCount >= limit) {
+    if (!user?.proStatus && promptCount >= activeLimit) {
       setShowLimitModal(true);
       return;
     }
@@ -185,12 +202,19 @@ export default function FloatingAIChat() {
       }, { timeout: 45000 });
       const assistantMessage = { role: 'assistant', content: res.data?.reply || 'Şu an yanıt üretemedim.', isNew: true };
       setMessages((prev) => [...prev, assistantMessage]);
-      if (res.data?.promptCount !== undefined) setPromptCount(res.data.promptCount);
-      if (res.data?.limit !== undefined) setLimit(res.data.limit);
+      if (user?.isGuest) {
+        const currentCredits = parseInt(localStorage.getItem('guest_ai_credits') ?? '5', 10);
+        const newCredits = Math.max(0, currentCredits - 1);
+        localStorage.setItem('guest_ai_credits', String(newCredits));
+        setPromptCount(5 - newCredits);
+      } else {
+        if (res.data?.promptCount !== undefined) setPromptCount(res.data.promptCount);
+        if (res.data?.limit !== undefined) setLimit(res.data.limit);
+      }
     } catch (err) {
       const isLimitError = err.response?.status === 403 && err.response?.data?.limitReached;
       if (isLimitError) {
-        setPromptCount(limit);
+        setPromptCount(activeLimit);
         setShowLimitModal(true);
         setMessages((prev) => prev.slice(0, -1));
       } else {
@@ -230,7 +254,7 @@ export default function FloatingAIChat() {
                 <div className="min-w-0">
                   <h2 className="truncate text-sm font-black text-white">Yolla AI</h2>
                   <p className="truncate text-[10px] font-bold uppercase tracking-widest text-text-muted">
-                    {user?.proStatus ? 'Sınırsız PRO' : `${remainingPrompts}/${limit} hak kaldı`}
+                    {user?.proStatus ? 'Sınırsız PRO' : `${remainingPrompts}/${activeLimit} hak kaldı`}
                   </p>
                 </div>
               </div>
@@ -429,18 +453,28 @@ export default function FloatingAIChat() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-500/25 bg-amber-500/10">
                 <Crown className="h-7 w-7 text-amber-400" />
               </div>
-              <h3 className="text-lg font-black text-white">Günlük AI sınırı doldu</h3>
+              <h3 className="text-lg font-black text-white">
+                {user?.isGuest ? 'AI Sınırına Ulaştınız' : 'Günlük AI Sınırı Doldu'}
+              </h3>
               <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
-                Ücretsiz planda günlük yapay zeka danışmanlığı limitine ulaştın.
+                {user?.isGuest 
+                  ? 'Misafir modu için tanımlanan 5 adet ücretsiz mesaj limitiniz dolmuştur.' 
+                  : 'Ücretsiz planda günlük yapay zeka danışmanlığı limitine ulaştın.'}
               </p>
               <button
                 onClick={() => {
                   setShowLimitModal(false);
-                  navigate('/dashboard/settings');
+                  if (user?.isGuest) {
+                    const logout = useAuthStore.getState().logout;
+                    logout();
+                    navigate('/login');
+                  } else {
+                    navigate('/dashboard/settings');
+                  }
                 }}
                 className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-amber-500 text-xs font-black uppercase tracking-widest text-white"
               >
-                PRO Sürüme Geç
+                {user?.isGuest ? 'Üye Ol' : 'PRO Sürüme Geç'}
               </button>
               <button
                 onClick={() => setShowLimitModal(false)}

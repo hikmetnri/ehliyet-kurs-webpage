@@ -21,6 +21,8 @@ import {
   readApiList,
 } from '../../utils/wrongAnswers';
 
+import GuestBlocker from '../../components/user/GuestBlocker';
+
 const MotionDiv = motion.div;
 
 const getTopic = (question) => (
@@ -34,6 +36,16 @@ const getCorrectReviewCount = (question) => (
 const UserWrongAnswers = ({ onCountChange }) => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+
+  if (user?.isGuest) {
+    return (
+      <GuestBlocker 
+        title="Yanlışlarınızı Takip Etmek İçin Üye Olun" 
+        description="Çözdüğünüz testlerdeki hataları görmek, yanlışlarınızı tekrar çözerek ilerlemek ve istatistiklerinizi kaydetmek için lütfen ücretsiz üye olun. Misafir modunda yaptığınız yanlışlar üye olduğunuzda otomatik olarak hesabınıza aktarılacaktır."
+      />
+    );
+  }
+
   const [questions, setQuestions] = useState([]);
   const [dueQuestions, setDueQuestions] = useState([]);
   const [loading, setLoading] = useState(true);

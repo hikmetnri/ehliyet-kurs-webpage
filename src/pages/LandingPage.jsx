@@ -263,7 +263,7 @@ const LandingPage = () => {
             <div className="flex items-center gap-3 sm:gap-6 pr-1 sm:pr-0">
               <button 
                 onClick={handleGuestEntry} 
-                className="hidden xs:block text-sm sm:text-base font-bold text-white/50 hover:text-white transition-colors px-2 py-2"
+                className="hidden sm:block text-sm sm:text-base font-bold text-white/50 hover:text-white transition-colors px-2 py-2"
               >
                 Giriş Yapmadan Devam Et
               </button>

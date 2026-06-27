@@ -2081,7 +2081,7 @@ const UserSettings = () => {
                 </div>
                 {!user?.proStatus && (
                   <button
-                    onClick={() => showMessage('success', "Özellik yakında aktif olacaktır!")}
+                    onClick={() => showMessage('error', "Premium abonelik işlemleri güvenlik ve faturalandırma kuralları nedeniyle yalnızca mobil uygulamamız (Google Play & App Store) üzerinden gerçekleştirilebilir.")}
                     className="px-3 py-1 bg-accent hover:bg-accent-light text-bg-dark font-black text-[10px] rounded-lg transition-colors whitespace-nowrap"
                   >
                     PRO Ol

@@ -257,16 +257,7 @@ const UserExamSolve = ({ customType }) => {
   let guestBlockNode = null;
   if (user?.isGuest) {
     const solvedCount = parseInt(localStorage.getItem('guest_solved_test_count') || '0', 10);
-    if (!fromQuickStart) {
-      guestBlockNode = (
-        <div className="min-h-screen bg-[#050508] text-white pt-16 flex items-center justify-center">
-          <GuestBlocker 
-            title="Sınav Çözmek İçin Üye Olun" 
-            description="Tüm sınav modlarına erişmek, testleri çözmek ve ilerlemenizi kaydetmek için lütfen giriş yapın veya yeni bir hesap oluşturun." 
-          />
-        </div>
-      );
-    } else if (solvedCount >= 4) {
+    if (solvedCount >= 4) {
       guestBlockNode = (
         <div className="min-h-screen bg-[#050508] text-white pt-16 flex items-center justify-center">
           <GuestBlocker 

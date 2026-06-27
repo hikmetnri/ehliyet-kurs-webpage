@@ -212,7 +212,8 @@ export default function UserAIChat() {
     }
   };
 
-  const remainingPrompts = limit - promptCount;
+  const activeLimit = user?.isGuest ? 5 : limit;
+  const remainingPrompts = activeLimit - promptCount;
 
   return (
     <div className="mx-auto max-w-5xl pb-24 px-4 h-[calc(100vh-120px)] min-h-[500px] flex flex-col">
@@ -430,7 +431,7 @@ export default function UserAIChat() {
           {/* Footer Warning Counter */}
           {user?.isGuest ? (
             <div className="mt-2 text-center text-[10px] text-text-muted font-bold tracking-wide uppercase">
-              Misafir ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {limit}. Daha fazla hak için{' '}
+              Misafir ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {activeLimit}. Daha fazla hak için{' '}
               <span 
                 onClick={() => {
                   const logout = useAuthStore.getState().logout;
@@ -444,7 +445,7 @@ export default function UserAIChat() {
             </div>
           ) : !user?.proStatus ? (
             <div className="mt-2 text-center text-[10px] text-text-muted font-bold tracking-wide uppercase">
-              Günlük ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {limit}. Daha fazla hak için{' '}
+              Günlük ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {activeLimit}. Daha fazla hak için{' '}
               <span 
                 onClick={() => navigate('/dashboard/settings')} 
                 className="text-primary-light underline cursor-pointer hover:text-white transition-colors"
@@ -484,7 +485,7 @@ export default function UserAIChat() {
               <p className="text-text-secondary text-sm font-semibold mt-2.5 leading-relaxed">
                 {user?.isGuest 
                   ? 'Misafir modu için tanımlanan 5 adet ücretsiz mesaj limitiniz dolmuştur.' 
-                  : `Ücretsiz planda günlük yapay zeka danışmanlığı limitiniz (${limit} soru) dolmuştur.`}
+                  : `Ücretsiz planda günlük yapay zeka danışmanlığı limitiniz (${activeLimit} soru) dolmuştur.`}
               </p>
               
               <div className="my-5 p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-left text-xs font-semibold space-y-2 text-text-muted">
