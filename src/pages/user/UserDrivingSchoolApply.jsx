@@ -21,6 +21,27 @@ const withProtocol = (value) => {
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
 };
 
+const OPERATOR_TYPES = [
+  'Forklift (Portif)',
+  'Kazıcı-Yükleyici (Beko Loder)',
+  'Ekskavatör (Kanal Kazıyıcı)',
+  'Mobil Vinç',
+  'Kule Vinç',
+  'Tavan Vinci',
+  'Greyder',
+  'Loder (Yükleyici)',
+  'Silindir (Yol Silindiri)',
+  'Sepetli Platform (Manlift / Platform)',
+  'Dozer (Buldozer)',
+  'Mini Yükleyici (Bobcat)',
+  'Teleskopik Yükleyici (Manitou)',
+  'Beton Pompası',
+  'Zemin Süpürme Makinesi',
+  'Transpalet (Elektrikli / Akülü)',
+  'Sondaj Makinesi',
+  'Asfalt Serici (Finişer)',
+];
+
 const UserDrivingSchoolApply = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -34,6 +55,7 @@ const UserDrivingSchoolApply = () => {
   const [formName, setFormName] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formLicenseClass, setFormLicenseClass] = useState('');
+  const [formOperatorType, setFormOperatorType] = useState('');
   const [formPeriod, setFormPeriod] = useState('En yakın dönem');
   const [formMessage, setFormMessage] = useState('');
   
@@ -74,6 +96,10 @@ const UserDrivingSchoolApply = () => {
       alert('Lütfen adınızı ve soyadınızı girin.');
       return;
     }
+    if (formLicenseClass === 'G' && !formOperatorType) {
+      alert('Lütfen iş makinesi türünü seçin.');
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -83,7 +109,9 @@ const UserDrivingSchoolApply = () => {
         phone: formPhone.trim(),
         requestedLicenseClass: formLicenseClass,
         preferredPeriod: formPeriod,
-        message: formMessage.trim(),
+        message: formLicenseClass === 'G' && formOperatorType
+          ? `[İş Makinesi: ${formOperatorType}] ${formMessage.trim()}`.trim()
+          : formMessage.trim(),
       });
       setSuccess(true);
     } catch (err) {
@@ -232,15 +260,22 @@ const UserDrivingSchoolApply = () => {
               <label className={labelClass}>Ehliyet Sınıfı *</label>
               <select
                 value={formLicenseClass}
-                onChange={(e) => setFormLicenseClass(e.target.value)}
+                onChange={(e) => {
+                  setFormLicenseClass(e.target.value);
+                  if (e.target.value !== 'G') {
+                    setFormOperatorType('');
+                  }
+                }}
                 className={selectClass}
               >
                 <option value="" className="bg-[#1e2038]">Sınıf Seçin</option>
                 {(school?.licenseClasses && school.licenseClasses.length > 0
                   ? school.licenseClasses
-                  : ['A', 'B', 'C', 'D']
+                  : ['A', 'B', 'C', 'D', 'G']
                 ).map((cls) => (
-                  <option key={cls} value={cls} className="bg-[#1e2038]">{cls} Sınıfı</option>
+                  <option key={cls} value={cls} className="bg-[#1e2038]">
+                    {cls === 'G' ? 'G Sınıfı (İş Makinesi)' : `${cls} Sınıfı`}
+                  </option>
                 ))}
               </select>
             </div>
@@ -257,6 +292,28 @@ const UserDrivingSchoolApply = () => {
               </select>
             </div>
           </div>
+
+          {formLicenseClass === 'G' && (
+            <Motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="rounded-2xl border border-cyan-500/20 bg-cyan-500/[0.02] p-5 space-y-3 overflow-hidden"
+            >
+              <label className={labelClass}>İş Makinesi Operatörlük Belgesi Türü *</label>
+              <select
+                value={formOperatorType}
+                onChange={(e) => setFormOperatorType(e.target.value)}
+                required
+                className={selectClass}
+              >
+                <option value="" className="bg-[#1e2038]">İş Makinesi Seçin</option>
+                {OPERATOR_TYPES.map((type) => (
+                  <option key={type} value={type} className="bg-[#1e2038]">{type}</option>
+                ))}
+                <option value="Diğer" className="bg-[#1e2038]">Diğer (Açıklamada Belirtin)</option>
+              </select>
+            </Motion.div>
+          )}
 
           <div>
             <label className={labelClass}>Mesaj / Ek Talep (İsteğe Bağlı)</label>
