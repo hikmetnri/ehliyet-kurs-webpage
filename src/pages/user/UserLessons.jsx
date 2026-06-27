@@ -349,13 +349,15 @@ const UserLessons = () => {
   const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState(false);
   const speechSessionRef = React.useRef(0);
 
-  const isMobile = true;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1280);
   const [mobileNavStack, setMobileNavStack] = useState([]);
   const [isSyllabusOpen, setIsSyllabusOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
-    // Mobil görünüm her zaman aktif
+    const handleResize = () => setIsMobile(window.innerWidth < 1280);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {

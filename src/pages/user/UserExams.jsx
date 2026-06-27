@@ -259,7 +259,7 @@ const UserExams = () => {
   return (
     <>
       {/* Desktop View */}
-      <div className="hidden">
+      <div className="hidden lg:block space-y-6 pb-10 text-white">
 
         {/* Header */}
         <div className="rounded-2xl border border-white/10 bg-[#0f1117] p-5 shadow-xl shadow-black/10">
@@ -659,7 +659,7 @@ const UserExams = () => {
       </div>
 
       {/* Mobile View */}
-      <div className="block space-y-6 pb-10 text-white">
+      <div className="block lg:hidden space-y-6 pb-24 text-white">
         {activeTab === 'real_sim_cat' ? (
           // MEB E-Sınav / Sınavlar View (ExamListScreen Parity)
           <div className="space-y-6 animate-fadeIn">
