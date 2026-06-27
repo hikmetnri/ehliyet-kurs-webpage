@@ -26,6 +26,16 @@ const REVIEW_SESSION_LIMIT = 20;
 const MotionDiv = motion.div;
 const MotionButton = motion.button;
 
+// Fisher-Yates shuffle — uniform dağılım sağlar (Math.random() comparator yanlıdır).
+const shuffleArray = (input) => {
+  const arr = [...input];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
 const cleanOptionText = (option, index) => {
   if (typeof option !== 'string') return `${OPTION_LABELS[index] || index + 1} Şıkkı`;
   const label = OPTION_LABELS[index];
@@ -44,9 +54,14 @@ const useTimer = (durationMinutes, onExpire, active = false) => {
   });
   const intervalRef = useRef(null);
   const onExpireRef = useRef(onExpire);
+  const remainingRef = useRef(durationSeconds);
   const remaining = timerState.durationSeconds === durationSeconds
     ? timerState.remaining
     : durationSeconds;
+
+  useEffect(() => {
+    remainingRef.current = remaining;
+  }, [remaining]);
 
   const setRemaining = useCallback((updater) => {
     setTimerState((prev) => {
@@ -69,7 +84,7 @@ const useTimer = (durationMinutes, onExpire, active = false) => {
 
   useEffect(() => {
     if (!active) return undefined;
-    if (remaining <= 0) { onExpireRef.current?.(); return undefined; }
+    if (remainingRef.current <= 0) { onExpireRef.current?.(); return undefined; }
     intervalRef.current = setInterval(() => {
       setRemaining(prev => {
         if (prev <= 1) { clearInterval(intervalRef.current); onExpireRef.current?.(); return 0; }
@@ -77,7 +92,7 @@ const useTimer = (durationMinutes, onExpire, active = false) => {
       });
     }, 1000);
     return () => clearInterval(intervalRef.current);
-  }, [active, remaining, setRemaining]);
+  }, [active, setRemaining]);
 
   const stop = () => clearInterval(intervalRef.current);
 
@@ -239,10 +254,11 @@ const UserExamSolve = ({ customType }) => {
 
   const fromQuickStart = location.state?.fromQuickStart;
 
+  let guestBlockNode = null;
   if (user?.isGuest) {
     const solvedCount = parseInt(localStorage.getItem('guest_solved_test_count') || '0', 10);
     if (!fromQuickStart) {
-      return (
+      guestBlockNode = (
         <div className="min-h-screen bg-[#050508] text-white pt-16 flex items-center justify-center">
           <GuestBlocker 
             title="Sınav Çözmek İçin Üye Olun" 
@@ -250,9 +266,8 @@ const UserExamSolve = ({ customType }) => {
           />
         </div>
       );
-    }
-    if (solvedCount >= 4) {
-      return (
+    } else if (solvedCount >= 4) {
+      guestBlockNode = (
         <div className="min-h-screen bg-[#050508] text-white pt-16 flex items-center justify-center">
           <GuestBlocker 
             title="Günlük Test Limitine Ulaştınız" 
@@ -279,13 +294,14 @@ const UserExamSolve = ({ customType }) => {
 
   useEffect(() => {
     fetchFavorites();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const fetchFavorites = async () => {
-    if (user?.isGuest) return;
+    if (!user || user.isGuest) return;
     try {
       const res = await api.get('/users/favorites');
-      const ids = res.data.favorites.map(f => f._id || f);
+      const ids = (res.data?.favorites || []).map(f => f._id || f);
       setFavoriteIds(ids);
     } catch {
       // Favori listesi yüklenemezse sınav akışı devam edebilir.
@@ -340,7 +356,7 @@ const UserExamSolve = ({ customType }) => {
           const qRes = await api.get('/questions');
           let allQ = qRes.data || [];
           // Random 50 questions
-          allQ = allQ.sort(() => 0.5 - Math.random()).slice(0, 50);
+          allQ = shuffleArray(allQ).slice(0, 50);
           
           setQuestions(allQ);
           setExam({
@@ -611,7 +627,9 @@ const UserExamSolve = ({ customType }) => {
           });
           await syncWrongAnswers();
         } else {
-          await api.post('/exam-results', resultPayload);
+          await api.post('/exam-results', resultPayload).catch((err) => {
+            console.warn('Sınav sonucu geçmişe kaydedilemedi:', err);
+          });
           await syncWrongAnswers();
         }
       }
@@ -651,6 +669,8 @@ const UserExamSolve = ({ customType }) => {
 
     return () => clearAiPageContext('exam_solve');
   }, [phase, q, exam, currentIdx, questions.length, currentAnswer, showFeedback, hasCurrentAnswer]);
+
+  if (guestBlockNode) return guestBlockNode;
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-64">

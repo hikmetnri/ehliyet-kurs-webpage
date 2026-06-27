@@ -1,0 +1,493 @@
+{
+  "appName": "Ehliyet Yolu (Driver School Exam Practice)",
+  "categories": {
+    "description": "List of official short tests categories, subjects and parents.",
+    "items": [
+      {
+        "parent": "İlk Yardım ve Sağlık Bilgisi",
+        "name": "Olay Yeri Güvenliği ve 112",
+        "subject": "ilkyardim"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Sürücü Belgesi ve Aday Sürücülük",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Karayolu Çeşitleri ve Yol Kullanımı",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Manevra, Dönüş ve Sollama Kuralları",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Geçiş Üstünlüğü ve Acil Araçlar",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Yaya, Okul ve Demiryolu Geçitleri",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Tehlike Algısı ve Savunmalı Sürüş",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Trafik Kazasında Sürücü Yükümlülükleri",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Yük, Yolcu ve Arızalı Araç Kuralları",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Çevre Bilgisi",
+        "name": "Harita ve Navigasyon Kullanımı",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Motor Bilgisi",
+        "name": "Araç Kullanımına Hazırlık ve Günlük Kontroller",
+        "subject": "motor"
+      },
+      {
+        "parent": "Motor Bilgisi",
+        "name": "Aktif ve Pasif Güvenlik Sistemleri",
+        "subject": "motor"
+      },
+      {
+        "parent": "Motor Bilgisi",
+        "name": "Araçta Zorunlu Araç ve Gereçler",
+        "subject": "motor"
+      },
+      {
+        "parent": "Trafik Adabı",
+        "name": "Trafikte İletişim, Öfke ve Stres Yönetimi",
+        "subject": "adabi"
+      },
+      {
+        "parent": "Trafik Adabı",
+        "name": "Trafikte Hak İhlalleri ve Öz Denetim",
+        "subject": "adabi"
+      },
+      {
+        "parent": "Araç Belgeleri ve Sigortası",
+        "name": "Araç Muayenesi (TÜVTÜRK)",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Araç Belgeleri ve Sigortası",
+        "name": "Araç Ruhsatı ve Trafik Tescili",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Araç Belgeleri ve Sigortası",
+        "name": "Trafik Cezaları ve Puan Sistemi",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Araç Belgeleri ve Sigortası",
+        "name": "Zorunlu Trafik Sigortası ve Kasko",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Çevre Bilgisi",
+        "name": "Egzoz Emisyonları ve Hava Kirliliği",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Işıklı İşaret Cihazları",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Motor Bilgisi",
+        "name": "Lastik ve Tekerlek Bakımı",
+        "subject": "motor"
+      },
+      {
+        "parent": "Motor Bilgisi",
+        "name": "Motor Göstergeleri",
+        "subject": "motor"
+      },
+      {
+        "parent": "Trafik Adabı",
+        "name": "Trafikte Saygı ve Empati",
+        "subject": "adabi"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Trafik İşaret Levhaları",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Kavşaklarda Geçiş Hakkı",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Takip Mesafesi ve Hız",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Manevra, Dönüş ve Sollama Kuralları",
+        "subject": "trafik"
+      },
+      {
+        "parent": "İlk Yardım ve Sağlık Bilgisi",
+        "name": "Temel Yaşam Desteği",
+        "subject": "ilkyardim"
+      },
+      {
+        "parent": "İlk Yardım ve Sağlık Bilgisi",
+        "name": "Olay Yeri Güvenliği ve 112",
+        "subject": "ilkyardim"
+      },
+      {
+        "parent": "Trafik Kuralları",
+        "name": "Yaya, Okul ve Demiryolu Geçitleri",
+        "subject": "trafik"
+      },
+      {
+        "parent": "Motor Bilgisi",
+        "name": "Aktif ve Pasif Güvenlik Sistemleri",
+        "subject": "motor"
+      }
+    ]
+  },
+  "exams": {
+    "description": "List of general mock exams mapped to questions.",
+    "items": [
+      {
+        "key": "mock1",
+        "name": "Deneme Sınavı 1",
+        "description": "Trafik, ilk yardım, motor ve trafik adabı konularından açıklamalı deneme.",
+        "duration": 45,
+        "isPro": false,
+        "testType": "mock_exam"
+      },
+      {
+        "key": "mock2",
+        "name": "Deneme Sınavı 2",
+        "description": "B sınıfı adayları için açıklamalı karma deneme sınavı.",
+        "duration": 45,
+        "isPro": true,
+        "testType": "mock_exam"
+      },
+      {
+        "key": "mock3",
+        "name": "Deneme Sınavı 3",
+        "description": "Resmi soru dağılımına uygun 50 soruluk B sınıfı deneme sınavı.",
+        "duration": 45,
+        "isPro": false,
+        "testType": "mock_exam"
+      },
+      {
+        "key": "mock4",
+        "name": "Deneme Sınavı 4",
+        "description": "Trafik, ilk yardım, araç tekniği ve trafik adabı ağırlıklı 50 soruluk deneme.",
+        "duration": 45,
+        "isPro": false,
+        "testType": "mock_exam"
+      }
+    ]
+  },
+  "schemas": {
+    "generalQuestion": {
+      "text": "Question text",
+      "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+      ],
+      "correctAnswer": "0 for A, 1 for B, 2 for C, 3 for D",
+      "difficulty": "easy | medium | hard",
+      "explanation": "Detailed explanation of the correct answer",
+      "subject": "trafik | ilkyardim | motor | adabi",
+      "testType": "mock_exam | official_short | test_sign"
+    },
+    "imageQuestion": {
+      "text": "Question text referring to image",
+      "media": "Local image path (e.g. assets/images/signs/Tehlike_T/t-1a.png) or Cloudinary URL",
+      "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+      ],
+      "correctAnswer": "0 for A, 1 for B, 2 for C, 3 for D",
+      "difficulty": "easy | medium | hard",
+      "explanation": "Detailed explanation of the correct answer"
+    }
+  },
+  "sampleQuestions": {
+    "shortTests": [
+      {
+        "categoryName": "Olay Yeri Güvenliği ve 112",
+        "parentCategory": "İlk Yardım ve Sağlık Bilgisi",
+        "subject": "ilkyardim",
+        "question": {
+          "text": "Bir trafik kazasına ilk ulaşan ilk yardımcının ilk yapması gereken işlem hangisidir?",
+          "options": [
+            "Olay yerinin güvenliğini sağlamak",
+            "Yaralıyı hemen araçtan çıkarmak",
+            "Yaralıya su içirmek",
+            "Kalabalığı olay yerine yaklaştırmak"
+          ],
+          "correctAnswer": 0,
+          "difficulty": "easy",
+          "explanation": "İlk yardımda ilk adım korumadır. Önce kendi güvenliğiniz, olay yerinin güvenliği ve yeni kaza riskinin azaltılması sağlanır."
+        }
+      },
+      {
+        "categoryName": "Sürücü Belgesi ve Aday Sürücülük",
+        "parentCategory": "Trafik Kuralları",
+        "subject": "trafik",
+        "question": {
+          "text": "Karayolunda araç kullanmayı öğrenen sürücü adayları için düzenlenen belge hangisidir?",
+          "options": [
+            "K sınıfı sürücü aday belgesi",
+            "Geçiş üstünlüğü belgesi",
+            "Araç muayene raporu",
+            "Sigorta poliçesi"
+          ],
+          "correctAnswer": 0,
+          "difficulty": "easy",
+          "explanation": "Sürücü adayları karayolunda eğitim ve sınav amacıyla K sınıfı sürücü aday belgesiyle araç kullanabilir."
+        }
+      },
+      {
+        "categoryName": "Karayolu Çeşitleri ve Yol Kullanımı",
+        "parentCategory": "Trafik Kuralları",
+        "subject": "trafik",
+        "question": {
+          "text": "Karayolu tanımı için doğru ifade hangisidir?",
+          "options": [
+            "Trafik için kamunun yararlanmasına açık arazi şeridi, köprüler ve alanlar",
+            "Sadece özel mülk içindeki yollar",
+            "Yalnız demiryolu hatları",
+            "Sadece kapalı otoparklar"
+          ],
+          "correctAnswer": 0,
+          "difficulty": "easy",
+          "explanation": "Karayolları Trafik Kanunu karayolunu, trafik için kamunun yararlanmasına açık yerler olarak tanımlar."
+        }
+      },
+      {
+        "categoryName": "Manevra, Dönüş ve Sollama Kuralları",
+        "parentCategory": "Trafik Kuralları",
+        "subject": "trafik",
+        "question": {
+          "text": "Şerit değiştirmeden önce yapılması gereken en doğru davranış hangisidir?",
+          "options": [
+            "Ayna ve kör nokta kontrolü yapıp sinyal vermek",
+            "Ani şekilde direksiyon kırmak",
+            "Sadece korna çalmak",
+            "Hızı artırıp sinyalsiz geçmek"
+          ],
+          "correctAnswer": 0,
+          "difficulty": "easy",
+          "explanation": "Manevra öncesi çevre kontrolü yapılmalı, diğer sürücülere niyet sinyalle bildirilmelidir."
+        }
+      },
+      {
+        "categoryName": "Geçiş Üstünlüğü ve Acil Araçlar",
+        "parentCategory": "Trafik Kuralları",
+        "subject": "trafik",
+        "question": {
+          "text": "Geçiş üstünlüğü hangi durumda kullanılabilir?",
+          "options": [
+            "Görev sırasında, can ve mal güvenliğini tehlikeye sokmadan",
+            "Her zaman ve her hızda",
+            "Sadece park ederken",
+            "Kişisel işleri hızlandırmak için"
+          ],
+          "correctAnswer": 0,
+          "difficulty": "easy",
+          "explanation": "Geçiş üstünlüğü görev halinde ve güvenlik şartı korunarak kullanılabilir."
+        }
+      }
+    ],
+    "generalExams": [
+      {
+        "examKey": "mock1",
+        "subject": "trafik",
+        "text": "Yerleşim yeri içinde aksine bir işaret yoksa otomobiller için azami hız sınırı saatte kaç kilometredir?",
+        "options": [
+          "30 km/s",
+          "50 km/s",
+          "70 km/s",
+          "90 km/s"
+        ],
+        "correctAnswer": 1,
+        "difficulty": "medium",
+        "explanation": "Yerleşim yeri içinde otomobiller için genel hız sınırı 50 km/saattir. Levha varsa levhadaki sınıra uyulur."
+      },
+      {
+        "examKey": "mock1",
+        "subject": "trafik",
+        "text": "Kavşağa yaklaşırken geçiş üstünlüğü olan bir ambulansın sesini duyan sürücü ne yapmalıdır?",
+        "options": [
+          "Kavşakta hızlanıp önceliği kullanmalıdır",
+          "Yol verip güvenli şekilde kenara çekilmelidir",
+          "Korna çalarak kavşağa giriş yapmalıdır",
+          "Ambulansın arkasına takılarak ilerlemelidir"
+        ],
+        "correctAnswer": 1,
+        "difficulty": "easy",
+        "explanation": "Geçiş üstünlüğü olan araçlara güvenli ve kontrollü biçimde yol verilmelidir. Bunun için fermuar sistemi uygulanarak acil geçiş koridoru açılır."
+      },
+      {
+        "examKey": "mock1",
+        "subject": "trafik",
+        "text": "Güvenli sürüş kurallarına göre takip mesafesi en az ne kadar olmalıdır?",
+        "options": [
+          "Aracın km/saat cinsinden hız değeri kadar metre",
+          "Aracın km/saat cinsinden hızının yarısı kadar metre",
+          "Aracın sınıfına bakılmaksızın sabit on metre",
+          "Güvenli sürüş için en az üç araç boyu mesafe"
+        ],
+        "correctAnswer": 1,
+        "difficulty": "medium",
+        "explanation": "Güvenli takip mesafesi pratikte hızın yarısı kadar metre kabul edilir. 90 km/sa hızda giden bir araç için bu mesafe en az 45 metredir."
+      },
+      {
+        "examKey": "mock1",
+        "subject": "trafik",
+        "text": "Sarı ışık yandığında kavşağa henüz girmemiş olan sürücü nasıl davranmalıdır?",
+        "options": [
+          "Hızını artırarak kavşaktan hızlıca geçmelidir",
+          "Güvenle durabileceği bir mesafedeyse durmalıdır",
+          "Korna çalarak şeridini sola doğru değiştirmelidir",
+          "Flaşörlerini yakarak hızını yarıya indirmelidir"
+        ],
+        "correctAnswer": 1,
+        "difficulty": "easy",
+        "explanation": "Sarı ışık, kırmızı ışığa hazırlık anlamındadır. Güvenli durma mesafesi varsa durulur, kavşak içine girilmişse dikkatle geçilir."
+      },
+      {
+        "examKey": "mock1",
+        "subject": "trafik",
+        "text": "Karayolları Trafik Kanununa göre emniyet şeridi hangi durumda kullanılabilir?",
+        "options": [
+          "Trafik yoğunluğu arttığında ilerlemek amacıyla",
+          "Acil durum, arıza ve zorunlu haller durumunda",
+          "Hızlı şeritteki araçları sağdan sollamak için",
+          "Mola vermek ve dinlenmek amacıyla park için"
+        ],
+        "correctAnswer": 1,
+        "difficulty": "easy",
+        "explanation": "Emniyet şeridi acil durum, arıza ve zorunlu haller içindir; normal seyir, geçiş veya park etmek için kullanılamaz."
+      }
+    ],
+    "trafficSigns": [
+      {
+        "text": "Görseldeki trafik işaret levhası neyi bildirir?",
+        "media": "assets/images/signs/Tehlike_T/t-1a.png",
+        "options": [
+          "Sağa tehlikeli viraj yaklaşıldığını",
+          "Sola tehlikeli viraj yaklaşıldığını",
+          "Yolda daralma meydana geldiğini",
+          "Kontrolsüz bir kavşağa girildiğini"
+        ],
+        "correctAnswer": 0,
+        "difficulty": "easy",
+        "explanation": "Sağa tehlikeli viraj levhası, ileride sağa doğru tehlikeli bir viraj olduğunu bildirir. Sürücü hızını azaltmalı, şeridini korumalı ve sollama yapmaktan kaçınmalıdır."
+      },
+      {
+        "text": "Görseldeki trafik işaret levhası neyi bildirir?",
+        "media": "assets/images/signs/Tehlike_T/t-1b.png",
+        "options": [
+          "Sola tehlikeli viraj yaklaşıldığını",
+          "Sağa tehlikeli viraj yaklaşıldığını",
+          "U dönüşü yapmanın yasaklandığını",
+          "Yolda kayganlık olduğunu bildiren levhayı"
+        ],
+        "correctAnswer": 0,
+        "difficulty": "easy",
+        "explanation": "Sola tehlikeli viraj levhası, ileride sola doğru tehlikeli bir viraj olduğunu bildirir. Sürücünün hızını azaltması ve şeridini muhafaza etmesi gerekir."
+      },
+      {
+        "text": "Bu trafik işaret levhası sürücüyü hangi tehlikeye karşı uyarır?",
+        "media": "assets/images/signs/Tehlike_T/t-2a.png",
+        "options": [
+          "İlki sağa olmak üzere devamlı virajları",
+          "İlki sola olmak üzere devamlı virajları",
+          "Daralan kaplama ve yol çalışması bölgesini",
+          "Kaygan zemin ve kontrolsüz kavşak alanını"
+        ],
+        "correctAnswer": 0,
+        "difficulty": "medium",
+        "explanation": "Bu levha, ilki sağa olmak üzere birbirini takip eden tehlikeli virajlar (devamlı virajlar) bulunduğunu bildirir. Sürücü hızını düşürmeli ve takip mesafesini artırmalıdır."
+      },
+      {
+        "text": "Görseldeki trafik işaret levhası ne anlama gelir?",
+        "media": "assets/images/signs/Tehlike_T/t-3a.png",
+        "options": [
+          "Tehlikeli eğim iniş bölgesini",
+          "Tehlikeli eğim çıkış bölgesini",
+          "Kaygan yola yaklaşıldığını",
+          "Kasisli yol kesimine girildiğini"
+        ],
+        "correctAnswer": 0,
+        "difficulty": "medium",
+        "explanation": "Tehlikeli eğim iniş levhası, ilerideki iniş eğiminin güvenli sürüşü zorlaştırabileceğini bildirir. Sürücü uygun vitesle inmeli, gereksiz frenlemeden kaçınmalıdır."
+      },
+      {
+        "text": "Görseldeki trafik işaret levhası sürücüyü hangi duruma hazırlar?",
+        "media": "assets/images/signs/Tehlike_T/t-4a.png",
+        "options": [
+          "Yolun her iki yandan daralacağına",
+          "Yolda bölünmüş kısma girileceğine",
+          "Sağa dönüşün yasaklandığına",
+          "Park yasağının başladığı bölgeye"
+        ],
+        "correctAnswer": 0,
+        "difficulty": "medium",
+        "explanation": "Her iki yandan daralan kaplama levhası, ileride yol genişliğinin azalacağını bildirir. Sürücü hızını azaltmalı ve karşıdan gelen araçla geçiş kolaylığı sağlamalıdır."
+      }
+    ]
+  },
+  "cloudinaryBaseUrl": "https://res.cloudinary.com/drysbbsd1/image/upload/f_auto,q_auto/",
+  "imageCatalog": {
+    "description": "List of valid and verified local image paths currently stored in the project. Use only these paths when generating questions with images.",
+    "trafficSigns": [
+      "assets/images/signs/Tehlike_T/t-1a.png",
+      "assets/images/signs/Tehlike_T/t-1b.png",
+      "assets/images/signs/Tehlike_T/t-2a.png",
+      "assets/images/signs/Tehlike_T/t-3a.png",
+      "assets/images/signs/Tehlike_T/t-4a.png",
+      "assets/images/signs/Tehlike_T/t-11.png",
+      "assets/images/signs/Tehlike_T/t-12.png",
+      "assets/images/signs/Tehlike_T/t-21.png",
+      "assets/images/signs/Tanzim_TT/tt-1.png",
+      "assets/images/signs/Tanzim_TT/tt-2.png",
+      "assets/images/signs/Tanzim_TT/tt-3.png",
+      "assets/images/signs/Tanzim_TT/tt-5.png",
+      "assets/images/signs/Tanzim_TT/tt-6.png",
+      "assets/images/signs/Tanzim_TT/tt-26a.png",
+      "assets/images/signs/Tanzim_TT/tt-26b.png",
+      "assets/images/signs/Tanzim_TT/tt-26c.png",
+      "assets/images/signs/Tanzim_TT/tt-27.png",
+      "assets/images/signs/Tanzim_TT/tt-29-50.png",
+      "assets/images/signs/Bilgi_B/b-15.png",
+      "assets/images/signs/Bilgi_B/b-16.png",
+      "assets/images/signs/Bilgi_B/b-19.png",
+      "assets/images/signs/Bilgi_B/b-32.png",
+      "assets/images/signs/Park_P/p-2.png",
+      "assets/images/signs/Park_P/p-1.png",
+      "assets/images/signs/Park_P/p-3a.png"
+    ]
+  }
+}
