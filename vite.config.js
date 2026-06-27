@@ -36,6 +36,15 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router') ||
+              id.includes('zustand') ||
+              id.includes('axios')
+            ) {
+              return 'vendor-core';
+            }
             if (id.includes('recharts') || id.includes('d3')) {
               return 'vendor-charts';
             }
@@ -45,7 +54,25 @@ export default defineConfig({
             if (id.includes('lucide-react')) {
               return 'vendor-icons';
             }
-            return 'vendor-core';
+            if (
+              id.includes('react-markdown') ||
+              id.includes('remark') ||
+              id.includes('rehype') ||
+              id.includes('micromark') ||
+              id.includes('unist') ||
+              id.includes('vfile') ||
+              id.includes('mdast') ||
+              id.includes('parse5') ||
+              id.includes('property-information') ||
+              id.includes('space-separated-tokens') ||
+              id.includes('comma-separated-tokens') ||
+              id.includes('decode-named-character-reference')
+            ) {
+              return 'vendor-markdown';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
           }
         }
       }
