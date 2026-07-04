@@ -2003,15 +2003,18 @@ const AdminExams = () => {
   return (
     <div className="space-y-6 pb-12">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Sınav Yönetimi & Soru Bankası</h1>
-          <p className="text-text-secondary text-sm mt-1">Kısa testleri, deneme sınavlarını, gerçek sınavları ve görselli soruları tek merkezden yönetin.</p>
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold text-primary-light uppercase tracking-widest">Sınav Yönetimi</p>
+            <h1 className="mt-1.5 text-2xl font-black text-white tracking-tight">Sınav & Soru Bankası</h1>
+            <p className="text-text-secondary text-sm mt-1">Kısa testleri, deneme sınavlarını, gerçek sınavları ve görselli soruları tek merkezden yönetin.</p>
+          </div>
+          <button onClick={handleRefresh} className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm text-text-secondary hover:text-white hover:bg-white/10 transition-all self-start sm:self-auto">
+            <RefreshCw className="w-4 h-4" /> Yenile
+          </button>
         </div>
-        <button onClick={handleRefresh} className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm text-text-secondary hover:text-white hover:bg-white/10 transition-all self-start sm:self-auto">
-          <RefreshCw className="w-4 h-4" /> Yenile
-        </button>
-      </div>
+      </section>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <ExamOverviewCard icon={BookOpen} label="Kısa Test Sorusu" value={shortCount} color="text-accent" bg="bg-accent/10" border="border-accent/20" />

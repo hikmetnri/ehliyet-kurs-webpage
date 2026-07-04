@@ -33,18 +33,11 @@ const getCorrectReviewCount = (question) => (
   Math.max(0, Math.min(3, Number(question.reviewStage || 0)))
 );
 
-const UserWrongAnswers = ({ onCountChange }) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// İç bileşen: Hook'ların her zaman çağrılması için guest check'i dışarı alındı
+// ─────────────────────────────────────────────────────────────────────────────
+const WrongAnswersList = ({ user, onCountChange }) => {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
-
-  if (user?.isGuest) {
-    return (
-      <GuestBlocker 
-        title="Yanlışlarınızı Takip Etmek İçin Üye Olun" 
-        description="Çözdüğünüz testlerdeki hataları görmek, yanlışlarınızı tekrar çözerek ilerlemek ve istatistiklerinizi kaydetmek için lütfen ücretsiz üye olun. Misafir modunda yaptığınız yanlışlar üye olduğunuzda otomatik olarak hesabınıza aktarılacaktır."
-      />
-    );
-  }
 
   const [questions, setQuestions] = useState([]);
   const [dueQuestions, setDueQuestions] = useState([]);
@@ -142,6 +135,7 @@ const UserWrongAnswers = ({ onCountChange }) => {
       return matchesFilter && searchable.includes(query);
     });
   }, [dueIds, filterMode, questions, searchTerm]);
+
   const filterOptions = [
     { id: 'all', label: 'Tümü', count: questions.length },
     { id: 'due', label: 'Bugün', count: dueCount },
@@ -293,68 +287,86 @@ const UserWrongAnswers = ({ onCountChange }) => {
       ) : (
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
           {visibleQuestions.map((question, index) => {
-          const id = normalizeId(question._id || question.questionId);
-          const isDueToday = dueIds.has(id);
-          const correctReviewCount = getCorrectReviewCount(question);
-          return (
-            <MotionDiv
-              key={id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.18, delay: Math.min(index * 0.012, 0.08) }}
-              className={`rounded-3xl border bg-white/[0.025] p-4 ${
-                isDueToday ? 'border-primary/25' : 'border-white/10'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${
-                  isDueToday
-                    ? 'border-primary/25 bg-primary/10 text-primary-light'
-                    : 'border-danger/20 bg-danger/10 text-danger'
-                }`}>
-                  {isDueToday ? <ClipboardList className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="min-w-0 flex-1 truncate text-[11px] font-black uppercase tracking-widest text-text-muted">
-                      {getTopic(question)}
+            const id = normalizeId(question._id || question.questionId);
+            const isDueToday = dueIds.has(id);
+            const correctReviewCount = getCorrectReviewCount(question);
+            return (
+              <MotionDiv
+                key={id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18, delay: Math.min(index * 0.012, 0.08) }}
+                className={`rounded-3xl border bg-white/[0.025] p-4 ${
+                  isDueToday ? 'border-primary/25' : 'border-white/10'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${
+                    isDueToday
+                      ? 'border-primary/25 bg-primary/10 text-primary-light'
+                      : 'border-danger/20 bg-danger/10 text-danger'
+                  }`}>
+                    {isDueToday ? <ClipboardList className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="min-w-0 flex-1 truncate text-[11px] font-black uppercase tracking-widest text-text-muted">
+                        {getTopic(question)}
+                      </p>
+                      {isDueToday && (
+                        <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary-light">
+                          Bugün
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 line-clamp-3 text-sm font-semibold leading-relaxed text-white">
+                      {question.text}
                     </p>
-                    {isDueToday && (
-                      <span className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary-light">
-                        Bugün
+                    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-black uppercase tracking-widest text-success">
+                      <span className="inline-flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        {correctReviewCount}/3 doğru tekrar
                       </span>
-                    )}
-                  </div>
-                  <p className="mt-2 line-clamp-3 text-sm font-semibold leading-relaxed text-white">
-                    {question.text}
-                  </p>
-                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-black uppercase tracking-widest text-success">
-                    <span className="inline-flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      {correctReviewCount}/3 doğru tekrar
-                    </span>
-                    <span className="flex items-center gap-1">
-                      {[0, 1, 2].map((step) => (
-                        <span
-                          key={step}
-                          className={`h-1.5 w-5 rounded-full ${
-                            step < correctReviewCount
-                              ? 'bg-success'
-                              : 'bg-white/10'
-                          }`}
-                        />
-                      ))}
-                    </span>
+                      <span className="flex items-center gap-1">
+                        {[0, 1, 2].map((step) => (
+                          <span
+                            key={step}
+                            className={`h-1.5 w-5 rounded-full ${
+                              step < correctReviewCount
+                                ? 'bg-success'
+                                : 'bg-white/10'
+                            }`}
+                          />
+                        ))}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </MotionDiv>
-          );
+              </MotionDiv>
+            );
           })}
         </div>
       )}
     </div>
   );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dışa aktarılan wrapper: guest kontrolü burada yapılır, hook kuralları korunur
+// ─────────────────────────────────────────────────────────────────────────────
+const UserWrongAnswers = ({ onCountChange }) => {
+  const user = useAuthStore((state) => state.user);
+
+  if (user?.isGuest) {
+    return (
+      <GuestBlocker
+        title="Yanlışlarınızı Takip Etmek İçin Üye Olun"
+        description="Çözdüğünüz testlerdeki hataları görmek, yanlışlarınızı tekrar çözerek ilerlemek ve istatistiklerinizi kaydetmek için lütfen ücretsiz üye olun. Misafir modunda yaptığınız yanlışlar üye olduğunuzda otomatik olarak hesabınıza aktarılacaktır."
+      />
+    );
+  }
+
+  return <WrongAnswersList user={user} onCountChange={onCountChange} />;
 };
 
 export default UserWrongAnswers;

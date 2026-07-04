@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  FileQuestion,
-  GraduationCap,
+  ClipboardList,
+  HelpCircle,
   Home,
   Radio,
   User,
@@ -10,21 +10,21 @@ import {
 
 const items = [
   { to: '/dashboard', label: 'Ana Sayfa', icon: Home, exact: true },
-  { to: '/dashboard/feed', label: 'Akış', icon: Radio },
   {
     to: '/dashboard/exams?tab=real_sim_cat',
     label: 'Sınavlar',
-    icon: GraduationCap,
+    icon: ClipboardList,
     match: ['/dashboard/exams'],
     tab: 'exam_modes',
   },
   {
     to: '/dashboard/exams?tab=short_tests',
     label: 'Sorular',
-    icon: FileQuestion,
+    icon: HelpCircle,
     match: ['/dashboard/exams'],
     tab: 'short_tests',
   },
+  { to: '/dashboard/feed', label: 'Akış', icon: Radio },
   { to: '/dashboard/settings', label: 'Profil', icon: User },
 ];
 

@@ -746,6 +746,7 @@ const UserLessons = () => {
       contentId: selectedLesson._id,
       contentName: selectedLesson.name,
     });
+    alert("Premium abonelik işlemleri web sürümünde desteklenmemektedir. Güvenlik ve faturalandırma kuralları nedeniyle premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.");
   }, [selectedLesson]);
 
   const handleMobileNodeClick = (node) => {
@@ -1148,7 +1149,7 @@ const UserLessons = () => {
               <div>
                 <h4 className="text-lg font-black text-white">PRO İçerik</h4>
                 <p className="text-text-muted text-xs max-w-xs mt-2 leading-relaxed">
-                  Bu ders içeriği yalnızca PRO üyelere açıktır. Mobil uygulamamız üzerinden premium üyelik edinebilirsiniz.
+                  Bu ders içeriği yalnızca PRO üyelere açıktır. Premium abonelik işlemleri web sürümünde desteklenmemektedir; şu an için yalnızca Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.
                 </p>
               </div>
               <button
@@ -1457,33 +1458,44 @@ const UserLessons = () => {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-2xl xl:border xl:border-white/10 xl:bg-[#0b0d12] xl:shadow-xl xl:shadow-black/20">
+    <div className="flex min-h-[calc(100vh-88px)] flex-col gap-3 overflow-visible xl:h-[calc(100vh-128px)] xl:flex-row xl:gap-0 xl:overflow-hidden xl:rounded-3xl xl:border xl:border-white/[0.08] xl:bg-[#080a10] xl:shadow-2xl xl:shadow-black/50">
       
       {/* ─── LEFT: Category Tree Sidebar ─────────────────────────── */}
-      <div className="flex w-full shrink-0 flex-col rounded-2xl border border-white/5 bg-bg-card/80 xl:h-full xl:max-h-none xl:w-[380px] xl:rounded-none xl:border-0 xl:border-r xl:border-white/10 xl:bg-[#0e1016] 2xl:w-[400px]">
+      <div className="flex w-full shrink-0 flex-col rounded-2xl border border-white/5 bg-bg-card/80 xl:h-full xl:max-h-none xl:w-[340px] xl:rounded-none xl:border-0 xl:border-r xl:border-white/[0.08] xl:bg-[#0c0e15] 2xl:w-[380px]">
         
-        {/* Sidebar header */}
-        <div className="border-b border-white/5 bg-white/[0.02] px-3 py-3 sm:px-4 xl:border-white/10 xl:bg-[#11141b] xl:py-4">
+        {/* Sidebar header — premium */}
+        <div className="border-b border-white/[0.07] bg-gradient-to-b from-[#0f1220] to-[#0c0e15] px-3 py-3 sm:px-4 xl:py-5">
+          {/* Title row */}
           <div className="mb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
-                <BookOpen className="w-4.5 h-4.5 text-primary-light" />
-              </span>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/25 bg-primary/15">
+                <BookOpen className="h-4 w-4 text-primary-light" />
+              </div>
               <div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <h2 className="text-sm font-black text-white uppercase tracking-widest">Dersler</h2>
-                  {user?.selectedCategoryName && (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/25 text-[9px] font-black text-primary-light uppercase tracking-wider">
-                      {user.selectedCategoryName}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[10px] font-bold text-text-muted">{completedContentCount}/{contentLessons.length} tamamlandı</p>
+                <h2 className="text-sm font-black uppercase tracking-widest text-white">Dersler</h2>
+                {user?.selectedCategoryName && (
+                  <p className="mt-0.5 text-[9px] font-black uppercase tracking-wider text-primary-light/80">{user.selectedCategoryName}</p>
+                )}
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-text-secondary">
-              {mobileLessons.length} konu
+            <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10px] font-black text-text-secondary">
+              {mobileLessons.length}
             </span>
+          </div>
+          {/* Progress bar */}
+          <div className="mb-3 hidden xl:block">
+            <div className="mb-1.5 flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
+              <span className="text-text-muted">İlerleme</span>
+              <span className={completedContentCount === contentLessons.length && contentLessons.length > 0 ? 'text-success' : 'text-primary-light'}>
+                {completedContentCount}/{contentLessons.length} tamamlandı
+              </span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${completedContentCount === contentLessons.length && contentLessons.length > 0 ? 'bg-success' : 'bg-gradient-to-r from-primary to-accent'}`}
+                style={{ width: `${lessonProgressPercent}%` }}
+              />
+            </div>
           </div>
 
           {/* Konu Kategorisi Seçici Sekmeleri */}
@@ -1679,44 +1691,44 @@ const UserLessons = () => {
               transition={{ duration: 0.25 }}
               className="flex h-full min-h-[62vh] flex-col"
             >
-              {/* Content Header */}
-              <div className="relative flex shrink-0 items-start gap-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent px-5 py-4 sm:px-6 sm:py-5 xl:bg-gradient-to-r xl:from-[#11131a] xl:to-[#0b0d12] xl:px-8 xl:py-5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/30 to-accent/30 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.2)] xl:h-10 xl:w-10 xl:rounded-lg">
-                  <FileText className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Eğitim Müfredatı</span>
-                    {selectedLesson.isPro && (
-                      <span className="inline-flex px-1.5 py-0.5 bg-warning/15 text-warning border border-warning/20 rounded text-[8px] font-black uppercase tracking-widest animate-pulse">
-                        PRO
-                      </span>
-                    )}
+              {/* Content Header — premium */}
+              <div className="relative shrink-0 border-b border-white/[0.07] bg-gradient-to-b from-[#0f1220] to-[#0a0c12] px-5 py-4 sm:px-6 xl:px-8 xl:py-5">
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/15 text-primary-light shadow-[0_0_12px_rgba(99,102,241,0.15)]">
+                    <FileText className="h-4.5 w-4.5" />
                   </div>
-                  <h2 className="text-lg font-black leading-snug tracking-tight text-white mt-1 break-words sm:text-xl">
-                    {selectedLesson.name}
-                  </h2>
-                  {selectedLesson.description && (
-                    <p className="text-xs text-text-muted mt-1.5 line-clamp-1 font-semibold">{selectedLesson.description}</p>
-                  )}
-                  <div className="mt-3 hidden flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-muted xl:flex">
-                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1">
-                      Ders {selectedLessonIndex > 0 ? selectedLessonIndex : '-'} / {contentLessons.length || '-'}
-                    </span>
-                    {completedIds.includes(selectedLesson._id) && (
-                      <span className="rounded-full border border-success/20 bg-success/10 px-2.5 py-1 text-success">
-                        Tamamlandı
-                      </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Ders {selectedLessonIndex > 0 ? selectedLessonIndex : '–'} / {contentLessons.length || '–'}</span>
+                      {completedIds.includes(selectedLesson._id) && (
+                        <span className="rounded-full border border-success/20 bg-success/10 px-2 py-0.5 text-[9px] font-black text-success">✓ Tamamlandı</span>
+                      )}
+                      {selectedLesson.isPro && (
+                        <span className="rounded border border-warning/20 bg-warning/10 px-1.5 py-0.5 text-[8px] font-black uppercase text-warning">PRO</span>
+                      )}
+                    </div>
+                    <h2 className="mt-1 text-lg font-black leading-snug tracking-tight text-white break-words sm:text-xl xl:text-2xl">
+                      {selectedLesson.name}
+                    </h2>
+                    {selectedLesson.description && (
+                      <p className="mt-1 text-xs font-semibold leading-relaxed text-text-muted line-clamp-1">{selectedLesson.description}</p>
                     )}
-                    <button
-                      type="button"
-                      onClick={handleToggleLessonReading}
-                      disabled={selectedLesson.isPro && !user?.proStatus}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-white hover:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      {isReadingLesson ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
-                      <span>{isReadingLesson ? 'Durdur' : 'Dinlet'}</span>
-                    </button>
+                    <div className="mt-3 hidden flex-wrap items-center gap-2 xl:flex">
+                      <button
+                        type="button"
+                        onClick={handleToggleLessonReading}
+                        disabled={selectedLesson.isPro && !user?.proStatus}
+                        className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition disabled:cursor-not-allowed disabled:opacity-30 ${
+                          isReadingLesson
+                            ? 'border-primary/30 bg-primary/15 text-primary-light hover:bg-primary/25'
+                            : 'border-white/10 bg-white/[0.03] text-white hover:bg-white/[0.07]'
+                        }`}
+                      >
+                        {isReadingLesson ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                        <span>{isReadingLesson ? 'Durdur' : 'Sesli Oku'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="relative ml-auto hidden xl:block">
@@ -1777,7 +1789,7 @@ const UserLessons = () => {
                     <div>
                       <h3 className="text-xl font-black text-white">PRO İçerik</h3>
                       <p className="text-text-muted text-sm max-w-sm mt-2 font-medium">
-                        Bu ders içeriği yalnızca PRO üyelere açıktır. Mobil uygulamamız üzerinden premium üyelik edinebilirsiniz.
+                        Bu ders içeriği yalnızca PRO üyelere açıktır. Premium abonelik işlemleri web sürümünde desteklenmemektedir; şu an için yalnızca Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.
                       </p>
                     </div>
                     <button

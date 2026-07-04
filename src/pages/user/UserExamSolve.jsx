@@ -280,6 +280,7 @@ const UserExamSolve = ({ customType }) => {
   const [showQuestionList, setShowQuestionList] = useState(false);
   const [favoriteIds, setFavoriteIds] = useState([]);
   const [favLoading, setFavLoading] = useState(false);
+  const [guestMsg, setGuestMsg] = useState(null);
   const [reviewSync, setReviewSync] = useState({ status: 'idle', wrongCount: 0 });
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -302,7 +303,8 @@ const UserExamSolve = ({ customType }) => {
   const toggleFavorite = async (qId) => {
     if (favLoading) return;
     if (user?.isGuest) {
-      alert('Soruları favorilerinize eklemek için üye olmanız gerekmektedir.');
+      setGuestMsg('Favoriye eklemek için üye olun');
+      setTimeout(() => setGuestMsg(null), 3000);
       return;
     }
     setFavLoading(true);
@@ -663,6 +665,19 @@ const UserExamSolve = ({ customType }) => {
 
   if (guestBlockNode) return guestBlockNode;
 
+  // ── Misafir toast (favori denemesi) ──────────────────────────────────────────
+  const guestToast = guestMsg ? (
+    <div className="fixed bottom-24 left-1/2 z-[9999] -translate-x-1/2 animate-fadeIn">
+      <div className="flex items-center gap-2.5 rounded-2xl border border-amber-500/20 bg-[#1a1200]/90 px-4 py-2.5 shadow-xl backdrop-blur">
+        <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" />
+        <p className="text-xs font-black text-amber-300">{guestMsg}</p>
+        <button onClick={() => { useAuthStore.getState().logout(); navigate('/register'); }} className="ml-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-400 transition hover:bg-amber-500/20">
+          Üye Ol
+        </button>
+      </div>
+    </div>
+  ) : null;
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-64">
       <Loader2 className="w-10 h-10 animate-spin text-primary mb-3" />
@@ -856,6 +871,7 @@ const UserExamSolve = ({ customType }) => {
 
   return (
     <div className="flex min-h-[calc(100vh-96px)] flex-col overflow-hidden bg-[#07080c] sm:h-[calc(100vh-128px)]">
+      {guestToast}
       <header className="shrink-0 border-b border-white/10 bg-[#0b0d13]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5 lg:flex-nowrap lg:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-3">

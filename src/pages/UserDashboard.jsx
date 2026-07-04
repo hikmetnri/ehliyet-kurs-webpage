@@ -77,7 +77,14 @@ const UserDashboard = () => {
             </GuestGate>
           } 
         />
-        <Route path="support" element={<UserSupport />} />
+        <Route
+          path="support"
+          element={
+            <GuestGate title="Destek Talebi Oluşturun" description="Destek talebi açabilmek ve mesajlaşabilmek için lütfen giriş yapın veya kayıt olun.">
+              <UserSupport />
+            </GuestGate>
+          }
+        />
         <Route 
           path="settings" 
           element={
@@ -98,7 +105,14 @@ const UserDashboard = () => {
         <Route path="traffic-signs" element={<UserTrafficSigns />} />
         <Route path="videos" element={<UserVideos />} />
         <Route path="driving-schools" element={<UserDrivingSchools />} />
-        <Route path="driving-schools/:id/apply" element={<UserDrivingSchoolApply />} />
+        <Route
+          path="driving-schools/:id/apply"
+          element={
+            <GuestGate title="Başvuru Yapmak İçin Üye Olun" description="Sürücü kursuna başvuru yapabilmek için lütfen giriş yapın veya yeni bir hesap oluşturun.">
+              <UserDrivingSchoolApply />
+            </GuestGate>
+          }
+        />
         <Route path="ai-chat" element={<UserAIChat />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>

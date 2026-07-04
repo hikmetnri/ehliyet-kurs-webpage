@@ -121,16 +121,20 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
       {isOpen && (
         <Motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-bg-dark/90 px-3 py-4 backdrop-blur-xl sm:px-4 sm:py-6"
+          className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-bg-dark/85 px-3 py-4 backdrop-blur-xl sm:px-4 sm:py-6"
         >
+          {/* Glowing Neon Lights Outside (Behind the Modal Card to cast glow on blurred backdrop) */}
+          <div className="absolute w-[500px] h-[500px] bg-primary/25 blur-[120px] rounded-full pointer-events-none z-0" />
+          <div className="absolute w-[400px] h-[400px] bg-accent/20 blur-[100px] rounded-full pointer-events-none z-0 translate-x-32 translate-y-32" />
+
           <Motion.div
             initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
-            className="relative my-auto w-full max-w-3xl overflow-hidden rounded-[1.75rem] border border-white/10 bg-bg-card shadow-2xl sm:rounded-[2.5rem] lg:max-w-5xl lg:rounded-3xl lg:bg-[#0b0d12] lg:shadow-xl"
+            className="relative my-auto w-full max-w-3xl lg:max-w-5xl overflow-hidden rounded-[1.75rem] sm:rounded-[2.5rem] lg:rounded-3xl border border-white/[0.1] bg-gradient-to-br from-[#141830] via-[#0d1020] to-[#080912] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-2xl z-10"
           >
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-primary/20 blur-[100px] lg:hidden" />
             
             <div className="relative z-10 max-h-[calc(100vh-2rem)] overflow-y-auto p-5 text-center custom-scrollbar sm:p-8 md:p-12 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8 lg:p-0 lg:text-left">
-              <div className="hidden border-r border-white/10 bg-white/[0.02] p-8 lg:flex lg:flex-col">
+              <div className="hidden border-r border-white/[0.08] bg-gradient-to-b from-white/[0.025] to-transparent p-8 lg:flex lg:flex-col relative overflow-hidden">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary-light">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
@@ -141,7 +145,7 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
                     Dersler, sınavlar ve öneriler seçtiğin ehliyet sınıfına göre düzenlenir.
                   </p>
                 </div>
-                <div className="mt-auto rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div className="mt-auto rounded-2xl border border-white/5 bg-white/[0.01] p-4">
                   <p className="text-xs font-bold leading-5 text-text-secondary">
                     Tek seçim yeterli. Daha sonra dashboard içinden sınıfını değiştirebilirsin.
                   </p>
@@ -168,7 +172,7 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
                      <p className="font-bold">Henüz kategori eklenmemiş!</p>
                   </div>
                 ) : (
-                  <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:mb-0 lg:grid-cols-3 lg:gap-4">
+                  <div className="mb-7 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:mb-0 lg:gap-6 lg:grid-cols-2 max-w-3xl">
                     {dbCategories.map((cat) => {
                       const isSelected = selectedCat === cat._id;
                       const Icon = iconMap[cat.icon] || ShieldCheck;
@@ -188,8 +192,8 @@ const CategorySelectorModal = ({ isOpen, onClose, required = false }) => {
                               : 'none',
                           }}
                           className={`
-                            relative h-[154px] w-full text-left overflow-hidden rounded-[28px] border-[1.5px] p-5 transition-all duration-300 transform group hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between
-                            ${isDark ? 'bg-white/[0.03] hover:bg-white/[0.06]' : 'bg-black/[0.02] hover:bg-black/[0.04]'}
+                            relative h-[154px] w-full text-left overflow-hidden rounded-[28px] border-[1.5px] p-5 transition-all duration-300 transform group hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between backdrop-blur-md
+                            ${isDark ? 'bg-gradient-to-br from-white/[0.04] to-white/[0.01] hover:from-white/[0.07] hover:to-white/[0.03]' : 'bg-gradient-to-br from-black/[0.02] to-transparent hover:bg-black/[0.04]'}
                             ${isSelected ? 'scale-[1.02]' : ''}
                           `}
                         >

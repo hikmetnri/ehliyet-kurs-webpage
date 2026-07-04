@@ -28,6 +28,7 @@ const AdminBadges = lazy(() => import('./pages/admin/AdminBadges'))
 const AdminMarketing = lazy(() => import('./pages/admin/AdminMarketing'))
 const AdminDrivingSchools = lazy(() => import('./pages/admin/AdminDrivingSchools'))
 const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'))
+const AdminNotifications = lazy(() => import('./pages/admin/AdminNotifications'))
 const UserDashboard = lazy(() => import('./pages/UserDashboard'))
 
 const RouteFallback = () => (
@@ -169,6 +170,7 @@ function App() {
             <Route path="profile" element={<AdminProfile />} />
             
             <Route path="settings" element={<AdminSettings />} />
+            <Route path="notifications" element={<AdminNotifications />} />
           </Route>
           
           {/* User Routes */}

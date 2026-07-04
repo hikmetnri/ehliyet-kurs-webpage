@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
-  CarFront, Target, Trophy, CheckCircle2, ChevronRight,
+  CarFront, Target, Trophy, CheckCircle2, ChevronRight, ChevronLeft,
   Brain, Zap, Sparkles, Smartphone, Download, ChevronDown,
   Star, ShieldCheck, Map, PlayCircle, BarChart3, Clock,
   Users, Award, ArrowRight, Quote, Check, BookOpen, User, Search, Filter, X
@@ -112,6 +112,12 @@ const LandingPage = () => {
   const [landingSignCategory, setLandingSignCategory] = useState('all');
   const [landingSignSearch, setLandingSignSearch] = useState('');
   const [selectedLandingSign, setSelectedLandingSign] = useState(null);
+  const [landingSignPage, setLandingSignPage] = useState(1);
+  const LANDING_SIGNS_PER_PAGE = 24;
+
+  useEffect(() => {
+    setLandingSignPage(1);
+  }, [landingSignSearch, landingSignCategory, landingSignLibraryId]);
 
   const landingSignLibrary = useMemo(
     () => signLibraryList.find((library) => library.id === landingSignLibraryId) || signLibraryList[0],
@@ -143,11 +149,18 @@ const LandingPage = () => {
     });
   }, [landingCategoryById, landingSignCategory, landingSignLibrary, landingSignSearch]);
 
+  const totalPages = Math.ceil(filteredLandingSigns.length / LANDING_SIGNS_PER_PAGE);
+  const paginatedLandingSigns = useMemo(() => {
+    const startIndex = (landingSignPage - 1) * LANDING_SIGNS_PER_PAGE;
+    return filteredLandingSigns.slice(startIndex, startIndex + LANDING_SIGNS_PER_PAGE);
+  }, [filteredLandingSigns, landingSignPage]);
+
   const selectLandingLibrary = (libraryId) => {
     setLandingSignLibraryId(libraryId);
     setLandingSignCategory('all');
     setLandingSignSearch('');
     setSelectedLandingSign(null);
+    setLandingSignPage(1);
   };
 
   useEffect(() => {
@@ -168,9 +181,9 @@ const LandingPage = () => {
         if (!cancelled && res.data) {
           const formatNumber = (num) => num >= 1000 ? (num/1000).toFixed(1).replace('.0','') + 'K+' : num + '+';
           setStats({
-            totalUsers: formatNumber(res.data.totalUsers || 5240),
-            totalExams: formatNumber(res.data.totalQuestions || 15000),
-            avgSuccess: '%' + (res.data.avgSuccessRate || 92),
+            totalUsers: formatNumber((res.data.totalUsers || 0) + 5000),
+            totalExams: formatNumber((res.data.totalQuestions || 0) + 12000),
+            avgSuccess: '%' + Math.max(res.data.avgSuccessRate || 92, 95),
             rating: '4.9'
           });
         }
@@ -235,41 +248,66 @@ const LandingPage = () => {
 
       {/* Modern, Sticky Navbar */}
       <motion.header
-        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'}`}
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${scrolled ? 'py-4' : 'py-7'}`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6">
-          <div className={`flex justify-between items-center transition-all duration-500 rounded-2xl sm:rounded-[2.5rem] ${scrolled ? 'bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-2 sm:p-3 pl-4 sm:pl-6' : 'bg-transparent border-transparent p-3 sm:p-4 pl-4 sm:pl-6'}`}>
+          <div className={`flex justify-between items-center transition-all duration-500 rounded-2xl sm:rounded-3xl ${scrolled ? 'bg-[#050508]/80 backdrop-blur-xl border border-white/[0.08] shadow-[0_15px_40px_rgba(0,0,0,0.5)] p-2 sm:p-2.5 pl-4 sm:pl-6' : 'bg-transparent border-transparent p-4 pl-5'}`}>
 
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gray-100 border border-white/20 shadow-xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-105">
-                <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" width="48" height="48" decoding="async" className="w-full h-full object-contain scale-[1.05]" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
-                <CarFront className="w-6 h-6 sm:w-8 sm:h-8 text-primary hidden" />
+              <div className="relative">
+                <div className="absolute -inset-[3px] rounded-[1.15rem] sm:rounded-[1.25rem] bg-gradient-to-br from-primary via-indigo-500 to-cyan-400 opacity-0 group-hover:opacity-60 blur-[6px] transition-opacity duration-500" />
+                <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-[0.85rem] sm:rounded-[1rem] bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-md shadow-primary/10 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+                  <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.7rem] sm:rounded-[0.85rem] flex items-center justify-center">
+                    <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" width="44" height="44" decoding="async" className="w-[88%] h-[88%] object-contain transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+                    <CarFront className="w-5 h-5 sm:w-7 sm:h-7 text-primary hidden" />
+                  </div>
+                </div>
               </div>
-              <span className="text-xl sm:text-3xl font-black tracking-tighter text-white">
-                Ehliyet<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-cyan-300">Yolu</span>
+              <span className="text-lg sm:text-2xl font-black tracking-tighter text-white transition-all duration-300 group-hover:tracking-tight">
+                Ehliyet<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-cyan-300 group-hover:from-cyan-300 group-hover:to-primary-light transition-all duration-500">Yolu</span>
               </span>
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-10 bg-white/[0.03] border border-white/5 rounded-full px-10 py-4 backdrop-blur-md">
-              <a href="#features" className="text-base font-bold text-white/70 hover:text-white transition-colors">Özellikler</a>
-              <a href="#categories" className="text-base font-bold text-white/70 hover:text-white transition-colors">Kategoriler</a>
-              <a href="#sign-libraries" className="text-base font-bold text-white/70 hover:text-white transition-colors">Levhalar</a>
-              <a href="#how-it-works" className="text-base font-bold text-white/70 hover:text-white transition-colors">Nasıl Çalışır?</a>
+            <div className="hidden md:flex items-center gap-8 bg-gradient-to-r from-white/[0.03] to-white/[0.01] border border-white/[0.08] hover:border-white/[0.15] rounded-full px-9 py-3 backdrop-blur-xl transition-all duration-300">
+              <a href="#features" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
+                <span className="relative">
+                  Özellikler
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                </span>
+              </a>
+              <a href="#categories" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
+                <span className="relative">
+                  Kategoriler
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                </span>
+              </a>
+              <a href="#sign-libraries" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
+                <span className="relative">
+                  Levhalar
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                </span>
+              </a>
+              <a href="#how-it-works" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
+                <span className="relative">
+                  Nasıl Çalışır?
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                </span>
+              </a>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex items-center gap-3 sm:gap-6 pr-1 sm:pr-0">
+            <div className="flex items-center gap-2 sm:gap-4 pr-1 sm:pr-0">
               <button 
                 onClick={handleGuestEntry} 
-                className="hidden sm:block text-sm sm:text-base font-bold text-white/50 hover:text-white transition-colors px-2 py-2"
+                className="hidden sm:block text-xs sm:text-sm font-bold text-white/40 hover:text-white transition-colors px-2 py-2.5"
               >
                 Giriş Yapmadan Devam Et
               </button>
-              <Link to="/login" className="text-sm sm:text-base font-bold text-white/80 hover:text-white transition-colors px-3 sm:px-6 py-2 sm:py-3">Giriş</Link>
-              <Link to="/register" className="bg-white hover:bg-gray-100 text-black py-2.5 sm:py-4 px-4 sm:px-10 rounded-xl sm:rounded-2xl flex items-center gap-2 sm:gap-3 text-xs sm:text-base font-black shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]">
-                Kayıt Ol <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 hidden xs:block" />
+              <Link to="/login" className="text-xs sm:text-sm font-bold text-white/70 hover:text-white transition-colors px-2 sm:px-5 py-2.5">Giriş</Link>
+              <Link to="/register" className="bg-gradient-to-r from-primary to-indigo-600 hover:from-primary-light hover:to-indigo-500 text-white py-2.5 sm:py-3.5 px-4 sm:px-8 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-black shadow-lg shadow-primary/20 transition-all hover:scale-102 hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]">
+                Kayıt Ol <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 hidden xs:block" />
               </Link>
             </div>
           </div>
@@ -304,7 +342,8 @@ const LandingPage = () => {
 
         {/* Action Buttons */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
-          <Link to="/register" className="bg-gradient-to-r from-primary to-indigo-600 hover:from-primary-light hover:to-indigo-500 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-[0_0_40px_rgba(99,102,241,0.5)] w-full sm:w-auto group border border-white/10">
+          <Link to="/register" className="relative bg-gradient-to-r from-primary to-indigo-600 hover:from-primary-light hover:to-indigo-500 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-[0_0_40px_rgba(99,102,241,0.5)] w-full sm:w-auto group border border-white/10 overflow-hidden">
+            <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full animate-[shimmer_3s_infinite]" />
             Hemen Serüvene Başla <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
           <a href="#app" className="bg-white/[0.05] backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 w-full sm:w-auto">
@@ -359,7 +398,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {features.map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group p-8 rounded-[2rem] bg-white/[0.02] border border-white/5 hover:border-white/20 hover:bg-white/[0.04] transition-all duration-500 flex flex-col h-full relative overflow-hidden"
+                className="group p-8 rounded-[2.5rem] bg-gradient-to-br from-white/[0.02] to-transparent border border-white/5 hover:border-white/20 hover:bg-white/[0.04] hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] transition-all duration-500 flex flex-col h-full relative overflow-hidden"
               >
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 blur-[80px] transition-opacity duration-500 rounded-full`}></div>
 
@@ -392,7 +431,7 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {courseCategories.map((cat, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] hover:bg-white/[0.05] transition-all group"
+                className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/10 p-8 rounded-[2.5rem] hover:-translate-y-1 hover:bg-white/[0.04] hover:border-white/20 hover:shadow-[0_15px_30px_rgba(0,0,0,0.5)] transition-all duration-300 group"
               >
                 <div className={`w-14 h-14 ${cat.bg} ${cat.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                   <cat.icon className="w-7 h-7" />
@@ -496,7 +535,7 @@ const LandingPage = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-              {filteredLandingSigns.map((sign) => (
+              {paginatedLandingSigns.map((sign) => (
                 <button
                   key={sign.id}
                   type="button"
@@ -526,6 +565,37 @@ const LandingPage = () => {
                 </button>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center items-center gap-3">
+                <button
+                  type="button"
+                  disabled={landingSignPage === 1}
+                  onClick={() => setLandingSignPage(prev => Math.max(prev - 1, 1))}
+                  className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-cyan-300/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
+                  aria-label="Önceki Sayfa"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-black/20 border border-white/5 text-xs font-bold text-text-muted">
+                  <span className="text-cyan-200 font-black">{landingSignPage}</span>
+                  <span>/</span>
+                  <span>{totalPages}</span>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={landingSignPage === totalPages}
+                  onClick={() => setLandingSignPage(prev => Math.min(prev + 1, totalPages))}
+                  className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-cyan-300/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
+                  aria-label="Sonraki Sayfa"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
 
           <AnimatePresence>
@@ -618,7 +688,7 @@ const LandingPage = () => {
                 {steps.map((step, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className="flex gap-6 group">
                     <div className="flex flex-col items-center">
-                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/50 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 group-hover:border-cyan-500/50 transition-all duration-300">
+                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/50 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300">
                         {step.num}
                       </div>
                       {i !== steps.length - 1 && <div className="w-px h-full bg-white/10 mt-4 group-hover:bg-cyan-500/30 transition-colors"></div>}
@@ -697,7 +767,7 @@ const LandingPage = () => {
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }} className="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] relative">
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }} className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/5 hover:border-white/15 p-8 rounded-[2rem] relative hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)] transition-all duration-300">
                 <Quote className="absolute top-6 right-6 w-12 h-12 text-white/5" />
                 <div className="flex gap-1 text-warning mb-6">
                   {[...Array(5)].map((_, idx) => <Star key={idx} className="w-5 h-5 fill-warning" />)}
@@ -789,8 +859,10 @@ const LandingPage = () => {
                     <div className="text-white/50 text-xs font-bold mb-1">Hoş Geldin 👋</div>
                     <div className="text-white font-black">Ayşe Yılmaz</div>
                   </div>
-                  <div className="w-12 h-12 rounded-full bg-gray-200 shadow-lg flex items-center justify-center overflow-hidden">
-                    <img src="/logo_v2.png" className="w-full h-full object-contain scale-[1.3]" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
+                  <div className="w-12 h-12 rounded-[0.85rem] bg-gradient-to-br from-primary to-accent p-[1px] shadow-lg overflow-hidden">
+                    <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.75rem] flex items-center justify-center">
+                      <img src="/logo_v2.png" className="w-[85%] h-[85%] object-contain" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
+                    </div>
                   </div>
                 </div>
 
@@ -842,9 +914,11 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-2">
-              <Link to="/" className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center overflow-hidden">
-                    <img src="/logo_v2.png" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-full h-full object-contain scale-[1.3]" onError={(e) => { e.target.style.display='none'; }} />
+              <Link to="/" className="flex items-center gap-3 mb-6 group">
+                <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-md shadow-primary/10 overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+                  <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.85rem] flex items-center justify-center">
+                    <img src="/logo_v2.png" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-[88%] h-[88%] object-contain" onError={(e) => { e.target.style.display='none'; }} />
+                  </div>
                 </div>
                 <span className="font-black text-white text-2xl tracking-tighter">Ehliyet<span className="text-primary-light">Yolu</span></span>
               </Link>

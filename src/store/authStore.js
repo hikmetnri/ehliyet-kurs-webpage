@@ -108,6 +108,14 @@ const useAuthStore = create((set) => ({
     localStorage.removeItem('guest_saved_results')
     localStorage.removeItem('guest_ai_credits')
     clearCategorySession()
+    
+    // Reset theme attributes when logging out
+    if (typeof document !== 'undefined') {
+      document.documentElement.removeAttribute('data-theme')
+      const currentMode = localStorage.getItem('theme-mode') || 'dark'
+      document.documentElement.setAttribute('data-theme-mode', currentMode)
+    }
+
     set({ user: null, token: null, error: null })
   },
 

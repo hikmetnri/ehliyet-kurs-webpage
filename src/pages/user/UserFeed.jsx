@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, HelpCircle, Lightbulb,
   ThumbsUp, MessageCircle, Clock, Plus, X, Tag, Send,
-  Sparkles, ChevronDown, Users, Search
+  Sparkles, ChevronDown, Users, Search, Loader2, ChevronRight
 } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
@@ -15,8 +15,14 @@ export default function UserFeed() {
   const { user } = useAuthStore();
   const userId = normalizeUserId(user);
 
+  const PAGE_SIZE = 15;
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [commentTexts, setCommentTexts] = useState({});
@@ -29,25 +35,49 @@ export default function UserFeed() {
 
   const commentsEndRef = useRef(null);
 
-  useEffect(() => { fetchPosts(); }, []);
+  // Filter/search değişince sayfa sıfırla
+  useEffect(() => {
+    setPage(1);
+    setPosts([]);
+    fetchPosts(1, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilter, searchQuery]);
 
-  const fetchPosts = async () => {
+  // İlk yüklemede de çalış
+  useEffect(() => {
+    fetchPosts(1, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchPosts = async (pageNum = 1, reset = false) => {
     try {
-      setLoading(true);
-      const res = await api.get('/posts');
-      setPosts(res.data.posts || []);
+      if (pageNum === 1) setLoading(true);
+      else setLoadingMore(true);
+
+      const params = { page: pageNum, limit: PAGE_SIZE };
+      const res = await api.get('/posts', { params });
+      const incoming = res.data.posts || [];
+      const serverTotal = res.data.total ?? incoming.length;
+
+      setPosts(prev => reset || pageNum === 1 ? incoming : [...prev, ...incoming]);
+      setTotal(serverTotal);
+      setHasMore(pageNum * PAGE_SIZE < serverTotal);
+      setPage(pageNum);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
+  const handleLoadMore = () => {
+    if (!loadingMore && hasMore) fetchPosts(page + 1);
+  };
+
+  // Filtre client-side sadece arama için (type filtresi server'a gönderilecek, arama local)
   const filtered = posts.filter(p => {
-    const matchesFilter = activeFilter === 'all' || p.type === activeFilter;
-    if (!matchesFilter) return false;
     if (!searchQuery) return true;
-    
     const q = searchQuery.toLowerCase();
     return (
       p.title?.toLowerCase().includes(q) ||
@@ -61,7 +91,7 @@ export default function UserFeed() {
   const questionCount = posts.filter(p => p.type === 'question').length;
   const tipCount = posts.filter(p => p.type === 'tip').length;
   const desktopStats = [
-    { label: 'Gönderi', value: posts.length, icon: MessageSquare, tone: 'text-sky-300', bg: 'bg-sky-500/10', border: 'border-sky-500/20' },
+    { label: 'Gönderi', value: total || posts.length, icon: MessageSquare, tone: 'text-sky-300', bg: 'bg-sky-500/10', border: 'border-sky-500/20' },
     { label: 'Yorum', value: totalComments, icon: MessageCircle, tone: 'text-emerald-300', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
     { label: 'Soru', value: questionCount, icon: HelpCircle, tone: 'text-amber-300', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
     { label: 'İpucu', value: tipCount, icon: Lightbulb, tone: 'text-cyan-300', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
@@ -85,7 +115,15 @@ export default function UserFeed() {
       setSubmitting(true);
       await api.post('/posts', { ...newPost, tags: newPost.tags.split(',').map(t => t.trim()).filter(Boolean) });
       setSubmitSuccess(true);
-      setTimeout(() => { setIsModalOpen(false); setSubmitSuccess(false); setNewPost({ title: '', content: '', type: 'discussion', tags: '' }); fetchPosts(); }, 1800);
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setSubmitSuccess(false);
+        setNewPost({ title: '', content: '', type: 'discussion', tags: '' });
+        // Yeni post sonrası ilk sayfadan yenile
+        setPage(1);
+        setPosts([]);
+        fetchPosts(1, true);
+      }, 1800);
     } catch (e) {
       console.error(e);
     } finally {
@@ -358,6 +396,22 @@ export default function UserFeed() {
                 </motion.div>
               );
             })
+          )}
+
+          {/* Desktop — Daha Fazla Yükle */}
+          {hasMore && !loading && (
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.025] py-3.5 text-xs font-black uppercase tracking-widest text-text-muted transition hover:bg-white/[0.04] hover:text-white disabled:opacity-50"
+            >
+              {loadingMore ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Yükleniyor...</>
+              ) : (
+                <><ChevronRight className="h-4 w-4" /> Daha Fazla Göster ({posts.length} / {total})</>
+              )}
+            </button>
           )}
           </div>
 
@@ -673,6 +727,22 @@ export default function UserFeed() {
                 </motion.div>
               );
             })
+          )}
+
+          {/* Mobil — Daha Fazla Yükle */}
+          {hasMore && !loading && (
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/5 bg-white/[0.02] py-3 text-xs font-black uppercase tracking-widest text-text-muted transition active:scale-[0.98] disabled:opacity-50"
+            >
+              {loadingMore ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Yükleniyor...</>
+              ) : (
+                <>Daha Fazla Göster ({posts.length} / {total})</>
+              )}
+            </button>
           )}
         </div>
       </div>

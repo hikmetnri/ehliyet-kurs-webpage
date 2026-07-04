@@ -134,12 +134,11 @@ const Toast = ({ msg, type = 'success', onClose }) => (
 // ─── Ana bileşen ──────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'legal',         label: 'Hukuki',     title: 'Hukuki Metinler',  description: 'Gizlilik politikası ve KVKK metinleri', icon: FileText },
-  { id: 'notifications', label: 'Bildirim',   title: 'Bildirimler',       description: 'Toplu veya hedefli push gönderimleri', icon: Bell },
-  { id: 'quotes',        label: 'Sözler',     title: 'Günün Sözleri',     description: 'Mobil uygulamada görünen motivasyon sözleri', icon: Quote },
-  { id: 'faqs',          label: 'S.S.S.',     title: 'S.S.S.',            description: 'Landing ve uygulama yardım içerikleri', icon: HelpCircle },
-  { id: 'system',        label: 'Sistem',     title: 'Sistem',            description: 'Bakım modu ve veritabanı yedeği', icon: Database },
-  { id: 'logs',          label: 'Loglar',     title: 'Aktivite Logları',  description: 'Son yönetici işlemleri', icon: Terminal },
+  { id: 'legal',  label: 'Hukuki', title: 'Hukuki Metinler', description: 'Gizlilik politikası ve KVKK metinleri', icon: FileText },
+  { id: 'quotes', label: 'Sözler', title: 'Günün Sözleri',   description: 'Mobil uygulamada görünen motivasyon sözleri', icon: Quote },
+  { id: 'faqs',   label: 'S.S.S.', title: 'S.S.S.',          description: 'Landing ve uygulama yardım içerikleri', icon: HelpCircle },
+  { id: 'system', label: 'Sistem', title: 'Sistem Ayarları', description: 'Bakım modu, sürüm ve mağaza bağlantıları', icon: Database },
+  { id: 'logs',   label: 'Loglar', title: 'Aktivite Logları', description: 'Son yönetici işlemleri', icon: Terminal },
 ];
 
 const AdminSettings = () => {
@@ -171,14 +170,7 @@ const AdminSettings = () => {
   });
   const [legalSaving, setLegalSaving] = useState('');
 
-  // ── Notification State ──
-  const [notifTitle, setNotifTitle] = useState('');
-  const [notifBody, setNotifBody]   = useState('');
-  const [notifTarget, setNotifTarget] = useState('all');
-  const [broadcastHistory, setBroadcastHistory] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
-  const [selectedUserIds, setSelectedUserIds] = useState([]);
-  const [userSearchText, setUserSearchText] = useState('');
+
 
   // ── Quotes State ──
   const [quotes, setQuotes] = useState([]);
@@ -222,14 +214,7 @@ const AdminSettings = () => {
     }
   }, []);
 
-  const fetchBroadcastHistory = useCallback(async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/notifications/broadcast-history');
-      setBroadcastHistory(res.data.data || []);
-    } catch { // ignore
-    } finally { setLoading(false); }
-  }, []);
+
 
   const fetchQuotes = useCallback(async () => {
     try {
@@ -260,26 +245,16 @@ const AdminSettings = () => {
     } finally { setLoading(false); }
   }, []);
 
-  const fetchUsersForSelection = useCallback(async () => {
-    try {
-      const res = await api.get('/users?limit=1000');
-      if (res.data.success) setAllUsers(res.data.users);
-    } catch (err) { console.error('Kullanıcılar alınamadı', err); }
-  }, []);
+
 
   useEffect(() => {
     setSearchParams({ tab: activeTab });
     if (activeTab === 'legal' || activeTab === 'system') fetchSettingsMap();
-    if (activeTab === 'notifications') fetchBroadcastHistory();
     if (activeTab === 'quotes') fetchQuotes();
     if (activeTab === 'faqs') fetchFaqs();
     if (activeTab === 'system') fetchMaintenanceStatus();
     if (activeTab === 'logs') fetchLogs();
-    if (activeTab === 'notifications') {
-      fetchBroadcastHistory();
-      fetchUsersForSelection();
-    }
-  }, [activeTab, fetchBroadcastHistory, fetchFaqs, fetchLogs, fetchMaintenanceStatus, fetchQuotes, fetchSettingsMap, fetchUsersForSelection, setSearchParams]);
+  }, [activeTab, fetchFaqs, fetchLogs, fetchMaintenanceStatus, fetchQuotes, fetchSettingsMap, setSearchParams]);
 
   // ─── Handlers ────────────────────────────────────────────────────────────────
 
@@ -292,52 +267,7 @@ const AdminSettings = () => {
     finally { setLegalSaving(''); }
   };
 
-  const handleSendBroadcast = async (e) => {
-    e.preventDefault();
-    if (!notifTitle || !notifBody) return;
 
-    if (notifTarget === 'targeted' && selectedUserIds.length === 0) {
-      showToast('Lütfen en az bir kullanıcı seçin.', 'error');
-      return;
-    }
-
-    const targetName = notifTarget === 'pro' ? 'SADECE PREMIUM'
-                     : notifTarget === 'free' ? 'ÜCRETSİZ'
-                     : notifTarget === 'targeted' ? `${selectedUserIds.length} SEÇİLİ`
-                     : 'BÜTÜN';
-
-    if (!window.confirm(`Bu bildirimi ${targetName} kullanıcılara göndermek istiyor musunuz?`)) return;
-
-    try {
-      setLoading(true);
-      if (notifTarget === 'targeted') {
-        await api.post('/notifications/targeted', {
-          title: notifTitle,
-          body: notifBody,
-          userIds: selectedUserIds
-        });
-      } else {
-        await api.post('/notifications/broadcast', {
-          title: notifTitle,
-          body: notifBody,
-          target: notifTarget
-        });
-      }
-      showToast('Bildirim başarıyla gönderildi!');
-      setNotifTitle(''); setNotifBody('');
-      setSelectedUserIds([]);
-      fetchBroadcastHistory();
-    } catch { showToast('Gönderim hatası.', 'error'); }
-    finally { setLoading(false); }
-  };
-
-  const handleDeleteHistory = async (id) => {
-    if (!window.confirm('Bu kaydı silmek istiyor musunuz?')) return;
-    try {
-      await api.delete(`/notifications/broadcast-history/${id}`);
-      setBroadcastHistory(prev => prev.filter(b => b._id !== id));
-    } catch { showToast('Silinemedi.', 'error'); }
-  };
 
   const handleQuoteSubmit = async (e) => {
     e.preventDefault();
@@ -586,161 +516,7 @@ const AdminSettings = () => {
             </motion.div>
           )}
 
-          {/* ══════════ TAB: NOTIFICATIONS ══════════ */}
-          {activeTab === 'notifications' && (
-            <motion.div key="notifications" variants={contentVariants} initial="initial" animate="animate" exit="exit" className="space-y-6">
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
-                {/* Send form */}
-                <div className="xl:col-span-7">
-                  <SectionCard>
-                    <CardHeader icon={Send} iconColor="from-primary to-primary-dark" title="Toplu Bildirim Gönder" subtitle="Cihazlara anlık Push Notification gönderin" />
-                    <form onSubmit={handleSendBroadcast} className="p-4 sm:p-6 lg:p-8 space-y-5">
-                      {/* Target */}
-                      <div>
-                        <FieldLabel>Hedef Kitle</FieldLabel>
-                        <div className="flex flex-wrap gap-3">
-                          {[
-                            { id: 'all', label: 'Tümü', icon: Users },
-                            { id: 'pro', label: 'Premium', icon: Star },
-                            { id: 'free', label: 'Ücretsiz', icon: User },
-                            { id: 'targeted', label: 'Seçili Kişiler', icon: CheckCircle2 }
-                          ].map(t => (
-                            <button
-                              key={t.id} type="button"
-                              onClick={() => setNotifTarget(t.id)}
-                              className={`flex-1 min-w-[120px] py-3 px-4 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all border ${
-                                notifTarget === t.id
-                                  ? 'bg-primary/10 border-primary/30 text-primary-light'
-                                  : 'bg-white/[0.02] border-white/10 text-text-muted hover:text-white hover:bg-white/[0.04]'
-                              }`}
-                            >
-                              <t.icon className="w-4 h-4" /> {t.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {notifTarget === 'targeted' && (
-                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 p-4 bg-white/[0.02] border border-white/10 rounded-2xl">
-                          <label className="flex justify-between text-xs font-bold text-text-muted">
-                            <span>Kullanıcı Seçimi ({selectedUserIds.length} seçildi)</span>
-                            <button type="button" onClick={() => setSelectedUserIds([])} className="text-primary-light hover:underline lowercase font-bold">temizle</button>
-                          </label>
-                          <div className="relative">
-                            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                            <input
-                              type="text"
-                              value={userSearchText}
-                              onChange={e => setUserSearchText(e.target.value)}
-                              placeholder="İsim veya e-posta ile ara..."
-                              className="w-full bg-white/[0.02] border border-white/10 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white focus:border-primary/50 outline-none"
-                            />
-                          </div>
-                          <div className="max-h-[160px] overflow-y-auto custom-scrollbar space-y-1 pr-1">
-                            {allUsers
-                              .filter(u => {
-                                const search = userSearchText.toLowerCase();
-                                return (u.firstName + ' ' + u.lastName).toLowerCase().includes(search) || u.email.toLowerCase().includes(search);
-                              })
-                              .slice(0, 50)
-                              .map(u => (
-                                <button
-                                  key={u._id}
-                                  type="button"
-                                  onClick={() => {
-                                    if (selectedUserIds.includes(u._id)) setSelectedUserIds(selectedUserIds.filter(id => id !== u._id));
-                                    else setSelectedUserIds([...selectedUserIds, u._id]);
-                                  }}
-                                  className={`w-full flex items-center justify-between p-2 rounded-xl text-left transition-all ${
-                                    selectedUserIds.includes(u._id) ? 'bg-primary/20 border border-primary/30' : 'hover:bg-white/[0.04] border border-transparent'
-                                  }`}
-                                >
-                                  <div className="flex flex-col">
-                                    <span className="text-[11px] font-bold text-white">{u.firstName} {u.lastName}</span>
-                                    <span className="text-[9px] text-text-muted">{u.email}</span>
-                                  </div>
-                                  {selectedUserIds.includes(u._id) && <CheckCircle2 className="w-3.5 h-3.5 text-primary-light" />}
-                                </button>
-                              ))
-                            }
-                          </div>
-                        </motion.div>
-                      )}
-                      <div>
-                        <FieldLabel>Başlık</FieldLabel>
-                        <TextInput value={notifTitle} onChange={e => setNotifTitle(e.target.value)} placeholder="Örn: Hafta sonu sınav hazırlığı başlıyor" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between items-center mb-2">
-                          <FieldLabel>Mesaj İçeriği</FieldLabel>
-                          <span className={`text-[10px] font-bold ${notifBody.length > 160 ? 'text-warning' : 'text-text-muted'}`}>{notifBody.length}/200</span>
-                        </div>
-                        <textarea
-                          value={notifBody} onChange={e => setNotifBody(e.target.value)} maxLength={200} rows={4}
-                          placeholder="Kullanıcının ekranına düşecek mesaj..."
-                          className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white placeholder-white/20 focus:outline-none focus:border-primary/50 transition-all resize-none custom-scrollbar font-medium"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={loading || !notifTitle || !notifBody}
-                        className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary text-sm font-bold text-white transition-colors hover:bg-primary-light disabled:opacity-40 disabled:grayscale"
-                      >
-                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" /> Şimdi Gönder</>}
-                      </button>
-                    </form>
-                  </SectionCard>
-                </div>
-
-                {/* Preview + History */}
-                <div className="xl:col-span-5 flex flex-col gap-6">
-                  {/* Preview */}
-                  <div className="rounded-3xl border border-white/10 bg-white/[0.02] flex flex-col items-center justify-center p-6 h-[220px] relative overflow-hidden">
-                    <p className="absolute left-4 top-4 flex items-center gap-1.5 text-xs font-bold text-text-muted"><Smartphone className="w-3.5 h-3.5" /> Canlı önizleme</p>
-                    <div className="w-full max-w-[300px] bg-white/[0.04] border border-white/10 rounded-2xl p-4 flex gap-3 mt-4 hover:scale-105 transition-transform duration-500">
-                      <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0">
-                        <Bell className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-center mb-0.5">
-                          <span className="text-white text-[10px] font-bold">Ehliyet Yolu</span>
-                          <span className="text-white/40 text-[9px]">şimdi</span>
-                        </div>
-                        <p className="text-white font-bold text-[11px] truncate">{notifTitle || 'Bildirim Başlığı'}</p>
-                        <p className="text-white/70 text-[10px] line-clamp-2">{notifBody || 'Mesaj içeriği burada görünür...'}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* History */}
-                  <SectionCard className="flex-1">
-                    <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                      <div className="flex items-center gap-2"><History className="w-4 h-4 text-text-muted" /><h3 className="text-xs font-bold text-white uppercase tracking-wider">Gönderim Geçmişi</h3></div>
-                      <button onClick={fetchBroadcastHistory} className="p-1.5 bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] rounded-xl transition-colors"><RefreshCw className={`w-3.5 h-3.5 text-text-muted ${loading ? 'animate-spin' : ''}`} /></button>
-                    </div>
-                    <div className="divide-y divide-white/10 max-h-[340px] overflow-y-auto custom-scrollbar">
-                      {broadcastHistory.length === 0
-                        ? <div className="p-10 text-center text-text-muted text-xs">Geçmiş bulunamadı</div>
-                        : broadcastHistory.map(item => (
-                          <div key={item._id} className="p-4 flex gap-3 items-start group hover:bg-white/[0.02] transition-colors">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-bold text-white truncate">{item.title}</p>
-                              <p className="text-[10px] text-text-muted mt-0.5 line-clamp-1">"{item.messageBody || item.body}"</p>
-                              <p className="text-[9px] text-text-muted/60 mt-1">{new Date(item.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
-                            </div>
-                            <button onClick={() => handleDeleteHistory(item._id)} className="p-1.5 opacity-0 group-hover:opacity-100 bg-danger/10 border border-danger/20 text-danger hover:bg-danger hover:text-white rounded-xl transition-all shrink-0">
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))
-                      }
-                    </div>
-                  </SectionCard>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           {/* ══════════ TAB: QUOTES ══════════ */}
           {activeTab === 'quotes' && (
@@ -937,10 +713,9 @@ const AdminSettings = () => {
                     {/* Android Sürüm */}
                     <div className="space-y-2">
                       <FieldLabel>Android Minimum Sürüm</FieldLabel>
-                      <TextInput
+                      <SemverStepper
                         value={settingsMap.app_version_android}
-                        onChange={e => setSettingsMap(p => ({ ...p, app_version_android: e.target.value }))}
-                        placeholder="1.0.0"
+                        onChange={v => setSettingsMap(p => ({ ...p, app_version_android: v }))}
                       />
                       <button
                         type="button"
@@ -948,6 +723,7 @@ const AdminSettings = () => {
                         disabled={legalSaving === 'app_version_android'}
                         className="inline-flex h-10 items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
                       >
+                        {legalSaving === 'app_version_android' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                         Android Sürümünü Güncelle
                       </button>
                     </div>
@@ -955,10 +731,9 @@ const AdminSettings = () => {
                     {/* iOS Sürüm */}
                     <div className="space-y-2">
                       <FieldLabel>iOS Minimum Sürüm</FieldLabel>
-                      <TextInput
+                      <SemverStepper
                         value={settingsMap.app_version_ios}
-                        onChange={e => setSettingsMap(p => ({ ...p, app_version_ios: e.target.value }))}
-                        placeholder="1.0.0"
+                        onChange={v => setSettingsMap(p => ({ ...p, app_version_ios: v }))}
                       />
                       <button
                         type="button"
@@ -966,6 +741,7 @@ const AdminSettings = () => {
                         disabled={legalSaving === 'app_version_ios'}
                         className="inline-flex h-10 items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold text-white transition hover:bg-white/10 disabled:opacity-50"
                       >
+                        {legalSaving === 'app_version_ios' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                         iOS Sürümünü Güncelle
                       </button>
                     </div>

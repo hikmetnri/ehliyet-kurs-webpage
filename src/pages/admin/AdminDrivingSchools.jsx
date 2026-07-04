@@ -867,34 +867,50 @@ const AdminDrivingSchools = () => {
   };
   return (
     <div className="space-y-6 pb-24 text-white">
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/5 blur-3xl" />
-        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary-light">
-              <MapPin className="h-3.5 w-3.5" />
-              Konum tabanlı kurs rehberi
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Sürücü Kursları</h1>
-            <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-text-secondary">
+            <p className="text-xs font-bold text-primary-light uppercase tracking-widest">Konum tabanlı kurs rehberi</p>
+            <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-white sm:text-3xl">Sürücü Kursları</h1>
+            <p className="mt-1 max-w-2xl text-sm font-medium leading-relaxed text-text-secondary">
               Kullanıcıların profil üzerinden göreceği şehir bazlı kursları, iletişim ve başvuru bağlantılarıyla birlikte yönetin.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={openSponsorCreate}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-5 py-3.5 text-sm font-bold text-amber-300 transition hover:bg-amber-400/20"
-            >
-              <Sparkles className="h-4 w-4" />
-              Sponsorlu Ekle
-            </button>
-            <button
-              onClick={openCreate}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-bold text-white transition hover:bg-primary-light"
-            >
-              <Plus className="h-4 w-4" />
-              Kurs Ekle
-            </button>
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-base font-black text-white">{stats.total}</p>
+                <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Toplam</p>
+              </div>
+              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
+                <p className="text-base font-black text-white">{stats.active}</p>
+                <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Aktif</p>
+              </div>
+              <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 px-3 py-2">
+                <p className="text-base font-black text-white">{stats.sponsored}</p>
+                <p className="text-[9px] font-bold text-amber-400 uppercase tracking-widest">Sponsorlu</p>
+              </div>
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2">
+                <p className="text-base font-black text-white">{stats.cities}</p>
+                <p className="text-[9px] font-bold text-primary-light uppercase tracking-widest">Şehir</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={openSponsorCreate}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-2.5 text-sm font-bold text-amber-300 transition hover:bg-amber-400/20"
+              >
+                <Sparkles className="h-4 w-4" />
+                Sponsorlu Ekle
+              </button>
+              <button
+                onClick={openCreate}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primary-light"
+              >
+                <Plus className="h-4 w-4" />
+                Kurs Ekle
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ const QUICK_PROMPTS = [
 ];
 
 export default function UserAIChat() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   
   const [messages, setMessages] = useState(() => {
@@ -330,7 +330,7 @@ export default function UserAIChat() {
                     </div>
                   ) : (
                     <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border border-primary/30 bg-gradient-to-br from-primary-light/20 to-accent/20 text-primary-light shadow-[0_0_15px_rgba(99,102,241,0.3)]">
-                      <Bot className="w-5 h-5 text-primary-light animate-pulse" />
+                      <Bot className="w-5 h-5 text-primary-light" />
                     </div>
                   )}
                   
@@ -434,10 +434,9 @@ export default function UserAIChat() {
               Misafir ücretsiz soru hakkınız: {remainingPrompts > 0 ? remainingPrompts : 0} / {activeLimit}. Daha fazla hak için{' '}
               <span 
                 onClick={() => {
-                  const logout = useAuthStore.getState().logout;
-                  logout();
-                  navigate('/login');
-                }} 
+                    logout();
+                    navigate('/login');
+                  }}
                 className="text-primary-light underline cursor-pointer hover:text-white transition-colors"
               >
                 Üye Olun
@@ -511,11 +510,10 @@ export default function UserAIChat() {
                   onClick={() => {
                     setShowLimitModal(false);
                     if (user?.isGuest) {
-                      const logout = useAuthStore.getState().logout;
                       logout();
                       navigate('/login');
                     } else {
-                      navigate('/dashboard/settings');
+                      alert("Premium abonelik işlemleri web sürümünde desteklenmemektedir. Güvenlik ve faturalandırma kuralları nedeniyle premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.");
                     }
                   }}
                   className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-accent text-white font-black text-xs uppercase tracking-wider hover:opacity-90 active:scale-98 transition shadow-lg"

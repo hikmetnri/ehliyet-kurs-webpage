@@ -215,7 +215,7 @@ const UserDrivingSchools = () => {
       >
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-light">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary-light">
               <Navigation className="h-3.5 w-3.5" />
               Sürücü Kursu Rehberi
             </div>
@@ -258,23 +258,23 @@ const UserDrivingSchools = () => {
         </div>
       )}
 
-      <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4 sm:p-5">
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_190px_190px_auto]">
-          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 transition focus-within:border-cyan-500/40 focus-within:ring-4 focus-within:ring-cyan-500/10">
-            <Search className="h-5 w-5 text-text-muted" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Kurs, adres veya ehliyet sınıfı ara..."
-              className="w-full bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
-            />
-          </div>
+      <div className="rounded-3xl border border-white/[0.08] bg-white/[0.015] p-5 space-y-4 shadow-inner">
+        <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3.5 transition focus-within:border-primary/45 focus-within:ring-4 focus-within:ring-primary/10">
+          <Search className="h-5 w-5 text-text-muted shrink-0" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Kurs adı, adres veya ehliyet sınıfı ara (Örn: Motor, B sınıfı, Kadıköy...)"
+            className="w-full bg-transparent text-sm font-semibold text-white outline-none placeholder:text-text-muted"
+          />
+        </div>
 
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="relative">
             <select
               value={city}
               onChange={(event) => handleCityChange(event.target.value)}
-              className="w-full cursor-pointer rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 text-sm font-black text-white outline-none transition focus:border-cyan-500/40 focus:ring-4 focus:ring-cyan-500/10"
+              className="w-full cursor-pointer rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3.5 text-sm font-black text-white outline-none transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10"
             >
               <option value="" className="bg-bg-card">Şehir seç</option>
               {TURKEY_CITIES.map((item) => <option key={item} value={item} className="bg-bg-card">{item}</option>)}
@@ -289,7 +289,7 @@ const UserDrivingSchools = () => {
                 setDistrict(event.target.value);
               }}
               disabled={!city}
-              className="w-full cursor-pointer rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3.5 text-sm font-black text-white outline-none transition focus:border-cyan-500/40 focus:ring-4 focus:ring-cyan-500/10 disabled:opacity-40"
+              className="w-full cursor-pointer rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3.5 text-sm font-black text-white outline-none transition focus:border-primary/40 focus:ring-4 focus:ring-primary/10 disabled:opacity-40"
             >
               <option value="" className="bg-bg-card">{city ? 'Tüm ilçeler' : 'Önce şehir seç'}</option>
               {districtOptions.map((item) => <option key={item} value={item} className="bg-bg-card">{item}</option>)}
@@ -298,14 +298,14 @@ const UserDrivingSchools = () => {
 
           <button
             onClick={refreshSchools}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3.5 text-sm font-black text-white transition hover:bg-cyan-400"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3.5 text-sm font-black text-white transition hover:bg-primary-light shadow-md shadow-primary/20 cursor-pointer"
           >
-            <RefreshCw className="h-4 w-4" />
-            Yenile
+            <RefreshCw className="h-4 w-4 animate-spin-slow" />
+            Sonuçları Yenile
           </button>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-bold text-text-muted">
+        <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold text-text-muted pt-2 border-t border-white/5">
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
             {filteredSchools.length} kurs gösteriliyor
           </span>
@@ -313,7 +313,7 @@ const UserDrivingSchools = () => {
             <button
               type="button"
               onClick={useProfileFilters}
-              className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
+              className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-primary-light transition hover:bg-primary/20 cursor-pointer"
             >
               Profil konumum: {[profileCity, profileDistrict].filter(Boolean).join(' / ')}
             </button>
@@ -328,7 +328,7 @@ const UserDrivingSchools = () => {
               }}
               className="rounded-full border border-white/10 bg-white/5 px-3 py-1 transition hover:bg-white/10 hover:text-white cursor-pointer"
             >
-              Şehir filtresini temizle
+              Tüm illeri göster
             </button>
           )}
           {district && (
@@ -347,12 +347,12 @@ const UserDrivingSchools = () => {
       </div>
 
       {loading ? (
-        <div className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-white/10 bg-white/[0.025]">
-          <Loader2 className="mb-3 h-8 w-8 animate-spin text-cyan-400" />
+        <div className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-white/[0.08] bg-white/[0.015]">
+          <Loader2 className="mb-3 h-8 w-8 animate-spin text-primary-light" />
           <p className="text-xs font-black uppercase tracking-widest text-text-muted animate-pulse">Kurs rehberi hazırlanıyor...</p>
         </div>
       ) : filteredSchools.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.025] p-12 text-center">
+        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.015] p-12 text-center">
           <Building2 className="mx-auto mb-4 h-12 w-12 text-white/15" />
           <h3 className="text-lg font-black text-white">{city || debouncedQuery ? 'Bu filtreyle kurs bulunamadı' : 'Şehir seçerek veya arama yaparak kursları listele'}</h3>
           <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-relaxed text-text-muted">
@@ -367,155 +367,186 @@ const UserDrivingSchools = () => {
             <Motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="overflow-hidden rounded-[2rem] border border-amber-400/20 bg-gradient-to-r from-[#1a1430] via-[#111827] to-[#10203a] p-[1px] shadow-2xl shadow-amber-500/10"
+              className="overflow-hidden rounded-[2.25rem] border border-amber-400/20 bg-gradient-to-r from-[#1a1430] via-[#111827] to-[#10203a] p-[1px] shadow-2xl shadow-amber-500/10"
             >
-              <div className="rounded-[2rem] bg-white/[0.03] p-5 sm:p-6">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-300">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      {featuredSchool.sponsorLabel || 'Sponsorlu'}
-                    </div>
-                    <h2 className="mt-4 text-2xl font-black tracking-tight text-white">
-                      {featuredSchool.name}
-                    </h2>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-text-muted">
-                      {featuredSchool.sponsorNote || 'Bu kurs bulunduğun şehir için öne çıkarılmış sponsorlu karttır.'}
-                    </p>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white/70">
-                        <MapPin className="h-3 w-3 text-amber-300" />
-                        {[featuredSchool.city, featuredSchool.district].filter(Boolean).join(' / ') || 'Konum yok'}
-                      </span>
-                      {featuredSchool.sponsorEndAt ? (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-300">
-                          Sponsorlu süreli
-                        </span>
-                      ) : null}
+              <div className="rounded-[2.25rem] bg-white/[0.025] p-6 shadow-2xl relative">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-300 shadow-sm shadow-amber-400/5">
+                        <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                        {featuredSchool.sponsorLabel || 'Sponsorlu'}
+                      </div>
+                      <h2 className="mt-3 text-2xl font-black tracking-tight text-white leading-tight">
+                        {featuredSchool.name}
+                      </h2>
                     </div>
                   </div>
-                  <div className="grid shrink-0 grid-cols-1 gap-2 sm:grid-cols-3 lg:min-w-[280px]">
-                    {featuredSchool.phone ? (
-                      <a href={`tel:${featuredSchool.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-xs font-black text-white transition hover:bg-white/[0.12]">
-                        <Phone className="h-3.5 w-3.5" />
-                        Ara
-                      </a>
-                    ) : null}
-                    {featuredSchool.locationUrl ? (
-                      <a href={withProtocol(featuredSchool.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/20 bg-amber-400/10 px-4 py-3 text-xs font-black text-amber-300 transition hover:bg-amber-400/20">
-                        <MapPin className="h-3.5 w-3.5" />
-                        Konum
-                      </a>
-                    ) : null}
-                    {featuredSchool.websiteUrl ? (
-                      <a href={withProtocol(featuredSchool.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-xs font-black text-cyan-light transition hover:bg-cyan-400/20">
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Başvuru
-                      </a>
-                    ) : null}
-                  </div>
-                </div>
 
-                {/* Kayıt Başvuru Butonu */}
-                <div className="mt-6 border-t border-white/10 pt-5">
-                  <button
-                    onClick={() => navigate(`/dashboard/driving-schools/${featuredSchool._id}/apply`)}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-5 py-3 text-sm font-bold text-amber-300 transition hover:bg-amber-400/20 cursor-pointer"
-                  >
-                    <Send className="h-4 w-4" />
-                    Başvur
-                  </button>
+                  <p className="text-sm font-medium leading-relaxed text-text-muted">
+                    {featuredSchool.sponsorNote || 'Bu kurs bulunduğun şehir için öne çıkarılmış sponsorlu karttır.'}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    <span className="inline-flex items-center gap-1.5 rounded-xl border border-white/5 bg-white/[0.015] px-3.5 py-1.5 text-[11px] font-black text-text-secondary">
+                      <MapPin className="h-3.5 w-3.5 text-amber-300" />
+                      {[featuredSchool.city, featuredSchool.district].filter(Boolean).join(' / ') || 'Konum yok'}
+                    </span>
+                    {featuredSchool.sponsorEndAt && (
+                      <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400/10 bg-amber-400/5 px-3.5 py-1.5 text-[11px] font-black text-amber-300">
+                        Süreli Sponsorluk
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4">
+                    <div className="flex items-center gap-2">
+                      {featuredSchool.phone && (
+                        <a 
+                          href={`tel:${featuredSchool.phone.replace(/\s/g, '')}`} 
+                          title="Telefonla Ara"
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-text-secondary transition hover:bg-amber-400/10 hover:text-amber-300 hover:border-amber-400/20"
+                        >
+                          <Phone className="h-4.5 w-4.5" />
+                        </a>
+                      )}
+                      {featuredSchool.locationUrl && (
+                        <a 
+                          href={withProtocol(featuredSchool.locationUrl)} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          title="Haritada Göster"
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-text-secondary transition hover:bg-amber-400/10 hover:text-amber-300 hover:border-amber-400/20"
+                        >
+                          <MapPin className="h-4.5 w-4.5" />
+                        </a>
+                      )}
+                      {featuredSchool.websiteUrl && (
+                        <a 
+                          href={withProtocol(featuredSchool.websiteUrl)} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          title="Web Sitesini Ziyaret Et"
+                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-text-secondary transition hover:bg-amber-400/10 hover:text-amber-300 hover:border-amber-400/20"
+                        >
+                          <ExternalLink className="h-4.5 w-4.5" />
+                        </a>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => navigate(`/dashboard/driving-schools/${featuredSchool._id}/apply`)}
+                      className="inline-flex items-center gap-2 rounded-xl bg-amber-400 hover:bg-amber-300 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-bg-dark transition shadow-lg shadow-amber-400/25 cursor-pointer"
+                    >
+                      <Send className="h-3.5 w-3.5 animate-pulse" />
+                      Hemen Başvur (Sponsorlu)
+                    </button>
+                  </div>
                 </div>
               </div>
             </Motion.div>
           )}
 
-          <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div className="mt-5 flex flex-col gap-5">
             {visibleSchools.map((school) => (
-            <Motion.article
-              key={school._id}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="group rounded-3xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-cyan-500/30 hover:bg-white/[0.04]"
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10">
-                  <Building2 className="h-6 w-6 text-cyan-light" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="break-words text-xl font-black text-white group-hover:text-cyan-light transition-colors">{school.name}</h2>
-                  <p className="mt-2 flex items-center gap-2 text-sm font-bold text-text-secondary">
-                    <MapPin className="h-4 w-4 shrink-0 text-cyan-light" />
-                    {[school.city, school.district].filter(Boolean).join(' / ') || 'Konum bilgisi yok'}
-                  </p>
-                </div>
-              </div>
-
-              {school.address && <p className="mt-4 text-sm font-semibold leading-relaxed text-text-secondary">{school.address}</p>}
-
-              {isSponsorActive(school) && (
-                <div className="mt-4 rounded-2xl border border-amber-400/20 bg-gradient-to-r from-amber-400/10 via-fuchsia-500/10 to-cyan-400/10 p-4">
-                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-300">
-                    <Sparkles className="h-4 w-4" />
-                    {school.sponsorLabel || 'Sponsorlu'}
+              <Motion.article
+                key={school._id}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="group rounded-3xl border border-white/[0.08] bg-white/[0.015] p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white/[0.035] hover:shadow-lg hover:shadow-black/25 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 transition-transform duration-300 group-hover:scale-105">
+                      <Building2 className="h-5.5 w-5.5 text-primary-light" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h2 className="break-words text-lg font-black text-white group-hover:text-primary-light transition-colors leading-snug">{school.name}</h2>
+                      <p className="mt-2.5 flex items-center gap-1.5 text-xs font-bold text-text-secondary">
+                        <MapPin className="h-4 w-4 shrink-0 text-primary-light" />
+                        {[school.city, school.district].filter(Boolean).join(' / ') || 'Konum bilgisi yok'}
+                      </p>
+                    </div>
                   </div>
-                  {school.sponsorNote && (
-                    <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">{school.sponsorNote}</p>
+
+                  {school.address && (
+                    <p className="mt-4 text-xs font-medium leading-relaxed text-text-muted/80">{school.address}</p>
+                  )}
+
+                  {isSponsorActive(school) && (
+                    <div className="mt-4 rounded-2xl border border-amber-400/20 bg-gradient-to-r from-amber-400/10 via-fuchsia-500/10 to-primary/10 p-4">
+                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-amber-300">
+                        <Sparkles className="h-4 w-4 animate-pulse" />
+                        {school.sponsorLabel || 'Sponsorlu'}
+                      </div>
+                      {school.sponsorNote && (
+                        <p className="mt-2 text-xs font-medium leading-relaxed text-text-muted">{school.sponsorNote}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {school.licenseClasses?.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {school.licenseClasses.map((item) => (
+                        <span key={`${school._id}-${item}`} className="rounded-xl border border-primary/25 bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-primary-light">
+                          {item} Sınıfı
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {school.description && (
+                    <p className="mt-4 rounded-2xl border border-white/5 bg-white/[0.01] p-4 text-[11px] font-semibold italic leading-relaxed text-text-muted/70">
+                      "{school.description}"
+                    </p>
                   )}
                 </div>
-              )}
 
-              {school.licenseClasses?.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {school.licenseClasses.map((item) => (
-                    <span key={`${school._id}-${item}`} className="rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-black text-primary-light transition-all hover:bg-primary/20">
-                      {item}
-                    </span>
-                  ))}
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/5 pt-4">
+                  <div className="flex items-center gap-2">
+                    {school.phone && (
+                      <a 
+                        href={`tel:${school.phone.replace(/\s/g, '')}`} 
+                        title="Telefonla Ara"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-text-secondary transition hover:bg-primary/10 hover:text-primary-light hover:border-primary/20"
+                      >
+                        <Phone className="h-4 w-4" />
+                      </a>
+                    )}
+                    {school.locationUrl && (
+                      <a 
+                        href={withProtocol(school.locationUrl)} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        title="Haritada Göster"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-text-secondary transition hover:bg-primary/10 hover:text-primary-light hover:border-primary/20"
+                      >
+                        <MapPin className="h-4 w-4" />
+                      </a>
+                    )}
+                    {school.websiteUrl && (
+                      <a 
+                        href={withProtocol(school.websiteUrl)} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        title="Web Sitesini Ziyaret Et"
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-text-secondary transition hover:bg-primary/10 hover:text-primary-light hover:border-primary/20"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-primary-light shadow-md shadow-primary/25 cursor-pointer"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Kurs Başvurusu
+                  </button>
                 </div>
-              )}
-
-              {school.description && (
-                <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] p-4 text-xs font-semibold leading-relaxed text-text-muted">
-                  {school.description}
-                </p>
-              )}
-
-               <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                 {school.phone ? (
-                   <a href={`tel:${school.phone.replace(/\s/g, '')}`} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-3 py-3.5 text-xs font-black text-white transition hover:bg-white/10">
-                     <Phone className="h-3.5 w-3.5" />
-                     Ara
-                   </a>
-                 ) : (
-                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Telefon yok</span>
-                 )}
-                 {school.locationUrl ? (
-                   <a href={withProtocol(school.locationUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20">
-                     <MapPin className="h-3.5 w-3.5" />
-                     Konum
-                   </a>
-                 ) : (
-                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Konum yok</span>
-                 )}
-                 {school.websiteUrl ? (
-                   <a href={withProtocol(school.websiteUrl)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-3.5 text-xs font-black text-primary-light transition hover:bg-primary/20">
-                     <ExternalLink className="h-3.5 w-3.5" />
-                     Web
-                   </a>
-                 ) : (
-                   <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-white/[0.02] px-3 py-3.5 text-xs font-black text-text-muted">Web yok</span>
-                 )}
-                 <button
-                   onClick={() => navigate(`/dashboard/driving-schools/${school._id}/apply`)}
-                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-3.5 text-xs font-black text-cyan-light transition hover:bg-cyan-500/20 cursor-pointer"
-                 >
-                   <Send className="h-3.5 w-3.5" />
-                   Başvur
-                 </button>
-               </div>
-            </Motion.article>
-          ))}
+              </Motion.article>
+            ))}
           </div>
         </>
       )}

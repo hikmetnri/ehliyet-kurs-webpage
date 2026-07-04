@@ -5,10 +5,25 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import {
   User, Lock, Bell, Camera, Loader2, Save, AlertCircle, CheckCircle2, ShieldAlert, ShieldCheck, CalendarDays, Trash2, MapPinned, ArrowRight,
   BarChart2, Star, Headphones, PlayCircle, TriangleAlert, MessagesSquare, BookOpen, Trophy, Award, HelpCircle, Info, LogOut, ChevronRight, ChevronDown, X, Sparkles, Bot,
-  Settings, RefreshCw, LayoutGrid, Sun, Moon, Monitor
+  Settings, RefreshCw, LayoutGrid, Sun, Moon, Monitor, Building2,
+  Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart
 } from 'lucide-react';
+// Lucide icon name → component map (backend badge icon alanı string gelir)
+const BADGE_ICON_MAP = {
+  Award, Star, Trophy, Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart, BookOpen, CheckCircle2
+};
+
+const BadgeIcon = ({ name, ...props }) => {
+  // Emoji veya bilinmeyen string ise direkt render et, Lucide name ise component döndür
+  const Icon = BADGE_ICON_MAP[name];
+  if (Icon) return <Icon {...props} />;
+  // Emoji / fallback string
+  return <span className="text-2xl leading-none">{name || '🏅'}</span>;
+};
+
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
+import UserDrivingSchools from './UserDrivingSchools';
 import { TURKEY_CITIES, getDistrictsForCity } from '../../data/turkeyLocations';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 import { soundService } from '../../services/soundService';
@@ -58,13 +73,49 @@ const UserSettings = () => {
   const [activeFaq, setActiveFaq] = useState(null);
 
   const [stats, setStats] = useState({ totalExams: 0, totalQuestions: 0, totalCorrect: 0, successRate: 0 });
+  // Son 7 günün aktif olup olmadığını tutan dizi (gerçek exam result tarihlerinden)
+  const [weekActivity, setWeekActivity] = useState([false, false, false, false, false, false, false]);
 
-  // Load stats from API
+  // Load stats + son 7 gün aktivite
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await api.get('/exam-results/stats');
-        setStats(res.data?.stats || res.data || {});
+        const [statsRes, resultsRes] = await Promise.allSettled([
+          api.get('/exam-results/stats'),
+          api.get('/exam-results?limit=200'),
+        ]);
+
+        if (statsRes.status === 'fulfilled') {
+          setStats(statsRes.value.data?.stats || statsRes.value.data || {});
+        }
+
+        if (resultsRes.status === 'fulfilled') {
+          const results = resultsRes.value.data?.data ||
+                          resultsRes.value.data?.results ||
+                          (Array.isArray(resultsRes.value.data) ? resultsRes.value.data : []);
+
+          // Son 7 günü Pazartesi=0 ... Pazar=6 sırasına göre hesapla
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          // todayIndex: Pzt=0 ... Paz=6
+          const todayDow = (today.getDay() + 6) % 7;
+
+          const active = Array.from({ length: 7 }, (_, i) => {
+            // i=0 → Pzt ... i=todayDow → bugün
+            if (i > todayDow) return false; // henüz gelmemiş gün
+            const offset = todayDow - i; // kaç gün önce
+            const day = new Date(today);
+            day.setDate(day.getDate() - offset);
+            const dayEnd = new Date(day);
+            dayEnd.setDate(dayEnd.getDate() + 1);
+            return results.some(r => {
+              const d = new Date(r.createdAt);
+              return d >= day && d < dayEnd;
+            });
+          });
+
+          setWeekActivity(active);
+        }
       } catch (err) {
         console.error("Stats load err:", err);
       }
@@ -320,6 +371,7 @@ const UserSettings = () => {
     { id: 'profile', icon: User, label: 'Profil Bilgileri' },
     { id: 'account', icon: Lock, label: 'Hesap Güvenliği' },
     { id: 'notifications', icon: Bell, label: 'Tercihler & Hedefler' },
+    { id: 'driving-schools', icon: Building2, label: 'Sürücü Kursları' },
     { id: 'badges', icon: Award, label: 'Kazanılan Rozetler' },
     { id: 'leaderboard', icon: Trophy, label: 'Liderlik Tablosu' },
     { id: 'faq', icon: HelpCircle, label: 'Yardım & SSS' },
@@ -375,20 +427,60 @@ const UserSettings = () => {
   // Weekly Heatmap Activity calculation
   const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
   const todayIndex = (new Date().getDay() + 6) % 7; // Monday = 0, Sunday = 6
-  const activeDays = Array.from({ length: 7 }, (_, index) => {
-    return index <= todayIndex && (index % 2 === 0 || index === todayIndex);
-  });
+  // weekActivity: backend exam-results'tan hesaplanan gerçek aktivite günleri
+  const activeDays = weekActivity;
   const activeCount = activeDays.filter(Boolean).length;
 
   // Static badge fallback list
   const DEFAULT_BADGES = [
-    { id: '1', name: 'İlk Adım', description: 'İlk deneme sınavını tamamla.', icon: '🎓', color: '#06b6d4', isEarned: stats.totalExams >= 1 },
-    { id: '2', name: 'Hızlı Sürücü', description: '5 deneme sınavını tamamla.', icon: '⚡', color: '#a855f7', isEarned: stats.totalExams >= 5 },
-    { id: '3', name: 'Usta Yolcu', description: '10 deneme sınavını tamamla.', icon: '🏆', color: '#eab308', isEarned: stats.totalExams >= 10 },
-    { id: '4', name: 'Kusursuz', description: 'Bir sınavda %90+ başarı elde et.', icon: '✨', color: '#ec4899', isEarned: stats.successRate >= 90 },
-    { id: '5', name: 'Kararlı', description: 'Toplam 50 soru çöz.', icon: '🔥', color: '#f97316', isEarned: stats.totalQuestions >= 50 },
-    { id: '6', name: 'Bilge', description: 'Toplam 100 soru çöz.', icon: '📚', color: '#10b981', isEarned: stats.totalQuestions >= 100 }
+    // Sınav Tamamlama Rozetleri
+    { id: '1', name: 'İlk Adım', description: 'İlk sınavını tamamla.', icon: '🎯', color: '#6C63FF', isEarned: stats.totalExams >= 1 },
+    { id: '2', name: 'Sınav Dostu', description: '5 sınav tamamla.', icon: '💪', color: '#3ECFCF', isEarned: stats.totalExams >= 5 },
+    { id: '3', name: 'Çalışkan', description: '20 sınav tamamla.', icon: '📚', color: '#FFB74D', isEarned: stats.totalExams >= 20 },
+    { id: '4', name: 'Uzman', description: '50 sınav tamamla.', icon: '🎓', color: '#4CAF50', isEarned: stats.totalExams >= 50 },
+    { id: '4_2', name: 'Kral Sürücü', description: '100 sınav tamamla.', icon: '👑', color: '#D32F2F', isEarned: stats.totalExams >= 100 },
+    
+    // Günlük Seri Rozetleri
+    { id: '5', name: '3 Gün Serisi', description: '3 gün üst üste çalış.', icon: '🔥', color: '#FF7043', isEarned: (user?.streak || 0) >= 3 },
+    { id: '6', name: 'Haftalık Kahraman', description: '7 gün üst üste çalış.', icon: '⚡', color: '#FFB74D', isEarned: (user?.streak || 0) >= 7 },
+    { id: '7', name: 'Efsane', description: '30 gün kesintisiz çalış.', icon: '👑', color: '#FFD700', isEarned: (user?.streak || 0) >= 30 },
+    
+    // Toplam Soru Çözme Rozetleri (Backend ve Veritabanı Varsayılanları)
+    { id: '8', name: 'Çaylak', description: '200 soru çöz.', icon: '🥉', color: '#CD7F32', isEarned: stats.totalQuestions >= 200 },
+    { id: '9', name: 'Azimli', description: '400 soru çöz.', icon: '🥈', color: '#C0C0C0', isEarned: stats.totalQuestions >= 400 },
+    { id: '10', name: 'Kararlı', description: '600 soru çöz.', icon: '🥇', color: '#FFD700', isEarned: stats.totalQuestions >= 600 },
+    { id: '11', name: 'Tecrübeli', description: '900 soru çöz.', icon: '🔮', color: '#9C27B0', isEarned: stats.totalQuestions >= 900 },
+    { id: '12', name: 'Usta', description: '1200 soru çöz.', icon: '💎', color: '#00BCD4', isEarned: stats.totalQuestions >= 1200 },
+    { id: '13', name: 'Efsane Sürücü', description: '1600 soru çöz.', icon: '🔥', color: '#FF5722', isEarned: stats.totalQuestions >= 1600 },
+    { id: '14', name: 'Şampiyon', description: '2000 soru çöz.', icon: '👑', color: '#F44336', isEarned: stats.totalQuestions >= 2000 },
+    { id: '14_2', name: 'Yolun Hakimi', description: '3000 soru çöz.', icon: '👮', color: '#1E88E5', isEarned: stats.totalQuestions >= 3000 },
+    
+    // Doğru Soru Çözme Rozetleri
+    { id: '15', name: 'Yüzlük', description: '100 doğru cevap ver.', icon: '✅', color: '#4CAF50', isEarned: stats.totalCorrect >= 100 },
+    { id: '16', name: 'Doğruluk Ustası', description: '500 doğru cevap ver.', icon: '🌟', color: '#6C63FF', isEarned: stats.totalCorrect >= 500 },
+    { id: '16_2', name: 'Doğruluk Abidesi', description: '1000 doğru cevap ver.', icon: '🎯', color: '#FFEB3B', isEarned: stats.totalCorrect >= 1000 },
+    { id: '17', name: 'Mükemmel', description: 'Bir sınavdan 100% al.', icon: '🏆', color: '#FFD700', isEarned: stats.successRate >= 99 }
   ];
+
+  const getSortedBadges = (badgeList) => {
+    const typeOrder = {
+      'exam_count': 1,
+      'streak': 2,
+      'question_count': 3,
+      'correct_count': 4,
+      'daily_goal': 5,
+      'success_rate': 6
+    };
+    return [...badgeList].sort((a, b) => {
+      const orderA = typeOrder[a.type] || 99;
+      const orderB = typeOrder[b.type] || 99;
+      if (orderA !== orderB) return orderA - orderB;
+      return (Number(a.requiredValue) || 0) - (Number(b.requiredValue) || 0);
+    });
+  };
+
+  const activeBadgeList = badges.length > 0 ? badges : DEFAULT_BADGES;
+  const sortedBadges = getSortedBadges(activeBadgeList);
 
   const desktopFieldClass = "w-full rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-primary/50 focus:bg-primary/5 focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -501,11 +593,16 @@ const UserSettings = () => {
     <div className="text-white pb-24">
       {message.text && (
         <Motion.div
-          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className="fixed top-24 left-4 right-4 z-40 p-4 rounded-xl flex items-center gap-3 border bg-success/15 border-success/20 text-success shadow-lg shadow-black/20"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`sticky top-4 mb-6 z-40 p-4 rounded-2xl flex items-center gap-3 border backdrop-blur-md shadow-lg shadow-black/25 ${
+            message.type === 'success'
+              ? 'bg-success/15 border-success/20 text-success'
+              : 'bg-danger/15 border-danger/20 text-danger'
+          }`}
         >
-          {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
-          <p className="font-medium text-sm">{message.text}</p>
+          {message.type === 'success' ? <CheckCircle2 className="w-5 h-5 shrink-0 text-success" /> : <AlertCircle className="w-5 h-5 shrink-0 text-danger" />}
+          <p className="font-black text-xs uppercase tracking-wide">{message.text}</p>
         </Motion.div>
       )}
 
@@ -517,7 +614,7 @@ const UserSettings = () => {
             {/* Column 1: Left Sidebar */}
             <aside className="space-y-5">
               {/* Profile Card */}
-              <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-lg shadow-black/25">
+              <section className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-5 shadow-xl shadow-black/30 backdrop-blur-xl">
                 <div className="absolute -top-12 -left-12 w-28 h-28 bg-primary/10 blur-[40px] rounded-full pointer-events-none" />
                 <div className="absolute -top-12 -right-12 w-28 h-28 bg-accent/10 blur-[40px] rounded-full pointer-events-none" />
 
@@ -598,7 +695,7 @@ const UserSettings = () => {
               </section>
 
               {/* Navigation Card */}
-              <nav className="rounded-3xl border border-white/10 bg-[#0d1017] p-3 shadow-lg shadow-black/25 space-y-1">
+              <nav className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-3 shadow-xl shadow-black/30 space-y-1 backdrop-blur-xl">
                 {desktopTabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -607,10 +704,10 @@ const UserSettings = () => {
                       key={tab.id}
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${
+                      className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-all duration-200 ${
                         isActive
-                          ? 'border-primary/25 bg-primary/10 text-white'
-                          : 'border-transparent bg-transparent text-text-muted hover:bg-white/[0.03] hover:text-white'
+                          ? 'border-primary/20 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent text-white shadow-inner shadow-primary/5'
+                          : 'border-transparent bg-transparent text-text-muted hover:bg-white/[0.02] hover:text-white'
                       }`}
                     >
                       <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-primary-light' : 'text-text-muted'}`} />
@@ -624,7 +721,7 @@ const UserSettings = () => {
               {/* Responsive stacking support for widgets between lg and xl */}
               <div className="xl:hidden block space-y-5">
                 {/* Profile Completion Checklist */}
-                <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-lg shadow-black/25">
+                <div className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-5 shadow-xl shadow-black/30 backdrop-blur-xl">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -666,7 +763,7 @@ const UserSettings = () => {
                 </div>
 
                 {/* Heatmap Widget */}
-                <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-lg shadow-black/25 space-y-4">
+                <div className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-5 shadow-xl shadow-black/30 space-y-4 backdrop-blur-xl">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-white uppercase tracking-wider">Aktivite Serisi</span>
                     <span className="text-xs font-black text-orange-400 flex items-center gap-1">
@@ -713,7 +810,7 @@ const UserSettings = () => {
             </aside>
 
             {/* Column 2: Main Panel */}
-            <main className="min-w-0 rounded-3xl border border-white/10 bg-[#0d1017] p-6 shadow-lg shadow-black/25">
+            <main className="min-w-0 rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-6 shadow-xl shadow-black/30 backdrop-blur-xl">
               
               {/* Tab Header */}
               <div className="mb-6 flex flex-col gap-3 border-b border-white/5 pb-5 sm:flex-row sm:items-start sm:justify-between">
@@ -726,6 +823,7 @@ const UserSettings = () => {
                     {activeTab === 'profile' && 'Kişisel kimlik, telefon, konum ve biyografi bilgilerinizi düzenleyin.'}
                     {activeTab === 'account' && 'Giriş e-postanızı görüntüleyin, parolanızı güncelleyin veya hesabınızı yönetin.'}
                     {activeTab === 'notifications' && 'Günlük soru hedefinizi belirleyin, sınav tarihinizi ve hatırlatma saatini ayarlayın.'}
+                    {activeTab === 'driving-schools' && 'Şehrinizdeki sürücü kurslarını inceleyin, konumlarını bulun ve doğrudan başvurun.'}
                     {activeTab === 'badges' && 'Çalışmalarınız karşılığında kazandığınız başarı madalyaları ve rozetler.'}
                     {activeTab === 'leaderboard' && 'Diğer sürücü adaylarıyla haftalık ve aylık puan yarışında yerinizi alın.'}
                     {activeTab === 'faq' && 'Ehliyet sınavı ve çalışma sistemi hakkında en çok sorulan sorular.'}
@@ -875,7 +973,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Zümrüt Yeşili teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Zümrüt Yeşili teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('emerald');
                               }
@@ -906,7 +1004,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Gece Mavisi teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Gece Mavisi teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('midnight');
                               }
@@ -937,7 +1035,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Obsidyen AMOLED teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Obsidyen AMOLED teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('obsidian');
                               }
@@ -968,7 +1066,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Gün Batımı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Gün Batımı teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('sunset');
                               }
@@ -999,7 +1097,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Lavanta Rüyası teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Lavanta Rüyası teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('lavender');
                               }
@@ -1030,7 +1128,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Yakut Kırmızısı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Yakut Kırmızısı teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('ruby');
                               }
@@ -1061,7 +1159,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Kutup Ayazı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Kutup Ayazı teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('arctic');
                               }
@@ -1092,7 +1190,7 @@ const UserSettings = () => {
                             type="button"
                             onClick={() => {
                               if (!user?.proStatus) {
-                                showMessage('error', "Ametist teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                                showMessage('error', "Ametist teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                               } else {
                                 handleThemeChange('amethyst');
                               }
@@ -1357,7 +1455,7 @@ const UserSettings = () => {
                         <button
                           type="submit"
                           disabled={loading}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-success px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 shadow-md shadow-success/25 cursor-pointer"
+                          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-60 shadow-md shadow-primary/25 cursor-pointer"
                         >
                           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                           Tercihleri Kaydet
@@ -1384,12 +1482,12 @@ const UserSettings = () => {
                       <div className="flex items-center gap-3 shrink-0">
                         <div className="text-right">
                           <span className="text-2xl font-black text-white">
-                            {stats.totalExams >= 1 ? DEFAULT_BADGES.filter(b => b.isEarned).length : 0} / {DEFAULT_BADGES.length}
+                            {sortedBadges.filter(b => b.isEarned).length} / {sortedBadges.length}
                           </span>
                           <span className="text-[10px] text-text-muted block font-black uppercase tracking-wider">Kazanılan</span>
                         </div>
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center shadow-lg font-black text-xs text-bg-dark">
-                          {Math.round(((stats.totalExams >= 1 ? DEFAULT_BADGES.filter(b => b.isEarned).length : 0) / DEFAULT_BADGES.length) * 100)}%
+                          {sortedBadges.length > 0 ? Math.round((sortedBadges.filter(b => b.isEarned).length / sortedBadges.length) * 100) : 0}%
                         </div>
                       </div>
                     </div>
@@ -1400,7 +1498,7 @@ const UserSettings = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {DEFAULT_BADGES.map((badge) => {
+                        {sortedBadges.map((badge) => {
                           const badgeColor = badge.color || '#a855f7';
                           const isEarned = badge.isEarned;
                           return (
@@ -1421,7 +1519,11 @@ const UserSettings = () => {
                                   opacity: isEarned ? 1 : 0.35,
                                 }}
                               >
-                                {badge.icon}
+                                <BadgeIcon
+                                  name={badge.icon}
+                                  className="w-7 h-7"
+                                  style={{ color: isEarned ? badgeColor : '#666' }}
+                                />
                               </div>
                               <h4 className={`text-xs font-black mt-3 ${isEarned ? 'text-white' : 'text-text-muted'}`}>
                                 {badge.name}
@@ -1494,7 +1596,9 @@ const UserSettings = () => {
                           const avatar = userDetails.avatarUrl || item.avatarUrl || '';
                           const level = userDetails.level || item.level || 1;
                           const points = item.totalPoints || item.totalScore || 0;
-                          const isSelf = user?._id === item._id || user?.id === item.id;
+                          const isSelf = item.userId
+                            ? String(item.userId) === String(user?._id)
+                            : (user?._id === item._id || user?.id === item.id);
 
                           const isTopThree = rank <= 3;
                           const rankColor = rank === 1 ? 'text-yellow-400' : (rank === 2 ? 'text-gray-300' : (rank === 3 ? 'text-amber-600' : 'text-text-muted'));
@@ -1597,13 +1701,25 @@ const UserSettings = () => {
                     )}
                   </Motion.div>
                 )}
+
+                {activeTab === 'driving-schools' && (
+                  <Motion.div
+                    key="driving-schools"
+                    initial={{ opacity: 0, x: 15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -15 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <UserDrivingSchools />
+                  </Motion.div>
+                )}
               </AnimatePresence>
             </main>
 
             {/* Column 3: Right Sidebar */}
             <aside className="space-y-5 hidden xl:block">
               {/* Profile Completion Checklist */}
-              <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-lg shadow-black/25">
+              <section className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-5 shadow-xl shadow-black/30 backdrop-blur-xl">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -1645,7 +1761,7 @@ const UserSettings = () => {
               </section>
 
               {/* Heatmap Widget */}
-              <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-lg shadow-black/25 space-y-4">
+              <section className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-5 shadow-xl shadow-black/30 space-y-4 backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-black text-white uppercase tracking-wider">Aktivite Serisi</span>
                   <span className="text-xs font-black text-orange-400 flex items-center gap-1">
@@ -1680,7 +1796,7 @@ const UserSettings = () => {
               </section>
 
               {/* Active Category Info */}
-              <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-lg shadow-black/25 space-y-3.5">
+              <section className="rounded-3xl border border-white/[0.08] bg-gradient-to-br from-[#111528] to-[#0a0d16] p-5 shadow-xl shadow-black/30 space-y-3.5 backdrop-blur-xl">
                 <div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-accent-light">Sınıf Durumu</span>
                   <h4 className="text-xs font-black text-white mt-1">Ehliyet Sınıfınız</h4>
@@ -2081,7 +2197,7 @@ const UserSettings = () => {
                 </div>
                 {!user?.proStatus && (
                   <button
-                    onClick={() => showMessage('error', "Premium abonelik işlemleri güvenlik ve faturalandırma kuralları nedeniyle yalnızca mobil uygulamamız (Google Play & App Store) üzerinden gerçekleştirilebilir.")}
+                    onClick={() => showMessage('error', "Premium abonelik işlemleri web sürümünde desteklenmemektedir. Güvenlik ve faturalandırma kuralları nedeniyle premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.")}
                     className="px-3 py-1 bg-accent hover:bg-accent-light text-bg-dark font-black text-[10px] rounded-lg transition-colors whitespace-nowrap"
                   >
                     PRO Ol
@@ -2206,7 +2322,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Zümrüt Yeşili teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Zümrüt Yeşili teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('emerald');
                       }
@@ -2225,7 +2341,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Gece Mavisi teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Gece Mavisi teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('midnight');
                       }
@@ -2244,7 +2360,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Obsidyen AMOLED teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Obsidyen AMOLED teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('obsidian');
                       }
@@ -2263,7 +2379,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Gün Batımı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Gün Batımı teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('sunset');
                       }
@@ -2282,7 +2398,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Lavanta Rüyası teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Lavanta Rüyası teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('lavender');
                       }
@@ -2301,7 +2417,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Yakut Kırmızısı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Yakut Kırmızısı teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('ruby');
                       }
@@ -2320,7 +2436,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Kutup Ayazı teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Kutup Ayazı teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('arctic');
                       }
@@ -2339,7 +2455,7 @@ const UserSettings = () => {
                     type="button"
                     onClick={() => {
                       if (!user?.proStatus) {
-                        showMessage('error', "Ametist teması yalnızca PRO üyeler içindir! Mobil uygulama üzerinden premium üyelik edinebilirsiniz.");
+                        showMessage('error', "Ametist teması yalnızca PRO üyeler içindir! Android uygulamamız (Google Play) üzerinden premium üyelik edinebilirsiniz.");
                       } else {
                         handleThemeChange('amethyst');
                       }
@@ -2536,7 +2652,7 @@ const UserSettings = () => {
               name="dailyGoal"
               value={notifData.dailyGoal}
               onChange={handleNotifChange}
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-success focus:bg-success/5 font-bold"
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-primary focus:bg-primary/5 font-bold"
             >
               <option value={10} className="bg-[#1c1d24]">10 Soru</option>
               <option value={20} className="bg-[#1c1d24]">20 Soru</option>
@@ -2554,7 +2670,7 @@ const UserSettings = () => {
                 name="examDate"
                 value={notifData.examDate}
                 onChange={handleNotifChange}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-success font-bold"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-primary font-bold"
               />
               {notifData.examDate && (
                 <button
@@ -2575,7 +2691,7 @@ const UserSettings = () => {
                 name="notifHour"
                 value={notifData.notifHour}
                 onChange={handleNotifChange}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-success font-bold"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-primary font-bold"
               >
                 {[...Array(24).keys()].map(h => (
                   <option key={h} value={h} className="bg-[#1c1d24]">{h.toString().padStart(2, '0')}</option>
@@ -2586,7 +2702,7 @@ const UserSettings = () => {
                 name="notifMinute"
                 value={notifData.notifMinute}
                 onChange={handleNotifChange}
-                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-success font-bold"
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-primary font-bold"
               >
                 {[0, 15, 30, 45].map(m => (
                   <option key={m} value={m} className="bg-[#1c1d24]">{m.toString().padStart(2, '0')}</option>
@@ -2638,7 +2754,7 @@ const UserSettings = () => {
               if (success) setIsNotifSettingsOpen(false);
             }}
             disabled={loading}
-            className="w-full btn-primary flex items-center justify-center gap-2 mt-4 bg-gradient-to-r from-success to-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+            className="w-full btn-primary flex items-center justify-center gap-2 mt-4"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Tercihleri Kaydet
@@ -2651,7 +2767,7 @@ const UserSettings = () => {
         <div className="space-y-5">
           {/* Summary Box */}
           {(() => {
-            const activeBadgeList = badges.length > 0 ? badges : DEFAULT_BADGES;
+            const activeBadgeList = sortedBadges;
             const earnedCount = activeBadgeList.filter(b => b.isEarned).length;
             const totalCount = activeBadgeList.length;
             const percentage = totalCount > 0 ? Math.round((earnedCount / totalCount) * 100) : 0;

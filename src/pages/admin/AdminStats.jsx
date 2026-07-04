@@ -234,6 +234,7 @@ const AdminStats = () => {
   const [timelineLoading, setTimelineLoading] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
   const [analysisGuideOpen, setAnalysisGuideOpen] = useState(false);
+  const [showGuides, setShowGuides] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Kategori Filtresi Eyaletleri
@@ -475,9 +476,11 @@ const AdminStats = () => {
     <div className="space-y-5 sm:space-y-6 pb-20">
 
       {/* --- HEADER --- */}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Merkezi Analitik</h1>
+          <p className="text-xs font-bold text-primary-light uppercase tracking-widest">Veri Merkezi</p>
+          <h1 className="mt-1.5 text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">Merkezi Analitik</h1>
           <p className="text-text-secondary text-sm mt-1">Hangi bölümün ne anlattığını hızlıca gör, sonra ayrıntıya in.</p>
         </div>
         
@@ -495,12 +498,24 @@ const AdminStats = () => {
 
           <button
             onClick={fetchStats}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-xs font-bold text-white hover:bg-white/10 transition-all cursor-pointer"
           >
             <Activity className="w-4 h-4 text-primary-light" /> Verileri Tazele
           </button>
+
+          <button
+            onClick={() => setShowGuides(prev => !prev)}
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 border rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+              showGuides 
+                ? 'bg-primary/10 border-primary/30 text-primary-light' 
+                : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+            }`}
+          >
+            <BrainCircuit className="w-4 h-4" /> {showGuides ? 'Kılavuzu Gizle' : 'Kılavuzu Göster'}
+          </button>
         </div>
       </div>
+      </section>
 
       <StatsSectionTabs
         tabs={sectionTabs}
@@ -508,14 +523,24 @@ const AdminStats = () => {
         onChange={setActiveSection}
       />
 
-      <InsightGuide
-        title={guideTitle}
-        description={guideDescription}
-        chips={guideChips}
-        actions={guideActions}
-      />
-
-      <QuickStartRail items={quickStartItems} />
+      <AnimatePresence>
+        {showGuides && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden space-y-4"
+          >
+            <InsightGuide
+              title={guideTitle}
+              description={guideDescription}
+              chips={guideChips}
+              actions={guideActions}
+            />
+            <QuickStartRail items={quickStartItems} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* --- TOP KPIs --- */}
       {activeSection === 'overview' && (

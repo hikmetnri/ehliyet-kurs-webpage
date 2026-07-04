@@ -84,7 +84,7 @@ const TypewriterMarkdown = ({ content, speed = 8, scrollRef, onComplete }) => {
 };
 
 export default function FloatingAIChat() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
   const isSolvePage = location.pathname.includes('/exams/') && location.pathname !== '/dashboard/exams';
@@ -465,11 +465,10 @@ export default function FloatingAIChat() {
                 onClick={() => {
                   setShowLimitModal(false);
                   if (user?.isGuest) {
-                    const logout = useAuthStore.getState().logout;
                     logout();
                     navigate('/login');
                   } else {
-                    navigate('/dashboard/settings');
+                    alert("Premium abonelik işlemleri web sürümünde desteklenmemektedir. Güvenlik ve faturalandırma kuralları nedeniyle premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.");
                   }
                 }}
                 className="mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-amber-500 text-xs font-black uppercase tracking-widest text-white"

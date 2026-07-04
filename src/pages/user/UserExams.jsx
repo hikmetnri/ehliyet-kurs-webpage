@@ -259,208 +259,154 @@ const UserExams = () => {
   return (
     <>
       {/* Desktop View */}
-      <div className="hidden lg:block space-y-6 pb-10 text-white">
+      {/* Desktop View — Premium Redesign */}
+      <div className="hidden lg:block space-y-5 pb-10 text-white">
 
-        {/* Header */}
-        <div className="rounded-2xl border border-white/10 bg-[#0f1117] p-5 shadow-xl shadow-black/10">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Sınav Merkezi</p>
-              <h1 className="mt-1 text-3xl font-black tracking-tight text-white">Testler ve Denemeler</h1>
-              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
-                Kısa konu testleri, 50 soruluk denemeler, MEB simülasyonu ve yanlış tekrarları tek yerde.
+        {/* ── Row 1: Hero Banner ── */}
+        <div className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] via-[#0c0f1c] to-[#07080f] p-6 shadow-2xl shadow-black/40">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/8 blur-[80px]" />
+          <div className="pointer-events-none absolute left-0 top-0 h-px w-full bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+
+          <div className="relative flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0">
+              <div className="mb-3 inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5">
+                <GraduationCap className="h-3.5 w-3.5 text-primary-light" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary-light">Sınav Merkezi</span>
+              </div>
+              <h1 className="text-3xl font-black tracking-tight text-white xl:text-4xl">
+                Testler & Denemeler
+              </h1>
+              <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-text-muted">
+                Kısa konu testleri, genel denemeler, MEB simülasyonu ve yanlış tekrarları tek alanda.
               </p>
+              <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-primary-light">{user?.selectedCategoryName}</p>
             </div>
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-right">
-              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Seçili paket</p>
-              <p className="mt-1 text-sm font-black uppercase tracking-widest text-white">{user?.selectedCategoryName}</p>
+
+            {/* Stats row */}
+            <div className="grid shrink-0 grid-cols-4 gap-3 xl:w-[500px]">
+              {[
+                { label: 'Toplam Test', value: exams.length, icon: ListChecks, tone: 'text-primary-light border-primary/20 bg-primary/10' },
+                { label: 'Konu Testi', value: shortTests.length, icon: FileQuestion, tone: 'text-accent-light border-accent/20 bg-accent/10' },
+                { label: 'Genel Deneme', value: generalExams.length, icon: Target, tone: 'text-warning border-warning/20 bg-warning/10' },
+                { label: 'Başarılı', value: `${passedExamCount}/${completedExamCount}`, icon: CheckCircle2, tone: 'text-success border-success/20 bg-success/10' },
+              ].map(({ label, value, icon: Icon, tone }) => (
+                <div key={label} className="rounded-2xl border border-white/[0.06] bg-black/20 p-3 text-center">
+                  <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-xl border ${tone}`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                  <p className="text-lg font-black leading-none text-white">{value}</p>
+                  <p className="mt-1 text-[9px] font-black uppercase tracking-wider text-text-muted">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-primary/25">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary-light">
-                <ListChecks className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-white leading-none">{exams.length}</h3>
-                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">Toplam Sınav</p>
-              </div>
+        {/* ── Row 2: Yanlış Tekrar + Tab Bar ── */}
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          {/* Yanlış Tekrar Quick Entry */}
+          <div className={`flex items-center gap-4 rounded-2xl border p-4 transition-colors xl:w-80 ${
+            reviewDueCount > 0 ? 'border-primary/25 bg-primary/8' : 'border-white/[0.07] bg-white/[0.02]'
+          }`}>
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${
+              reviewDueCount > 0 ? 'border-primary/30 bg-primary/15 text-primary-light' : 'border-white/10 bg-black/20 text-text-muted'
+            }`}>
+              <ListChecks className="h-5 w-5" />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-accent/25">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-accent/20 bg-accent/10 text-accent-light">
-                <BookOpen className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-white leading-none">{shortTests.length}</h3>
-                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">Konu Testi</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-warning/25">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-warning/20 bg-warning/10 text-warning">
-                <Target className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-white leading-none">{generalExams.length}</h3>
-                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">Genel Deneme</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-xl border border-white/10 bg-[#0f1117] p-4 transition-colors hover:border-success/25">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-success/20 bg-success/10 text-success">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-white leading-none">{passedExamCount}/{completedExamCount}</h3>
-                <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-1.5">Başarılı Sonuç</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Wrong Review Quick Entry */}
-        <div className={`rounded-2xl border p-5 transition-colors ${
-          reviewDueCount > 0
-            ? 'border-primary/25 bg-primary/10'
-            : 'border-white/10 bg-[#0f1117]'
-        }`}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-all ${
-                reviewDueCount > 0
-                  ? 'border-primary/30 bg-primary/20 text-primary-light'
-                  : 'border-white/10 bg-black/20 text-text-muted'
-              }`}>
-                <ListChecks className="h-6 w-6" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-black text-white">Bugün Çözülecek Yanlışlar</p>
-                <p className="mt-1 text-xs font-semibold text-text-muted">
-                  {reviewDueCount > 0
-                    ? `${reviewDueCount} yanlış soru yeniden çözülmeyi bekliyor.`
-                    : 'Bugün yeniden çözmen gereken yanlış soru yok.'}
-                </p>
-              </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-black text-white">Bugünkü Yanlışlar</p>
+              <p className="mt-0.5 text-[10px] font-semibold text-text-muted">
+                {reviewDueCount > 0 ? `${reviewDueCount} soru bekliyor` : 'Bugün yok'}
+              </p>
             </div>
             <button
               disabled={reviewDueCount === 0}
               onClick={() => navigate('/dashboard/exams/wrong-review')}
-              className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-black uppercase tracking-widest transition-all ${
+              className={`shrink-0 inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
                 reviewDueCount > 0
-                  ? 'bg-primary hover:bg-primary-light text-white active:scale-95 cursor-pointer'
+                  ? 'bg-primary text-white hover:bg-primary-light active:scale-95 cursor-pointer'
                   : 'cursor-not-allowed border border-white/10 bg-white/5 text-text-muted'
               }`}
             >
-              <Play className="h-4 w-4" />
-              {reviewDueCount > 0 ? 'Yanlışları Çöz' : 'Bugün Yok'}
+              <Play className="h-3.5 w-3.5" />
+              {reviewDueCount > 0 ? 'Çöz' : 'Yok'}
             </button>
+          </div>
+
+          {/* Tab Bar — sliding pill */}
+          <div className="flex flex-1 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-1">
+            {tabs.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className="relative flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black transition-colors focus:outline-none cursor-pointer"
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeExamTab"
+                      className="absolute inset-0 z-[-1] rounded-xl border border-primary/30 bg-primary/15"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <Icon className={`h-4 w-4 ${isActive ? 'text-primary-light' : 'text-text-muted'}`} />
+                  <span className={isActive ? 'text-white' : 'text-text-secondary'}>{tab.label}</span>
+                  <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-black ${
+                    isActive ? 'bg-white/15 text-white' : 'bg-white/5 text-text-muted'
+                  }`}>{tab.count}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Filter Tabs - Sliding Pill Container */}
-        <div className="relative flex rounded-2xl border border-white/10 bg-[#0f1117] p-1.5">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className="relative z-10 flex flex-1 flex-col items-center justify-center gap-1.5 rounded-xl py-3 text-center transition-colors duration-300 focus:outline-none cursor-pointer"
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeExamTab"
-                    className="absolute inset-0 z-[-1] rounded-xl border border-primary/35 bg-primary/15"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <div className="flex items-center gap-2">
-                  <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-primary-light' : 'text-text-muted'}`} />
-                  <span className={`text-sm font-black tracking-tight ${isActive ? 'text-white' : 'text-text-secondary'}`}>
-                    {tab.label}
-                  </span>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
-                    isActive ? 'bg-primary/20 text-primary-light' : 'bg-white/5 text-text-muted'
-                  }`}>
-                    {tab.count}
-                  </span>
-                </div>
-                <span className={`text-[10px] font-semibold leading-none ${isActive ? 'text-text-secondary' : 'text-text-muted'}`}>
-                  {tab.hint}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
+        {/* ── Row 3: Category Filter (short tests only) ── */}
         {activeTab === 'short_tests' && (
-          <div className="rounded-2xl border border-white/10 bg-[#0f1117] p-5">
-            <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div>
-                <p className="text-sm font-black text-white">Kısa Test Kategorileri</p>
-                <p className="text-xs font-semibold text-text-muted mt-0.5">Konu grubunu seç, alt testleri filtrele.</p>
-              </div>
-              <span className="inline-flex rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
-                {displayedExams.length} test listeleniyor
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                ['all', 'Tümü', shortTests.length],
-                ...Object.entries(shortGroups).sort(([a], [b]) => a.localeCompare(b, 'tr')),
-              ].map(([groupName, countOrLabel, maybeCount]) => {
-                const isAll = groupName === 'all';
-                const label = isAll ? countOrLabel : groupName;
-                const count = isAll ? maybeCount ?? shortTests.length : countOrLabel;
-                const active = activeShortGroup === groupName;
-                return (
-                  <button
-                    key={groupName}
-                    onClick={() => setActiveShortGroup(groupName)}
-                    className={`relative rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-                      active
-                        ? 'bg-primary/15 text-white border border-primary/35'
-                        : 'border border-white/10 bg-white/5 text-text-muted hover:border-white/20 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    {label}
-                    <span className={`ml-2.5 rounded-full px-2 py-0.5 text-[9px] font-bold ${
-                      active ? 'bg-white/20 text-white' : 'bg-white/5 text-text-muted'
-                    }`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-text-muted pr-2">Filtre:</span>
+            {[
+              ['all', 'Tümü', shortTests.length],
+              ...Object.entries(shortGroups).sort(([a], [b]) => a.localeCompare(b, 'tr')),
+            ].map(([groupName, countOrLabel, maybeCount]) => {
+              const isAll = groupName === 'all';
+              const label = isAll ? countOrLabel : groupName;
+              const count = isAll ? maybeCount ?? shortTests.length : countOrLabel;
+              const active = activeShortGroup === groupName;
+              return (
+                <button
+                  key={groupName}
+                  onClick={() => setActiveShortGroup(groupName)}
+                  className={`rounded-xl px-3 py-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                    active
+                      ? 'bg-primary/15 text-white border border-primary/30'
+                      : 'border border-white/10 bg-white/[0.02] text-text-muted hover:border-white/20 hover:text-white'
+                  }`}
+                >
+                  {label}
+                  <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[9px] ${
+                    active ? 'bg-white/15' : 'bg-white/5'
+                  }`}>{count}</span>
+                </button>
+              );
+            })}
           </div>
         )}
 
-        {/* Exam Grid */}
+        {/* ── Row 4: Exam Grid / Wrong Answers ── */}
         {activeTab === 'wrong_answers' ? (
           <UserWrongAnswers onCountChange={setWrongAnswerCount} />
         ) : loading ? (
           <div className="flex flex-col items-center justify-center py-32">
-            <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
-            <span className="text-text-muted text-[10px] uppercase tracking-widest font-black">Sınavlar Yükleniyor...</span>
+            <Loader2 className="mb-4 h-12 w-12 animate-spin text-primary" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sınavlar Yükleniyor...</span>
           </div>
         ) : displayedExams.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0f1117] py-24 text-center">
-            <ClipboardList className="w-16 h-16 text-text-muted opacity-30 mb-6" />
-            <p className="text-lg font-black text-white tracking-tight mb-2">Bu alanda sınav bulunamadı</p>
-            <p className="text-sm font-medium text-text-muted max-w-sm">Seçtiğiniz kategoriye ait sınav içerikleri kısa süre içinde admin tarafından eklenecektir.</p>
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.015] py-24 text-center">
+            <ClipboardList className="mb-6 h-14 w-14 text-white/10" />
+            <p className="text-lg font-black tracking-tight text-white">Bu alanda sınav bulunamadı</p>
+            <p className="mt-2 max-w-sm text-sm font-medium text-text-muted">İçerik yakında eklenecektir.</p>
           </div>
         ) : (() => {
           const renderExamCard = (exam, i) => {
@@ -473,7 +419,7 @@ const UserExams = () => {
             const isRealExam = activeTab === 'real_sim_cat' && !isSimulation && !isShort && !exam.categoryId && !examNameLower.includes('deneme');
             const isGeneral = !exam.categoryId && !isRealExam;
             const catName = isShort ? getParentName(exam.categoryId) : getCategoryName(exam.categoryId);
-            const badgeLabel = isRealExam ? 'MEB E-Sınav' : isGeneral ? 'Deneme Sınavı' : isSimulation ? 'E-Sınav Simülatörü' : isShort ? 'Kısa Test' : 'Konu Sınavı';
+            const badgeLabel = isRealExam ? 'MEB E-Sınav' : isGeneral ? 'Deneme' : isSimulation ? 'E-Sınav Sim.' : isShort ? 'Kısa Test' : 'Konu Sınavı';
             const Icon = isRealExam ? GraduationCap : isGeneral ? Target : isSimulation ? GraduationCap : isShort ? FileQuestion : BookOpen;
             const resultKey = isShort ? `short_${exam._realCategoryId}` : exam._id;
             const lastResult = latestResults[resultKey];
@@ -481,42 +427,16 @@ const UserExams = () => {
             const completed = Boolean(lastResult);
             const passed = Boolean(lastResult?.passed);
 
-            // Glow color configurations based on exam type
-            let cardTheme = {
-              borderHover: 'hover:border-primary/30',
-              iconBg: 'bg-primary/10 border-primary/20 text-primary-light',
-              badgeStyle: 'bg-primary/10 text-primary-light border-primary/20',
-              btnStyle: 'bg-primary hover:bg-primary-light text-white'
-            };
-
-            if (isGeneral) {
-              cardTheme = {
-                borderHover: 'hover:border-warning/30',
-                iconBg: 'bg-warning/10 border-warning/20 text-warning',
-                badgeStyle: 'bg-warning/10 text-warning border-warning/20',
-                btnStyle: 'bg-warning hover:bg-warning-light text-white'
-              };
-            } else if (isSimulation || isRealExam) {
-              cardTheme = {
-                borderHover: 'hover:border-success/30',
-                iconBg: 'bg-success/10 border-success/20 text-success',
-                badgeStyle: 'bg-success/10 text-success border-success/20',
-                btnStyle: 'bg-success hover:bg-success-light text-white'
-              };
-            }
+            let cardAccent = { border: 'border-primary/20', bg: 'bg-primary/10', text: 'text-primary-light', btn: 'bg-primary hover:bg-primary-light' };
+            if (isGeneral) cardAccent = { border: 'border-warning/20', bg: 'bg-warning/10', text: 'text-warning', btn: 'bg-warning hover:opacity-90' };
+            if (isSimulation || isRealExam) cardAccent = { border: 'border-success/20', bg: 'bg-success/10', text: 'text-success', btn: 'bg-success hover:opacity-90' };
 
             const handleExamAction = () => {
               if (isLocked) {
-                trackEvent('pro_clicked', {
-                  surface: 'exam_card',
-                  contentType: 'exam',
-                  examId: exam._id,
-                  examName: exam.name,
-                  tab: activeTab,
-                });
+                trackEvent('pro_clicked', { surface: 'exam_card', examId: exam._id, tab: activeTab });
+                alert("Premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.");
                 return;
               }
-
               navigate(
                 isSimulation ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` :
                 isRealExam ? `/dashboard/exams/${exam._id}?mode=real` :
@@ -531,117 +451,84 @@ const UserExams = () => {
                 key={exam._id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
+                exit={{ opacity: 0 }}
                 transition={{ duration: 0.18, delay: Math.min(i * 0.015, 0.09) }}
-                className={`relative flex flex-col justify-between gap-5 overflow-hidden rounded-2xl border bg-[#0f1117] p-5 transition-all duration-300 group ${
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border bg-gradient-to-br from-[#0f1322] to-[#0a0d16] p-5 transition-all duration-300 ${
                   isLocked
-                    ? 'border-warning/10 opacity-75'
+                    ? 'border-warning/10 opacity-70'
                     : completed
-                      ? passed
-                        ? 'border-success/25 hover:border-success/40 ' + cardTheme.borderHover
-                        : 'border-danger/25 hover:border-danger/40 ' + cardTheme.borderHover
-                      : 'border-white/10 hover:-translate-y-0.5 ' + cardTheme.borderHover
+                      ? passed ? 'border-success/20 hover:border-success/35' : 'border-danger/20 hover:border-danger/35'
+                      : `border-white/[0.07] hover:border-white/15 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/30`
                 }`}
               >
-                {/* Top Header */}
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className={`w-11 h-11 rounded-lg flex items-center justify-center border shrink-0 transition-colors duration-300 ${cardTheme.iconBg}`}>
-                      <Icon className="w-5.5 h-5.5" />
-                    </div>
+                {/* Top stripe accent */}
+                <div className={`absolute inset-x-0 top-0 h-px ${completed ? (passed ? 'bg-success/40' : 'bg-danger/40') : 'bg-gradient-to-r from-transparent via-primary/20 to-transparent'}`} />
 
-                    <div className="flex flex-col items-end gap-1.5">
-                      {isLocked && (
-                        <span className="flex items-center gap-1.5 px-2.5 py-1 bg-warning/15 text-warning border border-warning/20 rounded-lg text-[9px] font-black uppercase tracking-widest">
-                          <Lock className="w-3 h-3" /> PRO Sınav
-                        </span>
-                      )}
-                      {completed && (
-                        <span className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${
-                          passed
-                            ? 'bg-success/15 text-success border-success/20'
-                            : 'bg-danger/15 text-danger border-danger/20'
-                        }`}>
-                          {passed ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
-                          {passed ? 'GEÇİLDİ' : 'KALINDI'}
-                        </span>
-                      )}
-                      <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${cardTheme.badgeStyle}`}>
-                        {badgeLabel}
-                      </span>
-                    </div>
+                {/* Header */}
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${cardAccent.border} ${cardAccent.bg}`}>
+                    <Icon className={`h-4.5 w-4.5 ${cardAccent.text}`} />
                   </div>
-
-                  {/* Content */}
-                  <div className="mt-4">
-                    <h3 className="font-black text-lg tracking-tight leading-tight text-white group-hover:text-primary-light transition-colors">
-                      {exam.name}
-                    </h3>
-                    {catName && (
-                      <p className="text-[10px] text-text-muted font-black uppercase tracking-widest mt-1.5">
-                        {catName}
-                      </p>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className={`rounded-xl border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${cardAccent.border} ${cardAccent.bg} ${cardAccent.text}`}>
+                      {badgeLabel}
+                    </span>
+                    {completed && (
+                      <span className={`rounded-xl border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest flex items-center gap-1 ${
+                        passed ? 'border-success/20 bg-success/10 text-success' : 'border-danger/20 bg-danger/10 text-danger'
+                      }`}>
+                        {passed ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                        {passed ? 'Geçildi' : 'Kalındı'}
+                      </span>
                     )}
-                    {exam.description && (
-                      <p className="text-xs text-text-muted mt-2.5 line-clamp-2 leading-relaxed font-semibold">
-                        {exam.description}
-                      </p>
+                    {isLocked && (
+                      <span className="flex items-center gap-1 rounded-xl border border-warning/20 bg-warning/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-warning">
+                        <Lock className="h-3 w-3" /> PRO
+                      </span>
                     )}
                   </div>
                 </div>
 
-                {/* Bottom Layout Container */}
-                <div className="space-y-4">
-                  {completed && (
-                    <div className="rounded-xl border border-white/5 bg-black/20 p-3">
-                      <div className="mb-2 flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
-                        <span className={passed ? 'text-success' : 'text-danger'}>
-                          {passed ? 'Başarı Skoru' : 'Tamamlanan Skor'}
-                        </span>
-                        <span className="text-white font-black">{score}%</span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <div
-                          className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
-                          style={{ width: `${Math.max(4, Math.min(score, 100))}%` }}
-                        />
-                      </div>
-                    </div>
+                {/* Body */}
+                <div className="flex-1">
+                  <h3 className={`text-base font-black leading-snug tracking-tight transition-colors group-hover:${cardAccent.text}`} style={{ color: 'white' }}>
+                    {exam.name}
+                  </h3>
+                  {catName && <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-text-muted">{catName}</p>}
+                  {exam.description && (
+                    <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted">{exam.description}</p>
                   )}
+                </div>
 
-                  {/* Meta info */}
-                  <div className="flex items-center gap-3 py-3 border-y border-white/5 text-[9px] font-black text-text-secondary uppercase tracking-widest">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-primary-light" />
-                      <span>{exam.duration || 45} DAKİKA</span>
+                {/* Score bar */}
+                {completed && (
+                  <div className="my-4 rounded-xl border border-white/5 bg-black/20 p-3">
+                    <div className="mb-2 flex items-center justify-between text-[9px] font-black uppercase tracking-widest">
+                      <span className={passed ? 'text-success' : 'text-danger'}>{passed ? 'Başarı Skoru' : 'Skor'}</span>
+                      <span className="text-white">%{score}</span>
                     </div>
-                    <div className="w-1 h-1 rounded-full bg-white/10" />
-                    <div className="flex items-center gap-1">
-                      <FileQuestion className="w-3.5 h-3.5 text-warning" />
-                      <span>{isShort ? '10' : '50'} SORU</span>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                      <div className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`} style={{ width: `${Math.max(4, Math.min(score, 100))}%` }} />
                     </div>
                   </div>
+                )}
 
-                  {/* CTA Button */}
+                {/* Meta + CTA */}
+                <div className="mt-auto space-y-3">
+                  <div className="flex items-center gap-3 border-t border-white/[0.06] pt-3 text-[9px] font-black uppercase tracking-widest text-text-muted">
+                    <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-primary-light" />{exam.duration || 45} dk</span>
+                    <span className="h-1 w-1 rounded-full bg-white/10" />
+                    <span className="flex items-center gap-1"><FileQuestion className="h-3.5 w-3.5 text-warning" />{isShort ? '10' : '50'} soru</span>
+                  </div>
                   <button
                     onClick={handleExamAction}
-                    className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer ${
+                    className={`w-full flex items-center justify-center gap-2 rounded-2xl py-3 text-xs font-black uppercase tracking-widest transition-all active:scale-95 cursor-pointer ${
                       isLocked
-                        ? 'bg-white/5 text-text-muted border border-white/5 hover:bg-warning/10 hover:text-warning hover:border-warning/20'
-                        : cardTheme.btnStyle + ' hover:scale-[1.02] active:scale-95'
+                        ? 'border border-white/10 bg-white/[0.03] text-text-muted hover:border-warning/20 hover:bg-warning/10 hover:text-warning'
+                        : `${cardAccent.btn} text-white shadow-lg hover:scale-[1.01]`
                     }`}
                   >
-                    {isLocked ? (
-                      <>
-                        <Lock className="w-4.5 h-4.5" />
-                        KİLİDİ AÇ (PRO)
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-4.5 h-4.5" />
-                        TESTİ BAŞLAT
-                      </>
-                    )}
+                    {isLocked ? <><Lock className="h-4 w-4" /> Kilidi Aç (PRO)</> : <><Play className="h-4 w-4" /> Başla</>}
                   </button>
                 </div>
               </MotionDiv>
@@ -649,14 +536,13 @@ const UserExams = () => {
           };
 
           return (
-            <MotionDiv layout className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              <AnimatePresence>
-                {displayedExams.map((exam, i) => renderExamCard(exam, i))}
-              </AnimatePresence>
+            <MotionDiv layout className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+              <AnimatePresence>{displayedExams.map((exam, i) => renderExamCard(exam, i))}</AnimatePresence>
             </MotionDiv>
           );
         })()}
       </div>
+
 
       {/* Mobile View */}
       <div className="block lg:hidden space-y-6 pb-24 text-white">
@@ -989,7 +875,7 @@ const UserExams = () => {
                                             examId: exam._id,
                                             examName: exam.name,
                                           });
-                                          navigate('/dashboard/settings?tab=pro');
+                                          alert("Premium abonelik işlemleri web sürümünde desteklenmemektedir. Güvenlik ve faturalandırma kuralları nedeniyle premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.");
                                           return;
                                         }
                                         navigate(`/dashboard/exams/short-test/${exam._realCategoryId}`);
@@ -1079,7 +965,7 @@ const UserExams = () => {
                                 examId: exam._id,
                                 examName: exam.name,
                               });
-                              navigate('/dashboard/settings?tab=pro');
+                              alert("Premium abonelik işlemleri web sürümünde desteklenmemektedir. Güvenlik ve faturalandırma kuralları nedeniyle premium abonelik işlemleri şu an için yalnızca Android uygulamamız (Google Play) üzerinden gerçekleştirilebilir.");
                               return;
                             }
                             navigate(`/dashboard/exams/${exam._id}`);

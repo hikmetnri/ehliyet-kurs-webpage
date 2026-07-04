@@ -19,6 +19,7 @@ const pageLabels = [
   { path: '/admin/stats', title: 'İstatistikler', description: 'Kayıt, başarı ve kullanım analitiği' },
   { path: '/admin/profile', title: 'Profilim', description: 'Yönetici hesabı ve güvenlik bilgileri' },
   { path: '/admin/settings', title: 'Yönetim Merkezi', description: 'Sistem ayarları, metinler ve bakım modu' },
+  { path: '/admin/notifications', title: 'Bildirim Yönetimi', description: 'Toplu veya hedefli anlık push bildirimleri' },
 ];
 
 const getPageLabel = (pathname) => (
@@ -32,11 +33,33 @@ const AdminLayout = () => {
   const user = useAuthStore((state) => state.user);
   const { pathname } = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('admin_sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleToggleCollapse = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+    try {
+      localStorage.setItem('admin_sidebar_collapsed', String(collapsed));
+    } catch (e) {
+      console.warn('Failed to save sidebar collapsed state', e);
+    }
+  };
+
   const pageLabel = getPageLabel(pathname);
 
   return (
     <div className="flex min-h-screen overflow-hidden bg-[#0b0d12] text-text-primary">
-      <AdminSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <AdminSidebar 
+        isOpen={sidebarOpen} 
+        setIsOpen={setSidebarOpen} 
+        isCollapsed={sidebarCollapsed}
+        setIsCollapsed={handleToggleCollapse}
+      />
 
       <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-white/10 bg-[#0f1118]/90 px-3 backdrop-blur-xl sm:px-4 lg:px-6">

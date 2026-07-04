@@ -4,7 +4,7 @@ import useAuthStore from '../store/authStore';
 import api from '../api';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { LogIn, ChevronLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+import { LogIn, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirebaseAuthErrorMessage } from '../utils/firebaseAuthError';
 import { getAcquisitionContext } from '../utils/analytics';
@@ -143,18 +143,6 @@ const Login = () => {
       <Link to="/" className="absolute top-4 left-4 md:top-8 md:left-8 flex items-center gap-2 text-sm md:text-base text-text-secondary hover:text-white transition-colors z-20 font-medium">
         <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Ana Sayfaya Dön
       </Link>
-
-      <button
-        type="button"
-        onClick={() => {
-          const startGuestMode = useAuthStore.getState().startGuestMode;
-          startGuestMode();
-          navigate('/dashboard');
-        }}
-        className="absolute top-4 right-4 md:top-8 md:right-8 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md rounded-xl px-4 py-2 flex items-center gap-1.5 text-sm font-semibold text-text-primary hover:text-white transition-all duration-200 cursor-pointer z-20"
-      >
-        Geç <ChevronRight className="w-3.5 h-3.5" />
-      </button>
 
       <MotionDiv
         initial={{ opacity: 0, scale: 0.95 }}

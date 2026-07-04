@@ -1,4 +1,5 @@
 import axios from 'axios'
+import useAuthStore from '../store/authStore'
 
 const api = axios.create({
   // Üretim ortamında doğrudan api subdomainine gitmesi için güncellendi
@@ -46,6 +47,8 @@ api.interceptors.response.use(
       localStorage.removeItem('last_visited_icon')
       localStorage.removeItem('last_visited_type')
       localStorage.removeItem('last_visited_ts')
+      // Zustand store'u da sıfırla — sayfa yönlendirmesinden önce state temiz olsun
+      try { useAuthStore.getState().logout() } catch (_) { /* store henüz init olmadıysa yoksay */ }
       if (shouldRedirectToLogin() && window.location.pathname !== '/login') {
          window.location.href = '/login'
       }

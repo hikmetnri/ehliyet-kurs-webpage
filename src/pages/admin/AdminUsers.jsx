@@ -58,6 +58,10 @@ const AdminUsers = () => {
   }, [fetchUsers]);
 
   const handleRoleToggle = async (userId, currentRole) => {
+    if (userId === currentUser?._id) {
+      alert("Kendi hesabınızın rolünü değiştiremezsiniz!");
+      return;
+    }
     try {
       const newRole = currentRole === 'admin' ? 'user' : 'admin';
       await api.put(`/users/${userId}/role`, { role: newRole });
@@ -210,6 +214,7 @@ const AdminUsers = () => {
     else if (roleFilter === 'pro') matchesRole = u.proStatus === true;
     else if (roleFilter === 'active') matchesRole = u.isActive !== false;
     else if (roleFilter === 'online') matchesRole = u.isOnline === true;
+    else if (roleFilter === 'waiting_first_test') matchesRole = u.hasSolvedExam === false;
     return matchesSearch && matchesRole;
   });
 
@@ -286,6 +291,7 @@ const AdminUsers = () => {
     { value: 'pro', label: 'PRO' },
     { value: 'active', label: 'Aktif' },
     { value: 'online', label: 'Çevrimiçi' },
+    { value: 'waiting_first_test', label: 'İlk Testi Bekleyenler' },
   ];
 
   return (
@@ -652,7 +658,7 @@ const AdminUsers = () => {
                       isMe ? 'opacity-40 bg-white/5 text-white/40 border-white/5' :
                       isSuspended ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                     }`}>
-                      {isSuspended ? 'Banlandı' : 'Güvenli'}
+                      {isSuspended ? 'Askıda' : 'Aktif'}
                     </button>
                     <div className="flex justify-end gap-2">
                       {user.role === 'user' && (

@@ -124,17 +124,16 @@ const getCategoryColor = (name) => {
 
 const UserHome = () => {
   const { themeMode, toggleThemeMode, isThemeLocked } = useOutletContext();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const [recentResults, setRecentResults] = useState([]);
   const [dailyPlan, setDailyPlan] = useState(null);
-  const [mainCategories, setMainCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [quote, setQuote] = useState(null);
-  const [isMockMode, setIsMockMode] = useState(false);
   const [reviewDue, setReviewDue] = useState({ count: 0, items: [] });
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -170,7 +169,6 @@ const UserHome = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        setIsMockMode(false);
 
         // LocalStorage'dan son okunan konuyu al
         setLastVisitedId(localStorage.getItem('last_visited_id'));
@@ -200,6 +198,8 @@ const UserHome = () => {
               selectedCategoryId: normalizeId(user?.selectedCategoryId),
             });
             setStats(scoped.stats);
+            // Son 5 sınav sonucunu sidebar için kaydet
+            setRecentResults(scoped.results.slice(0, 5));
           }
         } catch (err) {
           console.error('Stats error', err);
@@ -217,18 +217,6 @@ const UserHome = () => {
         } catch (err) {
           console.error('Daily plan error', err);
           setDailyPlan(null);
-        }
-
-        try {
-          const mainRes = await api.get('/categories');
-          const mainData = mainRes.data?.data || mainRes.data?.categories || mainRes.data;
-          const filteredMain = (Array.isArray(mainData) ? mainData : [])
-            .filter((category) => !category.parent && !isVideoRecord(category));
-          setMainCategories(filteredMain);
-          if (filteredMain.length === 0) setIsMockMode(true);
-        } catch (err) {
-          setIsMockMode(true);
-          console.error('Main categories error', err);
         }
 
         if (user?.selectedCategoryId) {
@@ -526,740 +514,407 @@ const UserHome = () => {
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* DESKTOP VIEW */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      {/* DESKTOP VIEW — Premium Redesign                                         */}
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
       <div className="hidden lg:block w-full pb-10">
-        <div className="mx-auto grid max-w-[1360px] gap-6 2xl:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="min-w-0 space-y-6">
-            <Motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-3xl border border-white/10 bg-[#0d1017] p-6"
-            >
-              <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-                <div className="min-w-0">
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5 text-primary-light">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{selectedPackage}</span>
-                  </div>
-                  <h1 className="max-w-3xl text-3xl font-black leading-tight tracking-tight text-white">
-                    Hoş geldin, {user?.firstName || 'Sürücü Adayı'}
-                  </h1>
-                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-text-muted">
-                    Bugün önce çalışma önerini tamamla, sonra ders veya sınavdan devam et. Panel artık seçili eğitim paketinin verilerini gösterir.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link to="/dashboard/exams" className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light">
-                    <PlayCircle className="h-4 w-4" />
-                    Test Çöz
-                  </Link>
-                  <Link to="/dashboard/lessons" className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.07]">
-                    <BookOpen className="h-4 w-4 text-accent-light" />
-                    Derslere Git
-                  </Link>
-                </div>
-              </div>
+        <div className="mx-auto max-w-[1440px] space-y-5">
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {desktopSummaryCards.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                      <div className={`mb-4 flex h-10 w-10 items-center justify-center rounded-xl border ${item.tone}`}>
-                        <Icon className="h-4.5 w-4.5" />
-                      </div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{item.label}</p>
-                      <p className="mt-1 text-2xl font-black leading-none text-white">{item.value}</p>
-                      <p className="mt-2 text-xs font-semibold text-text-muted">{item.helper}</p>
+          {/* ── Row 1: Welcome Banner + Metric Cards ── */}
+          <Motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] via-[#0c0f1c] to-[#070b14] p-6 shadow-2xl shadow-black/40"
+          >
+            {/* Ambient glows */}
+            <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-primary/8 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-accent/5 blur-[80px]" />
+            <div className="pointer-events-none absolute left-1/2 top-0 h-px w-3/4 -translate-x-1/2 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+            <div className="relative flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+              {/* Left: greeting */}
+              <div className="min-w-0">
+                {user?.isGuest ? (
+                  /* ── GUEST greeting ── */
+                  <>
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-xl border border-warning/25 bg-warning/10 px-3 py-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-warning" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-warning">Misafir Modu</span>
                     </div>
-                  );
-                })}
+                    <h1 className="text-3xl font-black leading-tight tracking-tight text-white xl:text-4xl">
+                      Hoş geldiniz! <span className="bg-gradient-to-r from-warning to-accent-light bg-clip-text text-transparent">Ücretsiz dene 👋</span>
+                    </h1>
+                    <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-text-muted">
+                      4 ücretsiz test çözdükten sonra tam erişim için üye olun. İlerlemeniz, yanlışlarınız ve istatistikleriniz sizi bekliyor.
+                    </p>
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={() => { logout(); navigate('/register'); }}
+                        className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/25 transition hover:opacity-90 active:scale-95"
+                      >
+                        <Zap className="h-4 w-4" />
+                        Ücretsiz Üye Ol
+                      </button>
+                      <button
+                        onClick={() => { logout(); navigate('/login'); }}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]"
+                      >
+                        <Lock className="h-4 w-4 text-text-muted" />
+                        Giriş Yap
+                      </button>
+                      <Link to="/dashboard/exams" className="inline-flex items-center gap-2 rounded-2xl border border-warning/20 bg-warning/10 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-warning transition hover:bg-warning/20 active:scale-95">
+                        <PlayCircle className="h-4 w-4" />
+                        Teste Başla
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  /* ── MEMBER greeting ── */
+                  <>
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3 py-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-primary-light" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary-light">{selectedPackage}</span>
+                    </div>
+                    <h1 className="text-3xl font-black leading-tight tracking-tight text-white xl:text-4xl">
+                      Merhaba, <span className="bg-gradient-to-r from-primary-light to-accent-light bg-clip-text text-transparent">{user?.firstName || 'Sürücü Adayı'}</span> 👋
+                    </h1>
+                    <p className="mt-2 max-w-xl text-sm font-medium leading-relaxed text-text-muted">
+                      {recommendation.detail || 'Bugünkü çalışma planın hazır. Hedefini tamamla ve sınavına bir adım daha yaklaş.'}
+                    </p>
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      <Link to="/dashboard/exams" className="inline-flex items-center gap-2 rounded-2xl bg-primary px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-primary/25 transition hover:bg-primary-light hover:shadow-primary/40 active:scale-95">
+                        <PlayCircle className="h-4 w-4" />
+                        Teste Başla
+                      </Link>
+                      <Link to="/dashboard/lessons" className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-white/[0.08]">
+                        <BookOpen className="h-4 w-4 text-accent-light" />
+                        Ders Oku
+                      </Link>
+                      {reviewDue.count > 0 && (
+                        <Link to="/dashboard/exams/wrong-review" className="inline-flex items-center gap-2 rounded-2xl border border-warning/25 bg-warning/10 px-5 py-2.5 text-xs font-black uppercase tracking-widest text-warning transition hover:bg-warning/20 active:scale-95">
+                          <RefreshCcw className="h-4 w-4" />
+                          {reviewDue.count} Yanlış Bekliyor
+                        </Link>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
-            </Motion.div>
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
-              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-success">Bugünkü Plan</p>
-                    <h2 className="mt-1 text-xl font-black text-white">{recommendation.title}</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">{recommendation.detail}</p>
-                  </div>
-                  <div className={`hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl border sm:flex ${recommendationTone}`}>
-                    {React.createElement(recommendation.icon, { className: 'h-5 w-5' })}
+              {/* Right: 4 metric cards (members) OR feature list (guests) */}
+              {user?.isGuest ? (
+                <div className="shrink-0 xl:w-[420px]">
+                  <div className="rounded-2xl border border-warning/10 bg-warning/[0.04] p-5">
+                    <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-warning/70">Üye olunca erişilir</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { icon: Activity,       label: 'Kişisel İstatistikler',   detail: 'Başarı, seri, grafik' },
+                        { icon: RefreshCcw,     label: 'Yanlış Takip Sistemi',    detail: 'Akıllı tekrar algoritması' },
+                        { icon: Star,           label: 'XP & Rozet Sistemi',      detail: 'Seviye atlayarak kazan' },
+                        { icon: GraduationCap,  label: 'Sınırsız Test',           detail: 'Tüm kısa test ve sınavlar' },
+                      ].map(({ icon: Icon, label, detail }) => (
+                        <div key={label} className="flex items-start gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] p-3">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                            <Icon className="h-3.5 w-3.5 text-primary-light" />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-white leading-tight">{label}</p>
+                            <p className="mt-0.5 text-[9px] font-semibold text-text-muted">{detail}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-3">
-                  {studyPlan.map((item, idx) => {
+              ) : (
+                <div className="grid shrink-0 grid-cols-2 gap-3 xl:w-[420px] xl:grid-cols-2">
+                  {desktopSummaryCards.map((item) => {
                     const Icon = item.icon;
                     return (
-                      <div key={idx} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3">
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${item.done ? 'border-success/25 bg-success/10 text-success' : 'border-white/10 bg-white/[0.035] text-text-muted'}`}>
-                          {item.done ? <CheckCircle2 className="h-4.5 w-4.5" /> : <Icon className="h-4.5 w-4.5" />}
+                      <div
+                        key={item.label}
+                        className={`group rounded-2xl border bg-white/[0.02] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.04] ${item.tone.split(' ').find(c => c.startsWith('border')) || 'border-white/10'}`}
+                      >
+                        <div className="mb-3 flex items-center justify-between">
+                          <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${item.tone}`}>
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <p className="text-[9px] font-black uppercase tracking-widest text-text-muted">{item.label}</p>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-black text-white">{item.label}</p>
-                          <p className="mt-0.5 truncate text-xs font-semibold text-text-muted">{item.detail}</p>
-                        </div>
+                        <p className="text-2xl font-black leading-none text-white">{item.value}</p>
+                        <p className="mt-1.5 text-[10px] font-semibold text-text-muted">{item.helper}</p>
                       </div>
                     );
                   })}
                 </div>
-                {recommendation.to ? (
-                  <Link to={recommendation.to} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light">
-                    {recommendation.action}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                ) : (
-                  <button type="button" onClick={recommendation.onClick} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-primary-light">
-                    {recommendation.action}
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                )}
+              )}
+            </div>
+
+            {/* XP + Daily Progress inline bar */}
+            <div className="relative mt-5 grid gap-3 sm:grid-cols-2">
+              {/* Günlük hedef */}
+              <div className="flex items-center gap-4 rounded-2xl border border-white/[0.06] bg-black/20 px-4 py-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                  <Target className="h-4 w-4 text-primary-light" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Günlük Hedef</p>
+                    <span className={`text-[10px] font-black ${dailyProgress >= 100 ? 'text-success' : 'text-primary-light'}`}>
+                      {todayQuestions}/{dailyGoal} • %{dailyProgress}
+                    </span>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <Motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${dailyProgress}%` }}
+                      transition={{ duration: 1.2, ease: 'easeOut' }}
+                      className={`h-full rounded-full ${dailyProgress >= 100 ? 'bg-success' : 'bg-gradient-to-r from-primary to-accent'}`}
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* XP / Seviye */}
+              <div className="flex items-center gap-4 rounded-2xl border border-white/[0.06] bg-black/20 px-4 py-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-warning/20 bg-warning/10">
+                  <Star className="h-4 w-4 text-warning" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Seviye {level}</p>
+                    <span className="text-[10px] font-black text-warning">{totalScore} XP • %{levelProgress}</span>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <Motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${levelProgress}%` }}
+                      transition={{ duration: 1.2, ease: 'easeOut', delay: 0.1 }}
+                      className="h-full rounded-full bg-gradient-to-r from-warning to-amber-400"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Motion.div>
+
+          {/* ── Row 2: Main 3-column grid ── */}
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_300px]">
+
+            {/* Col 1: Today's plan + curriculum */}
+            <div className="space-y-4">
+
+              {/* Bugünkü Plan */}
+              <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] to-[#0a0d16] p-5 shadow-xl shadow-black/25">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${recommendationTone}`}>
+                      {React.createElement(recommendation.icon, { className: 'h-4.5 w-4.5' })}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-success">Bugünkü Plan</p>
+                      <h2 className="mt-0.5 text-base font-black tracking-tight text-white">{recommendation.title}</h2>
+                    </div>
+                  </div>
+                  {recommendation.to ? (
+                    <Link to={recommendation.to} className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20">
+                      {recommendation.action} <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  ) : (
+                    <button type="button" onClick={recommendation.onClick} className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20">
+                      {recommendation.action} <ArrowRight className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  {studyPlan.map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={idx} className={`flex items-center gap-3 rounded-2xl border px-3 py-2.5 transition-colors ${item.done ? 'border-success/15 bg-success/5' : 'border-white/[0.06] bg-white/[0.015]'}`}>
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${item.done ? 'border-success/20 bg-success/10 text-success' : 'border-white/10 bg-white/[0.03] text-text-muted'}`}>
+                          {item.done ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-3.5 w-3.5" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`truncate text-xs font-black ${item.done ? 'text-text-muted line-through' : 'text-white'}`}>{item.label}</p>
+                          <p className="mt-0.5 truncate text-[10px] font-semibold text-text-muted">{item.detail}</p>
+                        </div>
+                        {item.done && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" />}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
-                <div className="mb-5">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Hızlı Erişim</p>
-                  <h2 className="mt-1 text-xl font-black text-white">Sık Kullanılanlar</h2>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+              {/* Hızlı Erişim */}
+              <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] to-[#0a0d16] p-5 shadow-xl shadow-black/25">
+                <p className="mb-4 text-[10px] font-black uppercase tracking-widest text-accent-light">Hızlı Erişim</p>
+                <div className="grid grid-cols-2 gap-3">
                   {actionCards.map((card) => (
-                    <Link key={card.to} to={card.to} className="group rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:bg-white/[0.05]">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/20">
-                          <card.icon className="h-5 w-5 text-white" />
-                        </div>
-                        <ArrowRight className="h-4 w-4 text-text-muted transition group-hover:translate-x-1 group-hover:text-white" />
+                    <Link
+                      key={card.to}
+                      to={card.to}
+                      className="group flex items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3.5 transition-all hover:border-white/15 hover:bg-white/[0.05] hover:-translate-y-0.5"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-black/20">
+                        <card.icon className="h-4.5 w-4.5 text-white" />
                       </div>
-                      <h3 className="text-sm font-black text-white">{card.label}</h3>
-                      <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-text-muted">{card.text}</p>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-black text-white">{card.label}</p>
+                        <p className="mt-0.5 line-clamp-1 text-[10px] font-semibold text-text-muted">{card.text}</p>
+                      </div>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 text-text-muted/50 transition group-hover:translate-x-0.5 group-hover:text-white" />
                     </Link>
                   ))}
                 </div>
               </div>
-            </section>
+            </div>
 
-            {user?.selectedCategoryId && subCategories.length > 0 && (
-              <section className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Müfredat</p>
-                    <h2 className="mt-1 text-xl font-black text-white">Kategori Konuları</h2>
-                  </div>
-                  <Link to="/dashboard/lessons" className="text-xs font-black uppercase tracking-widest text-primary-light hover:text-white">
-                    Tümünü Gör
-                  </Link>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                  {subCategories.slice(0, 6).map((category) => {
+            {/* Col 2: Curriculum */}
+            <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] to-[#0a0d16] p-5 shadow-xl shadow-black/25">
+              <div className="mb-4 flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Müfredat</p>
+                <Link to="/dashboard/lessons" className="text-[10px] font-black uppercase tracking-widest text-text-muted transition hover:text-white">
+                  Tümü →
+                </Link>
+              </div>
+              {user?.selectedCategoryId && subCategories.length > 0 ? (
+                <div className="space-y-2.5">
+                  {subCategories.slice(0, 8).map((category) => {
                     const Icon = getCategoryIcon(category.name);
                     const accentColor = getCategoryColor(category.name);
                     return (
-                      <Link key={category._id} to={`/dashboard/lessons?category=${category._id}`} className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4 transition hover:bg-white/[0.05]">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border" style={{ borderColor: `${accentColor}33`, backgroundColor: `${accentColor}12`, color: accentColor }}>
-                          <Icon className="h-5 w-5" />
+                      <Link
+                        key={category._id}
+                        to={`/dashboard/lessons?category=${category._id}`}
+                        className="group flex items-center gap-3 rounded-2xl border border-white/[0.05] bg-white/[0.015] px-3 py-2.5 transition hover:border-white/10 hover:bg-white/[0.04]"
+                      >
+                        <div
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border"
+                          style={{ borderColor: `${accentColor}30`, backgroundColor: `${accentColor}10`, color: accentColor }}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-black text-white">{category.name}</p>
-                          <p className="mt-1 truncate text-xs font-semibold text-text-muted">{category.description || 'Konu anlatımı'}</p>
+                          <p className="truncate text-xs font-black text-white">{category.name}</p>
+                          {category.description && (
+                            <p className="mt-0.5 truncate text-[10px] font-semibold text-text-muted">{category.description}</p>
+                          )}
                         </div>
-                        <ChevronRight className="h-4 w-4 text-text-muted transition group-hover:translate-x-1 group-hover:text-white" />
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0 text-text-muted/40 transition group-hover:translate-x-0.5 group-hover:text-white" />
                       </Link>
                     );
                   })}
                 </div>
-              </section>
-            )}
-          </section>
-
-          <aside className="space-y-4">
-            <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
-              <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Aktif Eğitim</p>
-              <h3 className="mt-2 text-xl font-black text-white">{user?.selectedCategoryName || 'Kategori seçilmedi'}</h3>
-              <p className="mt-2 text-sm font-semibold leading-6 text-text-muted">
-                Ders, levha ve analizler bu pakete göre ayrılır.
-              </p>
-              <button type="button" onClick={() => setShowCategoryModal(true)} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-primary/25 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition hover:bg-primary hover:text-white">
-                <RefreshCcw className="h-4 w-4" />
-                Kategori Değiştir
-              </button>
-            </div>
-
-            {examCountdown && (
-              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-success/20 bg-success/10 text-success">
-                    <CalendarDays className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">MEB E-Sınav</p>
-                    <h3 className="mt-1 text-lg font-black text-white">
-                      {examCountdown.isToday ? 'Bugün' : examCountdown.isPast ? 'Tarih Geçti' : `${examCountdown.days} Gün Kaldı`}
-                    </h3>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm font-semibold text-text-muted">{examCountdown.formatted}</p>
-              </div>
-            )}
-
-            {quote && (
-              <div className="rounded-3xl border border-white/10 bg-[#0d1017] p-5">
-                <Quote className="mb-4 h-5 w-5 text-primary-light" />
-                <p className="text-sm font-bold leading-6 text-white">"{quoteText}"</p>
-                <p className="mt-3 text-xs font-black uppercase tracking-widest text-text-muted">{quoteAuthor}</p>
-              </div>
-            )}
-          </aside>
-        </div>
-      </div>
-
-      <div className="hidden">
-        {isMockMode && mainCategories.length === 0 && (
-          <Motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-3 rounded-2xl border border-warning/20 bg-warning/10 p-3"
-          >
-            <AlertCircle className="h-5 w-5 shrink-0 text-warning" />
-            <p className="text-[11px] font-bold uppercase leading-relaxed tracking-wider text-warning">
-              Backend verisi bulunamadı veya bağlantı yok. Admin panelden kategori eklemelisiniz.
-            </p>
-          </Motion.div>
-        )}
-
-        {/* Günün Sözü Ticker Ribbon */}
-        <Motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0c0f15] py-2.5"
-        >
-          <div
-            className="quote-marquee-track flex w-max items-center whitespace-nowrap"
-            style={{ '--quote-duration': quoteDuration }}
-          >
-            {[0, 1].map((item) => (
-              <div key={item} className="flex items-center gap-3 px-10">
-                <Sparkles className="h-4 w-4 text-primary-light" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary-light">Günün Sözü</span>
-                <span className="text-sm font-bold text-white sm:text-base">
-                  {quoteText}
-                </span>
-                <span className="text-xs font-black uppercase tracking-widest text-text-muted">
-                  {quoteAuthor}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Motion.div>
-
-        {/* Top 4 Stats Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {/* Card 1: Aktif Sınıf */}
-          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-primary/30 transition-colors duration-300">
-            <div>
-              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Ehliyet Sınıfı</p>
-              <h3 className="text-base font-black text-white mt-1.5 truncate max-w-[150px]">{selectedPackage}</h3>
-              <p className="text-[9px] font-bold text-primary-light uppercase tracking-wider mt-1">{user?.proStatus ? 'PRO Üye' : 'Ücretsiz Plan'}</p>
-            </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-primary/10 text-primary-light border border-primary/20">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-          </div>
-
-          {/* Card 2: Toplam Sınav */}
-          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-accent/30 transition-colors duration-300">
-            <div>
-              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Toplam Sınav</p>
-              <h3 className="text-2xl font-black text-white mt-1.5">{stats?.totalExams || 0}</h3>
-              <p className="text-[9px] font-semibold text-text-muted mt-1">Çözülen deneme sınavı</p>
-            </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-accent/10 text-accent-light border border-accent/20">
-              <ClipboardList className="w-6 h-6" />
-            </div>
-          </div>
-
-          {/* Card 3: Toplam Doğru */}
-          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-success/30 transition-colors duration-300">
-            <div>
-              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Doğru Cevap</p>
-              <h3 className="text-2xl font-black text-white mt-1.5">{stats?.totalCorrect || 0}</h3>
-              <p className="text-[9px] font-semibold text-text-muted mt-1">Tüm doğru işaretlemeler</p>
-            </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-success/10 text-success border border-success/20">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-          </div>
-
-          {/* Card 4: Çalışma Serisi */}
-          <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex min-h-[112px] items-center justify-between group hover:border-warning/30 transition-colors duration-300">
-            <div>
-              <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">Seri Takibi</p>
-              <h3 className="text-2xl font-black text-white mt-1.5">{stats?.streak || 0} Gün</h3>
-              <p className="text-[9px] font-semibold text-text-muted mt-1">Düzenli çalışma gün sayısı</p>
-            </div>
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-warning/10 text-warning border border-warning/20">
-              <Flame className="w-6 h-6 fill-current" />
-            </div>
-          </div>
-        </div>
-
-        {/* Dashboard Split Grid */}
-        <section className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_440px]">
-          <div className="space-y-5">
-            {/* Welcome Banner */}
-            <Motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0d1017] p-6 shadow-sm shadow-black/10"
-            >
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary/50 via-accent/30 to-transparent" />
-              <div className="relative z-10 grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-center">
-                <div className="max-w-3xl">
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-primary-light" />
-                    <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Sürücü Gelişim Alanı</span>
-                  </div>
-                  <h1 className="text-3xl font-black text-white tracking-tight leading-tight 2xl:text-4xl">
-                    Tekrar Hoş Geldin, <span className="gradient-text">{user?.firstName || 'Sürücü Adayı'}</span> 👋
-                  </h1>
-                  <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
-                    Ehliyet sınav hazırlığında bugün ne yapacağını öğrenmek için sağdaki çalışma sırasını takip et. Kendini hazır hissettiğinde simülasyon sınavlarına geçebilirsin.
-                  </p>
-                </div>
-                
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="mb-3 flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Bugünkü ilerleme</span>
-                    <span className="text-sm font-black text-white">%{dailyProgress}</span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-                    <Motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${dailyProgress}%` }}
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-                    />
-                  </div>
-                  <p className="mt-3 text-xs font-semibold text-text-muted">
-                    {todayQuestions}/{dailyGoal} soru çözüldü. {remainingQuestions === 0 ? 'Hedef tamamlandı.' : `${remainingQuestions} soru kaldı.`}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2.5 shrink-0 xl:col-start-2">
-                  <Link
-                    to="/dashboard/exams"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-light active:scale-95"
-                  >
-                    <PlayCircle className="h-4.5 w-4.5" />
-                    Hemen Test Çöz
-                  </Link>
-                  <Link
-                    to="/dashboard/lessons"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-colors hover:bg-white/[0.07] active:scale-95"
-                  >
-                    <BookOpen className="h-4.5 w-4.5 text-accent-light" />
-                    Ders Notlarını Oku
-                  </Link>
-                </div>
-              </div>
-            </Motion.div>
-
-            {/* progress bars row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Bugünkü Soru İlerlemesi */}
-              <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent/10 text-accent-light border border-accent/20">
-                      <Target className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-black text-text-muted uppercase tracking-widest">Bugünkü Hedef</h4>
-                      <p className="text-base font-black text-white mt-0.5">Soru Hedefi</p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-xl text-[10px] font-black border border-accent/20 bg-accent/10 text-accent-light">
-                    %{dailyProgress}
-                  </span>
-                </div>
-                
-                <div className="mt-6">
-                  <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden">
-                    <Motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${dailyProgress}%` }}
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-                    />
-                  </div>
-                  <div className="flex justify-between items-center mt-3 text-xs font-semibold text-text-muted">
-                    <span>{todayQuestions}/{dailyGoal} Soru çözüldü</span>
-                    <span className="text-white">
-                      {remainingQuestions === 0 ? 'Bugün tamamlandı!' : `${remainingQuestions} soru kaldı`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seviye İlerlemesi */}
-              <div className="glass-card p-5 rounded-2xl border border-white/10 bg-[#0d1017] flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-warning/10 text-warning border border-warning/20">
-                      <Star className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-black text-text-muted uppercase tracking-widest">Sürücü Seviyesi</h4>
-                      <p className="text-base font-black text-white mt-0.5">Seviye {level}</p>
-                    </div>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-xl text-[10px] font-black border border-warning/20 bg-warning/10 text-warning">
-                    {totalScore} XP
-                  </span>
-                </div>
-
-                <div className="mt-6">
-                  <div className="h-2 w-full bg-black/40 rounded-full overflow-hidden">
-                    <Motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${levelProgress}%` }}
-                      className="h-full rounded-full bg-gradient-to-r from-warning to-primary-light"
-                    />
-                  </div>
-                  <div className="flex justify-between items-center mt-3 text-xs font-semibold text-text-muted">
-                    <span>Sonraki seviyeye</span>
-                    <span className="text-white">%{levelProgress}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions Cards */}
-            <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-              {actionCards.map((card) => (
-                <Link
-                  key={card.to}
-                  to={card.to}
-                  className={`group flex flex-col justify-between min-h-[126px] rounded-2xl border border-white/10 bg-gradient-to-br ${card.tone} p-4 transition-colors duration-300 hover:border-primary/25`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-black/25">
-                      <card.icon className="h-5.5 w-5.5 text-white" />
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-text-muted transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-sm font-black tracking-tight text-white">{card.label}</h3>
-                    <p className="mt-1 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted group-hover:text-text-secondary transition-colors">{card.text}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Right Side: Timeline & Countdown */}
-          <Motion.aside
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.04 }}
-            className="rounded-3xl border border-white/10 bg-[#0d1017] p-5 shadow-sm shadow-black/10 flex flex-col justify-between gap-5"
-          >
-            <div>
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-success">Kişisel Yol Haritanız</p>
-                  <h2 className="mt-1.5 text-xl font-black tracking-tight text-white">Çalışma Sırası</h2>
-                </div>
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-success/20 bg-success/10 text-success shadow-lg shadow-success/10">
-                  <Target className="h-5.5 w-5.5" />
-                </div>
-              </div>
-
-              {/* Bugün Ne Yapmalıyım Tutor Card */}
-              <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-4 relative overflow-hidden group">
-                <div className="flex items-start gap-3">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${recommendationTone}`}>
-                    {React.createElement(recommendation.icon, { className: 'h-4.5 w-4.5' })}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-primary-light">Günün Akıllı Tavsiyesi</p>
-                    <h3 className="mt-1 text-sm font-black leading-tight text-white group-hover:text-primary-light transition-colors">{recommendation.title}</h3>
-                    <p className="mt-1.5 line-clamp-3 text-xs font-semibold leading-relaxed text-text-muted">{recommendation.detail}</p>
-                  </div>
-                </div>
-                {recommendation.to ? (
-                  <Link
-                    to={recommendation.to}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary text-xs font-black uppercase tracking-widest text-white py-3 shadow-sm shadow-primary/10 transition-colors hover:bg-primary-light active:scale-95"
-                  >
-                    {recommendation.action}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={recommendation.onClick}
-                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary text-xs font-black uppercase tracking-widest text-white py-3 shadow-sm shadow-primary/10 transition-colors hover:bg-primary-light active:scale-95"
-                  >
-                    {recommendation.action}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Akıllı Yanlış Tekrar Entry */}
-              <div className={`mt-3.5 rounded-2xl border p-3.5 flex items-center justify-between gap-3 shadow-md ${
-                reviewDue.count > 0
-                  ? 'border-primary/20 bg-primary/10'
-                  : 'border-white/5 bg-white/[0.01]'
-              }`}>
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${
-                    reviewDue.count > 0
-                      ? 'border-primary/20 bg-primary/10 text-primary-light'
-                      : 'border-white/5 bg-white/5 text-text-muted'
-                  }`}>
-                    <RefreshCcw className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Zamanı Gelen Yanlışlar</p>
-                    <p className="mt-0.5 text-xs font-semibold text-text-muted">
-                      {reviewDue.count > 0 ? `${reviewDue.count} soru çözülmeli` : 'Tekrar edilecek soru yok.'}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  to={reviewDue.count > 0 ? '/dashboard/exams/wrong-review' : '/dashboard/exams'}
-                  className={`inline-flex shrink-0 items-center justify-center rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${
-                    reviewDue.count > 0
-                      ? 'bg-primary text-white shadow-lg shadow-primary/10'
-                      : 'border border-white/15 bg-white/5 text-white hover:bg-white/10'
-                  }`}
-                >
-                  {reviewDue.count > 0 ? 'Çöz' : 'Göz At'}
-                </Link>
-              </div>
-
-              {/* Connected Steps Timeline */}
-              <div className="mt-5 relative">
-                <div className="absolute left-[19px] top-[24px] bottom-[24px] w-[2px] bg-white/10 z-0"></div>
-                <div className="space-y-4 relative z-10">
-                  {studyPlan.map((item, idx) => (
-                    <div key={idx} className="flex items-start gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center border z-10 shrink-0 ${
-                        item.done 
-                          ? 'bg-success/15 border-success/30 text-success shadow-lg shadow-success/10' 
-                          : 'bg-bg-card border-white/10 text-text-muted'
-                      }`}>
-                        {item.done ? <CheckCircle2 className="w-5 h-5" /> : React.createElement(item.icon, { className: 'w-4.5 h-4.5' })}
-                      </div>
-                      <div className="min-w-0 flex-1 pt-1.5">
-                        <p className={`text-sm font-black leading-tight ${item.done ? 'text-text-secondary line-through' : 'text-white'}`}>{item.label}</p>
-                        <p className="text-xs font-semibold text-text-muted mt-0.5">{item.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Sınav Günü Sayaç */}
-            {examCountdown && (
-              <div className={`rounded-2xl border p-4 mt-4 relative overflow-hidden flex items-center gap-4 ${
-                examCountdown.isPast
-                  ? 'border-danger/20 bg-danger/10 text-danger shadow-lg shadow-danger/5'
-                  : 'border-success/20 bg-success/10 text-success shadow-lg shadow-success/5'
-              }`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  examCountdown.isPast ? 'bg-danger/20 text-danger' : 'bg-success/20 text-success'
-                }`}>
-                  <CalendarDays className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">MEB E-Sınav Sayaç</p>
-                  <h3 className="text-base font-black text-white mt-0.5">
-                    {examCountdown.isToday ? 'Sınav Günü!' : `${examCountdown.days} Gün Kaldı`}
-                  </h3>
-                  <p className="text-xs font-semibold text-text-muted mt-0.5">{examCountdown.formatted}</p>
-                </div>
-              </div>
-            )}
-          </Motion.aside>
-        </section>
-
-        {/* Selected Category Banner Section */}
-        <section className="space-y-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary-light">Eğitim Paketi</p>
-              <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
-                {!user?.selectedCategoryId ? 'Sınıfını seçerek başla' : user.selectedCategoryName}
-              </h2>
-            </div>
-            {user?.selectedCategoryId && (
-              <button
-                type="button"
-                onClick={() => setShowCategoryModal(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-4 py-3 text-xs font-black uppercase tracking-widest text-primary-light transition-colors hover:bg-primary hover:text-white"
-              >
-                <RefreshCcw className="h-4 w-4" />
-                Kategori Değiştir
-              </button>
-            )}
-          </div>
-
-          <AnimatePresence mode="wait">
-            {!user?.selectedCategoryId ? (
-              <Motion.div
-                key="empty-category"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                className="rounded-2xl border border-dashed border-white/10 bg-[#0d1017] px-5 py-12 text-center"
-              >
-                <ShieldCheck className="mx-auto mb-5 h-14 w-14 text-primary-light" />
-                <h3 className="text-xl font-black text-white">Eğitim sınıfı seçilmedi</h3>
-                <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-relaxed text-text-secondary">
-                  Dersler, sınavlar ve hedefler seçtiğin ehliyet sınıfına göre kişiselleştirilecek.
-                </p>
-                <button onClick={() => setShowCategoryModal(true)} className="btn-primary mt-6 px-8 py-3">
-                  Sınıf Seç
-                </button>
-              </Motion.div>
-            ) : (
-              <Motion.div
-                key="selected-category"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -14 }}
-                className="grid grid-cols-1 gap-5 rounded-2xl border border-primary/20 bg-[#0d1017] p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto]"
-              >
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary shadow-sm shadow-primary/20 sm:h-[72px] sm:w-[72px]">
-                    <ShieldCheck className="h-10 w-10 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="text-2xl font-black tracking-tight sm:text-3xl">{user.selectedCategoryName}</h3>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-text-secondary">
-                        <BookOpen className="h-3.5 w-3.5 text-primary-light" />
-                        {subCategories.length} Eğitim Konusu
-                      </span>
-                      <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-warning">
-                        <Star className="h-3.5 w-3.5" />
-                        MEB Uyumlu
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2 sm:min-w-[220px] sm:justify-center">
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 py-12 text-center">
+                  <ShieldCheck className="mb-3 h-10 w-10 text-primary-light/40" />
+                  <p className="text-xs font-black text-text-muted">Kategori seçilmedi</p>
                   <button
                     type="button"
                     onClick={() => setShowCategoryModal(true)}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-xs font-black uppercase tracking-widest text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-light active:scale-95"
+                    className="mt-3 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
                   >
-                    <RefreshCcw className="h-4 w-4" />
-                    Kategori Değiştir
+                    Seç
                   </button>
-                  <Link
-                    to="/dashboard/settings"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-3 text-xs font-black uppercase tracking-widest text-text-secondary transition-colors hover:bg-white/[0.07] hover:text-white"
-                  >
-                    <Settings2 className="h-4 w-4" />
-                    Profil Ayarları
-                  </Link>
                 </div>
-              </Motion.div>
-            )}
-          </AnimatePresence>
-        </section>
+              )}
+            </div>
 
-        {/* Curriculum Category Grid Section */}
-        <AnimatePresence>
-          {user?.selectedCategoryId && subCategories.length > 0 && (
-            <Motion.section
-              initial={{ opacity: 0, y: 28 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -18 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
-                  <LayoutGrid className="h-5 w-5 text-accent-light" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-accent-light">Müfredat</p>
-                  <h2 className="text-2xl font-black tracking-tight">Kategori Konuları</h2>
-                </div>
+            {/* Col 3: Sidebar widgets */}
+            <div className="space-y-4">
+              {/* Aktif Eğitim */}
+              <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] to-[#0a0d16] p-4 shadow-xl shadow-black/25">
+                <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Aktif Eğitim</p>
+                <h3 className="mt-1.5 text-base font-black text-white">{user?.selectedCategoryName || 'Seçilmedi'}</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryModal(true)}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/20 bg-primary/10 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
+                >
+                  <RefreshCcw className="h-3.5 w-3.5" />
+                  Değiştir
+                </button>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {subCategories.map((category, index) => {
-                  const accentColor = getCategoryColor(category.name);
-                  return (
-                    <Motion.div
-                      key={category._id}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.04 }}
-                    >
-                      <Link
-                        to={`/dashboard/lessons?category=${category._id}`}
-                        className="group relative flex h-full min-h-[210px] flex-col rounded-2xl border border-white/10 bg-[#0d1017] p-4 transition-colors duration-300 hover:border-white/20"
-                      >
-                        <div className="absolute top-0 inset-x-0 h-[3px] rounded-t-[24px] transition-all duration-300" style={{ backgroundColor: `${accentColor}30` }} />
-                        
-                        {category.image ? (
-                          <div className="mb-4 h-28 overflow-hidden rounded-xl border border-white/10 bg-black/25 relative">
-                            <img
-                              src={resolveMediaUrl(category.image)}
-                              alt={category.name}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          </div>
-                        ) : (
-                          <div className="mb-4 flex items-start justify-between gap-4">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02]" style={{ borderColor: `${accentColor}20`, backgroundColor: `${accentColor}05` }}>
-                              <BookOpen className="h-6 w-6" style={{ color: accentColor }} />
-                            </div>
-                            <ArrowRight className="h-5 w-5 text-text-muted transition-transform duration-300 group-hover:translate-x-1" style={{ color: accentColor }} />
-                          </div>
-                        )}
-                        {category.image && (
-                          <ArrowRight className="absolute right-5 top-5 h-5 w-5 text-white/70 drop-shadow transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
-                        )}
-                        <h4 className="text-lg font-black leading-tight tracking-tight text-white transition-colors duration-300" style={{ groupHoverColor: accentColor }}>
-                          {category.name}
-                        </h4>
-                        <p className="mt-2.5 line-clamp-3 text-xs font-semibold leading-relaxed text-text-muted group-hover:text-text-secondary transition-colors">
-                          {category.description || 'Bu ders için hazırlanan özel eğitim müfredatı.'}
+              {/* Sınav Geri Sayımı */}
+              {examCountdown ? (
+                <div className={`rounded-3xl border p-4 shadow-xl shadow-black/25 ${examCountdown.isPast ? 'border-danger/20 bg-danger/5' : 'border-success/15 bg-success/5'}`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${examCountdown.isPast ? 'border-danger/20 bg-danger/10 text-danger' : 'border-success/20 bg-success/10 text-success'}`}>
+                      <CalendarDays className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-text-muted">MEB E-Sınav</p>
+                      <p className={`text-base font-black ${examCountdown.isPast ? 'text-danger' : 'text-white'}`}>
+                        {examCountdown.isToday ? 'Bugün!' : examCountdown.isPast ? 'Geçti' : `${examCountdown.days} Gün`}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-[10px] font-semibold text-text-muted">{examCountdown.formatted}</p>
+                </div>
+              ) : (
+                <Link to="/dashboard/settings" className="block rounded-3xl border border-dashed border-white/10 bg-white/[0.015] p-4 text-center transition hover:border-white/20">
+                  <CalendarDays className="mx-auto mb-2 h-7 w-7 text-text-muted/40" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Sınav tarihi ekle</p>
+                </Link>
+              )}
+
+              {/* Son Sınavlarım */}
+              {recentResults.length > 0 && (
+                <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[#0f1322] to-[#0a0d16] p-4 shadow-xl shadow-black/25">
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">Son Sınavlar</p>
+                    <Link to="/dashboard/stats" className="text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:text-white">
+                      Tümü →
+                    </Link>
+                  </div>
+                  <div className="space-y-2">
+                    {recentResults.map((res, i) => (
+                      <div key={res._id || i} className="flex items-center gap-2.5 rounded-xl border border-white/[0.05] bg-white/[0.01] px-2.5 py-2">
+                        <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[9px] font-black ${res.passed ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'}`}>
+                          {res.passed ? '✓' : '✗'}
+                        </span>
+                        <p className="min-w-0 flex-1 truncate text-[10px] font-bold text-white">
+                          {res.examName || res.categoryName || 'Deneme'}
                         </p>
-                        <div className="mt-auto border-t border-white/5 pt-3 flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-text-secondary">
-                            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: accentColor }} />
-                            {category.content ? 'Ders İçeriği' : 'Okuma Materyali'}
-                          </span>
-                        </div>
-                      </Link>
-                    </Motion.div>
-                  );
-                })}
-              </div>
-            </Motion.section>
-          )}
+                        <span className={`shrink-0 text-[10px] font-black ${res.passed ? 'text-success' : 'text-danger'}`}>
+                          %{res.score}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {user?.selectedCategoryId && subCategories.length === 0 && (
-            <Motion.div
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-2xl border border-dashed border-white/10 bg-[#0d1017] px-5 py-12 text-center"
-            >
-              <AlertCircle className="mx-auto mb-4 h-12 w-12 text-text-muted opacity-50" />
-              <p className="font-bold text-text-muted">Bu sınıfa ait çalışma konusu henüz eklenmemiş.</p>
-              <p className="mt-2 text-[10px] uppercase tracking-widest text-text-muted">Lütfen daha sonra tekrar kontrol edin.</p>
-            </Motion.div>
-          )}
-        </AnimatePresence>
+              {/* Günün Sözü — belirgin kart */}
+              {quote && (
+                <div className="relative overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/8 via-[#0f1322] to-[#0a0d16] p-5 shadow-xl shadow-black/30">
+                  {/* Decorative glow */}
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/15 blur-[40px]" />
+                  <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-primary/30 via-accent/20 to-transparent" />
+                  {/* Header */}
+                  <div className="relative mb-4 flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-primary/25 bg-primary/15">
+                      <Quote className="h-3.5 w-3.5 text-primary-light" />
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Günün Sözü</span>
+                  </div>
+                  {/* Quote text */}
+                  <p className="relative text-sm font-semibold italic leading-relaxed text-white/90">
+                    "{quoteText}"
+                  </p>
+                  {/* Author */}
+                  <div className="relative mt-4 flex items-center gap-2 border-t border-white/[0.06] pt-3">
+                    <div className="h-1 w-5 rounded-full bg-primary/40" />
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary-light/70">{quoteAuthor}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </div>
+
 
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* MOBILE VIEW (FLUTTER DASHBOARD STYLE) */}
@@ -1350,6 +1005,41 @@ const UserHome = () => {
             </button>
           </div>
         </div>
+
+        {/* ── GUEST BANNER (mobile) ── */}
+        {user?.isGuest && (
+          <div className="relative overflow-hidden rounded-3xl border border-warning/20 bg-gradient-to-br from-warning/8 via-[#0f1322] to-[#0a0d16] p-5 shadow-xl shadow-black/30">
+            {/* Glow */}
+            <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-warning/10 blur-[50px]" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-gradient-to-r from-warning/30 via-accent/15 to-transparent" />
+            <div className="relative">
+              <div className="mb-2 inline-flex items-center gap-1.5 rounded-xl border border-warning/25 bg-warning/10 px-2.5 py-1">
+                <Sparkles className="h-3 w-3 text-warning" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-warning">Misafir Modu</span>
+              </div>
+              <h3 className="text-base font-black text-white leading-snug">
+                Tüm özelliklere erişmek için <span className="text-warning">üye ol!</span>
+              </h3>
+              <p className="mt-1.5 text-[11px] font-semibold text-text-muted leading-relaxed">
+                Yanlış takip, istatistik, rozet ve sınırsız test — hepsi ücretsiz kaydolunca açılır.
+              </p>
+              <div className="mt-4 flex gap-2.5">
+                <button
+                  onClick={() => { logout(); navigate('/register'); }}
+                  className="flex-1 h-10 rounded-2xl bg-gradient-to-r from-primary to-accent text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20 transition active:scale-95"
+                >
+                  Ücretsiz Üye Ol
+                </button>
+                <button
+                  onClick={() => { logout(); navigate('/login'); }}
+                  className="flex-1 h-10 rounded-2xl border border-white/10 bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-white transition hover:bg-white/[0.06] active:scale-95"
+                >
+                  Giriş Yap
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Günün Sözü (Flutter scrolling text format) */}
         {quote && (

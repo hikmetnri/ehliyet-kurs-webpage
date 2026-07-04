@@ -1523,49 +1523,62 @@ const AdminContent = () => {
   return (
     <div className="flex flex-col h-full min-h-[calc(100vh-96px)] md:min-h-[calc(100vh-120px)]">
       {/* ── Page Header ──────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
-        <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">İçerik Kütüphanesi</h1>
-          <p className="text-text-secondary text-sm mt-1">Ders içeriklerini ve kategori yapısını yönetin.</p>
-        </div>
-        <div className="flex flex-col gap-2 shrink-0 sm:flex-row sm:items-center">
-          <div className="flex rounded-xl border border-white/10 bg-white/5 p-1">
-            {[
-              { id: 'content', label: 'Dersler', icon: BookOpen },
-              { id: 'videos', label: 'Videolar', icon: Video },
-            ].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setActivePanel(item.id)}
-                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest transition ${
-                  (item.id === 'content' ? activePanel !== 'videos' : activePanel === item.id)
-                    ? 'bg-primary/20 text-primary-light'
-                    : 'text-text-muted hover:text-white'
-                }`}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </button>
-            ))}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-primary-light uppercase tracking-widest">İçerik Yönetimi</p>
+            <h1 className="mt-1.5 text-xl sm:text-2xl font-bold text-white tracking-tight">İçerik Kütüphanesi</h1>
+            <p className="text-text-secondary text-sm mt-1">Ders içeriklerini ve kategori yapısını yönetin.</p>
           </div>
-          <button
-            onClick={() => fetchCategories()}
-            className="p-2.5 rounded-xl hover:bg-white/5 border border-white/10 text-text-muted hover:text-white transition-all"
-            title="Yenile"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-          {activePanel !== 'videos' && (
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] px-3 py-2">
+                <p className="text-base font-black text-white">{contentCategories.length}</p>
+                <p className="text-[9px] font-bold text-text-muted uppercase tracking-widest">Kategori</p>
+              </div>
+              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 px-3 py-2">
+                <p className="text-base font-black text-white">{contentCategories.filter(c => c.isPro).length}</p>
+                <p className="text-[9px] font-bold text-amber-400 uppercase tracking-widest">PRO</p>
+              </div>
+            </div>
+            <div className="flex rounded-xl border border-white/10 bg-white/5 p-1">
+              {[
+                { id: 'content', label: 'Dersler', icon: BookOpen },
+                { id: 'videos', label: 'Videolar', icon: Video },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setActivePanel(item.id)}
+                  className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-widest transition ${
+                    (item.id === 'content' ? activePanel !== 'videos' : activePanel === item.id)
+                      ? 'bg-primary/20 text-primary-light'
+                      : 'text-text-muted hover:text-white'
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              ))}
+            </div>
             <button
-              onClick={() => openCatModal()}
-              className="flex flex-1 sm:flex-none items-center justify-center gap-2 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl transition-all font-bold text-sm shadow-lg shadow-primary/20"
+              onClick={() => fetchCategories()}
+              className="p-2.5 rounded-xl hover:bg-white/5 border border-white/10 text-text-muted hover:text-white transition-all"
+              title="Yenile"
             >
-              <FilePlus className="w-4 h-4" /> Yeni Kategori
+              <RefreshCw className="w-4 h-4" />
             </button>
-          )}
+            {activePanel !== 'videos' && (
+              <button
+                onClick={() => openCatModal()}
+                className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-light text-white px-4 py-2.5 rounded-xl transition-all font-bold text-sm"
+              >
+                <FilePlus className="w-4 h-4" /> Yeni Kategori
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* ── Main Split Layout ─────────────────────────────────────────────── */}
       {activePanel === 'videos' ? (

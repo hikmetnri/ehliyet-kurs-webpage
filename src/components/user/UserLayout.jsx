@@ -64,6 +64,17 @@ const UserLayout = ({ fullscreen = false }) => {
         document.documentElement.setAttribute('data-theme-mode', themeMode);
       }
     }
+
+    return () => {
+      document.documentElement.removeAttribute('data-theme');
+      const currentMode = localStorage.getItem('theme-mode') || 'dark';
+      if (currentMode === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme-mode', isDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme-mode', currentMode);
+      }
+    };
   }, [user, themeMode]);
 
   useEffect(() => {

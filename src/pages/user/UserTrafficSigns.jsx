@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Search, TriangleAlert, Info, CircleStop, ArrowRight, Filter, X } from 'lucide-react';
+import { Search, TriangleAlert, Info, CircleStop, ArrowRight, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getSignLibraryForCategoryName } from '../../data/signLibrariesData';
 import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
@@ -22,13 +22,20 @@ const UserTrafficSigns = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSign, setSelectedSign] = useState(null);
   const [prevLibraryId, setPrevLibraryId] = useState(library.id);
+  const [page, setPage] = useState(1);
+  const SIGNS_PER_PAGE = 24;
 
   if (library.id !== prevLibraryId) {
     setPrevLibraryId(library.id);
     setActiveCategory('all');
     setSelectedSign(null);
     setSearchQuery('');
+    setPage(1);
   }
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery, activeCategory]);
 
   const categoryById = useMemo(() => (
     categories.reduce((acc, category) => {
@@ -54,6 +61,12 @@ const UserTrafficSigns = () => {
       return matchesCategory && normalizeText(searchable).includes(query);
     });
   }, [activeCategory, categoryById, searchQuery, signsData]);
+
+  const totalPages = Math.ceil(filteredSigns.length / SIGNS_PER_PAGE);
+  const paginatedSigns = useMemo(() => {
+    const startIndex = (page - 1) * SIGNS_PER_PAGE;
+    return filteredSigns.slice(startIndex, startIndex + SIGNS_PER_PAGE);
+  }, [filteredSigns, page]);
 
   const activeCategoryLabel = categoryById[activeCategory]?.label || 'Tümü';
   const knownSignCount = library.id === 'traffic'
@@ -151,51 +164,84 @@ const UserTrafficSigns = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-          {filteredSigns.map((sign, index) => (
-            <MotionButton
-              key={sign.id}
-              type="button"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.18, delay: Math.min(index * 0.01, 0.08) }}
-              onClick={() => setSelectedSign(sign)}
-              className="group flex min-h-[260px] flex-col rounded-3xl border border-white/10 bg-white/[0.025] p-4 text-left transition hover:border-primary/25 hover:bg-white/[0.04]"
-            >
-              <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-white/[0.035] p-4">
-                <img
-                  src={resolveMediaUrl(sign.image)}
-                  alt={sign.title}
-                  className="max-h-full max-w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105"
-                />
-              </div>
-
-              <div className="mt-4 flex flex-1 flex-col">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
-                    {sign.code}
-                  </span>
-                  <span className="rounded-lg bg-primary/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-primary-light">
-                    {categoryById[sign.category]?.label.replace(' İşaretleri', '')}
-                  </span>
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            {paginatedSigns.map((sign, index) => (
+              <MotionButton
+                key={sign.id}
+                type="button"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.18, delay: Math.min(index * 0.01, 0.08) }}
+                onClick={() => setSelectedSign(sign)}
+                className="group flex min-h-[260px] flex-col rounded-3xl border border-white/10 bg-white/[0.025] p-4 text-left transition hover:border-primary/25 hover:bg-white/[0.04]"
+              >
+                <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-white/[0.035] p-4">
+                  <img
+                    src={resolveMediaUrl(sign.image)}
+                    alt={sign.title}
+                    className="max-h-full max-w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-105"
+                  />
                 </div>
 
-                <h3 className="line-clamp-2 min-h-[42px] text-sm font-black leading-snug text-white transition group-hover:text-primary-light">
-                  {sign.title}
-                </h3>
+                <div className="mt-4 flex flex-1 flex-col">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[10px] font-black uppercase tracking-widest text-text-muted">
+                      {sign.code}
+                    </span>
+                    <span className="rounded-lg bg-primary/10 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-primary-light">
+                      {categoryById[sign.category]?.label.replace(' İşaretleri', '')}
+                    </span>
+                  </div>
 
-                <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted">
-                  {sign.description}
-                </p>
+                  <h3 className="line-clamp-2 min-h-[42px] text-sm font-black leading-snug text-white transition group-hover:text-primary-light">
+                    {sign.title}
+                  </h3>
 
-                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-black uppercase tracking-widest text-text-secondary transition group-hover:text-white">
-                  Detay
-                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-                </span>
+                  <p className="mt-2 line-clamp-2 text-xs font-semibold leading-relaxed text-text-muted">
+                    {sign.description}
+                  </p>
+
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-xs font-black uppercase tracking-widest text-text-secondary transition group-hover:text-white">
+                    Detay
+                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                  </span>
+                </div>
+              </MotionButton>
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center items-center gap-3">
+              <button
+                type="button"
+                disabled={page === 1}
+                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-primary/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
+                aria-label="Önceki Sayfa"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-black/20 border border-white/5 text-xs font-bold text-text-muted">
+                <span className="text-primary-light font-black">{page}</span>
+                <span>/</span>
+                <span>{totalPages}</span>
               </div>
-            </MotionButton>
-          ))}
-        </div>
+
+              <button
+                type="button"
+                disabled={page === totalPages}
+                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-primary/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
+                aria-label="Sonraki Sayfa"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       <AnimatePresence>

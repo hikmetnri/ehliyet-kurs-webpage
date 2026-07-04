@@ -4,7 +4,7 @@ import {
   Users, FileText, CheckCircle2, Clock, Loader2, AlertTriangle,
   MessageCircle, BarChart2, ShieldAlert, Settings,
   Edit3, Activity, Library, Award, QrCode, Share2, XCircle, AlertCircle,
-  RefreshCw, Megaphone
+  RefreshCw, Megaphone, Bell
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { 
@@ -189,6 +189,7 @@ const AdminDashboard = () => {
   
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState(localStorage.getItem('adminNote') || '');
+  const [activeQueueTab, setActiveQueueTab] = useState('posts');
 
   // Kategori Filtresi Eyaletleri
   const [rootCategories, setRootCategories] = useState([]);
@@ -353,6 +354,7 @@ const AdminDashboard = () => {
 
   const moduleCards = [
     { title: 'Kullanıcı Yönetimi', description: 'Hesap, yetki, PRO ve bildirim işlemleri.', icon: Users, path: '/admin/users', metric: `${stats.totalUsers.toLocaleString('tr-TR')} hesap`, color: { bg: 'bg-indigo-500/10', text: 'text-indigo-300', border: 'border-indigo-500/20' } },
+    { title: 'Bildirim Yönetimi', description: 'Toplu veya hedefli anlık push bildirimleri.', icon: Bell, path: '/admin/notifications', color: { bg: 'bg-purple-500/10', text: 'text-purple-300', border: 'border-purple-500/20' } },
     { title: 'Sınav Yönetimi', description: 'Kısa test, deneme ve gerçek sınav soru bankası.', icon: FileText, path: '/admin/exams', metric: `${stats.totalExams.toLocaleString('tr-TR')} çözüm`, color: { bg: 'bg-blue-500/10', text: 'text-blue-300', border: 'border-blue-500/20' } },
     { title: 'İçerik Yönetimi', description: 'Ders notları, kategoriler ve konu içerikleri.', icon: Library, path: '/admin/content', color: { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20' } },
     { title: 'İstatistikler', description: 'Kayıt trendi, kategori başarıları ve zor sorular.', icon: BarChart2, path: '/admin/stats', metric: `%${stats.avgSuccessRate} başarı`, color: { bg: 'bg-cyan-500/10', text: 'text-cyan-300', border: 'border-cyan-500/20' } },
@@ -454,55 +456,66 @@ const AdminDashboard = () => {
   }
 
   return (
-    <>
-      {/* Masaüstü Görünümü */}
-      <div className="hidden lg:block w-full space-y-5 pb-10">
-      <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+    <div className="w-full space-y-6 pb-12">
+      {/* Bakım Modu Uyarı Bandı */}
+      {isMaintenance && (
+        <div className="flex items-center gap-3 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-3.5">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-rose-500 animate-pulse" />
+          <p className="text-sm font-bold text-rose-400 flex-1">
+            Bakım modu aktif — Kullanıcılar uygulamaya erişemiyor.
+          </p>
+          <button
+            type="button"
+            onClick={toggleMaintenance}
+            disabled={processingAction === 'maintenance'}
+            className="shrink-0 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-400 hover:bg-rose-500 hover:text-white transition-all disabled:opacity-50"
+          >
+            Kapat
+          </button>
+        </div>
+      )}
+
+      {/* Header section with Category Filter & Quick Actions */}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <p className="mb-2 text-xs font-black text-primary-light">Operasyon özeti</p>
-            <h1 className="text-2xl font-black leading-tight text-white">Admin dashboard</h1>
-            <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-text-muted">
-              Bekleyen moderasyon, destek ve içerik sağlığı metriklerini tek bakışta takip et.
+            <p className="text-xs font-bold uppercase tracking-wider text-primary-light">
+              Hoş Geldiniz{user?.firstName ? `, ${user.firstName}` : ''}
+            </p>
+            <h1 className="mt-1 text-2xl font-black tracking-tight text-white sm:text-3xl">Yönetici Paneli</h1>
+            <p className="mt-1.5 max-w-2xl text-xs font-medium text-text-muted">
+              Moderasyon kuyrukları, sistem durumu ve detaylı kullanım metriklerini buradan yönetin.
             </p>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             <select
               value={selectedCategoryId}
               onChange={(e) => setSelectedCategoryId(e.target.value)}
-              className="rounded-2xl border border-white/10 bg-[#0d1017] px-4 py-3 text-xs font-bold text-white outline-none cursor-pointer hover:border-white/20 transition-all"
+              className="rounded-2xl border border-white/10 bg-[#0d1017] px-4 py-3 text-xs font-bold text-white outline-none cursor-pointer hover:border-white/20 transition-all w-full sm:w-auto"
             >
               <option value="all">Tüm Eğitimler (Ortak)</option>
               {rootCategories.map(cat => (
                 <option key={cat._id} value={cat._id}>{cat.name}</option>
               ))}
             </select>
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-2">
-              <p className="text-xs font-semibold text-text-muted">Bekleyen iş</p>
-              <p className="text-lg font-black text-white">
-                {stats.pendingPostsCount + stats.activeSupportCount + stats.activeReportsCount}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-2">
-              <p className="text-xs font-semibold text-text-muted">Eksik içerik</p>
-              <p className="text-lg font-black text-white">{contentHealth.missingContentCount}</p>
-            </div>
             <button
               type="button"
               onClick={fetchData}
-              className="rounded-2xl border border-primary/30 bg-primary/15 px-4 py-3 text-sm font-black text-white transition-colors hover:bg-primary/25"
+              disabled={loading}
+              className="rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs font-black text-white hover:bg-primary/20 transition-colors flex items-center justify-center gap-2 w-full sm:w-auto cursor-pointer"
             >
-              Verileri yenile
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              Verileri Yenile
             </button>
           </div>
         </div>
       </section>
 
+      {/* Priority Banner (Today's Highlight) */}
       <PriorityBanner
         title={priorityTitle}
         description={priorityDescription}
-        actionLabel={prioritySignal?.value > 0 ? 'Öncelikli kuyruğa git' : 'İçeriği gözden geçir'}
+        actionLabel={prioritySignal?.value > 0 ? 'Öncelikli Kuyruğa Git' : 'İçeriği Gözden Geçir'}
         onAction={() => navigate(prioritySignal?.value > 0 ? prioritySignal.path : '/admin/content')}
         tone={prioritySignal?.tone || { bg: 'bg-emerald-500/10', text: 'text-emerald-300', border: 'border-emerald-500/20' }}
         chips={priorityItems.map((item) => ({
@@ -512,480 +525,355 @@ const AdminDashboard = () => {
         }))}
       />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-        {statCards.map((stat, i) => <StatCard key={i} {...stat} />)}
-      </div>
-
-      <section className="space-y-4">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-lg font-black tracking-tight text-white sm:text-xl">Öncelikli Kuyruklar</h2>
-            <p className="mt-1 text-sm text-text-muted">Admin girince ilk bakılması gereken operasyon sinyalleri.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {healthCards.map((card, index) => (
-            <HealthCard key={card.title} {...card} delay={index * 0.05} onOpen={navigate} />
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-black tracking-tight text-white sm:text-xl">Yönetim Modülleri</h2>
-          <p className="mt-1 text-sm text-text-muted">Admin panelindeki ana çalışma alanlarına hızlı erişim.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
-          {moduleCards.map((module) => (
-            <ModuleCard key={module.path} {...module} onOpen={navigate} />
-          ))}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-black tracking-tight text-white sm:text-xl">Bekleyen İş Akışı</h2>
-          <p className="mt-1 text-sm text-text-muted">Onay, destek ve rapor kararlarını dashboard üzerinden hızlıca yönet.</p>
-        </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <QuickActionCard
-          title="Bekleyen Gönderiler"
-          description="Topluluk onay bekliyor"
-          icon={Clock}
-          color={{ bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/20' }}
-          items={pendingPosts}
-          emptyText="Bekleyen gönderi yok."
-          onViewAll={() => navigate('/admin/feed')}
-          renderItem={(post) => (
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-text-secondary uppercase">{post.category || 'Genel'}</span>
-                <span className="text-[9px] text-text-muted">{post.createdAt ? new Date(post.createdAt).toLocaleDateString('tr-TR') : '-'}</span>
-              </div>
-              <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{post.title || post.content}</p>
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <button
-                  type="button"
-                  disabled={processingAction?.startsWith(`post-${post._id}`)}
-                  onClick={() => handlePostDecision(post._id, 'approve')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Onayla
-                </button>
-                <button
-                  type="button"
-                  disabled={processingAction?.startsWith(`post-${post._id}`)}
-                  onClick={() => handlePostDecision(post._id, 'reject')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-rose-300 transition hover:bg-rose-500/20 disabled:opacity-50"
-                >
-                  <XCircle className="h-3.5 w-3.5" /> Reddet
-                </button>
-              </div>
-            </div>
-          )}
-        />
-        <QuickActionCard
-          title="Destek Talepleri"
-          description="Kullanıcılar yanıt bekliyor"
-          icon={MessageCircle}
-          color={{ bg: 'bg-pink-500/10', text: 'text-pink-400', border: 'border-pink-500/20' }}
-          items={supportTickets}
-          emptyText="Açık destek bileti yok."
-          onViewAll={() => navigate('/admin/support')}
-          renderItem={(ticket) => (
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-start gap-3">
-                <p className="text-sm font-semibold text-white truncate min-w-0">{ticket.subject || 'Konusuz'}</p>
-                <div className="w-2 h-2 rounded-full bg-pink-500 mt-1.5" />
-              </div>
-              <p className="text-xs text-text-muted italic line-clamp-1">{ticket.message || 'Detaylar sistemde kayıtlı.'}</p>
-            </div>
-          )}
-        />
-        <QuickActionCard
-          title="Şikayetler / Raporlar"
-          description="İncelenmesi gerekenler"
-          icon={ShieldAlert}
-          color={{ bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/20' }}
-          items={reportedItems}
-          emptyText="Şu an açık şikayet yok."
-          onViewAll={() => navigate('/admin/reports')}
-          renderItem={(report) => (
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 mt-1">
-                  <AlertTriangle className="w-4 h-4 text-red-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between">
-                    <p className="text-[11px] font-bold text-white uppercase tracking-wider truncate">{report.reason || 'Bildirim'}</p>
-                  </div>
-                  <p className="text-xs text-text-secondary leading-tight mt-1 line-clamp-2">{report.details || report.description || 'Açıklama belirtilmemiş.'}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  disabled={processingAction?.startsWith(`report-${report._id}`)}
-                  onClick={() => handleReportDecision(report._id, 'resolved')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Kapat
-                </button>
-                <button
-                  type="button"
-                  disabled={processingAction?.startsWith(`report-${report._id}`)}
-                  onClick={() => handleReportDecision(report._id, 'rejected')}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-text-muted transition hover:bg-white/10 hover:text-white disabled:opacity-50"
-                >
-                  <XCircle className="h-3.5 w-3.5" /> Reddet
-                </button>
-              </div>
-            </div>
-          )}
-        />
-        </div>
-      </section>
-
-      {/* Grafikler Alanı */}
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MotionDiv className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.025] p-4 sm:p-5" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}}>
-          <div className="mb-4">
-            <h3 className="text-sm font-black text-white sm:text-base">Yeni Kayıt Trendi</h3>
-            <p className="mt-1 text-xs font-medium text-text-muted">Son 7 gün içindeki yeni kullanıcı hareketi</p>
-          </div>
-          <div className="h-56 sm:h-64 w-full">
-            {hasRegistrationData ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={regData} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <RechartsTooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} itemStyle={{ color: '#a5b4fc' }} />
-                  <Area type="monotone" dataKey="users" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <ChartEmptyState text="Seçili aralıkta yeni kayıt yok. Veri geldikçe trend burada çizilecek." />
-            )}
-          </div>
-        </MotionDiv>
-
-        <MotionDiv className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.025] p-4 sm:p-5" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.1}}>
-          <div className="mb-4">
-            <h3 className="text-sm font-black text-white sm:text-base">Kategori Başarı Oranları</h3>
-            <p className="mt-1 text-xs font-medium text-text-muted">Kategori bazlı sınav performansı</p>
-          </div>
-          <div className="h-56 sm:h-64 w-full">
-            {hasCategoryData ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={categoryStats} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
-                  <XAxis dataKey="name" stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} interval={0} tickFormatter={(value) => String(value).slice(0, 8)} />
-                  <YAxis stroke="#52525b" fontSize={10} tickLine={false} axisLine={false} domain={[0, 100]} />
-                  <RechartsTooltip cursor={{fill: '#27272a', opacity: 0.4}} contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} />
-                  <Bar dataKey="oran" fill="#10b981" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <ChartEmptyState text="Kategori bazlı sınav sonucu oluşunca başarı oranları burada görünecek." />
-            )}
-          </div>
-        </MotionDiv>
-      </section>
-
-      {/* Ekstra Modüller: Loglar ve Not Defteri */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        {/* Aktivite Logları */}
-        <MotionDiv className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.025] p-4 lg:col-span-3" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}}>
-          <div className="mb-4 flex items-start justify-between gap-3 sm:items-center">
-            <div>
-              <h3 className="flex items-center gap-2 text-sm font-black text-white sm:text-base">
-                <Activity className="h-5 w-5 text-primary-light" />
-                Sistem Aktiviteleri
-              </h3>
-              <p className="mt-1 text-xs font-medium text-text-muted">Son yönetici işlemleri ve sistem kayıtları</p>
-            </div>
-            <button className="shrink-0 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-bold text-text-muted transition-colors hover:bg-white/[0.07] hover:text-white" onClick={() => navigate('/admin/stats')}>
-               Detaylı Loglar
-            </button>
-          </div>
-          <div className="max-h-64 overflow-y-auto custom-scrollbar">
-            {adminLogs.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.015] px-4 py-10 text-center">
-                <p className="text-sm font-bold text-text-muted">Henüz aktivite kaydı yok.</p>
-              </div>
-            ) : adminLogs.map((log) => (
-              <div key={log._id} className="grid gap-3 border-b border-white/5 px-1 py-3 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_auto]">
-                <div className="flex min-w-0 gap-3">
-                  <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03]">
-                    <span className="h-2 w-2 rounded-full bg-primary" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-white">{log.action}</p>
-                    <p className="mt-0.5 text-xs text-text-muted">{log.adminName || 'Bilinmeyen yönetici'}</p>
-                  </div>
-                </div>
-                <span className="w-fit rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-xs text-text-muted">
-                  {new Date(log.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' })}
-                </span>
-              </div>
+      {/* Layout Columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (col-span-8): KPIs, Tabbed Operations Queue, Charts */}
+        <div className="lg:col-span-8 space-y-6 w-full min-w-0">
+          {/* KPI Stats Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {statCards.map((stat, i) => (
+              <StatCard key={i} {...stat} delay={i * 0.05} />
             ))}
           </div>
-        </MotionDiv>
 
-        {/* Not Defteri */}
-        <MotionDiv className="flex min-h-[260px] flex-col rounded-3xl border border-amber-500/20 bg-amber-500/5 p-4" initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.1}}>
-          <h3 className="mb-3 flex items-center gap-2 font-black text-warning">
-            <Edit3 className="h-5 w-5" />
-            Hızlı Notlar
-          </h3>
-          <textarea
-            value={note}
-            onChange={saveNote}
-            className="w-full flex-1 resize-none rounded-2xl border border-amber-500/10 bg-black/10 p-3 text-sm font-medium leading-relaxed text-white/90 placeholder:text-warning/30 focus:border-amber-500/30 focus:outline-none custom-scrollbar"
-            placeholder="Kendinize veya ekibe notlar alın. Tarayıcıda saklanır..."
-          />
-        </MotionDiv>
-      </div>
+          {/* Tabbed Operations Queue */}
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] overflow-hidden flex flex-col shadow-sm">
+            {/* Header / Tabs Selector */}
+            <div className="border-b border-white/10 bg-black/20 p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wider">Operasyonel İş Kuyruğu</h3>
+                <p className="text-[10px] text-text-muted mt-0.5 font-bold">Onay, destek biletleri ve şikayet yönetim alanı</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'posts', label: 'Onay Bekleyenler', icon: Clock, count: pendingPosts.length, color: 'text-amber-400' },
+                  { id: 'support', label: 'Destek Talepleri', icon: MessageCircle, count: supportTickets.length, color: 'text-pink-400' },
+                  { id: 'reports', label: 'Şikayetler', icon: ShieldAlert, count: reportedItems.length, color: 'text-rose-400' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveQueueTab(tab.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[10px] font-bold uppercase transition-all cursor-pointer ${
+                      activeQueueTab === tab.id
+                        ? 'bg-primary/10 border-primary/30 text-primary-light font-black'
+                        : 'bg-white/[0.02] border-white/10 text-text-muted hover:bg-white/[0.05] hover:text-white'
+                    }`}
+                  >
+                    <tab.icon className={`w-3.5 h-3.5 ${tab.color}`} />
+                    <span>{tab.label}</span>
+                    {tab.count > 0 && (
+                      <span className="ml-1 px-1.5 py-0.5 rounded-full bg-white/10 text-[9px] text-white font-bold">{tab.count}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-      </div>
+            {/* Queue Tab Content */}
+            <div className="p-5 max-h-[360px] overflow-y-auto custom-scrollbar">
+              {activeQueueTab === 'posts' && (
+                <div className="space-y-4">
+                  {pendingPosts.length === 0 ? (
+                    <div className="p-8 text-center text-text-muted text-xs">Onay bekleyen akış gönderisi bulunmamaktadır.</div>
+                  ) : (
+                    pendingPosts.map(post => (
+                      <div key={post._id} className="rounded-2xl border border-white/5 bg-black/15 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.02] hover:border-white/10">
+                        <div className="min-w-0 flex-1 space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-text-secondary uppercase">{post.category || 'Genel'}</span>
+                            <span className="text-[9px] text-text-muted">{post.createdAt ? new Date(post.createdAt).toLocaleDateString('tr-TR') : '-'}</span>
+                          </div>
+                          <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{post.title || post.content}</p>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            type="button"
+                            disabled={processingAction?.startsWith(`post-${post._id}`)}
+                            onClick={() => handlePostDecision(post._id, 'approve')}
+                            className="flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50 cursor-pointer"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Onayla
+                          </button>
+                          <button
+                            type="button"
+                            disabled={processingAction?.startsWith(`post-${post._id}`)}
+                            onClick={() => handlePostDecision(post._id, 'reject')}
+                            className="flex items-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-rose-300 transition hover:bg-rose-500/20 disabled:opacity-50 cursor-pointer"
+                          >
+                            <XCircle className="h-3.5 w-3.5" /> Reddet
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
 
-      {/* Mobil Görünümü */}
-      <div className="block lg:hidden w-full space-y-6 pb-20">
-        {/* Mobil Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-text-muted">Merhaba,</span>
-            <h1 className="text-xl font-black text-white">Yönetici {user?.firstName || 'Admin'}</h1>
-          </div>
-          <button
-            type="button"
-            onClick={fetchData}
-            disabled={loading}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] text-white transition active:scale-95"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
+              {activeQueueTab === 'support' && (
+                <div className="space-y-4">
+                  {supportTickets.length === 0 ? (
+                    <div className="p-8 text-center text-text-muted text-xs">Açık destek talebi bulunmamaktadır.</div>
+                  ) : (
+                    supportTickets.map(ticket => (
+                      <div key={ticket._id} className="rounded-2xl border border-white/5 bg-black/15 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.02] hover:border-white/10">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex justify-between items-start gap-3">
+                            <p className="text-sm font-semibold text-white truncate">{ticket.subject || 'Konusuz'}</p>
+                            <span className="text-[9px] text-text-muted shrink-0">{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString('tr-TR') : '-'}</span>
+                          </div>
+                          <p className="text-xs text-text-muted italic mt-1.5 line-clamp-1">"{ticket.message || 'Detaylar sistemde kayıtlı.'}"</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/admin/support')}
+                          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-bold text-white transition hover:bg-white/10 cursor-pointer shrink-0"
+                        >
+                          Yanıtla
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
 
-        {/* Hızlı Araçlar (Top Toolbox) */}
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            onClick={() => navigate('/admin/settings')}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-emerald-400 transition active:scale-95 hover:bg-emerald-500/20"
-          >
-            <Megaphone className="h-3.5 w-3.5" />
-            <span>Duyuru</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={handleBackup}
-            disabled={processingAction === 'backup'}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/10 px-2 py-2.5 text-[10px] font-black uppercase tracking-wider text-indigo-400 transition active:scale-95 hover:bg-indigo-500/20 disabled:opacity-50"
-          >
-            <FileText className="h-3.5 w-3.5" />
-            <span>Yedek</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={toggleMaintenance}
-            disabled={processingAction === 'maintenance'}
-            className={`flex items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-[10px] font-black uppercase tracking-wider transition active:scale-95 disabled:opacity-50 ${
-              isMaintenance 
-                ? 'border-rose-500/20 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' 
-                : 'border-amber-500/20 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-            }`}
-          >
-            <Settings className="h-3.5 w-3.5" />
-            <span>{isMaintenance ? 'Bakım Açık' : 'Bakım'}</span>
-          </button>
-        </div>
-
-        {/* Yönetim Özeti (Hero Card) */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-5 text-white shadow-xl shadow-indigo-950/20">
-          <div className="relative z-10">
-            <span className="text-xs font-bold uppercase tracking-wider text-indigo-200">Toplam Bekleyen İş</span>
-            <p className="mt-1 text-4xl font-black tracking-tight">
-              {stats.pendingPostsCount + stats.activeSupportCount + stats.activeReportsCount}
-            </p>
-            <p className="mt-2 text-xs font-medium text-indigo-100">
-              Onay bekleyen akış gönderileri, şikayetler ve açık destek talepleri.
-            </p>
-          </div>
-          <div className="absolute -right-8 -bottom-8 h-32 w-32 rounded-full bg-white/5 blur-xl" />
-        </div>
-
-        {/* Metric Strip (3 Columns) */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-2xl border border-rose-500/20 bg-rose-500/5 p-3 text-center">
-            <ShieldAlert className="mx-auto h-5 w-5 text-rose-400" />
-            <span className="mt-1 block text-lg font-black text-white">{stats.activeReportsCount}</span>
-            <span className="text-[10px] font-bold text-rose-300/70">Rapor</span>
-          </div>
-          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3 text-center">
-            <Clock className="mx-auto h-5 w-5 text-amber-400" />
-            <span className="mt-1 block text-lg font-black text-white">{stats.pendingPostsCount}</span>
-            <span className="text-[10px] font-bold text-amber-300/70">Akış</span>
-          </div>
-          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-3 text-center">
-            <MessageCircle className="mx-auto h-5 w-5 text-purple-400" />
-            <span className="mt-1 block text-lg font-black text-white">{stats.activeSupportCount}</span>
-            <span className="text-[10px] font-bold text-purple-300/70">Destek</span>
-          </div>
-        </div>
-
-        {/* Analitik Kartları */}
-        <div className="space-y-4">
-          {/* Kayıt Trendi */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
-            <h3 className="text-sm font-black text-white">Kayıt Trendi</h3>
-            <p className="text-[11px] font-medium text-text-muted">Son 7 günlük yeni kullanıcı kaydı</p>
-            <div className="mt-4 h-48 w-full">
-              {hasRegistrationData ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={regData} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorUsersMobile" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" stroke="#52525b" fontSize={9} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#52525b" fontSize={9} tickLine={false} axisLine={false} allowDecimals={false} />
-                    <RechartsTooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} itemStyle={{ color: '#a5b4fc' }} />
-                    <Area type="monotone" dataKey="users" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorUsersMobile)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <ChartEmptyState text="Veri bulunmuyor." />
+              {activeQueueTab === 'reports' && (
+                <div className="space-y-4">
+                  {reportedItems.length === 0 ? (
+                    <div className="p-8 text-center text-text-muted text-xs">Açık şikayet/rapor bulunmamaktadır.</div>
+                  ) : (
+                    reportedItems.map(report => (
+                      <div key={report._id} className="rounded-2xl border border-white/5 bg-black/15 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.02] hover:border-white/10">
+                        <div className="min-w-0 flex-1 flex gap-3 items-start">
+                          <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <AlertTriangle className="w-4 h-4 text-red-400" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-white uppercase tracking-wider truncate">{report.reason || 'Şikayet'}</p>
+                            <p className="text-xs text-text-secondary leading-tight mt-1 line-clamp-2">{report.details || report.description || 'Açıklama belirtilmemiş.'}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            type="button"
+                            disabled={processingAction?.startsWith(`report-${report._id}`)}
+                            onClick={() => handleReportDecision(report._id, 'resolved')}
+                            className="flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50 cursor-pointer"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Çözüldü
+                          </button>
+                          <button
+                            type="button"
+                            disabled={processingAction?.startsWith(`report-${report._id}`)}
+                            onClick={() => handleReportDecision(report._id, 'rejected')}
+                            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-text-muted transition hover:bg-white/10 hover:text-white disabled:opacity-50 cursor-pointer"
+                          >
+                            <XCircle className="h-3.5 w-3.5" /> Reddet
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               )}
             </div>
           </div>
 
-          {/* Kategori Başarı Listesi (Progress Bar ile) */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
-            <h3 className="text-sm font-black text-white">Kategori Başarı Oranları</h3>
-            <p className="text-[11px] font-medium text-text-muted">Kategori bazlı sınav performansları</p>
-            
-            <div className="mt-4 space-y-3">
-              {hasCategoryData ? (
-                categoryStats.map((cat, idx) => (
-                  <div key={idx} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-white truncate max-w-[70%]">{cat.name}</span>
-                      <span className="font-black text-emerald-400">%{cat.oran}</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
-                      <div 
-                        className="h-full rounded-full bg-emerald-500 transition-all duration-500" 
-                        style={{ width: `${cat.oran}%` }}
-                      />
+          {/* Performance Charts Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Registration Trend */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 shadow-sm">
+              <div className="mb-4">
+                <h3 className="text-sm font-black text-white">Yeni Kayıt Trendi</h3>
+                <p className="text-[11px] font-medium text-text-muted">Son 7 günlük yeni kullanıcı hareketi</p>
+              </div>
+              <div className="h-56 w-full">
+                {hasRegistrationData ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={regData} margin={{ top: 10, right: 4, left: -28, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="name" stroke="#52525b" fontSize={9} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#52525b" fontSize={9} tickLine={false} axisLine={false} allowDecimals={false} />
+                      <RechartsTooltip contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '12px' }} itemStyle={{ color: '#a5b4fc' }} />
+                      <Area type="monotone" dataKey="users" stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#colorUsers)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <ChartEmptyState text="Son 7 gün kayıt verisi bulunmamaktadır." />
+                )}
+              </div>
+            </div>
+
+            {/* Category Success Rates */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 shadow-sm">
+              <div className="mb-4">
+                <h3 className="text-sm font-black text-white">Kategori Başarı Oranları</h3>
+                <p className="text-[11px] font-medium text-text-muted">Kategori bazlı sınav performansları</p>
+              </div>
+              <div className="h-56 w-full flex flex-col justify-center">
+                {hasCategoryData ? (
+                  <div className="space-y-3 overflow-y-auto max-h-[220px] pr-1 custom-scrollbar">
+                    {categoryStats.map((cat, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-white truncate max-w-[70%]">{cat.name}</span>
+                          <span className="font-black text-emerald-400">%{cat.oran}</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                          <div 
+                            className="h-full rounded-full bg-emerald-500 transition-all duration-500" 
+                            style={{ width: `${cat.oran}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs font-bold text-text-muted text-center py-4">Sınav performansı verisi bulunmuyor.</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Module Links Cards Grid */}
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-base font-black tracking-tight text-white">Tüm Yönetim Modülleri</h2>
+              <p className="text-xs text-text-muted mt-0.5">Operasyonel ekranlara hızlı geçiş yapın</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-4">
+              {moduleCards.map((module) => (
+                <ModuleCard key={module.path} {...module} onOpen={navigate} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (col-span-4): Controls, Quick Notes, Logs */}
+        <div className="lg:col-span-4 space-y-6 w-full shrink-0">
+          {/* Quick Operations Controls */}
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 shadow-sm space-y-4">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider">Hızlı Kontroller</h3>
+            <div className="grid grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={() => navigate('/admin/notifications')}
+                className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 py-3 text-[10px] font-black uppercase tracking-wider text-primary-light hover:bg-primary/15 transition duration-150 cursor-pointer active:scale-95"
+              >
+                <Bell className="h-4 w-4" />
+                <span>Bildirim</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/admin/settings')}
+                className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 py-3 text-[10px] font-black uppercase tracking-wider text-emerald-400 hover:bg-emerald-500/15 transition duration-150 cursor-pointer active:scale-95"
+              >
+                <Megaphone className="h-4 w-4" />
+                <span>Duyuru</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleBackup}
+                disabled={processingAction === 'backup'}
+                className="flex flex-col items-center justify-center gap-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 py-3 text-[10px] font-black uppercase tracking-wider text-indigo-400 hover:bg-indigo-500/15 transition duration-150 cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                {processingAction === 'backup' ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+                <span>Yedek</span>
+              </button>
+              <button
+                type="button"
+                onClick={toggleMaintenance}
+                disabled={processingAction === 'maintenance'}
+                className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border py-3 text-[10px] font-black uppercase tracking-wider transition duration-150 cursor-pointer active:scale-95 disabled:opacity-50 ${
+                  isMaintenance 
+                    ? 'border-rose-500/30 bg-rose-500/15 text-rose-400 hover:bg-rose-500/25' 
+                    : 'border-amber-500/20 bg-amber-500/5 text-amber-400 hover:bg-amber-500/15'
+                }`}
+              >
+                <Settings className="h-4 w-4" />
+                <span>{isMaintenance ? 'Aktif' : 'Bakım'}</span>
+              </button>
+            </div>
+
+            {/* Health Indicators */}
+            <div className="border-t border-white/5 pt-4 space-y-2">
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest block">Sağlık Sinyalleri</span>
+              <div className="grid grid-cols-2 gap-2 text-[10px] font-semibold text-text-secondary">
+                <div className="flex items-center gap-2 p-2 bg-white/[0.01] border border-white/5 rounded-xl">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${stats.activeReportsCount > 0 ? 'bg-rose-500 animate-pulse' : 'bg-emerald-500'}`} />
+                  <span className="truncate">Şikayetler: <strong className="text-white">{stats.activeReportsCount}</strong></span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-white/[0.01] border border-white/5 rounded-xl">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${stats.activeSupportCount > 0 ? 'bg-pink-500 animate-pulse' : 'bg-emerald-500'}`} />
+                  <span className="truncate">Açık Destek: <strong className="text-white">{stats.activeSupportCount}</strong></span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-white/[0.01] border border-white/5 rounded-xl">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${stats.pendingPostsCount > 0 ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`} />
+                  <span className="truncate">Akış Onayı: <strong className="text-white">{stats.pendingPostsCount}</strong></span>
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-white/[0.01] border border-white/5 rounded-xl">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${contentHealth.missingContentCount > 0 ? 'bg-warning animate-pulse' : 'bg-emerald-500'}`} />
+                  <span className="truncate">Eksik Konu: <strong className="text-white">{contentHealth.missingContentCount}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Sticky Notes */}
+          <div className="flex min-h-[220px] flex-col rounded-3xl border border-amber-500/20 bg-amber-500/5 p-5 shadow-sm">
+            <h3 className="mb-3 flex items-center gap-2 font-black text-warning text-sm uppercase tracking-wider">
+              <Edit3 className="h-4 w-4" />
+              Hızlı Notlar
+            </h3>
+            <textarea
+              value={note}
+              onChange={saveNote}
+              className="w-full flex-1 resize-none rounded-2xl border border-amber-500/10 bg-black/20 p-3.5 text-xs font-semibold leading-relaxed text-white/90 placeholder:text-warning/30 focus:border-amber-500/30 focus:outline-none custom-scrollbar"
+              placeholder="Kendinize veya ekibe notlar alın. Tarayıcıda saklanır..."
+            />
+          </div>
+
+          {/* Activity Logs Feed */}
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 shadow-sm flex flex-col">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="flex items-center gap-2 text-sm font-black text-white uppercase tracking-wider">
+                <Activity className="h-4 w-4 text-primary-light" />
+                Sistem Günlüğü
+              </h3>
+              <button 
+                className="rounded-xl border border-white/10 bg-white/[0.02] px-2.5 py-1.5 text-[10px] font-bold text-text-muted hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+                onClick={() => navigate('/admin/stats')}
+              >
+                Loglar
+              </button>
+            </div>
+            <div className="max-h-56 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+              {adminLogs.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.015] px-4 py-8 text-center">
+                  <p className="text-xs font-bold text-text-muted">Aktivite kaydı bulunamadı.</p>
+                </div>
+              ) : (
+                adminLogs.map((log) => (
+                  <div key={log._id} className="flex gap-2 border-b border-white/5 pb-2.5 mb-2.5 last:border-0 last:pb-0 last:mb-0 items-start text-[11px]">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.02] text-primary-light">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white leading-normal truncate">{log.action}</p>
+                      <p className="text-[10px] text-text-muted mt-0.5">{log.adminName || 'Admin'} • {new Date(log.createdAt).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit' })}</p>
                     </div>
                   </div>
                 ))
-              ) : (
-                <p className="text-xs font-bold text-text-muted text-center py-4">Veri bulunmuyor.</p>
               )}
             </div>
           </div>
         </div>
-
-        {/* Öncelikli İşler (Akış & Raporlar) */}
-        <div className="space-y-4">
-          <h2 className="text-base font-black tracking-tight text-white">Öncelikli İşler</h2>
-          
-          <div className="space-y-3">
-            {/* Bekleyen Gönderiler */}
-            {pendingPosts.length > 0 && (
-              <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-amber-400" />
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Bekleyen Gönderi ({pendingPosts.length})</h3>
-                </div>
-                <div className="space-y-3">
-                  {pendingPosts.map((post) => (
-                    <div key={post._id} className="rounded-2xl border border-white/5 bg-black/20 p-3 space-y-2">
-                      <p className="text-xs font-medium text-text-muted">{post.category || 'Genel'}</p>
-                      <p className="text-sm font-semibold text-white leading-snug line-clamp-2">{post.title || post.content}</p>
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <button
-                          type="button"
-                          disabled={processingAction?.startsWith(`post-${post._id}`)}
-                          onClick={() => handlePostDecision(post._id, 'approve')}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition active:scale-95 disabled:opacity-50"
-                        >
-                          Onayla
-                        </button>
-                        <button
-                          type="button"
-                          disabled={processingAction?.startsWith(`post-${post._id}`)}
-                          onClick={() => handlePostDecision(post._id, 'reject')}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-rose-300 transition active:scale-95 disabled:opacity-50"
-                        >
-                          Reddet
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Şikayetler */}
-            {reportedItems.length > 0 && (
-              <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <ShieldAlert className="h-4 w-4 text-rose-400" />
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Açık Şikayetler ({reportedItems.length})</h3>
-                </div>
-                <div className="space-y-3">
-                  {reportedItems.map((report) => (
-                    <div key={report._id} className="rounded-2xl border border-white/5 bg-black/20 p-3 space-y-2">
-                      <p className="text-xs font-bold text-white uppercase">{report.reason || 'Şikayet'}</p>
-                      <p className="text-xs text-text-secondary leading-tight line-clamp-2">{report.details || report.description || 'Açıklama belirtilmemiş.'}</p>
-                      <div className="grid grid-cols-2 gap-2 pt-1">
-                        <button
-                          type="button"
-                          disabled={processingAction?.startsWith(`report-${report._id}`)}
-                          onClick={() => handleReportDecision(report._id, 'resolved')}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-emerald-300 transition active:scale-95 disabled:opacity-50"
-                        >
-                          Kapat
-                        </button>
-                        <button
-                          type="button"
-                          disabled={processingAction?.startsWith(`report-${report._id}`)}
-                          onClick={() => handleReportDecision(report._id, 'rejected')}
-                          className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-2 py-2 text-[10px] font-black uppercase tracking-wider text-text-muted transition active:scale-95 disabled:opacity-50"
-                        >
-                          Reddet
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {pendingPosts.length === 0 && reportedItems.length === 0 && (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.015] p-6 text-center">
-                <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500/40 mb-2" />
-                <p className="text-xs font-bold text-text-muted">Şu an ilgilenilmesi gereken iş bulunmuyor.</p>
-              </div>
-            )}
-          </div>
-        </div>
-
       </div>
-    </>
+    </div>
   );
 };
 

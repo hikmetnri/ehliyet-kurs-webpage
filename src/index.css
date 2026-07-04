@@ -233,6 +233,11 @@
   100% { left: 200%; }
 }
 
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
 .shine-btn::after {
   content: '';
   position: absolute;
