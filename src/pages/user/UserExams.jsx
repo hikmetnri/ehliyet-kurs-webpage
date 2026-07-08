@@ -170,9 +170,27 @@ const UserExams = () => {
     return pCat?.name || 'Diğer Ana Konular';
   };
 
-  const generalExams = exams.filter(e => !e.categoryId && !e._isSynthetic && !e._isRealMeb && e.name.toLowerCase().includes('deneme'));
+  const generalExams = exams.filter(e => {
+    if (e._isSynthetic || e._isRealMeb) return false;
+    if (!e.categoryId) {
+      // testType ile öncelikli kontrol; yoksa isim heuristiği
+      if (e.testType === 'mock_exam') return true;
+      if (e.testType === 'real_exam') return false;
+      return e.name.toLowerCase().includes('deneme');
+    }
+    return false;
+  });
   const shortTests = exams.filter(e => e._isSynthetic);
-  const realSimExams = exams.filter(e => e._isRealMeb || (!e.categoryId && !e._isSynthetic && !e.name.toLowerCase().includes('deneme')));
+  const realSimExams = exams.filter(e => {
+    if (e._isRealMeb) return true;
+    if (e._isSynthetic) return false;
+    if (!e.categoryId) {
+      if (e.testType === 'real_exam') return true;
+      if (e.testType === 'mock_exam') return false;
+      return !e.name.toLowerCase().includes('deneme');
+    }
+    return false;
+  });
 
   const shortGroups = shortTests.reduce((acc, exam) => {
     const groupName = getParentName(exam.categoryId);
@@ -184,14 +202,14 @@ const UserExams = () => {
     const catId = e.categoryId?._id || e.categoryId;
 
     if (activeTab === 'general') {
-      return !catId && !e._isSynthetic && !e._isRealMeb && e.name.toLowerCase().includes('deneme');
+      return generalExams.includes(e);
     }
     if (activeTab === 'short_tests') {
       if (!e._isSynthetic) return false;
       return activeShortGroup === 'all' || getParentName(e.categoryId) === activeShortGroup;
     }
     if (activeTab === 'real_sim_cat') {
-      return e._isRealMeb || (!catId && !e._isSynthetic && !e.name.toLowerCase().includes('deneme'));
+      return realSimExams.includes(e);
     }
 
     return false;
@@ -517,7 +535,7 @@ const UserExams = () => {
                   <div className="flex items-center gap-3 border-t border-white/[0.06] pt-3 text-[9px] font-black uppercase tracking-widest text-text-muted">
                     <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-primary-light" />{exam.duration || 45} dk</span>
                     <span className="h-1 w-1 rounded-full bg-white/10" />
-                    <span className="flex items-center gap-1"><FileQuestion className="h-3.5 w-3.5 text-warning" />{isShort ? '10' : '50'} soru</span>
+                    <span className="flex items-center gap-1"><FileQuestion className="h-3.5 w-3.5 text-warning" />{exam.questionCount ? `${exam.questionCount} soru` : isShort ? 'Konu testi' : '50 soru'}</span>
                   </div>
                   <button
                     onClick={handleExamAction}
