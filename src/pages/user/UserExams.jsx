@@ -367,17 +367,16 @@ const UserExams = () => {
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-text-muted pr-2">Filtre:</span>
             {[
-              ['all', 'Tümü', shortTests.length],
-              ...Object.entries(shortGroups).sort(([a], [b]) => a.localeCompare(b, 'tr')),
-            ].map(([groupName, countOrLabel, maybeCount]) => {
-              const isAll = groupName === 'all';
-              const label = isAll ? countOrLabel : groupName;
-              const count = isAll ? maybeCount ?? shortTests.length : countOrLabel;
-              const active = activeShortGroup === groupName;
+              { key: 'all', label: 'Tümü', count: shortTests.length },
+              ...Object.entries(shortGroups)
+                .sort(([a], [b]) => a.localeCompare(b, 'tr'))
+                .map(([name, cnt]) => ({ key: name, label: name, count: cnt })),
+            ].map(({ key, label, count }) => {
+              const active = activeShortGroup === key;
               return (
                 <button
-                  key={groupName}
-                  onClick={() => setActiveShortGroup(groupName)}
+                  key={key}
+                  onClick={() => setActiveShortGroup(key)}
                   className={`rounded-xl px-3 py-2 text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                     active
                       ? 'bg-primary/15 text-white border border-primary/30'
@@ -467,7 +466,7 @@ const UserExams = () => {
                 {/* Header */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${cardAccent.border} ${cardAccent.bg}`}>
-                    <Icon className={`h-4.5 w-4.5 ${cardAccent.text}`} />
+                    <Icon className={`h-4 w-4 ${cardAccent.text}`} />
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <span className={`rounded-xl border px-2.5 py-1 text-[9px] font-black uppercase tracking-widest ${cardAccent.border} ${cardAccent.bg} ${cardAccent.text}`}>
@@ -717,7 +716,7 @@ const UserExams = () => {
                       )}
                       className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#ff9f43] hover:bg-[#ff9f43]/90 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-[#ff9f43]/10 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
                     >
-                      <Play className="w-4.5 h-4.5 fill-white" />
+                      <Play className="w-4 h-4 fill-white" />
                       Sınavı Başlat
                     </button>
                   </div>
@@ -829,7 +828,7 @@ const UserExams = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-bold text-sm text-white truncate">{groupName}</h3>
-                              <p className="text-[11px] text-text-muted mt-0.5">{count} Soru • Süreli değil</p>
+                              <p className="text-[11px] text-text-muted mt-0.5">{count} Test • Süreli değil</p>
                             </div>
                             <ChevronDown
                               className={`w-5 h-5 text-text-muted transition-transform duration-300 ${

@@ -250,7 +250,7 @@ const UserExamSolve = ({ customType }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
   const fromQuickStart = location.state?.fromQuickStart;
 
@@ -442,15 +442,19 @@ const UserExamSolve = ({ customType }) => {
   }, [examId, categoryId, customType, user?.selectedCategoryId, reloadKey]);
 
   const forceRealMode = searchParams.get('mode') === 'real';
+  // testType alanı varsa öncelikli kullan; yoksa isim heuristiğine fallback yap
   const mode = forceRealMode ? 'real' :
                customType === 'short_test' ? 'short' :
                customType === 'wrong_review' ? 'review' :
                customType === 'wrong_answers' ? 'wrong' :
                customType === 'real_test' ? 'real' :
-               (exam?.name && !exam.name.toLowerCase().includes('deneme') ? 'real' : 'mock');
+               exam?.testType === 'real_exam' ? 'real' :
+               exam?.testType === 'mock_exam' || exam?.testType === 'short_test' ? 'mock' :
+               // legacy fallback: adında "deneme" yoksa AND "mock" da geçmiyorsa real say
+               (exam?.name && !exam.name.toLowerCase().includes('deneme') && !exam.name.toLowerCase().includes('mock') ? 'real' : 'mock');
   const persistedTestType = mode === 'real'
     ? 'real_exam'
-    : customType || (exam?.categoryId ? 'mock_exam' : 'exam');
+    : customType || exam?.testType || (exam?.categoryId ? 'mock_exam' : 'exam');
                
   const showFeedback = mode === 'short' || mode === 'mock' || mode === 'review' || mode === 'wrong';
   const reviewTotalCount = exam?.reviewTotalCount || questions.length;
@@ -671,7 +675,7 @@ const UserExamSolve = ({ customType }) => {
       <div className="flex items-center gap-2.5 rounded-2xl border border-amber-500/20 bg-[#1a1200]/90 px-4 py-2.5 shadow-xl backdrop-blur">
         <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" />
         <p className="text-xs font-black text-amber-300">{guestMsg}</p>
-        <button onClick={() => { useAuthStore.getState().logout(); navigate('/register'); }} className="ml-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-400 transition hover:bg-amber-500/20">
+        <button onClick={() => { logout(); navigate('/register'); }} className="ml-1 rounded-lg border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-400 transition hover:bg-amber-500/20">
           Üye Ol
         </button>
       </div>
