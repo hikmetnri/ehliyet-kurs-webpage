@@ -1229,7 +1229,7 @@ const UserLessons = () => {
                       onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
                       className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-success hover:bg-success/90 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg shadow-success/20 transition-all active:scale-95 cursor-pointer"
                     >
-                      <Play className="w-4.5 h-4.5 fill-white text-white" />
+                      <Play className="w-4 h-4 fill-white text-white" />
                       Konu Testini Başlat
                     </button>
 
@@ -1312,7 +1312,7 @@ const UserLessons = () => {
               <div className="flex items-center justify-between p-5 border-b border-white/5 bg-white/[0.01]">
                 <div className="flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-[#3ECFCF]/10 border border-[#3ECFCF]/20 flex items-center justify-center">
-                    <BookOpen className="w-4.5 h-4.5 text-[#3ECFCF]" />
+                    <BookOpen className="w-4 h-4 text-[#3ECFCF]" />
                   </span>
                   <span className="text-sm font-black text-white uppercase tracking-wider">Müfredat</span>
                 </div>
@@ -1479,7 +1479,7 @@ const UserLessons = () => {
               </div>
             </div>
             <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10px] font-black text-text-secondary">
-              {mobileLessons.length}
+              {contentLessons.length}
             </span>
           </div>
           {/* Progress bar */}
@@ -1531,18 +1531,6 @@ const UserLessons = () => {
               </div>
             </div>
           )}
-          <div className="mb-3 hidden xl:block">
-            <div className="mb-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
-              <span className="text-text-muted">Okuma ilerlemesi</span>
-              <span className="text-white">{lessonProgressPercent}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-success"
-                style={{ width: `${lessonProgressPercent}%` }}
-              />
-            </div>
-          </div>
           {/* Search */}
           <div className="flex items-center rounded-xl border border-white/10 bg-black/30 px-3 py-2.5 transition-colors focus-within:border-primary/40 focus-within:bg-primary/5 sm:rounded-2xl xl:rounded-lg xl:bg-black/20 xl:py-2">
             <Search className="w-3.5 h-3.5 text-text-muted mr-2 shrink-0" />
@@ -1696,7 +1684,7 @@ const UserLessons = () => {
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/15 text-primary-light shadow-[0_0_12px_rgba(99,102,241,0.15)]">
-                    <FileText className="h-4.5 w-4.5" />
+                    <FileText className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
@@ -1732,6 +1720,13 @@ const UserLessons = () => {
                   </div>
                 </div>
                 <div className="relative ml-auto hidden xl:block">
+                  {isVoiceMenuOpen && (
+                    <div
+                      className="fixed inset-0 z-20"
+                      onClick={() => setIsVoiceMenuOpen(false)}
+                      aria-hidden="true"
+                    />
+                  )}
                   <button
                     type="button"
                     onClick={() => setIsVoiceMenuOpen((prev) => !prev)}
@@ -1875,7 +1870,7 @@ const UserLessons = () => {
                             onClick={() => navigate(`/dashboard/exams/short-test/${selectedLesson._id}`)}
                             className="mt-8 inline-flex items-center justify-center gap-2.5 rounded-2xl bg-success hover:bg-success/90 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all hover:scale-[1.03] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                           >
-                            <Play className="w-4.5 h-4.5 fill-white" />
+                            <Play className="w-4 h-4 fill-white" />
                             Konu Testini Başlat
                           </button>
 
