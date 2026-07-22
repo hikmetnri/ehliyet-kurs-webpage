@@ -5,9 +5,12 @@ const api = axios.create({
   // Üretim ortamında doğrudan api subdomainine gitmesi için güncellendi
   baseURL: import.meta.env.VITE_API_URL || 'https://api.ehliyetyolu.com/api',
   timeout: 10000,
+  withCredentials: true,  // ✅ HttpOnly cookie'leri otomatik gönder
 })
 
 const getToken = () => {
+  // ✅ Sadece sessionStorage'dan token al (backup olarak)
+  // localStorage'dan token silmeye devam et (eski cache temizle)
   localStorage.removeItem('token')
   return sessionStorage.getItem('token')
 }

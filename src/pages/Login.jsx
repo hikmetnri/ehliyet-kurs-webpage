@@ -74,8 +74,17 @@ const Login = () => {
         setShowAdminLogin(false);
         return;
       }
-      // Backend'den dönen hata mesajı varsa göster, yoksa varsayılan hata.
-      const message = err.response?.data?.message || err.response?.data?.error || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.';
+      
+      // ✅ Backend'den dönen hata mesajı varsa göster
+      let message = err.response?.data?.message || err.response?.data?.error;
+      
+      // Şifre gereksinimleri hataları
+      if (err.response?.data?.details && Array.isArray(err.response.data.details)) {
+        message = err.response.data.details.join('\n');
+      } else if (!message) {
+        message = 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.';
+      }
+      
       setErrorObj(message);
     } finally {
       setLoading(false);

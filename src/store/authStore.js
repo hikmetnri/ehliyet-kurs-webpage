@@ -12,9 +12,8 @@ const getStoredUser = () => {
 }
 
 const getStoredToken = () => {
-  localStorage.removeItem('token')
-  const token = sessionStorage.getItem('token')
-  return token || null
+  // ✅ Token sadece sessionStorage'da (HttpOnly cookie + sessionStorage backup)
+  return sessionStorage.getItem('token') || null
 }
 
 const clearCategorySession = () => {
@@ -120,13 +119,16 @@ const useAuthStore = create((set) => ({
   },
 
   startGuestMode: (categoryId = null, categoryName = null) => {
+    // ✅ Güvenli guest mode - random token
     const guestUser = {
       role: 'user',
       isGuest: true,
       selectedCategoryId: categoryId,
       selectedCategoryName: categoryName
     }
-    const guestToken = 'guest-token'
+    // Guest token olarak basit string kullanmak yerine unique identifier oluştur
+    // Produksiyonda bu backend'den gelmeli, şimdilik client-side token
+    const guestToken = `guest-${Math.random().toString(36).substr(2, 20)}`
     localStorage.setItem('user', JSON.stringify(guestUser))
     sessionStorage.setItem('token', guestToken)
     set({ user: guestUser, token: guestToken, error: null })
