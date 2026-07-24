@@ -586,6 +586,26 @@ const knownSigns = {
     title: 'Elektrikli Mikro Mobilite Yolu Sonu',
     description: 'Elektrikli mikro mobilite araclarinin kullanabilecegi yolun sona erdigini belirtir.',
   },
+  'Tanzim_TT/b-14e.png': {
+    title: 'Bisiklet ve Yaya Ortak Yol',
+    description: 'Bisiklet ve yayaların ortak kullanımına ayrılan yolu belirtir. Her iki grubun kurallara uyarak paylaşımlı kullanması gerekir.',
+  },
+  'Tanzim_TT/b-14f.png': {
+    title: 'Bisiklet ve Yaya Ayrı Şerit',
+    description: 'Bisiklet ve yayalar için ayrılmış iki şeritli yolu belirtir. Her grup kendi şeridini kullanmalıdır.',
+  },
+  'Tanzim_TT/b-37.png': {
+    title: 'Yavaşlatma Şeridi',
+    description: 'Araçların hız azaltması gereken özel şeridi belirtir. Kavşak veya çıkış öncesinde uygulanır.',
+  },
+  'Tanzim_TT/b-38.png': {
+    title: 'Hızlanma Şeridi',
+    description: 'Araçların ana yola katılmadan önce hız kazanması gereken şeridi belirtir.',
+  },
+  'Tanzim_TT/b-39.png': {
+    title: 'Dönüş Şeridi',
+    description: 'Dönüş yapacak araçların kullanacağı özel şeridi belirtir. Diğer araçlar bu şeridi kullanamaz.',
+  },
   'Bilgi_B/b-1a.png': {
     title: 'İl Sınırı',
     description: 'Bir ilin mülki sınırına girildiğini bildirir.',
