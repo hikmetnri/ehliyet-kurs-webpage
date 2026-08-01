@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Clock, Loader2, MessageCircle, Send, Tag,
-  ThumbsUp, TriangleAlert,
+  ThumbsUp, TriangleAlert, Flag,
 } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
 import {
   getAvatarGrad, getPostTypeConfig, normalizeUserId, timeAgo,
 } from '../../utils/feedUtils';
+import ReportPostModal from '../../components/user/ReportPostModal';
 
 const DetailState = ({ icon: Icon, title, description, action }) => (
   <div className="mx-auto flex min-h-[55vh] max-w-xl flex-col items-center justify-center px-6 text-center">
@@ -33,6 +34,7 @@ export default function UserFeedDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
+  const [showReport, setShowReport] = useState(false);
 
   const fetchPost = useCallback(async () => {
     try {
@@ -256,6 +258,14 @@ export default function UserFeedDetail() {
                   <MessageCircle className="h-4 w-4" />
                   {commentCount} Yorum
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowReport(true)}
+                  className="ml-auto inline-flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 text-sm font-bold text-red-400 transition-all hover:border-red-500/40 hover:bg-red-500/20"
+                >
+                  <Flag className="h-4 w-4" />
+                  Raporla
+                </button>
               </div>
             </motion.article>
 
@@ -458,6 +468,14 @@ export default function UserFeedDetail() {
               <MessageCircle className="w-3.5 h-3.5" />
               <span>{post.comments?.length || 0}</span>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowReport(true)}
+              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              <span>Raporla</span>
+            </button>
           </div>
         </motion.article>
 
@@ -537,6 +555,13 @@ export default function UserFeedDetail() {
           </div>
         </section>
       </div>
+
+      {/* Report Modal */}
+      <ReportPostModal
+        isOpen={showReport}
+        onClose={() => setShowReport(false)}
+        post={post}
+      />
     </>
   );
 }

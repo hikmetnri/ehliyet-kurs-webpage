@@ -467,6 +467,11 @@ const UserLessons = () => {
             
             // Seçili ana kategoriyi ilk açılışta açık olarak (expanded) işaretle
             setExpandedIds(prev => new Set(prev).add(mainNode._id));
+            
+            // İlk alt kategoriyi otomatik seç
+            if (topics.length > 0) {
+              setActiveTopicId(topics[0]._id);
+            }
           }
         }
 

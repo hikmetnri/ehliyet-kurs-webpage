@@ -4,11 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, HelpCircle, Lightbulb,
   ThumbsUp, MessageCircle, Clock, Plus, X, Tag, Send,
-  Sparkles, ChevronDown, Users, Search, Loader2, ChevronRight
+  Sparkles, ChevronDown, Users, Search, Loader2, ChevronRight, Flag
 } from 'lucide-react';
 import api from '../../api';
 import useAuthStore from '../../store/authStore';
 import { getAvatarGrad, getPostTypeConfig, normalizeUserId, POST_TYPES, timeAgo } from '../../utils/feedUtils';
+import ReportPostModal from '../../components/user/ReportPostModal';
 
 export default function UserFeed() {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ export default function UserFeed() {
   const [commentTexts, setCommentTexts] = useState({});
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showReport, setShowReport] = useState(false);
+  const [reportPost, setReportPost] = useState(null);
 
   const [newPost, setNewPost] = useState({ title: '', content: '', type: 'discussion', tags: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -321,6 +324,17 @@ export default function UserFeed() {
                       <MessageCircle className="w-4 h-4" />
                       <span>{post.comments?.length || 0} Yorum</span>
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReportPost(post);
+                        setShowReport(true);
+                      }}
+                      className="rounded-xl border border-red-500/20 bg-red-500/10 px-3.5 py-2 text-xs font-bold text-red-400 transition-all hover:border-red-500/40 hover:bg-red-500/20 cursor-pointer"
+                    >
+                      <Flag className="w-4 h-4 inline-block mr-1" />
+                      Raporla
                     </button>
                     <button
                       type="button"
@@ -656,6 +670,17 @@ export default function UserFeed() {
                       </button>
                       <button
                         type="button"
+                        onClick={() => {
+                          setReportPost(post);
+                          setShowReport(true);
+                        }}
+                        className="px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-all"
+                      >
+                        <Flag className="w-3 h-3 inline-block mr-0.5" />
+                        Raporla
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => navigate(`/dashboard/feed/${post._id}`)}
                         className="ml-auto px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wider text-text-muted bg-white/5 hover:bg-white/10 hover:text-white rounded-lg transition-all"
                       >
@@ -864,6 +889,13 @@ export default function UserFeed() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Report Modal */}
+      <ReportPostModal
+        isOpen={showReport}
+        onClose={() => setShowReport(false)}
+        post={reportPost}
+      />
     </>
   );
 }

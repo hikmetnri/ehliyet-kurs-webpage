@@ -23,23 +23,23 @@ import {
 import useAuthStore from '../../store/authStore';
 
 const NavItem = ({ to, icon, label, isActive, onClick, isCollapsed }) => (
-  <Link 
-    to={to} 
+  <Link
+    to={to}
     onClick={onClick}
-    title={isCollapsed ? label : undefined}
+    title={label}
     className={`group relative flex items-center ${isCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5'} rounded-xl border transition-all duration-200 ${
-      isActive 
-      ? 'border-primary/30 bg-primary/15 text-white'
-      : 'border-transparent text-text-secondary hover:border-white/10 hover:bg-white/[0.04] hover:text-white'
+      isActive
+      ? 'border-[#7C6CFF]/35 bg-[#7C6CFF]/15 text-white'
+      : 'border-transparent text-[#AAB5C7] hover:border-[#243044] hover:bg-[#151E2E] hover:text-white'
     }`}
   >
     {isActive && (
-      <div className="absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-md bg-primary" />
+      <div className="absolute left-0 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-md bg-[#7C6CFF]" />
     )}
     {React.createElement(icon, {
-      className: `h-4 w-4 shrink-0 transition-colors ${isActive ? 'text-primary-light' : 'text-text-muted group-hover:text-white'}`,
+      className: `h-4 w-4 shrink-0 transition-colors ${isActive ? 'text-[#AFA5FF]' : 'text-[#78869D] group-hover:text-white'}`,
     })}
-    {!isCollapsed && <span className="truncate font-semibold">{label}</span>}
+    {!isCollapsed && <span className="truncate text-sm font-semibold min-w-0">{label}</span>}
   </Link>
 );
 
@@ -95,7 +95,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) => {
       )}
 
       <aside className={`
-        fixed lg:sticky top-0 z-50 flex h-screen flex-col border-r border-white/10 bg-[#0f1118] transition-[width,transform] duration-300 ease-in-out
+        fixed lg:sticky top-0 z-50 flex h-screen flex-col border-r border-[#243044] bg-[#0D1422] transition-[width,transform] duration-300 ease-in-out
         w-[260px]
         ${isCollapsed ? 'lg:w-[76px]' : 'lg:w-[260px]'}
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -105,15 +105,15 @@ const AdminSidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) => {
         <button
           type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:flex absolute top-5 -right-3.5 z-50 h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-[#0f1118] text-text-muted shadow-md hover:text-white hover:border-white/20 transition-all cursor-pointer"
+          className="absolute -right-3.5 top-5 z-50 hidden h-7 w-7 items-center justify-center rounded-full border border-[#243044] bg-[#101725] text-[#8F9BB0] shadow-md transition-all hover:border-[#465672] hover:text-white lg:flex"
         >
           {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
 
-        <div className={`border-b border-white/10 p-4 ${isCollapsed ? 'flex justify-center h-16' : ''}`}>
+        <div className={`border-b border-[#243044] p-4 ${isCollapsed ? 'flex justify-center h-[72px]' : ''}`}>
           <div className="flex items-center justify-between gap-3 min-w-0 w-full">
             <Link to="/admin" onClick={() => setIsOpen(false)} className={`group flex min-w-0 items-center ${isCollapsed ? 'justify-center w-full' : 'gap-3'}`}>
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.04] p-1.5 transition-all group-hover:border-primary/30 group-hover:bg-primary/5">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[14px] border border-[#243044] bg-[#151E2E] p-1.5 transition-all group-hover:border-[#7C6CFF]/40 group-hover:bg-[#7C6CFF]/10">
                 <img
                   src="/logo_v2.png"
                   alt="Ehliyet Yolu"
@@ -123,9 +123,9 @@ const AdminSidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) => {
               {!isCollapsed && (
                 <div className="min-w-0">
                   <h1 className="truncate text-lg font-black leading-none text-white">
-                    Ehliyet <span className="text-primary-light">Yolu</span>
+                    Ehliyet <span className="text-[#AFA5FF]">Yolu</span>
                   </h1>
-                  <span className="mt-1 block text-xs font-semibold text-text-muted">
+                  <span className="mt-1 block text-xs font-semibold text-[#8F9BB0]">
                     Admin Panel
                   </span>
                 </div>
@@ -135,7 +135,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) => {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-xl border border-white/10 bg-white/[0.03] p-2 text-text-muted transition-colors hover:bg-white/[0.07] hover:text-white lg:hidden"
+                className="rounded-xl border border-[#243044] bg-[#151E2E] p-2 text-[#8F9BB0] transition-colors hover:border-[#465672] hover:text-white lg:hidden"
                 aria-label="Admin menüsünü kapat"
               >
                 <X className="h-4 w-4" />
@@ -149,7 +149,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) => {
             {navGroups.map((group, idx) => (
               <div key={group.title}>
                 {!isCollapsed ? (
-                  <p className="mb-1.5 px-3 text-[11px] font-black text-text-muted uppercase tracking-wider">{group.title}</p>
+                  <p className="mb-1.5 px-3 text-[10px] font-black uppercase tracking-[0.16em] text-[#69758A]">{group.title}</p>
                 ) : (
                   idx > 0 && <div className="my-2.5 border-t border-white/5" />
                 )}
@@ -171,7 +171,7 @@ const AdminSidebar = ({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) => {
           </div>
         </div>
 
-        <div className="border-t border-white/10 p-3">
+        <div className="border-t border-[#243044] p-3">
           <button 
             onClick={logout}
             title={isCollapsed ? "Oturumu Kapat" : undefined}

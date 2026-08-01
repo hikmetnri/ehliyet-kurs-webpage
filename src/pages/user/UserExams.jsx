@@ -121,29 +121,24 @@ const UserExams = () => {
           if (key && !resultMap[key]) resultMap[key] = result;
         });
 
-        // "Gerçek MEB E-Sınav Simülatörü" oluştur
-        const syntheticMebExam = {
-          _id: `real_sim_${user?.selectedCategoryId}`,
-          name: `MEB E-Sınav Simülatörü`,
-          description: 'Belirlediğiniz ehliyet sınıfının tüm müfredatından rastgele 50 soru. Anında cevap göremezsiniz, gerçek MEB formatındadır.',
-          categoryId: 'real_sim_cat',
-          duration: 45,
-          isMiniTest: false,
-          isPro: false,
-          _isRealMeb: true,
-        };
+        // MEB E-Sınav Simülatörü kaldırıldı — artık gösterilmez
+        const syntheticMebExam = null;
 
-        // Filtreleme: Ya sınavın kategorisi null (Genel Deneme), ya da kullanıcının alt test kısımlarında.
+        // Filtreleme: mini test hariç, kategorisiz sınavlar herkese görünür,
+        // kategorili sınavlar sadece ilgili kategori seçilince görünür
         const filteredExams = allExams.filter(e => {
-           if (!e.categoryId) return true; // Genel Deneme
-           const cid = e.categoryId?._id || e.categoryId;
-           return validCatIds.includes(cid);
+          if (e.isMiniTest) return false;
+          if (!e.categoryId) return true; // Kategorisiz sınavlar herkese görünür (eski sınavlar)
+          const cid = (e.categoryId?._id || e.categoryId)?.toString();
+          const selId = user?.selectedCategoryId?.toString();
+          if (!selId) return true;
+          return cid === selId || validCatIds.map(id => id?.toString()).includes(cid);
         });
 
         // Testleri listeye ekle
         setValidCategories(allCategories);
         setLatestResults(resultMap);
-        setExams([...filteredExams, ...syntheticExams, syntheticMebExam]);
+        setExams([...filteredExams, ...syntheticExams]);
       } catch (err) {
         console.error(err);
       } finally {
@@ -170,25 +165,30 @@ const UserExams = () => {
     return pCat?.name || 'Diğer Ana Konular';
   };
 
+  // Deneme sınavları: mock_exam türünde olanlar — seçili kategoriye ait olanlar
   const generalExams = exams.filter(e => {
     if (e._isSynthetic || e._isRealMeb) return false;
-    if (!e.categoryId) {
-      // testType ile öncelikli kontrol; yoksa isim heuristiği
-      if (e.testType === 'mock_exam') return true;
-      if (e.testType === 'real_exam') return false;
-      return e.name.toLowerCase().includes('deneme');
+    if (e.isMiniTest) return false;
+    
+    // Kategorisi olan sınavları filtrele: seçili kategoriye ait mi?
+    const catId = e.categoryId?._id || e.categoryId;
+    if (catId && user?.selectedCategoryId) {
+      if (catId.toString() !== user.selectedCategoryId.toString()) return false;
     }
-    return false;
+    
+    if (e.testType === 'mock_exam') return true;
+    if (e.testType === 'real_exam') return false;
+    // testType belirsizse isim heuristiği
+    return e.name.toLowerCase().includes('deneme');
   });
   const shortTests = exams.filter(e => e._isSynthetic);
+  // Gerçek sınavlar: real_exam türünde (MEB simülatörü kaldırıldı)
   const realSimExams = exams.filter(e => {
-    if (e._isRealMeb) return true;
+    if (e._isRealMeb) return false; // Sentetik MEB simülatörünü gösterme
     if (e._isSynthetic) return false;
-    if (!e.categoryId) {
-      if (e.testType === 'real_exam') return true;
-      if (e.testType === 'mock_exam') return false;
-      return !e.name.toLowerCase().includes('deneme');
-    }
+    if (e.isMiniTest) return false;
+    if (e.testType === 'real_exam') return true;
+    if (e.testType === 'mock_exam') return false;
     return false;
   });
 
@@ -432,12 +432,12 @@ const UserExams = () => {
             const isLocked = (exam.isPro && !user?.proStatus) || (!exam.isPro && !user?.proStatus && i >= 5 && !isAdUnlocked);
             const isSimulation = exam._isRealMeb;
             const isShort = exam._isSynthetic;
-            const examNameLower = (exam.name || '').toLocaleLowerCase('tr-TR');
-            const isRealExam = activeTab === 'real_sim_cat' && !isSimulation && !isShort && !exam.categoryId && !examNameLower.includes('deneme');
-            const isGeneral = !exam.categoryId && !isRealExam;
+            // testType'a göre sınav türü belirle — kategorili sınavlar da doğru etiket alır
+            const isRealExam = !isSimulation && !isShort && exam.testType === 'real_exam';
+            const isMockExam = !isSimulation && !isShort && (exam.testType === 'mock_exam' || exam.testType === 'exam');
             const catName = isShort ? getParentName(exam.categoryId) : getCategoryName(exam.categoryId);
-            const badgeLabel = isRealExam ? 'MEB E-Sınav' : isGeneral ? 'Deneme' : isSimulation ? 'E-Sınav Sim.' : isShort ? 'Kısa Test' : 'Konu Sınavı';
-            const Icon = isRealExam ? GraduationCap : isGeneral ? Target : isSimulation ? GraduationCap : isShort ? FileQuestion : BookOpen;
+            const badgeLabel = isSimulation ? 'E-Sınav Sim.' : isRealExam ? 'MEB E-Sınav' : isMockExam ? 'Deneme' : isShort ? 'Kısa Test' : 'Deneme';
+            const Icon = isSimulation ? GraduationCap : isRealExam ? GraduationCap : isMockExam ? Target : isShort ? FileQuestion : Target;
             const resultKey = isShort ? `short_${exam._realCategoryId}` : exam._id;
             const lastResult = latestResults[resultKey];
             const score = Number(lastResult?.score || 0);
@@ -445,7 +445,7 @@ const UserExams = () => {
             const passed = Boolean(lastResult?.passed);
 
             let cardAccent = { border: 'border-primary/20', bg: 'bg-primary/10', text: 'text-primary-light', btn: 'bg-primary hover:bg-primary-light' };
-            if (isGeneral) cardAccent = { border: 'border-warning/20', bg: 'bg-warning/10', text: 'text-warning', btn: 'bg-warning hover:opacity-90' };
+            if (isMockExam) cardAccent = { border: 'border-warning/20', bg: 'bg-warning/10', text: 'text-warning', btn: 'bg-warning hover:opacity-90' };
             if (isSimulation || isRealExam) cardAccent = { border: 'border-success/20', bg: 'bg-success/10', text: 'text-success', btn: 'bg-success hover:opacity-90' };
 
             const handleExamAction = () => {

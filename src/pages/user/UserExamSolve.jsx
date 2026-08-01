@@ -331,7 +331,7 @@ const UserExamSolve = ({ customType }) => {
         if (customType === 'short_test') {
           // Synthetic exam based on category questions
           const [qRes, catRes] = await Promise.all([
-            api.get(`/questions?category=${categoryId}&testType=short_test`),
+            api.get(`/questions?category=${categoryId}&testType=short_test&subject=operator`),
             api.get(`/categories/${categoryId}`)
           ]);
           const qs = qRes.data || [];
@@ -449,14 +449,17 @@ const UserExamSolve = ({ customType }) => {
                customType === 'wrong_answers' ? 'wrong' :
                customType === 'real_test' ? 'real' :
                exam?.testType === 'real_exam' ? 'real' :
-               exam?.testType === 'mock_exam' || exam?.testType === 'short_test' ? 'mock' :
+               exam?.testType === 'short_test' ? 'short' :
+               exam?.testType === 'mock_exam' ? 'mock' :
                // legacy fallback: adında "deneme" yoksa AND "mock" da geçmiyorsa real say
                (exam?.name && !exam.name.toLowerCase().includes('deneme') && !exam.name.toLowerCase().includes('mock') ? 'real' : 'mock');
   const persistedTestType = mode === 'real'
     ? 'real_exam'
     : customType || exam?.testType || (exam?.categoryId ? 'mock_exam' : 'exam');
                
-  const showFeedback = mode === 'short' || mode === 'mock' || mode === 'review' || mode === 'wrong';
+  // Kısa test ve tekrar çalışmaları öğretim modudur. Deneme ile gerçek sınavda
+  // cevaplar sınav bitene kadar değerlendirilmez.
+  const showFeedback = mode === 'short' || mode === 'review' || mode === 'wrong';
   const reviewTotalCount = exam?.reviewTotalCount || questions.length;
   const reviewPendingAfterSession = Math.max(0, reviewTotalCount - questions.length);
 
@@ -810,10 +813,10 @@ const UserExamSolve = ({ customType }) => {
           <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-primary-light font-medium text-left mb-8 flex gap-3">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span className="leading-relaxed">
-              {mode === 'short' ? 'Bu bir pekiştirme testidir. İşaretlediğiniz an sorunun doğrusunu ve detaylı açıklamasını göreceksiniz. Seçiminiz sonradan değiştirilemez.' :
+              {mode === 'short' ? 'Bu bir pekiştirme testidir. Yanlış cevap verdiğinizde doğru cevap ve açıklama gösterilir. Seçiminiz sonradan değiştirilemez.' :
                mode === 'review' ? `Bugünün tekrar testindesiniz. Şimdi ${questions.length} soru çözülecek${reviewPendingAfterSession > 0 ? `, kalan ${reviewPendingAfterSession} soru daha sonra çözülecek` : ''}. Bir soru 4 kez doğru yapılınca tamamlanır ve listeden çıkar.` :
                mode === 'wrong' ? 'Yanlışlar testindesiniz. Doğru yaptığın sorular listenden çıkarılır; yeniden yanlış yaptıkların tekrar listende kalır.' :
-               mode === 'mock' ? 'Genel Deneme modundasınız. Süre tutulacak ancak işaretleme anında sorunun çözümünü ve doğrusunu görebileceksiniz. Lütfen sürenizi verimli kullanın.' :
+               mode === 'mock' ? 'Genel Deneme modundasınız. Cevaplarınız sınavı teslim ettiğinizde değerlendirilecektir. Sürenizi verimli kullanın.' :
                'Gerçek Sınav Simülasyonu. Sınavı tamamla butonuna basana kadar cevapların doğru/yanlış olduğunu göremeyeceksiniz. Kalan sürenize dikkat edin!'}
             </span>
           </div>
@@ -1022,7 +1025,11 @@ const UserExamSolve = ({ customType }) => {
                     )}
                   </div>
                   <p className="text-xs font-bold text-text-muted">
-                    {showFeedback ? 'İşaretledikten sonra açıklama açılır.' : 'Cevaplar teslimden sonra değerlendirilecek.'}
+                    {mode === 'short'
+                      ? 'Açıklama yalnızca yanlış cevapta gösterilir.'
+                      : showFeedback
+                        ? 'Cevap işaretlendikten sonra geri bildirim gösterilir.'
+                        : 'Cevaplar teslimden sonra değerlendirilecek.'}
                   </p>
                 </div>
 
@@ -1109,10 +1116,12 @@ const UserExamSolve = ({ customType }) => {
                           </div>
                         )}
                       </div>
-                      <p className="text-sm font-medium leading-relaxed text-text-muted">
-                        <strong className="text-white">Çözüm / Açıklama:</strong><br />
-                        {q.explanation || 'Bu soru için detaylı çözüm açıklaması girilmemiştir.'}
-                      </p>
+                      {(mode !== 'short' || !currentAnswerCorrect) && (
+                        <p className="text-sm font-medium leading-relaxed text-text-muted">
+                          <strong className="text-white">Çözüm / Açıklama:</strong><br />
+                          {q.explanation || 'Bu soru için detaylı çözüm açıklaması girilmemiştir.'}
+                        </p>
+                      )}
                     </MotionDiv>
                   )}
                 </AnimatePresence>

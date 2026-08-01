@@ -3,11 +3,11 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Library, ClipboardList, BarChart2, User, FileEdit } from 'lucide-react';
 
 const items = [
-  { to: '/admin', label: 'Ana Sayfa', icon: Home, color: '#6C63FF', exact: true },
-  { to: '/admin/content', label: 'İçerik', icon: Library, color: '#3ECFCF' },
-  { to: '/admin/exams', label: 'Sınavlar', icon: ClipboardList, color: '#FFB74D' },
-  { to: '/admin/stats', label: 'İstatistik', icon: BarChart2, color: '#4CAF50' },
-  { to: '/admin/profile', label: 'Hesap', icon: User, color: '#E040FB' },
+  { to: '/admin', label: 'Ana Sayfa', icon: Home, color: '#7C6CFF', exact: true },
+  { to: '/admin/content', label: 'İçerik', icon: Library, color: '#42D6C6' },
+  { to: '/admin/exams', label: 'Sınavlar', icon: ClipboardList, color: '#FFB85C' },
+  { to: '/admin/stats', label: 'İstatistik', icon: BarChart2, color: '#64D98B' },
+  { to: '/admin/profile', label: 'Hesap', icon: User, color: '#D585FF' },
 ];
 
 const AdminBottomNav = () => {
@@ -19,8 +19,8 @@ const AdminBottomNav = () => {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0f1118]/95 backdrop-blur-xl lg:hidden">
-      <div className="flex items-center justify-between h-[calc(68px+env(safe-area-inset-bottom))] px-3 pb-[env(safe-area-inset-bottom)] gap-2">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[#243044] bg-[#0B1220]/95 backdrop-blur-xl lg:hidden">
+      <div className="flex h-[calc(68px+env(safe-area-inset-bottom))] items-center justify-between gap-1.5 px-2 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
           const active = isActive(item);
           const Icon = item.icon || FileEdit;
@@ -34,23 +34,23 @@ const AdminBottomNav = () => {
             >
               <div
                 style={{
-                  backgroundColor: active ? `${item.color}24` : 'transparent',
-                  borderColor: active ? `${item.color}42` : 'transparent',
+                  backgroundColor: active ? `${item.color}18` : 'transparent',
+                  borderColor: active ? `${item.color}35` : 'transparent',
                 }}
-                className={`flex h-14 flex-col items-center justify-center rounded-2xl border transition-all duration-200 ${
+                className={`flex h-[54px] flex-col items-center justify-center rounded-[16px] border transition-all duration-200 ${
                   active ? 'shadow-sm' : 'border-transparent'
                 }`}
               >
                 <Icon
-                  className="h-5 w-5 transition-colors duration-200"
+                  className="h-[19px] w-[19px] transition-colors duration-200"
                   style={{
-                    color: active ? item.color : 'rgba(255, 255, 255, 0.36)'
+                    color: active ? item.color : '#627089'
                   }}
                 />
                 <span
-                  className="mt-1 truncate text-[9px] font-black uppercase tracking-wider transition-colors duration-200"
+                  className="mt-1 truncate text-[9px] font-extrabold transition-colors duration-200"
                   style={{
-                    color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.40)'
+                    color: active ? '#F4F7FB' : '#68758C'
                   }}
                 >
                   {item.label}
