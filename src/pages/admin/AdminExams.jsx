@@ -1232,6 +1232,12 @@ const ExamFormModal = ({
   initialCategoryGroup = 'b_class',
 }) => {
   const isEdit = !!existingExam;
+  // Tür bazlı etiketler — deneme/gerçek/kısa test karışmasın
+  const typeLabel = forceMiniTest
+    ? 'Kısa Test'
+    : testType === 'real_exam'
+      ? 'Gerçek Sınav'
+      : 'Deneme Sınavı';
   // Gerçek sınav ekranında yalnızca B Sınıfı ve İş Makinesi kökleri seçilebilir.
   const catOptions = useMemo(() => {
     return categories
@@ -1313,8 +1319,8 @@ const ExamFormModal = ({
               <PenTool className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <h2 className="font-black text-white text-base truncate">{isEdit ? 'Sınavı Düzenle' : 'Yeni Sınav Oluştur'}</h2>
-              <p className="text-xs text-text-muted truncate">Sınav bilgilerini girin</p>
+              <h2 className="font-black text-white text-base truncate">{isEdit ? `${typeLabel} Düzenle` : `Yeni ${typeLabel} Oluştur`}</h2>
+              <p className="text-xs text-text-muted truncate">{typeLabel} bilgilerini girin</p>
             </div>
           </div>
           <button onClick={onClose} className="shrink-0 ml-2 rounded-xl p-2 transition-colors hover:bg-white/[0.07] text-text-muted hover:text-white">
@@ -1326,11 +1332,11 @@ const ExamFormModal = ({
           {/* Sınav Adı */}
           <div>
             <label className="text-xs font-bold text-text-secondary mb-2 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5 text-warning" /> Sınav Adı <span className="text-danger">*</span>
+              <FileText className="w-3.5 h-3.5 text-warning" /> {typeLabel} Adı <span className="text-danger">*</span>
             </label>
             <input
               className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors placeholder:text-white/20"
-              placeholder="Örn: 2024 Deneme Sınavı 1"
+              placeholder={`Örn: 2024 ${typeLabel} 1`}
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
             />
@@ -1415,7 +1421,7 @@ const ExamFormModal = ({
           <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="text-xs font-bold text-text-secondary mb-2 flex items-center gap-1.5">
-                <Folder className="w-3.5 h-3.5 text-warning" /> Sınav Kategorisi <span className="text-danger">*</span>
+                <Folder className="w-3.5 h-3.5 text-warning" /> {typeLabel} Kategorisi <span className="text-danger">*</span>
               </label>
               <select
                 className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
@@ -1464,7 +1470,7 @@ const ExamFormModal = ({
           <div className="flex items-center gap-2">
             {!isEdit && (
               <p className="text-[10px] text-text-muted hidden sm:block">
-                Soruları ekledikten sonra yayınlayabilirsiniz
+                {typeLabel} olarak taslak oluşturulur, soruları ekledikten sonra yayınlayabilirsiniz
               </p>
             )}
             <button
@@ -1473,7 +1479,7 @@ const ExamFormModal = ({
               className="flex items-center gap-2 rounded-2xl bg-warning px-6 py-3 text-xs font-black text-white transition-colors hover:bg-warning/80 disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : isEdit ? <Save className="w-4 h-4" /> : <FileX className="w-4 h-4" />}
-              {isEdit ? 'Güncelle' : 'Taslak Olarak Oluştur'}
+              {isEdit ? 'Güncelle' : `${typeLabel} Oluştur`}
             </button>
           </div>
         </div>
@@ -2057,7 +2063,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
               onClick={() => setExamModal({ open: true, exam: null })}
               className="flex items-center gap-2 px-6 py-3 bg-warning hover:bg-warning/90 text-white font-black text-sm rounded-2xl shadow-lg shadow-warning/20 transition-all whitespace-nowrap"
             >
-              <Plus className="w-5 h-5" /> + Yeni Sınav Oluştur
+              <Plus className="w-5 h-5" /> + Yeni {title} Oluştur
             </button>
             <button
               onClick={() => setFormModal({ open: true, question: null, isCopy: false, examId: null })}
