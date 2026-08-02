@@ -1415,20 +1415,25 @@ const ExamFormModal = ({
           <div className="grid grid-cols-1 gap-3">
             <div>
               <label className="text-xs font-bold text-text-secondary mb-2 flex items-center gap-1.5">
-                <Folder className="w-3.5 h-3.5 text-warning" /> Sınav Kategorisi
+                <Folder className="w-3.5 h-3.5 text-warning" /> Sınav Kategorisi <span className="text-danger">*</span>
               </label>
               <select
                 className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
                 value={form.categoryId}
                 onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
               >
-                {!lockTestType && <option value="" className="bg-bg-card text-white/40">Genel (kategorisiz)</option>}
+                <option value="" className="bg-bg-card text-white/40">Kategori seçin...</option>
                 {catOptions.map(c => (
                   <option key={c._id} value={c._id} className="bg-bg-card text-white">
                     {c.name}
                   </option>
                 ))}
               </select>
+              {!form.categoryId && (
+                <p className="text-[11px] text-warning mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> Deneme sınavları için kategori seçin
+                </p>
+              )}
             </div>
           </div>
 
@@ -2050,9 +2055,9 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             </button>
             <button
               onClick={() => setExamModal({ open: true, exam: null })}
-              className="flex items-center gap-2 px-5 py-2.5 bg-warning/20 border border-warning/30 text-warning font-bold text-sm rounded-2xl hover:bg-warning/30 transition-all whitespace-nowrap"
+              className="flex items-center gap-2 px-6 py-3 bg-warning hover:bg-warning/90 text-white font-black text-sm rounded-2xl shadow-lg shadow-warning/20 transition-all whitespace-nowrap"
             >
-              <Plus className="w-4 h-4" /> Sınav Oluştur
+              <Plus className="w-5 h-5" /> + Yeni Sınav Oluştur
             </button>
             <button
               onClick={() => setFormModal({ open: true, question: null, isCopy: false, examId: null })}
@@ -2442,6 +2447,7 @@ const ExamOverviewCard = ({ icon: Icon, label, value, detail, color, bg, border 
 // ─── Main AdminExams Component ────────────────────────────────────────────────
 const AdminExams = () => {
   const [activeCatFilter, setActiveCatFilter] = useState('b_class');
+  const [activeTypeFilter, setActiveTypeFilter] = useState('real_exam'); // 'real_exam' | 'mock_exam' | 'short_test'
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [exams, setExams] = useState([]);
@@ -2473,15 +2479,20 @@ const AdminExams = () => {
   // Sınav Merkezi yalnızca gerçek sınavların iki resmi kökünü gösterir.
   const rootCategories = categories.filter(c => !c.parent?._id && !c.parent && !isVideoCategory(c));
   const examCategoryRoots = rootCategories.filter(category => Boolean(getCategoryGroupFromText(category.name)));
-  const realExams = exams
+
+  // Tür bazlı sınav/soru filtreleme
+  const allTypedExams = exams
     .filter(exam => !exam.isMiniTest)
-    .filter(exam => resolveExamTestType(exam, questions) === 'real_exam');
-  const filteredExams = realExams.filter(
+    .map(exam => ({ ...exam, _resolvedTestType: resolveExamTestType(exam, questions) }));
+  const typeExams = allTypedExams.filter(
+    exam => exam._resolvedTestType === activeTypeFilter,
+  );
+  const filteredExams = typeExams.filter(
     exam => getExamCategoryGroup(exam, categories) === activeCatFilter,
   );
   const filteredExamIds = new Set(filteredExams.map(exam => exam._id?.toString()));
   const filteredQuestions = questions.filter(question => {
-    if (normalizeTestType(question.testType) !== 'real_exam') return false;
+    if (normalizeTestType(question.testType) !== activeTypeFilter) return false;
     const examId = questionExamId(question)?.toString();
     if (examId) return filteredExamIds.has(examId);
     return getCategoryGroup(question.category, categories) === activeCatFilter;
@@ -2492,24 +2503,75 @@ const AdminExams = () => {
   const publishedExamCount = filteredExams.filter(e => e.isPublished !== false).length;
   const imageQuestionCount = filteredQuestions.filter(q => q.media).length;
 
+  // Sekme başlığı ve açıklamaları
+  const typeMeta = {
+    real_exam: {
+      kicker: 'Gerçek Sınav Yönetimi',
+      title: 'Sınav Merkezi',
+      desc: 'B Sınıfı ve İş Makinesi gerçek sınavlarını, soru dağılımlarını ve yayın durumlarını yönetin.',
+      label: 'Gerçek Sınav',
+    },
+    mock_exam: {
+      kicker: 'Deneme Sınavı Yönetimi',
+      title: 'Deneme Sınavları',
+      desc: 'B Sınıfı ve İş Makinesi deneme sınavlarını, soru dağılımlarını ve yayın durumlarını yönetin.',
+      label: 'Deneme Sınavı',
+    },
+    short_test: {
+      kicker: 'Kısa Test Yönetimi',
+      title: 'Kısa Testler',
+      desc: 'Konu bazlı kısa testleri ve soru dağılımlarını yönetin.',
+      label: 'Kısa Test',
+    },
+  }[activeTypeFilter];
+
+  const isShort = activeTypeFilter === 'short_test';
+
   return (
     <div className="space-y-6 pb-12">
       {/* Page Header */}
       <section className="rounded-[26px] border border-[#243044] bg-[#101725] p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#FFB85C]">Gerçek Sınav Yönetimi</p>
-            <h1 className="mt-1.5 text-2xl font-black tracking-tight text-white">Sınav Merkezi</h1>
-            <p className="mt-1 max-w-2xl text-sm text-[#8F9BB0]">
-              B Sınıfı ve İş Makinesi gerçek sınavlarını, soru dağılımlarını ve yayın durumlarını yönetin.
-            </p>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#FFB85C]">{typeMeta.kicker}</p>
+            <h1 className="mt-1.5 text-2xl font-black tracking-tight text-white">{typeMeta.title}</h1>
+            <p className="mt-1 max-w-2xl text-sm text-[#8F9BB0]">{typeMeta.desc}</p>
           </div>
           <button onClick={handleRefresh} className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-sm text-text-secondary hover:text-white hover:bg-white/10 transition-all self-start sm:self-auto">
             <RefreshCw className="w-4 h-4" /> Yenile
           </button>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-2 rounded-2xl border border-[#243044] bg-[#0B1220] p-1.5 sm:max-w-lg">
+        {/* Sınav Türü Seçimi */}
+        <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-[#243044] bg-[#0B1220] p-1.5 sm:max-w-lg">
+          {[
+            { id: 'real_exam', label: 'Gerçek Sınav', icon: Shield, color: 'text-[#AFA5FF]' },
+            { id: 'mock_exam', label: 'Deneme Sınavı', icon: Zap, color: 'text-[#FFB85C]' },
+            { id: 'short_test', label: 'Kısa Test', icon: BookOpen, color: 'text-[#6EE7B7]' },
+          ].map(item => {
+            const Icon = item.icon;
+            const active = activeTypeFilter === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTypeFilter(item.id)}
+                className={`flex min-w-0 items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-xs font-black transition-all ${
+                  active
+                    ? 'border-[#7C6CFF]/35 bg-[#7C6CFF]/15 text-white'
+                    : 'border-transparent text-[#8F9BB0] hover:bg-[#151E2E] hover:text-white'
+                }`}
+              >
+                <Icon className={`h-4 w-4 shrink-0 ${active ? item.color : ''}`} />
+                <span className="truncate">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Kategori Filtresi (Kısa Test hariç) */}
+        {!isShort && (
+        <div className="mt-3 grid grid-cols-2 gap-2 rounded-2xl border border-[#243044] bg-[#0B1220] p-1.5 sm:max-w-lg">
           {[
             { id: 'b_class', label: 'B Sınıfı', icon: Shield, color: 'text-[#AFA5FF]' },
             { id: 'is_makinesi', label: 'İş Makinesi', icon: HardHat, color: 'text-[#FFB85C]' },
@@ -2519,7 +2581,7 @@ const AdminExams = () => {
             const categoryExists = examCategoryRoots.some(
               category => getCategoryGroupFromText(category.name) === item.id,
             );
-            const count = realExams.filter(
+            const count = typeExams.filter(
               exam => getExamCategoryGroup(exam, categories) === item.id,
             ).length;
             return (
@@ -2541,14 +2603,17 @@ const AdminExams = () => {
             );
           })}
           </div>
+        )}
       </section>
 
+      {!isShort && (
       <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-        <ExamOverviewCard icon={Shield} label="Gerçek Sınav" value={filteredExams.length} detail={`${activeExamCount} aktif`} color="text-warning" bg="bg-warning/10" border="border-warning/20" />
+        <ExamOverviewCard icon={Shield} label={typeMeta.label} value={filteredExams.length} detail={`${activeExamCount} aktif`} color="text-warning" bg="bg-warning/10" border="border-warning/20" />
         <ExamOverviewCard icon={HelpCircle} label="Toplam Soru" value={realCount} color="text-primary-light" bg="bg-primary/10" border="border-primary/20" />
         <ExamOverviewCard icon={Send} label="Yayında" value={publishedExamCount} color="text-accent" bg="bg-accent/10" border="border-accent/20" />
         <ExamOverviewCard icon={ImageIcon} label="Görselli Soru" value={imageQuestionCount} color="text-success" bg="bg-success/10" border="border-success/20" />
       </div>
+      )}
 
       {/* Content */}
       {loading ? (
@@ -2559,21 +2624,30 @@ const AdminExams = () => {
       ) : (
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeCatFilter}
+            key={activeTypeFilter + activeCatFilter}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
-            <ExamQuestionsTab
-              questions={filteredQuestions}
-              categories={categories}
-              exams={filteredExams}
-              onRefresh={handleRefresh}
-              testType="real_exam"
-              title={activeCatFilter === 'is_makinesi' ? 'İş Makinesi Sınavı' : 'B Sınıfı Sınavı'}
-              activeCatFilter={activeCatFilter}
-            />
+            {isShort ? (
+              <ShortTestTab
+                questions={questions}
+                categories={categories}
+                exams={exams}
+                onRefresh={handleRefresh}
+              />
+            ) : (
+              <ExamQuestionsTab
+                questions={filteredQuestions}
+                categories={categories}
+                exams={filteredExams}
+                onRefresh={handleRefresh}
+                testType={activeTypeFilter}
+                title={activeTypeFilter === 'mock_exam' ? 'Deneme Sınavı' : 'Gerçek Sınav'}
+                activeCatFilter={activeCatFilter}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       )}

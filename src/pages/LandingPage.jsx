@@ -21,8 +21,8 @@ const FALLBACK_FAQS = [
 ];
 
 const features = [
-  { icon: Brain, color: "from-blue-500 to-cyan-400", title: "Yapay Zeka Destekli Analiz", desc: "Zayıf noktalarını bul, sadece ihtiyacın olanı çalış. Akıllı algoritmamızla zaman kazan ve netlerini hızla artır." },
-  { icon: Target, color: "from-indigo-500 to-purple-500", title: "Birebir MEB Simülasyonu", desc: "Gerçek e-sınav arayüzünün birebir kopyası ile sınav stresi yaşamadan pratik yap. Sürprizlere yer yok." },
+  { icon: Brain, color: "from-orange-500 to-amber-400", title: "Yapay Zeka Destekli Analiz", desc: "Zayıf noktalarını bul, sadece ihtiyacın olanı çalış. Akıllı algoritmamızla zaman kazan ve netlerini hızla artır." },
+  { icon: Target, color: "from-rose-500 to-pink-500", title: "Birebir MEB Simülasyonu", desc: "Gerçek e-sınav arayüzünün birebir kopyası ile sınav stresi yaşamadan pratik yap. Sürprizlere yer yok." },
   { icon: PlayCircle, color: "from-rose-500 to-orange-400", title: "Yeni Nesil Animasyonlu Sorular", desc: "MEB'in yeni müfredatındaki videolu ve hareketli sorulara tam uyumlu, en güncel soru havuzu." },
   { icon: Sparkles, color: "from-amber-400 to-yellow-500", title: "Oyunlaştırma (Gamification)", desc: "Günlük hedefler, rozetler ve Türkiye geneli liderlik tablosu ile çalışmayı sıkıcı bir görevden eğlenceye çevir." },
   { icon: Map, color: "from-emerald-400 to-teal-500", title: "Görsel ve 3D Anlatımlar", desc: "Sıkıcı uzun metinler yok. Tüm karmaşık trafik kurallarını, motor parçalarını ve ilkyardım adımlarını görsel haritalarla öğren." },
@@ -237,14 +237,23 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050508] relative w-full font-sans text-white selection:bg-primary/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#050508] relative w-full font-sans text-white selection:bg-primary/30 overflow-x-hidden"
+      style={{
+        '--color-primary': '#f97316',
+        '--color-primary-light': '#fb923c',
+        '--color-primary-dark': '#ea580c',
+        '--color-accent': '#f43f5e',
+        '--color-accent-light': '#fb7185',
+      }}
+    >
       {/* Background Effects */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
 
       {/* Dynamic Glows */}
-      <motion.div style={{ y: y1 }} className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-primary/20 blur-[150px] rounded-full pointer-events-none z-0" />
-      <motion.div style={{ y: y2 }} className="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-indigo-600/15 blur-[150px] rounded-full pointer-events-none z-0" />
-      <div className="absolute top-[60%] left-[20%] w-[500px] h-[500px] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none z-0" />
+      <motion.div style={{ y: y1 }} className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-orange-500/20 blur-[150px] rounded-full pointer-events-none z-0" />
+      <motion.div style={{ y: y2 }} className="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-rose-500/15 blur-[150px] rounded-full pointer-events-none z-0" />
+      <div className="absolute top-[60%] left-[20%] w-[500px] h-[500px] bg-amber-500/10 blur-[150px] rounded-full pointer-events-none z-0" />
+      <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[30%] left-[45%] w-[400px] h-[400px] bg-fuchsia-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
 
       {/* Modern, Sticky Navbar */}
       <motion.header
@@ -256,8 +265,8 @@ const LandingPage = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
               <div className="relative">
-                <div className="absolute -inset-[3px] rounded-[1.15rem] sm:rounded-[1.25rem] bg-gradient-to-br from-primary via-indigo-500 to-cyan-400 opacity-0 group-hover:opacity-60 blur-[6px] transition-opacity duration-500" />
-                <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-[0.85rem] sm:rounded-[1rem] bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-md shadow-primary/10 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+                <div className="absolute -inset-[3px] rounded-[1.15rem] sm:rounded-[1.25rem] bg-gradient-to-br from-primary via-orange-500 to-rose-400 opacity-0 group-hover:opacity-60 blur-[6px] transition-opacity duration-500" />
+                <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-[0.85rem] sm:rounded-[1rem] bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-md shadow-primary/10 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]">
                   <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.7rem] sm:rounded-[0.85rem] flex items-center justify-center">
                     <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" width="44" height="44" decoding="async" className="w-[88%] h-[88%] object-contain transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                     <CarFront className="w-5 h-5 sm:w-7 sm:h-7 text-primary hidden" />
@@ -265,7 +274,7 @@ const LandingPage = () => {
                 </div>
               </div>
               <span className="text-lg sm:text-2xl font-black tracking-tighter text-white transition-all duration-300 group-hover:tracking-tight">
-                Ehliyet<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-cyan-300 group-hover:from-cyan-300 group-hover:to-primary-light transition-all duration-500">Yolu</span>
+                Ehliyet<span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-rose-300 group-hover:from-rose-300 group-hover:to-primary-light transition-all duration-500">Yolu</span>
               </span>
             </Link>
 
@@ -274,25 +283,25 @@ const LandingPage = () => {
               <a href="#features" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
                 <span className="relative">
                   Özellikler
-                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-rose-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
                 </span>
               </a>
               <a href="#categories" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
                 <span className="relative">
                   Kategoriler
-                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-rose-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
                 </span>
               </a>
               <a href="#sign-libraries" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
                 <span className="relative">
                   Levhalar
-                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-rose-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
                 </span>
               </a>
               <a href="#how-it-works" className="relative text-[11px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-all duration-300 hover:scale-105 group/item py-0.5">
                 <span className="relative">
                   Nasıl Çalışır?
-                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-cyan-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+                  <span className="absolute -bottom-1 left-0 w-full h-[1.5px] bg-gradient-to-r from-primary-light to-rose-400 transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
                 </span>
               </a>
             </div>
@@ -306,7 +315,7 @@ const LandingPage = () => {
                 Giriş Yapmadan Devam Et
               </button>
               <Link to="/login" className="text-xs sm:text-sm font-bold text-white/70 hover:text-white transition-colors px-2 sm:px-5 py-2.5">Giriş</Link>
-              <Link to="/register" className="bg-gradient-to-r from-primary to-indigo-600 hover:from-primary-light hover:to-indigo-500 text-white py-2.5 sm:py-3.5 px-4 sm:px-8 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-black shadow-lg shadow-primary/20 transition-all hover:scale-102 hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]">
+              <Link to="/register" className="bg-gradient-to-r from-primary to-rose-600 hover:from-primary-light hover:to-rose-500 text-white py-2.5 sm:py-3.5 px-4 sm:px-8 rounded-full flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-black shadow-lg shadow-primary/20 transition-all hover:scale-102 hover:shadow-[0_0_25px_rgba(249,115,22,0.4)]">
                 Kayıt Ol <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 hidden xs:block" />
               </Link>
             </div>
@@ -315,44 +324,205 @@ const LandingPage = () => {
       </motion.header>
 
       {/* Ultimate Animation Hero */}
-      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-32 pb-20 lg:pt-48 lg:pb-32 flex flex-col items-center text-center">
+      <main className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 pt-32 pb-16 lg:pt-40 lg:pb-20">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-14 lg:gap-10 items-center">
 
-        {/* Badge */}
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", duration: 0.8 }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/30 bg-primary/10 text-primary-light text-xs sm:text-sm font-black tracking-widest uppercase mb-8 shadow-[0_0_20px_rgba(99,102,241,0.15)] relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 -translate-x-full group-hover:animate-[shine_2s_infinite]"></div>
-          <Sparkles className="w-4 h-4" /> 2026 MEB Müfredatına %100 Uyumlu
-        </motion.div>
+          {/* ── Sol: Metin ── */}
+          <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
+            {/* Badge */}
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", duration: 0.8 }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/30 bg-primary/10 text-primary-light text-xs sm:text-sm font-black tracking-widest uppercase mb-8 shadow-[0_0_20px_rgba(249,115,22,0.15)] relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 -translate-x-full group-hover:animate-[shine_2s_infinite]"></div>
+              <Sparkles className="w-4 h-4" /> 2026 MEB Müfredatına %100 Uyumlu
+            </motion.div>
 
-        {/* Headline */}
-        <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }} className="text-5xl sm:text-6xl md:text-7xl lg:text-[6.5rem] leading-[1.1] font-black tracking-tighter mb-8 max-w-5xl">
-          Eski Kitapları <span className="text-transparent bg-clip-text bg-gradient-to-br from-gray-400 to-gray-600 relative inline-block">
-            Çöpe Atın
-            <span className="absolute top-1/2 left-0 w-full h-1.5 sm:h-2 bg-red-500/80 -translate-y-1/2 -rotate-2 rounded-full"></span>
-          </span><br className="hidden sm:block" />
-          Sınavı <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-indigo-400 to-cyan-400 relative inline-block">
-            Tek Seferde
-            <motion.svg className="absolute -bottom-1 sm:-bottom-3 left-0 w-full h-3 sm:h-4 text-primary" viewBox="0 0 100 10" preserveAspectRatio="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1, duration: 1 }}><path d="M0 5 Q 50 10 100 5" fill="transparent" stroke="currentColor" strokeWidth="6" strokeLinecap="round" /></motion.svg>
-          </span> Geçin.
-        </motion.h1>
+            {/* Headline */}
+            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }} className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.05] font-black tracking-tighter mb-8 max-w-2xl">
+              Eski Kitapları{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-br from-gray-400 to-gray-600 relative inline-block">
+                Çöpe Atın
+                <span className="absolute top-1/2 left-0 w-full h-1.5 sm:h-2 bg-rose-500/80 -translate-y-1/2 -rotate-2 rounded-full"></span>
+              </span>
+              <br className="hidden sm:block" />
+              Sınavı{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-orange-400 to-rose-400 relative inline-block">
+                Tek Seferde
+                <motion.svg className="absolute -bottom-1 sm:-bottom-3 left-0 w-full h-3 sm:h-4 text-primary" viewBox="0 0 100 10" preserveAspectRatio="none" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 1, duration: 1 }}><path d="M0 5 Q 50 10 100 5" fill="transparent" stroke="currentColor" strokeWidth="6" strokeLinecap="round" /></motion.svg>
+              </span>{" "}
+              Geçin.
+            </motion.h1>
 
-        {/* Sub-headline */}
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-lg md:text-2xl text-text-muted max-w-3xl mb-12 font-medium leading-relaxed">
-          Türkiye'nin en gelişmiş, yapay zeka destekli ehliyet sınavı hazırlık platformu. Zaman kaybetme, eksiklerini gör, sınava %100 hazır gir.
-        </motion.p>
+            {/* Sub-headline */}
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-lg md:text-2xl text-text-muted max-w-2xl mb-12 font-medium leading-relaxed">
+              Türkiye'nin en gelişmiş, yapay zeka destekli ehliyet sınavı hazırlık platformu. Zaman kaybetme, eksiklerini gör, sınava %100 hazır gir.
+            </motion.p>
 
-        {/* Action Buttons */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
-          <Link to="/register" className="relative bg-gradient-to-r from-primary to-indigo-600 hover:from-primary-light hover:to-indigo-500 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-[0_0_40px_rgba(99,102,241,0.5)] w-full sm:w-auto group border border-white/10 overflow-hidden">
-            <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full animate-[shimmer_3s_infinite]" />
-            Hemen Serüvene Başla <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <a href="#app" className="bg-white/[0.05] backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 w-full sm:w-auto">
-            <Smartphone className="w-5 h-5" /> Uygulamayı İndir
-          </a>
-        </motion.div>
+            {/* Action Buttons */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
+              <Link to="/register" className="relative bg-gradient-to-r from-primary to-rose-600 hover:from-primary-light hover:to-rose-500 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-[0_0_40px_rgba(249,115,22,0.5)] w-full sm:w-auto group border border-white/10 overflow-hidden">
+                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full animate-[shimmer_3s_infinite]" />
+                Hemen Serüvene Başla <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <a href="#app" className="bg-white/[0.05] backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 w-full sm:w-auto">
+                <Smartphone className="w-5 h-5" /> Uygulamayı İndir
+              </a>
+            </motion.div>
+
+            {/* Mini istatistik şeridi */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.45 }} className="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-8">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-success/15 border border-success/20 flex items-center justify-center"><Users className="w-5 h-5 text-success" /></div>
+                <div className="text-left">
+                  <div className="text-xl font-black text-white">{stats.totalUsers}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Aktif Öğrenci</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-primary/15 border border-primary/20 flex items-center justify-center"><Target className="w-5 h-5 text-primary-light" /></div>
+                <div className="text-left">
+                  <div className="text-xl font-black text-white">{stats.totalExams}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Soru Havuzu</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-warning/15 border border-warning/20 flex items-center justify-center"><Trophy className="w-5 h-5 text-warning" /></div>
+                <div className="text-left">
+                  <div className="text-xl font-black text-white">{stats.avgSuccess}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Başarı Oranı</div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ── Sağ: Telefon Mockup + Animasyonlar ── */}
+          <motion.div
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.4, type: "spring", stiffness: 60 }}
+            className="relative flex justify-center"
+          >
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-72 bg-gradient-to-r from-primary/15 via-rose-500/10 to-primary/15 blur-[120px] rounded-full pointer-events-none" />
+
+            {/* Yüzen levha kartları (arka) */}
+            <motion.div
+              animate={{ y: [-12, 12, -12], rotate: [-6, 6, -6] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -left-2 sm:-left-8 top-8 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/[0.06] border border-white/15 backdrop-blur-xl flex items-center justify-center shadow-xl z-10"
+            >
+              <img src={resolveMediaUrl('trafik-levhalari/Tehlike_T/t-11.png')} alt="Yaya Geçidi" loading="lazy" decoding="async" className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-lg" />
+            </motion.div>
+            <motion.div
+              animate={{ y: [10, -10, 10], rotate: [5, -5, 5] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -right-2 sm:-right-8 top-32 w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/[0.06] border border-white/15 backdrop-blur-xl flex items-center justify-center shadow-xl z-10"
+            >
+              <img src={resolveMediaUrl('trafik-levhalari/Tanzim_TT/tt-2.png')} alt="Dur" loading="lazy" decoding="async" className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-lg" />
+            </motion.div>
+
+            {/* Telefon */}
+            <div className="relative w-[290px] sm:w-[320px] bg-[#0c0c12] rounded-[3rem] border-[10px] border-[#1f2029] shadow-[0_40px_80px_rgba(0,0,0,0.8)] overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-700">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-[#1f2029] rounded-b-2xl z-20" />
+
+              <div className="w-full h-[620px] bg-[#050508] p-5 pt-14 relative flex flex-col">
+                {/* Üst bar */}
+                <div className="flex justify-between items-center mb-5">
+                  <div>
+                    <div className="text-white/50 text-[11px] font-bold mb-0.5">Hoş Geldin 👋</div>
+                    <div className="text-white font-black text-lg">Ayşe Yılmaz</div>
+                  </div>
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-lg overflow-hidden">
+                    <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[10px] flex items-center justify-center">
+                      <img src="/logo_v2.png" className="w-[85%] h-[85%] object-contain" alt="Logo" width="44" height="44" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Devam kartı */}
+                <div className="bg-gradient-to-r from-primary to-rose-600 rounded-2xl p-5 mb-5 text-white relative overflow-hidden shadow-lg shadow-primary/20">
+                  <div className="absolute right-0 top-0 w-28 h-28 bg-white/10 rounded-full blur-xl -mr-8 -mt-8"></div>
+                  <div className="text-white/80 text-[11px] font-bold mb-1">Sıradaki Görev</div>
+                  <div className="text-lg font-black mb-3">Trafik Levhaları - Test 2</div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold">%68 Tamamlandı</span>
+                    <button className="bg-white text-primary text-[11px] font-black py-2 px-4 rounded-xl">Devam Et</button>
+                  </div>
+                </div>
+
+                {/* Levha vitrini - gerçek görseller */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-white font-black text-sm">Bugünün Levhaları</div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-rose-300">Trafik</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col items-center hover:border-rose-300/40 transition-colors">
+                    <img src={resolveMediaUrl('trafik-levhalari/Tehlike_T/t-1a.png')} alt="Tehlikeli Viraj" loading="lazy" decoding="async" className="w-14 h-14 object-contain drop-shadow-lg" />
+                    <span className="mt-2 text-[10px] font-black text-white/80 text-center leading-tight">Sağa Tehlikeli Viraj</span>
+                    <span className="text-[9px] text-rose-300 font-black mt-0.5">T-1A</span>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex flex-col items-center hover:border-rose-300/40 transition-colors">
+                    <img src={resolveMediaUrl('trafik-levhalari/Tehlike_T/t-11.png')} alt="Yaya Geçidi" loading="lazy" decoding="async" className="w-14 h-14 object-contain drop-shadow-lg" />
+                    <span className="mt-2 text-[10px] font-black text-white/80 text-center leading-tight">Yaya Geçidi</span>
+                    <span className="text-[9px] text-rose-300 font-black mt-0.5">T-11</span>
+                  </div>
+                </div>
+
+                {/* İlerleme */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-bold text-sm">Sınav Hazırlığı</span>
+                    <span className="text-rose-300 font-black text-sm">%94</span>
+                  </div>
+                  <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div initial={{ width: 0 }} animate={{ width: "94%" }} transition={{ duration: 1.5, delay: 1.2 }} className="h-full bg-gradient-to-r from-primary to-rose-400 rounded-full" />
+                  </div>
+                </div>
+
+                {/* Alt rozet satırı */}
+                <div className="grid grid-cols-2 gap-3 mt-auto">
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-success/20 flex items-center justify-center"><Trophy className="w-5 h-5 text-success" /></div>
+                    <div>
+                      <div className="text-white font-black text-base">12</div>
+                      <div className="text-white/50 text-[10px] font-bold">Rozet</div>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center"><Target className="w-5 h-5 text-primary-light" /></div>
+                    <div>
+                      <div className="text-white font-black text-base">#4</div>
+                      <div className="text-white/50 text-[10px] font-bold">Sıralama</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sahte alt nav */}
+                <div className="absolute bottom-0 left-0 w-full h-16 bg-[#0a0a0f]/90 backdrop-blur-md border-t border-white/10 flex justify-around items-center px-6">
+                  <div className="w-9 h-9 flex items-center justify-center text-primary"><Map className="w-5 h-5" /></div>
+                  <div className="w-9 h-9 flex items-center justify-center text-white/30"><BookOpen className="w-5 h-5" /></div>
+                  <div className="w-9 h-9 flex items-center justify-center text-white/30"><User className="w-5 h-5" /></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Yüzen kartlar */}
+            <motion.div animate={{ y: [-8, 8, -8] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -left-4 sm:left-2 bottom-24 bg-white/10 backdrop-blur-xl border border-white/20 p-3 rounded-2xl shadow-xl flex items-center gap-3 z-10">
+              <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center"><Check className="w-5 h-5 text-success" /></div>
+              <div>
+                <div className="text-xs font-bold text-white">Deneme: 96 Puan</div>
+                <div className="text-[10px] text-text-muted">Başarılı 🎉</div>
+              </div>
+            </motion.div>
+            <motion.div animate={{ y: [8, -8, 8] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-3 sm:right-4 top-40 bg-white/10 backdrop-blur-xl border border-white/20 p-3 rounded-2xl shadow-xl flex items-center gap-3 z-10">
+              <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center"><Trophy className="w-5 h-5 text-warning" /></div>
+              <div>
+                <div className="text-xs font-bold text-white">Yeni Rozet!</div>
+                <div className="text-[10px] text-warning">Sınav Şampiyonu</div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
 
         {/* Stats Strip */}
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, type: "spring" }} className="mt-20 lg:mt-32 w-full max-w-5xl">
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, type: "spring" }} className="mt-20 lg:mt-28 w-full max-w-5xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-6 sm:p-10 backdrop-blur-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full group-hover:bg-primary/10 transition-colors duration-700"></div>
 
@@ -431,15 +601,17 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {courseCategories.map((cat, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/10 p-8 rounded-[2.5rem] hover:-translate-y-1 hover:bg-white/[0.04] hover:border-white/20 hover:shadow-[0_15px_30px_rgba(0,0,0,0.5)] transition-all duration-300 group"
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="bg-gradient-to-br from-white/[0.02] to-transparent border border-white/10 p-8 rounded-[2.5rem] hover:bg-white/[0.04] hover:border-white/20 hover:shadow-[0_15px_30px_rgba(0,0,0,0.5)] transition-all duration-300 group relative overflow-hidden"
               >
-                <div className={`w-14 h-14 ${cat.bg} ${cat.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                <div className={`absolute top-0 right-0 w-28 h-28 ${cat.bg} blur-[70px] opacity-0 group-hover:opacity-60 transition-opacity duration-500 rounded-full`}></div>
+                <div className={`w-14 h-14 ${cat.bg} ${cat.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300`}>
                   <cat.icon className="w-7 h-7" />
                 </div>
                 <h4 className="text-xl font-bold text-white mb-2">{cat.title}</h4>
                 <p className="text-text-muted font-medium mb-4">{cat.count}</p>
                 <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <motion.div initial={{ width: 0 }} whileInView={{ width: "100%" }} viewport={{ once: true }} transition={{ duration: 1.5, delay: 0.5 + i * 0.1 }} className={`h-full ${cat.bg.replace('/10', '')}`}></motion.div>
+                  <motion.div initial={{ width: 0 }} whileInView={{ width: "100%" }} viewport={{ once: true }} transition={{ duration: 1.5, delay: 0.5 + i * 0.1 }} className={`h-full ${cat.bg.replace('/10', '')} group-hover:brightness-125 transition-all`}></motion.div>
                 </div>
               </motion.div>
             ))}
@@ -452,16 +624,76 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex flex-col lg:flex-row justify-between items-end gap-8 mb-16">
             <div className="max-w-3xl">
-              <h2 className="text-sm font-black text-cyan-300 uppercase tracking-widest mb-3">Levha Kütüphanesi</h2>
+              <h2 className="text-sm font-black text-amber-300 uppercase tracking-widest mb-3">Levha Kütüphanesi</h2>
               <h3 className="text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">Trafik ve iş sağlığı levhaları ayrı listelenir.</h3>
               <p className="mt-5 text-text-muted text-lg md:text-xl font-medium">
                 Trafik ve iş güvenliği levhalarını hesap açmadan inceleyebilirsin. Giriş yapan öğrencilerde seçili eğitim sınıfına göre doğru liste otomatik açılır.
               </p>
             </div>
-            <a href="#landing-sign-list" className="group flex items-center gap-3 text-white font-bold hover:text-cyan-300 transition-colors">
+            <a href="#landing-sign-list" className="group flex items-center gap-3 text-white font-bold hover:text-amber-300 transition-colors">
               Girişsiz İncele <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
+
+          {/* ── Öne Çıkan Levhalar Vitrini (gerçek Cloudinary görselleri) ── */}
+          {(() => {
+            const featuredIds = [
+              'Tehlike_T/t-1a.png', 'Tehlike_T/t-11.png', 'Tehlike_T/t-21.png',
+              'Tanzim_TT/tt-1.png', 'Tanzim_TT/tt-2.png', 'Bilgi_B/b-10.png',
+              'Park_P/p-1.png', 'Bilgi_B/b-14a.png',
+            ];
+            const featured = featuredIds
+              .map((id) => signLibraryList[0].signs.find((s) => s.image.endsWith(id)))
+              .filter(Boolean)
+              .slice(0, 8);
+            return (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="mb-10"
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <span className="w-8 h-8 rounded-xl bg-amber-300/15 border border-amber-300/30 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                    </span>
+                    <h4 className="text-white font-black text-lg">En Çok Bakılan Levhalar</h4>
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Gerçek sınav levhaları</span>
+                </div>
+                <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 sm:gap-4">
+                  {featured.map((sign, i) => (
+                    <motion.button
+                      key={sign.id}
+                      type="button"
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08, type: "spring" }}
+                      whileHover={{ scale: 1.12, y: -4 }}
+                      onClick={() => setSelectedLandingSign(sign)}
+                      className="group relative flex flex-col items-center rounded-2xl border border-white/10 bg-white/[0.025] p-3 transition hover:border-amber-300/40 hover:bg-white/[0.05] hover:shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                    >
+                      <div className="flex aspect-square w-full items-center justify-center rounded-xl bg-white/[0.04] p-2.5">
+                        <img
+                          src={resolveMediaUrl(sign.image)}
+                          alt={sign.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="max-h-full max-w-full object-contain drop-shadow-xl transition duration-300 group-hover:scale-110"
+                        />
+                      </div>
+                      <span className="mt-2 text-[9px] font-black uppercase tracking-widest text-amber-200/80 group-hover:text-amber-200">
+                        {sign.code}
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+              </motion.div>
+            );
+          })()}
 
           <div id="landing-sign-list" className="rounded-[2rem] border border-white/10 bg-white/[0.025] p-4 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -497,8 +729,8 @@ const LandingPage = () => {
             </div>
 
             <div className="mt-6 flex flex-col gap-3 xl:flex-row xl:items-center">
-              <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-cyan-300/40">
-                <Search className="mr-3 h-5 w-5 text-cyan-300" />
+              <div className="flex min-w-0 flex-1 items-center rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3 transition focus-within:border-amber-300/40">
+                <Search className="mr-3 h-5 w-5 text-amber-300" />
                 <input
                   type="text"
                   value={landingSignSearch}
@@ -522,7 +754,7 @@ const LandingPage = () => {
                       onClick={() => setLandingSignCategory(category.id)}
                       className={`shrink-0 rounded-xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition ${
                         active
-                          ? 'border-cyan-300/35 bg-cyan-300/15 text-cyan-200'
+                          ? 'border-amber-300/35 bg-amber-300/15 text-amber-200'
                           : 'border-white/10 bg-white/[0.03] text-text-muted hover:border-white/20 hover:text-white'
                       }`}
                     >
@@ -540,7 +772,7 @@ const LandingPage = () => {
                   key={sign.id}
                   type="button"
                   onClick={() => setSelectedLandingSign(sign)}
-                  className="group rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-left transition hover:border-cyan-300/30 hover:bg-white/[0.04]"
+                  className="group rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-left transition hover:border-amber-300/30 hover:bg-white/[0.04]"
                 >
                   <div className="flex aspect-square items-center justify-center rounded-xl bg-white/[0.035] p-4">
                     <img
@@ -555,7 +787,7 @@ const LandingPage = () => {
                     <span className="rounded-lg border border-white/10 bg-white/[0.03] px-2 py-1 text-[9px] font-black uppercase tracking-widest text-text-muted">
                       {sign.code}
                     </span>
-                    <span className="truncate text-[9px] font-black uppercase tracking-wider text-cyan-200">
+                    <span className="truncate text-[9px] font-black uppercase tracking-wider text-amber-200">
                       {landingCategoryById[sign.category]?.label?.replace(' İşaretleri', '')}
                     </span>
                   </div>
@@ -573,14 +805,14 @@ const LandingPage = () => {
                   type="button"
                   disabled={landingSignPage === 1}
                   onClick={() => setLandingSignPage(prev => Math.max(prev - 1, 1))}
-                  className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-cyan-300/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
+                  className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-amber-300/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
                   aria-label="Önceki Sayfa"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
 
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-black/20 border border-white/5 text-xs font-bold text-text-muted">
-                  <span className="text-cyan-200 font-black">{landingSignPage}</span>
+                  <span className="text-amber-200 font-black">{landingSignPage}</span>
                   <span>/</span>
                   <span>{totalPages}</span>
                 </div>
@@ -589,7 +821,7 @@ const LandingPage = () => {
                   type="button"
                   disabled={landingSignPage === totalPages}
                   onClick={() => setLandingSignPage(prev => Math.min(prev + 1, totalPages))}
-                  className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-cyan-300/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
+                  className="w-10 h-10 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-text-muted hover:text-white hover:border-amber-300/35 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-white/10 disabled:hover:text-text-muted"
                   aria-label="Sonraki Sayfa"
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -630,7 +862,7 @@ const LandingPage = () => {
                   <div className="flex min-w-0 flex-col overflow-y-auto p-6 sm:p-8">
                     <div className="mb-6 flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-200">
+                        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-amber-200">
                           {selectedLandingSign.code}
                         </div>
                         <h2 className="text-2xl font-black leading-tight text-white sm:text-3xl">
@@ -653,7 +885,7 @@ const LandingPage = () => {
                     </div>
 
                     <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
-                      <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-cyan-200">Açıklama</h3>
+                      <h3 className="mb-3 text-xs font-black uppercase tracking-widest text-amber-200">Açıklama</h3>
                       <p className="text-sm font-semibold leading-relaxed text-white/85">
                         {selectedLandingSign.description}
                       </p>
@@ -680,7 +912,7 @@ const LandingPage = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
 
             <div>
-              <h2 className="text-sm font-black text-cyan-400 uppercase tracking-widest mb-3">Sistem Nasıl Çalışır?</h2>
+              <h2 className="text-sm font-black text-amber-400 uppercase tracking-widest mb-3">Sistem Nasıl Çalışır?</h2>
               <h3 className="text-4xl md:text-5xl font-black mb-8 tracking-tight text-white leading-tight">Başarıya Giden 4 Basit Adım.</h3>
               <p className="text-text-muted text-lg mb-12">Karmaşık süreçlere ve ne yapacağını bilmeden geçirilen saatlere son. Sana özel çizilen yol haritası ile adım adım ehliyetine ulaş.</p>
 
@@ -688,13 +920,13 @@ const LandingPage = () => {
                 {steps.map((step, i) => (
                   <motion.div key={i} initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className="flex gap-6 group">
                     <div className="flex flex-col items-center">
-                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/50 group-hover:bg-cyan-500/20 group-hover:text-cyan-400 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all duration-300">
+                      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-white/50 group-hover:bg-amber-500/20 group-hover:text-amber-400 group-hover:border-amber-500/50 group-hover:shadow-[0_0_15px_rgba(251,191,36,0.3)] transition-all duration-300">
                         {step.num}
                       </div>
-                      {i !== steps.length - 1 && <div className="w-px h-full bg-white/10 mt-4 group-hover:bg-cyan-500/30 transition-colors"></div>}
+                      {i !== steps.length - 1 && <div className="w-px h-full bg-white/10 mt-4 group-hover:bg-amber-500/30 transition-colors"></div>}
                     </div>
                     <div className="pb-8">
-                      <h4 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">{step.title}</h4>
+                      <h4 className="text-2xl font-bold text-white mb-2 group-hover:text-amber-300 transition-colors">{step.title}</h4>
                       <p className="text-text-muted text-lg leading-relaxed">{step.desc}</p>
                     </div>
                   </motion.div>
@@ -703,28 +935,134 @@ const LandingPage = () => {
             </div>
 
             <div className="relative hidden lg:block">
-              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-primary/20 blur-[100px] rounded-full"></div>
-              <div className="relative rounded-[3rem] border border-white/10 bg-[#0a0a0f] shadow-2xl p-4 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-cyan-400"></div>
-                <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=1200&h=1600" alt="App Dashboard Mockup" width="1200" height="1600" loading="lazy" decoding="async" className="rounded-[2.5rem] w-full h-auto opacity-80" />
+              {/* Arka plan ışıması */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-primary/20 blur-[100px] rounded-full"></div>
 
-                {/* Floating Elements */}
-                <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -left-10 top-20 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center"><Check className="w-6 h-6 text-success" /></div>
-                  <div>
-                    <div className="text-sm font-bold text-white">Deneme Sınavı</div>
-                    <div className="text-xs text-text-muted">96 Puan - Başarılı</div>
-                  </div>
-                </motion.div>
+              {/* Sürüş Sahnesi */}
+              <div className="relative rounded-[3rem] border border-white/10 bg-[#0a0a0f] shadow-2xl p-6 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-amber-400"></div>
 
-                <motion.div animate={{ y: [10, -10, 10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-8 bottom-32 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-warning/20 flex items-center justify-center"><Trophy className="w-6 h-6 text-warning" /></div>
+                {/* Başlık */}
+                <div className="flex items-center justify-between mb-6">
                   <div>
-                    <div className="text-sm font-bold text-white">Yeni Rozet!</div>
-                    <div className="text-xs text-warning">Hız Şampiyonu</div>
+                    <div className="text-white font-black text-lg">Sınav Yolculuğu</div>
+                    <div className="text-xs text-text-muted font-semibold">Adım adım başarıya 🏁</div>
                   </div>
-                </motion.div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 dash-pulse"></span>
+                    <span className="w-2 h-2 rounded-full bg-rose-400 dash-pulse" style={{ animationDelay: '0.5s' }}></span>
+                    <span className="w-2 h-2 rounded-full bg-success dash-pulse" style={{ animationDelay: '1s' }}></span>
+                  </div>
+                </div>
+
+                {/* Yol Sahnesi */}
+                <div className="relative h-64 rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#0e1118] via-[#0a0d14] to-[#0c0f16] overflow-hidden">
+                  {/* Ufuk ışıması */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-24 bg-primary/10 blur-[60px] rounded-full"></div>
+
+                  {/* Yol */}
+                  <div className="absolute bottom-10 left-0 right-0 h-16">
+                    {/* Asfalt */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#1c2028] to-[#14171d] rounded-xl"></div>
+                    {/* Kesikli orta çizgi */}
+                    <div className="road-lines absolute left-4 right-4 top-1/2 -translate-y-1/2 h-[3px] rounded-full opacity-70"></div>
+                    {/* Yol kenarı çizgileri */}
+                    <div className="absolute left-4 right-4 top-3 h-[2px] bg-white/15 rounded-full"></div>
+                    <div className="absolute left-4 right-4 bottom-3 h-[2px] bg-white/15 rounded-full"></div>
+                  </div>
+
+                  {/* Yol kenarındaki gerçek levhalar */}
+                  <div className="absolute left-8 bottom-24 sign-bob">
+                    <div className="w-0.5 h-14 bg-white/20 mx-auto rounded-full"></div>
+                    <div className="relative w-14 h-14 bg-white rounded-xl shadow-lg overflow-hidden">
+                      <img src={resolveMediaUrl('trafik-levhalari/Tehlike_T/t-1a.png')} alt="Tehlikeli Viraj" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain p-1" />
+                    </div>
+                  </div>
+                  <div className="absolute left-[38%] bottom-24 sign-bob-2">
+                    <div className="w-0.5 h-14 bg-white/20 mx-auto rounded-full"></div>
+                    <div className="relative w-14 h-14 bg-white rounded-xl shadow-lg overflow-hidden">
+                      <img src={resolveMediaUrl('trafik-levhalari/Tehlike_T/t-11.png')} alt="Yaya Geçidi" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain p-1" />
+                    </div>
+                  </div>
+                  <div className="absolute right-[38%] bottom-24 sign-bob-3">
+                    <div className="w-0.5 h-14 bg-white/20 mx-auto rounded-full"></div>
+                    <div className="relative w-14 h-14 bg-white rounded-xl shadow-lg overflow-hidden">
+                      <img src={resolveMediaUrl('trafik-levhalari/Tanzim_TT/tt-2.png')} alt="Dur" loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-contain p-1" />
+                    </div>
+                  </div>
+
+                  {/* Bitiş Bayrağı */}
+                  <div className="absolute right-6 bottom-24">
+                    <div className="w-0.5 h-20 bg-gradient-to-t from-white/30 to-white/10 mx-auto rounded-full"></div>
+                    <div className="flag-wave relative -mt-2 flex flex-col items-center">
+                      <div className="w-8 h-6 rounded-r-md bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                        <Trophy className="w-3.5 h-3.5 text-black" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sürüş Yapan Araba */}
+                  <div className="car-driving z-10">
+                    <div className="relative">
+                      {/* Gölge */}
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-16 h-3 bg-black/40 blur-md rounded-full"></div>
+                      {/* Araba gövdesi */}
+                      <div className="relative w-20 h-12">
+                        <div className="absolute inset-x-0 bottom-0 h-7 bg-gradient-to-br from-primary to-rose-500 rounded-[10px] rounded-tl-[14px] shadow-lg shadow-primary/30">
+                          {/* Camlar */}
+                          <div className="absolute -top-4 left-2 right-2 h-6 bg-gradient-to-b from-cyan-100/80 to-slate-300/60 rounded-t-[10px] rounded-b-[3px] border border-white/20 backdrop-blur-sm">
+                            <div className="absolute inset-x-1.5 top-1/2 h-[2px] bg-white/30 rounded-full"></div>
+                          </div>
+                          {/* Farlar */}
+                          <div className="absolute left-0 top-2 w-1.5 h-2 bg-amber-200 rounded-l-full shadow-[0_0_8px_2px_rgba(252,211,77,0.7)]"></div>
+                          <div className="absolute right-0 top-2 w-1 h-2 bg-red-400 rounded-r-full"></div>
+                        </div>
+                        {/* Tekerlekler */}
+                        <div className="absolute -bottom-1.5 left-1.5 w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-600">
+                          <div className="car-wheel absolute inset-1 rounded-full border-2 border-dashed border-slate-400"></div>
+                        </div>
+                        <div className="absolute -bottom-1.5 right-1.5 w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-600">
+                          <div className="car-wheel absolute inset-1 rounded-full border-2 border-dashed border-slate-400"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alt adım göstergesi */}
+                <div className="mt-5 grid grid-cols-4 gap-2">
+                  {steps.map((step, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.3 + i * 0.15 }}
+                      className={`rounded-xl border px-2 py-2.5 text-center transition-all duration-300 ${i === 3 ? 'border-amber-400/40 bg-amber-400/10' : 'border-white/10 bg-white/[0.03]'}`}
+                    >
+                      <div className={`text-sm font-black ${i === 3 ? 'text-amber-300' : 'text-white/60'}`}>{step.num}</div>
+                      <div className="text-[9px] font-bold text-text-muted mt-0.5 leading-tight">{step.title}</div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
+
+              {/* Yüzen kartlar */}
+              <motion.div animate={{ y: [-10, 10, -10] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute -left-10 top-16 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center"><Check className="w-6 h-6 text-success" /></div>
+                <div>
+                  <div className="text-sm font-bold text-white">Deneme Sınavı</div>
+                  <div className="text-xs text-text-muted">96 Puan - Başarılı</div>
+                </div>
+              </motion.div>
+
+              <motion.div animate={{ y: [10, -10, 10] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }} className="absolute -right-8 bottom-40 bg-white/10 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-warning/20 flex items-center justify-center"><Trophy className="w-6 h-6 text-warning" /></div>
+                <div>
+                  <div className="text-sm font-bold text-white">Yeni Rozet!</div>
+                  <div className="text-xs text-warning">Sınav Şampiyonu</div>
+                </div>
+              </motion.div>
             </div>
 
           </div>
@@ -763,6 +1101,7 @@ const LandingPage = () => {
           <div className="text-center mb-16 lg:mb-24">
             <h2 className="text-sm font-black text-success uppercase tracking-widest mb-3">Başarı Hikayeleri</h2>
             <h3 className="text-4xl md:text-5xl font-black tracking-tight text-white">Binlerce Mutlu Sürücü</h3>
+            <p className="mt-5 text-text-muted text-lg font-medium max-w-2xl mx-auto">Gerçek kullanıcılarımızın sınav yolculukları ve başarıları.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -821,7 +1160,7 @@ const LandingPage = () => {
               <Download className="w-4 h-4 text-primary-light" /> Mobil Uygulama
             </div>
             <h2 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 tracking-tighter leading-[1.1]">
-              Cebindeki <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-cyan-400">Ehliyet Hocası.</span>
+              Cebindeki <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-amber-400">Ehliyet Hocası.</span>
             </h2>
             <p className="text-text-muted text-xl mb-12 max-w-md mx-auto lg:mx-0 leading-relaxed">
               İnternetsiz mod, özel deneme sınavları ve anlık bildirimler için mobil uygulamamızı hemen indir.
@@ -883,7 +1222,7 @@ const LandingPage = () => {
                     <div className="text-white/50 text-xs font-bold">Kazanılan Rozet</div>
                   </div>
                   <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
-                    <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center mb-2"><Target className="w-5 h-5 text-cyan-400" /></div>
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center mb-2"><Target className="w-5 h-5 text-amber-400" /></div>
                     <div className="text-white font-black text-xl">%94</div>
                     <div className="text-white/50 text-xs font-bold">Sınav Hazırlığı</div>
                   </div>
