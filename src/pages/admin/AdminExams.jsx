@@ -423,30 +423,15 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
   const setField = (key, val) => setForm(f => ({ ...f, [key]: val }));
   const examMatchesType = (exam, type) => normalizeTestType(exam._resolvedTestType || exam.testType) === type;
 
-  // Sınav İş Makinesi'ne ait mi? Kategori adı veya sınav adından tespit et
-  const IS_MAKINESI_KEYWORDS = ['iş makinesi', 'is makinesi', 'forklift', 'vinç', 'vinc', 'ekskavatör',
-    'ekskavatör', 'operatör', 'operator', 'inşaat', 'insaat', 'isg', 'iş güvenliği', 'is guvenligi',
-    'kepçe', 'kepce', 'beko', 'dozer', 'kazıcı', 'kazici'];
-
-  const isExamIsMakinesi = (exam) => {
-    const examName = (exam.name || '').toLowerCase();
-    // Önce sınav adına bak
-    if (IS_MAKINESI_KEYWORDS.some(k => examName.includes(k))) return true;
-    // Sonra kategori adına bak
-    const examCatId = (exam.categoryId?._id || exam.categoryId)?.toString();
-    if (!examCatId) return false;
-    const cat = categories.find(c => c._id?.toString() === examCatId);
-    const catName = (cat?.name || '').toLowerCase();
-    return IS_MAKINESI_KEYWORDS.some(k => catName.includes(k));
-  };
-
+  // Seçili ehliyet kategorisine göre sınavları filtrele
+  // (getExamCategoryGroup ana bileşenle aynı mantığı kullanır — tutarlılık sağlar)
   const examsForCategory = exams.filter(exam => {
-    const isIM = isExamIsMakinesi(exam);
-    if (examCategory === 'is_makinesi') return isIM;
-    // B Sınıfı: İş Makinesi olmayanlar + kategorisiz (genel) sınavlar
-    const examCatId = (exam.categoryId?._id || exam.categoryId)?.toString();
-    if (!examCatId) return true;
-    return !isIM;
+    const group = getExamCategoryGroup(exam, categories);
+    if (examCategory === 'is_makinesi') {
+      return group === 'is_makinesi';
+    }
+    // B Sınıfı: İş Makinesi olmayanlar + kategorisi tespit edilemeyen (genel) sınavlar
+    return group !== 'is_makinesi';
   });
 
   const selectableExams = isShortTest ? exams : examsForCategory.filter(exam => examMatchesType(exam, form.testType));
@@ -665,7 +650,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => { setExamCategory(cat.id); setField('subject', ''); }}
+                  onClick={() => { setExamCategory(cat.id); setField('subject', ''); setField('exam', ''); }}
                   className={`flex-1 flex flex-col items-center py-2.5 px-3 rounded-xl transition-all ${
                     examCategory === cat.id
                       ? 'bg-primary/20 border border-primary/40 text-primary-light'
@@ -1990,7 +1975,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
 };
 
 // ─── Exam Questions Tab ────────────────────────────────────────────────────────
-const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 'exam', title = 'Sınav', activeCatFilter = 'b_class' }) => {
+const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefresh, testType = 'exam', title = 'Sınav', activeCatFilter = 'b_class' }) => {
   const [search, setSearch] = useState('');
   const [filterDifficulty, setFilterDifficulty] = useState('all');
   const [filterMedia, setFilterMedia] = useState('all');
@@ -2412,7 +2397,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             onSaved={onRefresh}
             testType={testType}
             categories={categories}
-            exams={typedExams}
+            exams={allTypeExams || typedExams}
             initialExamId={formModal.examId}
             existingQuestion={formModal.question}
             isCopy={formModal.isCopy}
@@ -2662,6 +2647,7 @@ const AdminExams = () => {
                 questions={filteredQuestions}
                 categories={categories}
                 exams={filteredExams}
+                allTypeExams={allTypedExams}
                 onRefresh={handleRefresh}
                 testType={activeTypeFilter}
                 title={activeTypeFilter === 'mock_exam' ? 'Deneme Sınavı' : 'Gerçek Sınav'}
