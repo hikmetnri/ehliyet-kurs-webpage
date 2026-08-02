@@ -2411,7 +2411,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, onRefresh, testType = 
             categories={categories}
             existingExam={examModal.exam}
             testType={testType}
-            lockTestType={testType === 'real_exam'}
+            lockTestType
             initialCategoryGroup={activeCatFilter === 'is_makinesi' ? 'is_makinesi' : 'b_class'}
           />
         )}
