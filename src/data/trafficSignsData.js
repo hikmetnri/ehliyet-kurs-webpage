@@ -26,1101 +26,1081 @@ const signFiles = {
 };
 
 const knownSigns = {
-  'Tehlike_T/t-1a.png': {
-    title: 'Sağa Tehlikeli Viraj',
-    description: 'İleride sağa doğru tehlikeli bir viraj olduğunu bildirir. Hız azaltılmalı ve viraja girerken şerit takip edilmelidir.',
-  },
-  'Tehlike_T/t-1b.png': {
-    title: 'Sola Tehlikeli Viraj',
-    description: 'İleride sola doğru tehlikeli bir viraj olduğunu bildirir. Hız azaltılmalı ve dikkatli olunmalıdır.',
-  },
-  'Tehlike_T/t-2a.png': {
-    title: 'Sağa Tehlikeli Devamlı Virajlar',
-    description: 'İleride ilki sağa olmak üzere birbirini takip eden tehlikeli virajlar olduğunu bildirir.',
-  },
-  'Tehlike_T/t-2b.png': {
-    title: 'Sola Tehlikeli Devamlı Virajlar',
-    description: 'İleride ilki sola olmak üzere birbirini takip eden tehlikeli virajlar olduğunu bildirir.',
-  },
-  'Tehlike_T/t-3a.png': {
-    title: 'Tehlikeli Çıkış Eğimi',
-    description: 'İleride dik bir çıkış eğimi olduğunu bildirir. Araçların yeterli güçle tırmanması gerekir.',
-  },
-  'Tehlike_T/t-3b.png': {
-    title: 'Tehlikeli İniş Eğimi',
-    description: 'İleride dik bir iniş eğimi olduğunu bildirir. Hız kontrolüne ve fren kullanımına dikkat edilmelidir.',
-  },
-  'Tehlike_T/t-4a.png': {
-    title: 'Her İki Yandan Daralan Kaplama',
-    description: 'İleride yolun her iki taraftan daralacağını bildirir.',
-  },
-  'Tehlike_T/t-4b.png': {
-    title: 'Sağdan Daralan Kaplama',
-    description: 'Yolun sağ taraftan daralacağını bildirir.',
-  },
-  'Tehlike_T/t-4c.png': {
-    title: 'Soldan Daralan Kaplama',
-    description: 'Yolun sol taraftan daralacağını bildirir.',
-  },
-  'Tehlike_T/t-5.png': {
-    title: 'Açılır Köprü',
-    description: 'İleride açılır (çekilir) köprü bulunduğunu bildirir; köprü açık olabilir, geçişten önce kontrol ediniz.',
-  },
-  'Tehlike_T/t-6.png': {
-    title: 'Rıhtım veya Su Kenarı',
-    description: 'İleride yolun su kanalı veya rıhtım kenarında devam ettiğini ve araçların suya düşme tehlikesi bulunduğunu bildirir.',
-  },
-  'Tehlike_T/t-7.png': {
-    title: 'Köprü',
-    description: 'İleride köprü bulunduğunu bildirir. Köprü üzerinde hız sınırına ve yük sınırlamalarına uyulmalıdır.',
-  },
-  'Tehlike_T/t-8.png': {
-    title: 'Yol Üzerinde Tümsek',
-    description: 'Yolda yapay tümsek (hız kesici) bulunduğunu bildirir. Hız azaltılmalı ve tümsek yavaşça geçilmelidir.',
-  },
-  'Tehlike_T/t-9.png': {
-    title: 'Gevşek Malzeme (Çakıl)',
-    description: 'Yolda gevşek çakıl veya taş parçaları bulunduğunu bildirir; geçen araçlardan taş fırlayabilir, güvenli mesafe korunmalıdır.',
-  },
-  'Tehlike_T/t-10.png': {
-    title: 'Buzlanma veya Kar Tehlikesi',
-    description: 'Yolda buzlanma ya da kar olabileceğini bildirir; dikkatli olunmalıdır.',
-  },
-  'Tehlike_T/t-11.png': {
-    title: 'Yaya Geçidi',
-    description: 'İleride yaya geçidi olduğunu bildirir. Yavaşlanmalı, yayalara ilk geçiş hakkı verilmelidir.',
-  },
-  'Tehlike_T/t-12.png': {
-    title: 'Okul Geçidi',
-    description: 'İleride okul geçidi olduğunu bildirir. Çocukların yola çıkabileceği düşünülerek yavaşlanmalıdır.',
-  },
-  'Tehlike_T/t-13.png': {
-    title: 'Bisiklet Geçebilir',
-    description: 'Bisikletlilerin yola cikabilecegi yeri bildirir.',
-  },
-  'Tehlike_T/t-14a.png': {
-    title: 'Ehli Hayvanlar Gecebilir',
-    description: 'Ileride evcil veya suru hayvanlarinin yola cikabilecegini bildirir.',
-  },
-  'Tehlike_T/t-14b.png': {
-    title: 'Vahsi Hayvanlar Gecebilir',
-    description: 'Ileride vahsi hayvanlarin yola cikabilecegini bildirir.',
-  },
-  'Tehlike_T/t-15.png': {
-    title: 'Yol Calismasi',
-    description: 'Ileride yol calismasi oldugunu bildirir; hiz azaltilmali ve uyarilara uyulmalidír.',
-  },
-  'Tehlike_T/t-16.png': {
-    title: 'Isikli Isaret Cihazi',
-    description: 'Ileride trafik isigi bulundugunu bildirir.',
-  },
-  'Tehlike_T/t-17.png': {
-    title: 'Alçak Uçuş veya Hava Alanı Yakını',
-    description: 'Yakınlarda hava alanı veya alçak irtifada uçuş yapılan bir bölge olduğunu bildirir.',
-  },
-  'Tehlike_T/t-18.png': {
-    title: 'Yan Rüzgar',
-    description: 'İleride kuvvetli yan rüzgar tehlikesi olduğunu bildirir; araçların savrulmasına dikkat edilmelidir.',
-  },
-  'Tehlike_T/t-19.png': {
-    title: 'İki Yönlü Trafik',
-    description: 'İleride tek yönlü trafiğin sona erip iki yönlü trafiğe geçildiğini bildirir; karşıdan gelen araçlara dikkat edilmelidir.',
-  },
-  'Tehlike_T/t-20.png': {
-    title: 'Diğer Tehlikeler',
-    description: 'Yukarıdaki kategorilere girmeyen başka bir tehlikenin varlığını bildirir; ek levha veya tabelayla tehlikenin türü açıklanır.',
-  },
-  'Tehlike_T/t-21.png': {
-    title: 'Kontrolsüz Kavşak',
-    description: 'İleride trafik işareti veya görevlisi bulunmayan bir kavşak olduğunu bildirir. Geçiş üstünlüğü kurallarına uyulmalıdır.',
-  },
-  'Tehlike_T/t-22a.png': {
-    title: 'Ana Yol - Tali Yol Kavsagi (Her Iki Yandan)',
-    description: 'Ana yola her iki yandan tali yol baglantisi bulunan kavsaga yaklasildigi bildirilir.',
-  },
-  'Tehlike_T/t-22b.png': {
-    title: 'Ana Yol - Tali Yol Kavsagi (Sagdan)',
-    description: 'Ana yola sagdan tali yol baglantisi bulunan kavsaga yaklasildigi bildirilir.',
-  },
-  'Tehlike_T/t-22c.png': {
-    title: 'Ana Yol - Tali Yol Kavsagi (Soldan)',
-    description: 'Ana yola soldan tali yol baglantisi bulunan kavsaga yaklasildigi bildirilir.',
-  },
-  'Tehlike_T/t-22d.png': {
-    title: 'Ana Yol - Yakın Aralıklı Tali Yol Kavşakları',
-    description: 'İleride ana yola farklı seviyelerde sağdan ve soldan tali yol bağlantıları bulunan ardışık kavşaklara yaklaşıldığını bildirir.',
-  },
-  'Tehlike_T/t-22e.png': {
-    title: 'T Kavsagi (Sola)',
-    description: 'Ileride sola T kavsagi bulundugunu bildirir.',
-  },
-  'Tehlike_T/t-23a.png': {
-    title: 'Hemzemin Gecit - Sagdan Tren',
-    description: 'Ileride sagdan gelen trenin bulundugu hemzemin gecit oldugunu bildirir.',
-  },
-  'Tehlike_T/t-23b.png': {
-    title: 'Hemzemin Gecit - Soldan Tren',
-    description: 'Ileride soldan gelen trenin bulundugu hemzemin gecit oldugunu bildirir.',
-  },
-  'Tehlike_T/t-27a.png': {
-    title: 'Demiryolu Gecidine 240 m',
-    description: 'Demiryolu gecidine 240 metre mesafe kaldigini bildirir.',
-  },
-  'Tehlike_T/t-27b.png': {
-    title: 'Demiryolu Gecidine 160 m',
-    description: 'Demiryolu gecidine 160 metre mesafe kaldigini bildirir.',
-  },
-  'Tehlike_T/t-28a-b.png': {
-    title: 'Demiryolu Gecidine 80 m',
-    description: 'Demiryolu gecidine 80 metre mesafe kaldigini bildirir.',
-  },
-  'Tehlike_T/t-29a-b.png': {
-    title: 'Tek Hatli Demiryolu Gecidi',
-    description: 'Ileride tek hatli demiryolu gecidi oldugunu bildirir.',
-  },
-  'Tehlike_T/t-30a-b.png': {
-    title: 'Cok Hatli Demiryolu Gecidi',
-    description: 'Ileride cok hatli demiryolu gecidi oldugunu bildirir.',
-  },
-  'Tehlike_T/t-31a-b.png': {
-    title: 'Tramvay Gecidi',
-    description: 'Ileride tramvay gecidi oldugunu bildirir.',
-  },
-  'Tehlike_T/t-32.png': {
-    title: 'Kuvvetli Yan Ruzgar',
-    description: 'Ileride kuvvetli yan ruzgar tehlikesi oldugunu bildirir.',
-  },
-  'Tehlike_T/t-33a.png': {
-    title: 'Iki Yonlu Trafik',
-    description: 'Ileride tek serit yerine iki yonlu trafige gecildigini bildirir.',
-  },
-  'Tehlike_T/t-33b.png': {
-    title: 'Trafik Sikisikligi',
-    description: 'Ileride trafik sikisikligi olusabilecegini bildirir.',
-  },
-  'Tehlike_T/t-33d-e.png': {
-    title: 'Yol Darligi',
-    description: 'Ileride yolun darladigini bildirir.',
-  },
-  'Tehlike_T/t-33f.png': {
-    title: 'Rampa Sonu',
-    description: 'Cikis rampasinin sona erdigini bildirir.',
-  },
-  'Tehlike_T/t-34a-b.png': {
-    title: 'Otoyol Birlesme Seridi',
-    description: 'Otoyolda seritlerin birlesmekte oldugunu bildirir.',
-  },
-  'Tehlike_T/t-35.png': {
-    title: 'Diger Tehlikeler',
-    description: 'Yukarida belirtilmeyen farkli bir tehlike oldugunu bildirir.',
-  },
-  'Tehlike_T/t-36.png': {
-    title: 'Engelli Yayalar',
-    description: 'Yolda engelli yayalarin bulunabilecegini bildirir.',
-  },
-  'Tehlike_T/t-37.png': {
-    title: 'Cocuk Oyun Alani',
-    description: 'Yakinlarda cocuk oyun alani bulundugunu bildirir; dikkatli olunmalidir.',
-  },
-  'Tehlike_T/t-38.png': {
-    title: 'Hastane Bolgesi',
-    description: 'Yakinlarda hastane bulundugunu ve gurultu yapilmamasi gerektigini bildirir.',
-  },
-  'Tehlike_T/t-24.png': {
-    title: 'Yaya Yolu Yakını',
-    description: 'İleride yaya yolunun taşıt yoluyla kesiştiğini bildirir. Yayalara dikkat edilmelidir.',
-  },
-  'Tehlike_T/t-25.png': {
-    title: 'Çocuklar',
-    description: 'Yakınlarda okul, oyun alanı veya çocuk geçişi bulunduğunu bildirir. Özellikle yavaş ilerlenmesi gerekir.',
-  },
-  'Tehlike_T/t-26.png': {
-    title: 'Engelli Geçişi',
-    description: 'Bu bölgede engelli bireylerin yola çıkabileceğini bildirir. Hız azaltılmalı ve dikkatli olunmalıdır.',
-  },
-  'Tehlike_T/t-39.png': {
-    title: 'Yangın Tehlikesi',
-    description: 'Yakınlarda yangın tehlikesi olduğunu bildirir.',
-  },
-  'Tanzim_TT/tt-1.png': {
-    title: 'Yol Ver',
-    description: 'Kavşaklarda ana yoldaki araçlara yol verilmesi gerektiğini belirtir.',
-  },
-  'Tanzim_TT/tt-2.png': {
-    title: 'DUR',
-    description: 'Kavşağa girmeden önce mutlaka durulması ve yolun kontrol edilmesi gerektiğini belirtir.',
-  },
-  'Tanzim_TT/tt-3.png': {
-    title: 'Girilmez',
-    description: 'Yolun bu yönde trafiğe kapalı olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-4.png': {
-    title: 'Taşıt Trafiğine Kapalı Yol',
-    description: 'Yolun her iki yönde de taşıt trafiğine kapalı olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-5.png': {
-    title: 'Motosiklet Hariç Motorlu Taşıt Trafiğine Kapalı Yol',
-    description: 'Motosiklet dışındaki motorlu taşıtların girmesinin yasak olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-6.png': {
-    title: 'Motosiklet Haric Motorlu Tasit Trafiğine Kapali Yol',
-    description: 'Motosiklet disindaki motorlu tasitlerin bu yola girmesi yasaktir.',
-  },
-  'Tanzim_TT/tt-7.png': {
-    title: 'Motorlu Tasit Trafiğine Kapali Yol',
-    description: 'Yol her iki yonde motorlu tasit trafiğine kapalidir.',
-  },
-  'Tanzim_TT/tt-8.png': {
-    title: 'Kamyon Giremez',
-    description: 'Kamyon ve agir tasitlerin bu yola girmesi yasaktir.',
-  },
-  'Tanzim_TT/tt-9.png': {
-    title: 'Motorlu Bisiklet Giremez',
-    description: 'Motorlu bisikletlerin bu yola girmesi yasaktir.',
-  },
-  'Tanzim_TT/tt-10a.png': {
-    title: 'Azami Genislik Siniri',
-    description: 'Belli genisligin uzerindeki tasitlerin gecisi yasaktir.',
-  },
-  'Tanzim_TT/tt-10b.png': {
-    title: 'Azami Yukseklik Siniri',
-    description: 'Belli yuksekliğin uzerindeki tasitlerin gecisi yasaktir.',
-  },
-  'Tanzim_TT/tt-11.png': {
-    title: 'Azami Uzunluk Siniri',
-    description: 'Belli uzunluğun uzerindeki tasitlerin gecisi yasaktir.',
-  },
-  'Tanzim_TT/tt-12.png': {
-    title: 'Azami Agirlik Siniri',
-    description: 'Belli agirlığin uzerindeki tasitlerin gecisi yasaktir.',
-  },
-  'Tanzim_TT/tt-13.png': {
-    title: 'Azami Aks Agirliği Siniri',
-    description: 'Belli aks agirlığinin uzerindeki tasitlerin gecisi yasaktir.',
-  },
-  'Tanzim_TT/tt-14.png': {
-    title: 'Tehlikeli Madde Tasimak Yasaktir',
-    description: 'Tehlikeli madde tasiyan tasitlerin bu yolu kullanmasi yasaktir.',
-  },
-  'Tanzim_TT/tt-15.png': {
-    title: 'Patlayici Madde Tasimak Yasaktir',
-    description: 'Patlayici madde tasiyan tasitlerin bu yolu kullanmasi yasaktir.',
-  },
-  'Tanzim_TT/tt-16a.png': {
-    title: 'Mecburi Saga Don',
-    description: 'Kavsaklarda saga donmek mecburidir.',
-  },
-  'Tanzim_TT/tt-16b.png': {
-    title: 'Mecburi Sola Don',
-    description: 'Kavsaklarda sola donmek mecburidir.',
-  },
-  'Tanzim_TT/tt-17.png': {
-    title: 'Mecburi Ileri Git',
-    description: 'Yolda sadece duz ilerlenmesi mecburidir.',
-  },
-  'Tanzim_TT/tt-18.png': {
-    title: 'Mecburi Ileri veya Saga',
-    description: 'Duz ileri veya saga donmek mecburidir.',
-  },
-  'Tanzim_TT/tt-19.png': {
-    title: 'Mecburi Ileri veya Sola',
-    description: 'Duz ileri veya sola donmek mecburidir.',
-  },
-  'Tanzim_TT/tt-20.png': {
-    title: 'Sagdan Gecilecek',
-    description: 'Engelin veya refujun saginden gecilmesi mecburidir.',
-  },
-  'Tanzim_TT/tt-21.png': {
-    title: 'Soldan Gecilecek',
-    description: 'Engelin veya refujun solundan gecilmesi mecburidir.',
-  },
-  'Tanzim_TT/tt-22.png': {
-    title: 'Donel Kavsak',
-    description: 'Donel kavsak isaretidir; ici doneli trafige gore hareket edilir.',
-  },
-  'Tanzim_TT/tt-23.png': {
-    title: 'Yayalara Mahsus Yol',
-    description: 'Bu yol sadece yayalarin kullanmasina ayrılmistir.',
-  },
-  'Tanzim_TT/tt-24.png': {
-    title: 'Bisiklete Mahsus Yol',
-    description: 'Bu yol sadece bisikletlilerin kullanmasina ayrılmistir.',
-  },
-  'Tanzim_TT/tt-25.png': {
-    title: 'Ondeki Tasiti Yakindan Takip Etmek Yasaktir',
-    description: 'Levhada belirtilen mesafeden daha yakin takip yapilamaz.',
-  },
-  'Tanzim_TT/tt-26a.png': {
-    title: 'Sağa Dönülmez',
-    description: 'Kavşakta sağa dönmenin yasak olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-26b.png': {
-    title: 'Sola Dönülmez',
-    description: 'Kavşakta sola dönmenin yasak olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-26c.png': {
-    title: 'U Dönüşü Yapılmaz',
-    description: 'İleriden veya kavşaktan geriye dönüşün yasak olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-27.png': {
-    title: 'Öndeki Taşıtı Geçmek Yasaktır',
-    description: 'Bu levhadan sonra öndeki taşıtın geçilmesinin yasak olduğunu belirtir.',
-  },
-  'Tanzim_TT/tt-28.png': {
-    title: 'Kamyonlar Icin Ondeki Tasiti Gecmek Yasaktir',
-    description: 'Kamyonlarin ondeki tasiti gecmesi yasaktir.',
-  },
-  'Tanzim_TT/tt-29-30.png': {
-    title: 'Azami Hiz 30 km/s',
-    description: 'Azami hizin saatte 30 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-40.png': {
-    title: 'Azami Hiz 40 km/s',
-    description: 'Azami hizin saatte 40 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-50.png': {
-    title: 'Hız Sınırlaması (50 km/s)',
-    description: 'Azami hızın saatte 50 kilometreyi geçemeyeceğini belirtir.',
-  },
-  'Tanzim_TT/tt-29-60.png': {
-    title: 'Azami Hiz 60 km/s',
-    description: 'Azami hizin saatte 60 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-70.png': {
-    title: 'Azami Hiz 70 km/s',
-    description: 'Azami hizin saatte 70 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-80.png': {
-    title: 'Azami Hiz 80 km/s',
-    description: 'Azami hizin saatte 80 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-90.png': {
-    title: 'Azami Hiz 90 km/s',
-    description: 'Azami hizin saatte 90 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-130.png': {
-    title: 'Azami Hiz 130 km/s',
-    description: 'Azami hizin saatte 130 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29-140.png': {
-    title: 'Azami Hiz 140 km/s',
-    description: 'Azami hizin saatte 140 kilometreyi gecemeyecegini belirtir.',
-  },
-  'Tanzim_TT/tt-29b.png': {
-    title: 'Asgari Hiz Siniri',
-    description: 'Bu yolda en az belirtilen hizla gidilmesi zorunludur.',
-  },
-  'Tanzim_TT/tt-2a.png': {
-    title: 'Girisi Olmayan Yol',
-    description: 'Bu yonden arac girisinin yasak oldugunu ve yolun karsı yonden tek yonlu kullanilabilecegini belirtir.',
-  },
-  'Tanzim_TT/tt-30.png': {
-    title: 'Azami Hiz Bolgesi Baslangiç',
-    description: 'Hiz bölgesinin basladigini bildirir.',
-  },
-  'Tanzim_TT/tt-31.png': {
-    title: 'Gecme Yasagi Sonu',
-    description: 'Onceki gecme yasak bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-32.png': {
-    title: 'Kamyonlar Icin Gecme Yasagi Sonu',
-    description: 'Kamyonlara yonelik gecme yasak bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33b.png': {
-    title: 'Azami Hiz Bolgesi Sonu',
-    description: 'Azami hiz bolge sinirlamasinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-30.png': {
-    title: 'Azami Hiz Bolgesi 30 km/s Sonu',
-    description: '30 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-40.png': {
-    title: 'Azami Hiz Bolgesi 40 km/s Sonu',
-    description: '40 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-50.png': {
-    title: 'Azami Hiz Bolgesi 50 km/s Sonu',
-    description: '50 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-60.png': {
-    title: 'Azami Hiz Bolgesi 60 km/s Sonu',
-    description: '60 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-70.png': {
-    title: 'Azami Hiz Bolgesi 70 km/s Sonu',
-    description: '70 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-80.png': {
-    title: 'Azami Hiz Bolgesi 80 km/s Sonu',
-    description: '80 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-33-90.png': {
-    title: 'Azami Hiz Bolgesi 90 km/s Sonu',
-    description: '90 km/s hiz sinirlamasi bolgesinin sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-34a.png': {
-    title: 'Trafik Isiklari (Saga)',
-    description: 'Sagdaki seride trafik isikli duzenleme uygulandigini belirtir.',
-  },
-  'Tanzim_TT/tt-34b.png': {
-    title: 'Trafik Isiklari (Sola)',
-    description: 'Soldaki seride trafik isikli duzenleme uygulandigini belirtir.',
-  },
-  'Tanzim_TT/tt-35a.png': {
-    title: 'Yaya Bolgesi Baslangici',
-    description: 'Yaya bolgesinin basladigini bildirir.',
-  },
-  'Tanzim_TT/tt-35b.png': {
-    title: 'Yaya Bolgesi Sonu',
-    description: 'Yaya bolgesinin sona erdigini bildirir.',
-  },
-  'Tanzim_TT/tt-35c.png': {
-    title: 'Oyun Yolu Baslangici',
-    description: 'Cocuklarin oyun oynayabilecegi oyun yolunun basladigini belirtir.',
-  },
-  'Tanzim_TT/tt-35d.png': {
-    title: 'Oyun Yolu Sonu',
-    description: 'Oyun yolunun sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-35e.png': {
-    title: 'Konut Bolgesi Baslangici',
-    description: 'Konut bolgesinin basladigini ve ilgili kurallarin gecerli olduğunu bildirir.',
-  },
-  'Tanzim_TT/tt-35f.png': {
-    title: 'Konut Bolgesi Sonu',
-    description: 'Konut bolgesinin sona erdigini bildirir.',
-  },
-  'Tanzim_TT/tt-35g.png': {
-    title: 'Sehir Merkezi Baslangici',
-    description: 'Sehir merkezi bolgesinin basladigini bildirir.',
-  },
-  'Tanzim_TT/tt-35h.png': {
-    title: 'Sehir Merkezi Sonu',
-    description: 'Sehir merkezi bolgesinin sona erdigini bildirir.',
-  },
-  'Tanzim_TT/tt-36a.png': {
-    title: 'Tek Yon (Saga)',
-    description: 'Yolun tek yonlu oldugunu ve saga dogru kullanilacagini belirtir.',
-  },
-  'Tanzim_TT/tt-36b.png': {
-    title: 'Tek Yon (Sola)',
-    description: 'Yolun tek yonlu oldugunu ve sola dogru kullanilacagini belirtir.',
-  },
-  'Tanzim_TT/tt-36c.png': {
-    title: 'Tek Yon (Duz)',
-    description: 'Yolun tek yonlu oldugunu ve duz ilerleneceğini belirtir.',
-  },
-  'Tanzim_TT/tt-37.png': {
-    title: 'Bir Yon',
-    description: 'Bu isaret bir yol basinda bulunur ve yolun tek yonlu oldugunu gosterir.',
-  },
-  'Tanzim_TT/tt-38a.png': {
-    title: 'Otoyol Baslangici',
-    description: 'Otoyolun basladigini ve otoyol kurallarinin gecerli oldugunu bildirir.',
-  },
-  'Tanzim_TT/tt-38b.png': {
-    title: 'Otoyol Sonu',
-    description: 'Otoyolun sona erdigini ve otoyol kurallarinin bittigini bildirir.',
-  },
-  'Tanzim_TT/tt-39a.png': {
-    title: 'Ekspres Yol Baslangici',
-    description: 'Ekspres yolun basladigini bildirir.',
-  },
-  'Tanzim_TT/tt-39b.png': {
-    title: 'Ekspres Yol Sonu',
-    description: 'Ekspres yolun sona erdigini bildirir.',
-  },
-  'Tanzim_TT/tt-40a.png': {
-    title: 'Sinir Kapisina Giris',
-    description: 'Sinir kapisina girisi bildirir.',
-  },
-  'Tanzim_TT/tt-40b.png': {
-    title: 'Sinir Kapisi Sonu',
-    description: 'Sinir kapisi alaninin sona erdigini bildirir.',
-  },
-  'Tanzim_TT/tt-41a-30.png': {
-    title: 'Okul Bolgesi Hiz Siniri (30 km/s)',
-    description: 'Okul bolgesinde azami hizin 30 km/s oldugunu bildirir.',
-  },
-  'Tanzim_TT/tt-41b-30.png': {
-    title: 'Okul Bolgesi Hiz Siniri Sonu',
-    description: 'Okul bolgesindeki hiz sinirlamasinin sona erdigini bildirir.',
-  },
-  'Tanzim_TT/tt-42a.png': {
-    title: 'Yayalara Mahsus Yol Baslangici',
-    description: 'Yayalara ozgu yolun basladigini belirtir.',
-  },
-  'Tanzim_TT/tt-42b.png': {
-    title: 'Yayalara Mahsus Yol Sonu',
-    description: 'Yayalara ozgu yolun sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-43.png': {
-    title: 'Bisiklet Yolu Baslangici',
-    description: 'Bisikletlilere ayrilan bisiklet yolunun basladigini belirtir.',
-  },
-  'Tanzim_TT/tt-43a.png': {
-    title: 'Paylasimli Yaya-Bisiklet Yolu',
-    description: 'Yaya ve bisikletlilerin paylasimli kullandigi yolu belirtir.',
-  },
-  'Tanzim_TT/tt-43b.png': {
-    title: 'Ayri Yaya-Bisiklet Yolu',
-    description: 'Yaya ve bisikletlilerin ayri seritlerde kullandigi yolu belirtir.',
-  },
-  'Tanzim_TT/tt-43c.png': {
-    title: 'Bisiklet Yolu Sonu',
-    description: 'Bisiklet yolunun sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-44a.png': {
-    title: 'Bisiklet ve Yaya Yolu Baslangici',
-    description: 'Bisiklet ve yaya yolunun birlikte basladigini belirtir.',
-  },
-  'Tanzim_TT/tt-44b.png': {
-    title: 'Bisiklet ve Yaya Yolu Sonu',
-    description: 'Bisiklet ve yaya yolunun sona erdigini belirtir.',
-  },
-  'Tanzim_TT/tt-45a.png': {
-    title: 'Elektrikli Mikro Mobilite Yolu Baslangici',
-    description: 'Elektrikli mikro mobilite araclarinin kullanabilecegi yolun basladigini belirtir.',
-  },
-  'Tanzim_TT/tt-45b.png': {
-    title: 'Elektrikli Mikro Mobilite Yolu Sonu',
-    description: 'Elektrikli mikro mobilite araclarinin kullanabilecegi yolun sona erdigini belirtir.',
-  },
-  'Tanzim_TT/b-14e.png': {
-    title: 'Bisiklet ve Yaya Ortak Yol',
-    description: 'Bisiklet ve yayaların ortak kullanımına ayrılan yolu belirtir. Her iki grubun kurallara uyarak paylaşımlı kullanması gerekir.',
-  },
-  'Tanzim_TT/b-14f.png': {
-    title: 'Bisiklet ve Yaya Ayrı Şerit',
-    description: 'Bisiklet ve yayalar için ayrılmış iki şeritli yolu belirtir. Her grup kendi şeridini kullanmalıdır.',
-  },
-  'Tanzim_TT/b-37.png': {
-    title: 'Yavaşlatma Şeridi',
-    description: 'Araçların hız azaltması gereken özel şeridi belirtir. Kavşak veya çıkış öncesinde uygulanır.',
-  },
-  'Tanzim_TT/b-38.png': {
-    title: 'Hızlanma Şeridi',
-    description: 'Araçların ana yola katılmadan önce hız kazanması gereken şeridi belirtir.',
-  },
-  'Tanzim_TT/b-39.png': {
-    title: 'Dönüş Şeridi',
-    description: 'Dönüş yapacak araçların kullanacağı özel şeridi belirtir. Diğer araçlar bu şeridi kullanamaz.',
-  },
-  'Bilgi_B/b-1a.png': {
-    title: 'İl Sınırı',
-    description: 'Bir ilin mülki sınırına girildiğini bildirir.',
-  },
-  'Bilgi_B/b-2a.png': {
-    title: 'Meskun Mahal Başlangıcı',
-    description: 'Şehir veya kasaba gibi yerleşim yerlerine girildiğini bildirir.',
-  },
-  'Bilgi_B/b-1b.png': {
-    title: 'Il Siniri Sonu',
-    description: 'Bir ilin mulki sinirinin bittigini bildirir.',
-  },
-  'Bilgi_B/b-1c.png': {
-    title: 'Ilce Siniri',
-    description: 'Bir ilcenin sinirına girildigini bildirir.',
-  },
-  'Bilgi_B/b-1d.png': {
-    title: 'Ilce Siniri Sonu',
-    description: 'Bir ilcenin sinirinin bittigini bildirir.',
-  },
-  'Bilgi_B/b-2b.png': {
-    title: 'Meskun Mahal Bitis',
-    description: 'Yerlesim yerinin sona erdigini bildirir.',
-  },
-  'Bilgi_B/b-2c.png': {
-    title: 'Koy veya Belde Baslangici',
-    description: 'Koy veya belde yerlesim alanina girildigini bildirir.',
-  },
-  'Bilgi_B/b-2d.png': {
-    title: 'Koy veya Belde Bitis',
-    description: 'Koy veya belde yerlesim alaninin sona erdigini bildirir.',
-  },
-  'Bilgi_B/b-3.png': {
-    title: 'Otoban',
-    description: 'Otoyol veya otoban girisini bildirir.',
-  },
-  'Bilgi_B/b-4.png': {
-    title: 'Yol Numarasi',
-    description: 'Bulunulan yolun numarasini gosterir.',
-  },
-  'Bilgi_B/b-5a.png': {
-    title: 'Mesafe Gosterge Levhasi (Saga)',
-    description: 'Sagdaki hedefe olan mesafeyi gosterir.',
-  },
-  'Bilgi_B/b-5b.png': {
-    title: 'Mesafe Gosterge Levhasi (Sola)',
-    description: 'Soldaki hedefe olan mesafeyi gosterir.',
-  },
-  'Bilgi_B/b-5c.png': {
-    title: 'Mesafe Gosterge Levhasi (Duz)',
-    description: 'Ilerideki hedefe olan mesafeyi gosterir.',
-  },
-  'Bilgi_B/b-5d.png': {
-    title: 'Mesafe Gosterge Levhasi (Karma)',
-    description: 'Birden fazla hedefe olan mesafeleri gosterir.',
-  },
-  'Bilgi_B/b-6a.png': {
-    title: 'Yol Ayrimi On Uyari (Saga)',
-    description: 'Ileride yolun saga ayrilacagini on bildirim olarak gosterir.',
-  },
-  'Bilgi_B/b-6b.png': {
-    title: 'Yol Ayrimi On Uyari (Sola)',
-    description: 'Ileride yolun sola ayrilacagini on bildirim olarak gosterir.',
-  },
-  'Bilgi_B/b-7.png': {
-    title: 'Kavsakta Yol Tarifi',
-    description: 'Kavsakta hangi yona gidilecegini gosterir.',
-  },
-  'Bilgi_B/b-8a.png': {
-    title: 'Cikis Levhasi (Saga)',
-    description: 'Saga cikis yolunu gosterir.',
-  },
-  'Bilgi_B/b-8b.png': {
-    title: 'Cikis Levhasi (Sola)',
-    description: 'Sola cikis yolunu gosterir.',
-  },
-  'Bilgi_B/b-8c.png': {
-    title: 'Cikis Levhasi (Onceden)',
-    description: 'Yaklasmakta olan cikis yolunu gosterir.',
-  },
-  'Bilgi_B/b-9.png': {
-    title: 'Donel Kavsak Yol Tarifi',
-    description: 'Donel kavsakta yon bilgisi verir.',
-  },
   'Bilgi_B/b-10.png': {
-    title: 'Trafik Lambasi Olmayan Kavsakta Yol Tarifi',
-    description: 'Trafik lambasi bulunmayan kavsakta yol tarifi verir.',
+    title: 'Meskun Mahal Sonu Levhası (B-10)',
+    description: 'Meskun mahal sonu levhası, yerleşim yerinin bittiğini ve buradan itibaren şehir içi trafik kurallarının yerini şehirler arası kurallara bıraktığını bildirir. Meskun mahal içindeki hız sınırı ve diğer kısıtlamalar bu noktadan sonra sona erer.',
   },
   'Bilgi_B/b-11a.png': {
-    title: 'Yon Levhasi (Saga)',
-    description: 'Belirtilen hedefe sagdan gidilecegini gosterir.',
+    title: 'Coğrafi Bilgi Levhası - Dağ Geçidi (B-11a)',
+    description: 'Coğrafi bilgi levhası, yol güzergahındaki coğrafi özellikleri (dağ geçidi, rakım vb.) sürücülere bildirir. Bu örnekte dağ geçidi bilgisi ve rakım yüksekliği gösterilmektedir.',
   },
   'Bilgi_B/b-11b.png': {
-    title: 'Yon Levhasi (Sola)',
-    description: 'Belirtilen hedefe soldan gidilecegini gosterir.',
+    title: 'Coğrafi Bilgi Levhası - Nehir (B-11b)',
+    description: 'Coğrafi bilgi levhası, yol güzergahındaki coğrafi özellikleri (nehir, göl, dağ vb.) sürücülere bildirir. Bu örnekte nehir bilgisi gösterilmektedir.',
   },
   'Bilgi_B/b-11c.png': {
-    title: 'Yon Levhasi (Ileri Saga)',
-    description: 'Belirtilen hedefe ileri sagdan gidilecegini gosterir.',
+    title: 'Coğrafi Bilgi Levhası - Dağ (B-11c)',
+    description: 'Coğrafi bilgi levhası, yol güzergahındaki coğrafi özellikleri sürücülere bildirir. Bu örnekte dağ bilgisi gösterilmektedir.',
   },
   'Bilgi_B/b-11d.png': {
-    title: 'Yon Levhasi (Ileri Sola)',
-    description: 'Belirtilen hedefe ileri soldan gidilecegini gosterir.',
+    title: 'Coğrafi Bilgi Levhası - Göl (B-11d)',
+    description: 'Coğrafi bilgi levhası, yol güzergahındaki coğrafi özellikleri sürücülere bildirir. Bu örnekte göl bilgisi gösterilmektedir.',
   },
   'Bilgi_B/b-12a.png': {
-    title: 'Servis Yolu Girisi (Saga)',
-    description: 'Saga servis yoluna giris noktasini gosterir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12a)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12b.png': {
-    title: 'Servis Yolu Girisi (Sola)',
-    description: 'Sola servis yoluna giris noktasini gosterir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12b)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12c.png': {
-    title: 'Servis Yolu Cikisi (Saga)',
-    description: 'Saga servis yolundan cikis noktasini gosterir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12c)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12d.png': {
-    title: 'Servis Yolu Cikisi (Sola)',
-    description: 'Sola servis yolundan cikis noktasini gosterir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12d)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12e.png': {
-    title: 'Servis Yolu Bilgi 1',
-    description: 'Servis yoluna iliskin ek bilgi levhasidir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12e)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12f.png': {
-    title: 'Servis Yolu Bilgi 2',
-    description: 'Servis yoluna iliskin ek bilgi levhasidir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12f)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12g.png': {
-    title: 'Servis Yolu Bilgi 3',
-    description: 'Servis yoluna iliskin ek bilgi levhasidir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12g)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12h.png': {
-    title: 'Servis Yolu Bilgi 4',
-    description: 'Servis yoluna iliskin ek bilgi levhasidir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12h)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-12i.png': {
-    title: 'Servis Yolu Bilgi 5',
-    description: 'Servis yoluna iliskin ek bilgi levhasidir.',
+    title: 'Karayolları Teşkilatına Ait Bilgi Levhası (B-12i)',
+    description: 'Karayolları teşkilatına ait bilgi levhası, Karayolları Genel Müdürlüğünün bölge ve şube teşkilatlarını sürücülere tanıtır. Yol güzergahında karayollarına ait tesis ve birimlere yönlendirme yapar.',
   },
   'Bilgi_B/b-13a.png': {
-    title: 'Cikis Numarasi (Saga)',
-    description: 'Saga cikis noktasinin numarasini gosterir.',
+    title: 'Meskun Mahal ve Kavşak Çıkışı Mesafe Levhası (B-13a)',
+    description: 'Meskun mahal ve kavşak çıkışı mesafe levhası, yerleşim yerlerine ve kavşaklara kalan mesafeyi sürücülere bildirir. Sürücüler bu levha sayesinde gidecekleri yere ne kadar uzaklıkta olduklarını öğrenir.',
   },
   'Bilgi_B/b-13b.png': {
-    title: 'Cikis Numarasi (Sola)',
-    description: 'Sola cikis noktasinin numarasini gosterir.',
+    title: 'Mesafe Levhası (B-13b)',
+    description: 'Mesafe levhası, belirtilen yerleşim yerlerine veya önemli noktalara kalan mesafeyi sürücülere bildirir. Sürücüler gidecekleri yön ve mesafe hakkında bilgi sahibi olur.',
   },
   'Bilgi_B/b-14a.png': {
-    title: 'Sapma Levhasi (Saga)',
-    description: 'Sagda yol sapmasinin oldugunu bildirir.',
+    title: 'Yaya Geçidi (B-14a)',
+    description: 'Yaya geçidi levhası, yayaların karşıdan karşıya geçebileceği güvenli geçiş noktasını gösterir. Sürücüler bu noktaya yaklaşırken hızlarını azaltmalı ve yayalara yol vermelidir.',
   },
   'Bilgi_B/b-14b.png': {
-    title: 'Sapma Levhasi (Sola)',
-    description: 'Solda yol sapmasinin oldugunu bildirir.',
+    title: 'Okul Geçidi (B-14b)',
+    description: 'Okul geçidi levhası, okul öğrencilerinin karşıdan karşıya geçtiği güvenli geçiş noktasını gösterir. Sürücüler okul geçidine yaklaşırken çok dikkatli olmalı, hızlarını azaltmalı ve öğrencilere yol vermelidir.',
   },
   'Bilgi_B/b-14c.png': {
-    title: 'Sapma Levhasi (Ileri Saga)',
-    description: 'Ileri sagda yol sapmasinin oldugunu bildirir.',
+    title: 'Yaya Bölgesi (B-14c)',
+    description: 'Yaya bölgesi levhası, belirtilen alanın yayalara ayrılmış olduğunu ve bu bölgede yayaların öncelikli olduğunu gösterir. Sürücüler bu bölgede yayalara karşı azami dikkat göstermelidir.',
   },
   'Bilgi_B/b-14d.png': {
-    title: 'Sapma Levhasi (Ileri Sola)',
-    description: 'Ileri solda yol sapmasinin oldugunu bildirir.',
+    title: 'Yaya Bölgesi (B-14d)',
+    description: 'Yaya bölgesi levhası, belirtilen alanın yayalara ayrılmış olduğunu ve bu bölgede yayaların öncelikli olduğunu gösterir. Sürücüler bu bölgede yayalara karşı azami dikkat göstermelidir.',
   },
   'Bilgi_B/b-15.png': {
-    title: 'Hastane',
-    description: 'Yakınlarda bir hastane olduğunu ve gürültü yapmamaya dikkat edilmesi gerektiğini bildirir.',
+    title: 'Hastane (B-15)',
+    description: 'Hastane levhası, yol güzergahında bir hastanenin bulunduğunu ve hastaneye gidiş yönünü gösterir. Acil durumlarda en yakın hastaneye ulaşmak için bu levhaları takip etmek gerekir.',
   },
   'Bilgi_B/b-16.png': {
-    title: 'İlk Yardım',
-    description: 'Yakınlarda bir ilk yardım merkezi bulunduğunu bildirir.',
-  },
-  'Bilgi_B/b-17.png': {
-    title: 'Tamirhane',
-    description: 'Yakınlarda araç tamirhanesi bulunduğunu bildirir.',
-  },
-  'Bilgi_B/b-19.png': {
-    title: 'Otoyol Sonu',
-    description: 'Otoyolun sona erdiğini ve otoyol kurallarının bittiğini bildirir.',
-  },
-  'Bilgi_B/b-22.png': {
-    title: 'Durak',
-    description: 'Kamu hizmeti yapan yolcu taşıtlarının durak yerlerini belirtir.',
+    title: 'Tek Yön (B-16)',
+    description: 'Tek yön levhası, üzerinde bulunduğu yolun sadece gösterilen yönde tek yönlü trafiğe açık olduğunu bildirir. Sürücüler bu yola ters yönden giremez.',
   },
   'Bilgi_B/b-16b.png': {
-    title: 'Ilk Yardim Merkezi',
-    description: 'Yakinlarda ilk yardim merkezi bulundugunu bildirir.',
+    title: 'İleri Tek Yönlü Yol (B-16b)',
+    description: 'İleri tek yönlü yol levhası, ilerideki yolun tek yönlü olduğunu ve trafiğin sadece belirtilen yönde akacağını önceden bildirir.',
+  },
+  'Bilgi_B/b-17.png': {
+    title: 'İleri Çıkmaz Yol (B-17)',
+    description: 'İleri çıkmaz yol levhası, ilerideki yolun çıkmaz bir yol olduğunu ve sonunun olmadığını sürücülere önceden bildirir. Bu yola giren araçlar geri dönmek zorunda kalabilir.',
   },
   'Bilgi_B/b-18.png': {
-    title: 'Telefon',
-    description: 'Yakinlarda telefon bulundugunu bildirir.',
+    title: 'Otoyol Başlangıcı (B-18)',
+    description: 'Otoyol başlangıcı levhası, otoyolun başladığını bildirir. Bu noktadan itibaren otoyol kuralları geçerlidir: yaya ve bisiklet girişi yasaktır, geri dönüş yapılamaz, asgari hız sınırı uygulanır.',
+  },
+  'Bilgi_B/b-19.png': {
+    title: 'Otoyol Sonu (B-19)',
+    description: 'Otoyol sonu levhası, otoyolun bittiğini ve bu noktadan itibaren normal yol kurallarının geçerli olduğunu bildirir.',
+  },
+  'Bilgi_B/b-1a.png': {
+    title: 'Kavşak Öncesi Yön Levhası (B-1a)',
+    description: 'Kavşak öncesi yön levhası, ilerideki kavşaktan gidilebilecek yerleri ve yönleri önceden gösterir. Sürücüler kavşağa gelmeden şerit seçimini bu levhaya göre yapmalıdır.',
+  },
+  'Bilgi_B/b-1b.png': {
+    title: 'Yön Levhası (B-1b)',
+    description: 'Yön levhası, belirtilen yerleşim yerlerine veya tesislere gidiş yönünü gösterir. Sürücüler gidecekleri yöne göre levhayı takip eder.',
+  },
+  'Bilgi_B/b-1c.png': {
+    title: 'Kaplama Üstü Yön Levhası (B-1c)',
+    description: 'Kaplama üstü yön levhası, yol kaplaması üzerinde gidilecek yönleri gösterir. Sürücülere gidecekleri yerin hangi şeritten gidileceğini bildirir.',
+  },
+  'Bilgi_B/b-1d.png': {
+    title: 'Otoyol Çıkış Bildirim/Yön Levhası (B-1d)',
+    description: 'Otoyol çıkış bildirim/yön levhası, otoyoldan çıkış yapacak sürücülere çıkış yönünü ve gidilecek yerleri gösterir. Sürücüler çıkışa uygun şeride zamanında geçmelidir.',
   },
   'Bilgi_B/b-20.png': {
-    title: 'Akaryakit Istasyonu',
-    description: 'Yakinlarda akaryakit istasyonu bulundugunu bildirir.',
+    title: 'Motorlu Taşıt Yolu Başlangıcı (B-20)',
+    description: 'Motorlu taşıt yolu başlangıcı levhası, motorlu taşıt yolunun başladığını bildirir. Bu yolda yaya, bisiklet ve motorlu olmayan taşıtların girmesi yasaktır.',
   },
   'Bilgi_B/b-21.png': {
-    title: 'Motel veya Otel',
-    description: 'Yakinlarda konaklama tesisi bulundugunu bildirir.',
+    title: 'Motorlu Taşıt Yolu Sonu (B-21)',
+    description: 'Motorlu taşıt yolu sonu levhası, motorlu taşıt yolunun bittiğini bildirir. Bu noktadan itibaren diğer taşıt ve yayaların yola girebileceği normal kurallar geçerli olur.',
+  },
+  'Bilgi_B/b-22.png': {
+    title: 'Durak (B-22)',
+    description: 'Durak levhası, toplu taşıma araçlarının (otobüs, minibüs vb.) yolcu indirip bindirdiği durağı gösterir. Sürücüler durak yakınında dikkatli olmalı ve duraklayan toplu taşıma araçlarına yol vermelidir.',
   },
   'Bilgi_B/b-23.png': {
-    title: 'Otopark',
-    description: 'Yakinlarda otopark bulundugunu bildirir.',
+    title: 'İlk Yardım (B-23)',
+    description: 'İlk yardım levhası, yol güzergahında ilk yardım hizmeti veren sağlık tesisini gösterir. Acil durumlarda ilk yardım noktasına ulaşmak için bu levha takip edilir.',
   },
   'Bilgi_B/b-24.png': {
-    title: 'Yaya Gecidi',
-    description: 'Yakinlarda yaya gecidi bulundugunu bildirir.',
+    title: 'Tamirhane (B-24)',
+    description: 'Tamirhane levhası, yol güzergahında araç tamir hizmeti veren bir tamirhanenin bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-25.png': {
-    title: 'Bisiklet Gecidi',
-    description: 'Yakinlarda bisiklet gecidi bulundugunu bildirir.',
+    title: 'Telefon (B-25)',
+    description: 'Telefon levhası, yol güzergahında bir telefonun bulunduğunu gösterir. Acil durumlarda haberleşme için bu nokta kullanılabilir.',
   },
   'Bilgi_B/b-26.png': {
-    title: 'Tren Istasyonu',
-    description: 'Yakinlarda tren istasyonu bulundugunu bildirir.',
+    title: 'Akaryakıt İstasyonu (B-26)',
+    description: 'Akaryakıt istasyonu levhası, yol güzergahında bir akaryakıt istasyonunun bulunduğunu ve yönünü gösterir. Yakıtı azalan sürücüler bu levhayı takip ederek istasyona ulaşabilir.',
   },
   'Bilgi_B/b-27.png': {
-    title: 'Havaalan',
-    description: 'Yakinlarda havaalani bulundugunu bildirir.',
+    title: 'Otel veya Motel (B-27)',
+    description: 'Otel veya motel levhası, yol güzergahında konaklama imkanı sunan otel veya motelin bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-28.png': {
-    title: 'Liman',
-    description: 'Yakinlarda deniz limani bulundugunu bildirir.',
+    title: 'Lokanta (B-28)',
+    description: 'Lokanta levhası, yol güzergahında yemek yeme imkanı sunan bir lokantanın bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-29.png': {
-    title: 'Kamp Alani',
-    description: 'Yakinlarda kamp alani bulundugunu bildirir.',
+    title: 'Çayhane veya Kafeterya (B-29)',
+    description: 'Çayhane veya kafeterya levhası, yol güzergahında içecek ve ikram hizmeti sunan bir çayhane veya kafeteryanın bulunduğunu ve yönünü gösterir.',
+  },
+  'Bilgi_B/b-2a.png': {
+    title: 'Girişi Olmayan Yol Kavşağı (B-2a)',
+    description: 'Girişi olmayan yol kavşağı levhası, ilerideki kavşakta girişi olmayan (kapalı) bir yol bulunduğunu gösterir. Sürücüler bu yola giremez.',
+  },
+  'Bilgi_B/b-2b.png': {
+    title: 'Girişi Olmayan Yol Kavşağı (B-2b)',
+    description: 'Girişi olmayan yol kavşağı levhası, ilerideki kavşakta girişi olmayan (kapalı) bir yol bulunduğunu gösterir. Sürücüler bu yola giremez.',
+  },
+  'Bilgi_B/b-2c.png': {
+    title: 'Girişi Olmayan Yol Kavşağı (B-2c)',
+    description: 'Girişi olmayan yol kavşağı levhası, ilerideki kavşakta girişi olmayan (kapalı) bir yol bulunduğunu gösterir. Sürücüler bu yola giremez.',
+  },
+  'Bilgi_B/b-2d.png': {
+    title: 'Girişi Olmayan Yol Kavşağı (B-2d)',
+    description: 'Girişi olmayan yol kavşağı levhası, ilerideki kavşakta girişi olmayan (kapalı) bir yol bulunduğunu gösterir. Sürücüler bu yola giremez.',
+  },
+  'Bilgi_B/b-3.png': {
+    title: 'İleriki Kavşakta Sola Dönüş Yasağını Gösteren İşaret Levhası (B-3)',
+    description: 'İleriki kavşakta sola dönüş yasağını gösteren işaret levhası, ilerideki kavşaktan sola dönüşün yasak olduğunu önceden bildirir. Sürücüler sağa veya ileri yönde devam etmelidir.',
   },
   'Bilgi_B/b-30.png': {
-    title: 'Karavan Alani',
-    description: 'Yakinlarda karavan alani bulundugunu bildirir.',
+    title: 'Çeşme (B-30)',
+    description: 'Çeşme levhası, yol güzergahında bir çeşmenin bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-31.png': {
-    title: 'Dinlenme Alani',
-    description: 'Yakinlarda dinlenme alani bulundugunu bildirir.',
+    title: 'Piknik Yeri (B-31)',
+    description: 'Piknik yeri levhası, yol güzergahında piknik yapmaya ayrılmış bir alanın bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-32.png': {
-    title: 'Otoyol Başlangıcı',
-    description: 'Otoyolun başladığını ve otoyol kurallarının geçerli olduğunu bildirir.',
+    title: 'Yürüyüş Başlangıcı (B-32)',
+    description: 'Yürüyüş başlangıcı levhası, doğa yürüyüşü parkurunun başladığını gösterir.',
   },
   'Bilgi_B/b-33.png': {
-    title: 'Turistik Yer',
-    description: 'Yakinlarda turistik veya tarihi yer bulundugunu bildirir.',
+    title: 'Kamp Yeri (B-33)',
+    description: 'Kamp yeri levhası, yol güzergahında kamp yapmaya ayrılmış bir alanın bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-34.png': {
-    title: 'Piknik Alani',
-    description: 'Yakinlarda piknik alani bulundugunu bildirir.',
+    title: 'Karavanlı Kamp Yeri (B-34)',
+    description: 'Karavanlı kamp yeri levhası, yol güzergahında karavanlarla kamp yapılabilecek bir alanın bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-35.png': {
-    title: 'Spor Merkezi',
-    description: 'Yakinlarda spor merkezi bulundugunu bildirir.',
+    title: 'Çadırlı ve Karavanlı Kamp Yeri (B-35)',
+    description: 'Çadırlı ve karavanlı kamp yeri levhası, yol güzergahında hem çadır hem karavanla kamp yapılabilecek bir alanın bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-36.png': {
-    title: 'Engelli Olanaklar',
-    description: 'Engelli bireylere uygun tesislerin bulundugunu bildirir.',
+    title: 'Gençlik Kampı (B-36)',
+    description: 'Gençlik kampı levhası, yol güzergahında bir gençlik kampının bulunduğunu ve yönünü gösterir.',
+  },
+  'Bilgi_B/b-4.png': {
+    title: 'Kavşak Öncesi Şerit Seçimi Levhası (B-4)',
+    description: 'Kavşak öncesi şerit seçimi levhası, kavşaktan gidilecek yönlere göre hangi şeridin kullanılacağını gösterir. Sürücüler kavşağa gelmeden uygun şeride geçmelidir.',
   },
   'Bilgi_B/b-40.png': {
-    title: 'Elektronik Hiz Denetimi',
-    description: 'Bu bolgede elektronik hiz denetimi uygulandigini bildirir.',
+    title: 'Jandarma (B-40)',
+    description: 'Jandarma levhası, yol güzergahında bir jandarma karakolunun bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-41.png': {
-    title: 'Hiz Denetim Kamerasi',
-    description: 'Yolda hiz kamerasi bulundugunu bildirir.',
+    title: 'Polis (B-41)',
+    description: 'Polis levhası, yol güzergahında bir polis karakolunun bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-42.png': {
-    title: 'Ortalama Hiz Denetimi',
-    description: 'Bu bolgede ortalama hiz denetimi uygulandigini bildirir.',
+    title: 'Yangın Tehlikesi (B-42)',
+    description: 'Yangın tehlikesi levhası, yol güzergahında yangın çıkma ihtimali olan ormanlık bölgeleri ve yangın tehlikesini bildirir. Sürücüler bu bölgelerde yanıcı madde atmamalı ve dikkatli olmalıdır.',
   },
   'Bilgi_B/b-43.png': {
-    title: 'Serit Kontrol Kamerasi',
-    description: 'Yolda serit ihlali kamerasi bulundugunu bildirir.',
+    title: 'Radyo (B-43)',
+    description: 'Radyo levhası, yol güzergahında trafik ve yol durumu hakkında bilgi veren radyo yayınını (frekansını) gösterir. Sürücüler bu frekanstan yol bilgilerini takip edebilir.',
   },
   'Bilgi_B/b-44.png': {
-    title: 'Kirmizi Isik Kamerasi',
-    description: 'Kavsakta kirmizi isik ihlali kamerasi bulundugunu bildirir.',
+    title: 'Turizm Danışma (B-44)',
+    description: 'Turizm danışma levhası, yol güzergahında turistlere bilgi veren turizm danışma bürosunun bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-45a.png': {
-    title: 'Yol Bilgi Paneli 1',
-    description: 'Yol durumuyla ilgili bilgi levhasidir.',
+    title: 'Alt Geçit (B-45a)',
+    description: 'Alt geçit levhası, yayaların karşıdan karşıya güvenle geçebilmesi için yolun altından geçen yaya alt geçidini gösterir.',
   },
   'Bilgi_B/b-45b.png': {
-    title: 'Yol Bilgi Paneli 2',
-    description: 'Yol durumuyla ilgili bilgi levhasidir.',
+    title: 'Üst Geçit (B-45b)',
+    description: 'Üst geçit levhası, yayaların karşıdan karşıya güvenle geçebilmesi için yolun üzerinden geçen yaya üst geçidini gösterir.',
   },
   'Bilgi_B/b-45c.png': {
-    title: 'Yol Bilgi Paneli 3',
-    description: 'Yol durumuyla ilgili bilgi levhasidir.',
+    title: 'Rampalı Yaya Üst Geçidi (B-45c)',
+    description: 'Rampalı yaya üst geçidi levhası, tekerlekli sandalye ve bebek arabası kullanıcılarının da kullanabileceği rampalı yaya üst geçidini gösterir.',
   },
   'Bilgi_B/b-45d.png': {
-    title: 'Yol Bilgi Paneli 4',
-    description: 'Yol durumuyla ilgili bilgi levhasidir.',
+    title: 'Rampalı Yaya Alt Geçidi (B-45d)',
+    description: 'Rampalı yaya alt geçidi levhası, tekerlekli sandalye ve bebek arabası kullanıcılarının da kullanabileceği rampalı yaya alt geçidini gösterir.',
   },
   'Bilgi_B/b-46.png': {
-    title: 'Trafik Kamerasi',
-    description: 'Yolda trafik izleme kamerasi bulundugunu bildirir.',
+    title: 'Yüzme Yeri (B-46)',
+    description: 'Yüzme yeri levhası, yol güzergahında yüzmeye ayrılmış güvenli bir yüzme alanının bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-47.png': {
-    title: 'Elektronik Ucret Toplama',
-    description: 'Bu noktada elektronik ucret toplama sistemi kullanildigini bildirir.',
+    title: 'Yüzülmez (B-47)',
+    description: 'Yüzülmez levhası, belirtilen su alanında yüzmenin tehlikeli ve yasak olduğunu bildirir.',
   },
   'Bilgi_B/b-48.png': {
-    title: 'Gecis Ucreti Gisesi',
-    description: 'Ileride gecis ucreti odeme gisesi bulundugunu bildirir.',
+    title: 'Bölünmüş Yol Öncesi Yol Levhası (B-48)',
+    description: 'Bölünmüş yol öncesi yol levhası, ileride bölünmüş yolun başlayacağını ve trafiğin ayrı yönlerde aktığını bildirir.',
   },
   'Bilgi_B/b-49.png': {
-    title: 'Tasit Tartisi',
-    description: 'Ileride tasit tartisi bulundugunu bildirir.',
+    title: 'Tünel (B-49)',
+    description: 'Tünel levhası, yol güzergahında bir tünelin bulunduğunu bildirir. Sürücüler tünelde farlarını yakmalı ve hız sınırına uymalıdır.',
   },
   'Bilgi_B/b-49b.png': {
-    title: 'Tasit Tartisi Gecis',
-    description: 'Tasit tartisi gecis bilgisini gosterir.',
+    title: 'Su Altı Tüneli (B-49b)',
+    description: 'Su altı tüneli levhası, yol güzergahında su altından geçen bir tünelin bulunduğunu bildirir.',
   },
   'Bilgi_B/b-50a.png': {
-    title: 'Trafik Sinyali Bilgisi 1',
-    description: 'Trafik sinyal duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-50a)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-50b.png': {
-    title: 'Trafik Sinyali Bilgisi 2',
-    description: 'Trafik sinyal duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-50b)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-50c.png': {
-    title: 'Trafik Sinyali Bilgisi 3',
-    description: 'Trafik sinyal duzeniyle ilgili bilgi verir.',
+    title: 'Asgari Azami Hız Limiti Levhası - Şerit Düzenleme (B-50c)',
+    description: 'Asgari azami hız limiti levhası, şeritlerde uygulanacak asgari ve azami hız sınırlarını şerit bazında gösterir.',
   },
   'Bilgi_B/b-50d.png': {
-    title: 'Trafik Sinyali Bilgisi 4',
-    description: 'Trafik sinyal duzeniyle ilgili bilgi verir.',
+    title: 'Mecburi Asgari Hız Sonu Levhası - Şerit Düzenleme (B-50d)',
+    description: 'Mecburi asgari hız sonu levhası, şeritlerde uygulanan mecburi asgari hız sınırlamasının sona erdiğini gösterir.',
   },
   'Bilgi_B/b-50e.png': {
-    title: 'Trafik Sinyali Bilgisi 5',
-    description: 'Trafik sinyal duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-50e)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-50f.png': {
-    title: 'Trafik Sinyali Bilgisi 6',
-    description: 'Trafik sinyal duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-50f)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-51a.png': {
-    title: 'Serit Bilgi Levhasi 1',
-    description: 'Serit duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-51a)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-51b.png': {
-    title: 'Serit Bilgi Levhasi 2',
-    description: 'Serit duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-51b)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-51c.png': {
-    title: 'Serit Bilgi Levhasi 3',
-    description: 'Serit duzeniyle ilgili bilgi verir.',
+    title: 'Şerit Düzenleme Levhası (B-51c)',
+    description: 'Şerit düzenleme levhası, otoyol ve bölünmüş yollarda şerit kullanımını ve şeritlerin hangi amaçla ayrıldığını gösterir.',
   },
   'Bilgi_B/b-51d.png': {
-    title: 'Serit Bilgi Levhasi 4',
-    description: 'Serit duzeniyle ilgili bilgi verir.',
+    title: 'Tırmanma Şeridi Levhası - Şerit Düzenleme (B-51d)',
+    description: 'Tırmanma şeridi levhası, eğimli yollarda ağır taşıtların kullanması için ayrılmış tırmanma şeridini gösterir.',
   },
   'Bilgi_B/b-52.png': {
-    title: 'Serit Azalma',
-    description: 'Ileride serit sayisinin azaladigini bildirir.',
+    title: 'İki Yönlü Yol (B-52)',
+    description: 'İki yönlü yol levhası, üzerinde bulunulan yolun iki yönlü trafiğe açık olduğunu bildirir. Sürücüler karşı yönden gelen araçlara dikkat etmelidir.',
   },
   'Bilgi_B/b-52b.png': {
-    title: 'Serit Azalma (Sola)',
-    description: 'Solda serit sayisinin azaladigini bildirir.',
+    title: 'İki Yönlü Trafik Levhası (B-52b)',
+    description: 'İki yönlü trafik levhası, ilerideki yolda iki yönlü trafik olduğunu bildirir. Sürücüler karşı yönden gelen araçlara karşı dikkatli olmalıdır.',
   },
   'Bilgi_B/b-53a.png': {
-    title: 'Serit Kapatma 1',
-    description: 'Bir seridin kapandigini bildirir.',
+    title: 'U Dönüşü Levhası (B-53a)',
+    description: 'U dönüşü levhası, belirtilen noktada U dönüşü yapılabileceğini gösterir.',
   },
   'Bilgi_B/b-53b.png': {
-    title: 'Serit Kapatma 2',
-    description: 'Iki seridin kapandigini bildirir.',
+    title: 'U Dönüşü Levhası (B-53b)',
+    description: 'U dönüşü levhası, belirtilen noktada U dönüşü yapılabileceğini gösterir.',
   },
   'Bilgi_B/b-53c.png': {
-    title: 'Serit Kapatma 3',
-    description: 'Uc seridin kapandigini bildirir.',
+    title: 'U Dönüşü Levhası (B-53c)',
+    description: 'U dönüşü levhası, belirtilen noktada U dönüşü yapılabileceğini gösterir.',
   },
   'Bilgi_B/b-54.png': {
-    title: 'Ters Serit Uyarisi',
-    description: 'Karsidan gelen trafige dikkat edilmesi gereken ters seridin oldugunu bildirir.',
+    title: 'Karayolları Bilgi Levhası (B-54)',
+    description: 'Karayolları bilgi levhası, Karayolları Genel Müdürlüğüne ait yol güzergahı bilgilerini ve hizmetleri sürücülere tanıtır.',
   },
   'Bilgi_B/b-55a.png': {
-    title: 'Acil Durak Sahasi (Saga)',
-    description: 'Sagda acil durak sahasi bulundugunu bildirir.',
+    title: 'Kaçış Rampası (Sağ) (B-55a)',
+    description: 'Kaçış rampası (sağ) levhası, freni bozulan araçların güvenle durabilmesi için yolun sağında bulunan kaçış rampasını gösterir.',
   },
   'Bilgi_B/b-55b.png': {
-    title: 'Acil Durak Sahasi (Sola)',
-    description: 'Solda acil durak sahasi bulundugunu bildirir.',
+    title: 'Kaçış Rampası (Sol) (B-55b)',
+    description: 'Kaçış rampası (sol) levhası, freni bozulan araçların güvenle durabilmesi için yolun solunda bulunan kaçış rampasını gösterir.',
   },
   'Bilgi_B/b-55c.png': {
-    title: 'Acil Durak Sahasi Baslangici',
-    description: 'Acil durak sahasinin basladigini bildirir.',
+    title: 'Kaçış Rampası 500m (B-55c)',
+    description: 'Kaçış rampası 500m levhası, ileride kaçış rampası bulunduğunu 500 metre kala önceden bildirir.',
   },
   'Bilgi_B/b-55d.png': {
-    title: 'Acil Durak Sahasi Sonu',
-    description: 'Acil durak sahasinin sona erdigini bildirir.',
+    title: 'Kaçış Rampası (Sağ) (B-55d)',
+    description: 'Kaçış rampası (sağ) bilgi levhası, yolun sağında bulunan kaçış rampasına giriş yönünü gösterir.',
   },
   'Bilgi_B/b-55e.png': {
-    title: 'Acil Durak Sahasi Bilgi',
-    description: 'Acil durak sahasina iliskin bilgi verir.',
+    title: 'Kaçış Rampası (Sol) (B-55e)',
+    description: 'Kaçış rampası (sol) bilgi levhası, yolun solunda bulunan kaçış rampasına giriş yönünü gösterir.',
   },
   'Bilgi_B/b-56.png': {
-    title: 'Tomruk Yolu',
-    description: 'Yakinlarda orman veya tomruk yolu bulundugunu bildirir.',
+    title: 'Yaya Öncelikli Yol (B-56)',
+    description: 'Yaya öncelikli yol levhası, belirtilen yolda yayaların öncelikli olduğunu ve araçların yayalara yol vermesi gerektiğini bildirir.',
   },
   'Bilgi_B/b-57.png': {
-    title: 'Gumruk',
-    description: 'Ileride gumruk kapisi bulundugunu bildirir.',
+    title: 'Yaya Öncelikli Yolun Sonu (B-57)',
+    description: 'Yaya öncelikli yolun sonu levhası, yaya öncelikli yol uygulamasının bittiğini bildirir.',
   },
   'Bilgi_B/b-58a.png': {
-    title: 'Ulke Siniri (Giris)',
-    description: 'Ulke siniri girisini bildirir.',
+    title: 'İstasyon (B-58a)',
+    description: 'İstasyon levhası, yol güzergahında bir tren istasyonunun bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-58b.png': {
-    title: 'Ulke Siniri (Cikis)',
-    description: 'Ulke siniri cikisini bildirir.',
+    title: 'Otogar (B-58b)',
+    description: 'Otogar levhası, yol güzergahında bir otogarın bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-59.png': {
-    title: 'Yabanci Plaka Kontrol',
-    description: 'Yabanci plakalı tasitlerin kontrol noktasini bildirir.',
+    title: 'Tramvay Durağı (B-59)',
+    description: 'Tramvay durağı levhası, yol güzergahında bir tramvay durağının bulunduğunu gösterir. Sürücüler durak yakınında dikkatli olmalıdır.',
+  },
+  'Bilgi_B/b-5a.png': {
+    title: 'Kavşak Öncesi Yön Levhası (B-5A)',
+    description: 'Kavşak öncesi yön levhası, ilerideki kavşaktan gidilebilecek yerlere ulaşım yönünü gösterir.',
+  },
+  'Bilgi_B/b-5b.png': {
+    title: 'Kavşak İçi Yön Levhası (Turistik Mahal) (B-5b)',
+    description: 'Kavşak içi yön levhası (Turistik Mahal), kavşak içinde turistik mahallere gidiş yönünü gösterir.',
+  },
+  'Bilgi_B/b-5c.png': {
+    title: 'Kavşak İçi Yön Levhası (Metro) (B-5c)',
+    description: 'Kavşak içi yön levhası (Metro), kavşak içinde metro istasyonuna gidiş yönünü gösterir.',
+  },
+  'Bilgi_B/b-5d.png': {
+    title: 'Kavşak İçi Yön Levhası (Köy ve Mahalle) (B-5d)',
+    description: 'Kavşak içi yön levhası (Köy ve Mahalle), kavşak içinde köy veya mahalleye gidiş yönünü gösterir.',
   },
   'Bilgi_B/b-60.png': {
-    title: 'Serit Kullanim Bilgisi',
-    description: 'Hangi araclarin hangi seridi kullanabilecegini gosterir.',
+    title: 'Sanayi Bölgesi (OSB) (B-60)',
+    description: 'Sanayi bölgesi (OSB) levhası, yol güzergahında organize sanayi bölgesinin bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-61a.png': {
-    title: 'Yol Numarasi Levhasi 1',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61a)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-61b.png': {
-    title: 'Yol Numarasi Levhasi 2',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61b)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-61c.png': {
-    title: 'Yol Numarasi Levhasi 3',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61c)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-61d.png': {
-    title: 'Yol Numarasi Levhasi 4',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61d)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-61e.png': {
-    title: 'Yol Numarasi Levhasi 5',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61e)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-61f.png': {
-    title: 'Yol Numarasi Levhasi 6',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61f)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-61g.png': {
-    title: 'Yol Numarasi Levhasi 7',
-    description: 'Yol veya otoban numarasini gosterir.',
+    title: 'Elektronik Denetleme Sistemi (EDS) (B-61g)',
+    description: 'Elektronik Denetleme Sistemi (EDS) levhası, yol üzerinde elektronik denetleme sistemi bulunduğunu bildirir. Sürücüler hız ve trafik kurallarına uymalıdır.',
   },
   'Bilgi_B/b-62.png': {
-    title: 'Kuzey Yonu',
-    description: 'Kuzey yonunu gosterir.',
+    title: 'Trafik Cebi Levhası (B-62)',
+    description: 'Trafik cebi levhası, yol kenarında araçların durması için ayrılmış trafik cebini (cephe alanı) gösterir.',
   },
   'Bilgi_B/b-63a.png': {
-    title: 'Acil Yardim Noktasi 1',
-    description: 'Yakinlarda acil yardim noktasi bulundugunu bildirir.',
+    title: 'Karayolu Denetim İstasyonu 300m (B-63a)',
+    description: 'Karayolu Denetim İstasyonu 300m levhası, ileride karayolu denetim istasyonu bulunduğunu 300 metre kala bildirir. Sürücüler durma ihtimaline karşı hazırlıklı olmalıdır.',
   },
   'Bilgi_B/b-63b.png': {
-    title: 'Acil Yardim Noktasi 2',
-    description: 'Yakinlarda acil yardim noktasi bulundugunu bildirir.',
+    title: 'Karayolu Denetim İstasyonu (Sol) (B-63b)',
+    description: 'Karayolu Denetim İstasyonu (sol) levhası, yolun solunda karayolu denetim istasyonu bulunduğunu ve yönünü gösterir.',
   },
   'Bilgi_B/b-63c.png': {
-    title: 'Acil Yardim Noktasi 3',
-    description: 'Yakinlarda acil yardim noktasi bulundugunu bildirir.',
+    title: 'Karayolu Denetim İstasyonu (B-63c)',
+    description: 'Karayolu Denetim İstasyonu levhası, yol güzergahında karayolu denetim istasyonunun bulunduğunu gösterir. Sürücüler kontrole hazır olmalıdır.',
   },
   'Bilgi_B/b-63d.png': {
-    title: 'Acil Yardim Noktasi 4',
-    description: 'Yakinlarda acil yardim noktasi bulundugunu bildirir.',
+    title: 'Karayolu Denetim İstasyonu (B-63d)',
+    description: 'Karayolu Denetim İstasyonu levhası, yol güzergahında karayolu denetim istasyonunun bulunduğunu gösterir. Sürücüler kontrole hazır olmalıdır.',
   },
   'Bilgi_B/b-64.png': {
-    title: 'Genel Bilgi Levhasi',
-    description: 'Suruculere genel bilgi veren levhadir.',
+    title: 'Hız Sınırı Bölgesi Levhası (B-64)',
+    description: 'Hız sınırı bölgesi levhası, belirtilen bölge içinde hız sınırlaması uygulandığını ve bölge sonuna kadar geçerli olduğunu bildirir.',
   },
-  'Bilgi_B/b-37.png': {
-    title: 'Trafik Tanzim Levhasi B-37',
-    description: 'Tanzim amacli bilgi levhasidir.',
+  'Bilgi_B/b-6a.png': {
+    title: 'Kavşak İçi Yön Levhası (Havalimanı) (B-6a)',
+    description: 'Kavşak içi yön levhası (Havalimanı), kavşak içinde havalimanına gidiş yönünü gösterir.',
   },
-  'Bilgi_B/b-38.png': {
-    title: 'Trafik Tanzim Levhasi B-38',
-    description: 'Tanzim amacli bilgi levhasidir.',
+  'Bilgi_B/b-6b.png': {
+    title: 'Kavşak İçi Yön Levhası (Havalimanı) (B-6b)',
+    description: 'Kavşak içi yön levhası (Havalimanı), kavşak içinde havalimanına gidiş yönünü gösterir.',
   },
-  'Bilgi_B/b-39.png': {
-    title: 'Trafik Tanzim Levhasi B-39',
-    description: 'Tanzim amacli bilgi levhasidir.',
+  'Bilgi_B/b-7.png': {
+    title: 'Kavşak İçi Yön Levhası (Kamp Yeri) (B-7)',
+    description: 'Kavşak içi yön levhası (Kamp Yeri), kavşak içinde kamp yerine gidiş yönünü gösterir.',
   },
-  'Bilgi_B/b-14e.png': {
-    title: 'Sapma Levhasi (Ek 1)',
-    description: 'Yol sapmasina iliskin ek bilgi levhasidir.',
+  'Bilgi_B/b-8a.png': {
+    title: 'Türkiye Devlet Sınırı Levhası (B-8a)',
+    description: 'Türkiye devlet sınırı levhası, Türkiye Cumhuriyeti devlet sınırına gelindiğini bildirir.',
   },
-  'Bilgi_B/b-14f.png': {
-    title: 'Sapma Levhasi (Ek 2)',
-    description: 'Yol sapmasina iliskin ek bilgi levhasidir.',
+  'Bilgi_B/b-8b.png': {
+    title: 'İl Sınırı Levhası (B-8b)',
+    description: 'İl sınırı levhası, bir ilin sınırına gelindiğini ve başka bir ile girildiğini bildirir.',
+  },
+  'Bilgi_B/b-8c.png': {
+    title: 'Türkiye Hız Sınırları Levhası (B-8c)',
+    description: 'Türkiye hız sınırları levhası, Türkiye karayollarında geçerli olan genel hız sınırlarını sürücülere hatırlatır.',
+  },
+  'Bilgi_B/b-9.png': {
+    title: 'Meskun Mahal Levhası (B-9)',
+    description: 'Meskun mahal levhası, yerleşim yerine girildiğini bildirir. Bu noktadan itibaren meskun mahal hız sınırı (genellikle 50 km/s) ve şehir içi trafik kuralları geçerlidir.',
   },
   'Park_P/p-1.png': {
-    title: 'Duraklamak ve Park Etmek Yasaktır',
-    description: 'Yolun bu kesiminde hem duraklamanın hem de park etmenin yasak olduğunu belirtir.',
+    title: 'Park Etmek Yasaktır (P-1)',
+    description: 'Bu levha, levhanın bulunduğu yerden itibaren park etmenin yasak olduğunu bildirir. Belirtilen alanda hiçbir araç park edilemez. Yasağın süresi ve mesafesi ek levha ile belirtilmediyse bir sonraki kavşağa kadar geçerlidir.',
   },
   'Park_P/p-2.png': {
-    title: 'Park Etmek Yasaktır',
-    description: 'Yolun bu kesiminde park etmenin yasak olduğunu, ancak kısa süreli duraklamanın yapılabileceğini belirtir.',
+    title: 'Duraklamak ve Park Etmek Yasaktır (P-2)',
+    description: 'Bu levha, belirtilen alanda duraklamanın ve park etmenin yasak olduğunu bildirir. Trafik zorunluluğu dışında hiçbir araç bu bölgede durdurulamaz ve park edilemez.',
   },
   'Park_P/p-3a.png': {
-    title: 'Park Yeri',
-    description: 'Taşıtların park edebileceği alanı belirtir.',
+    title: 'Park Yeri (P-3a)',
+    description: 'Bu levha, belirtilen alanın araç park etmeye ayrılmış bir park yeri olduğunu gösterir. Sürücüler bu alanda araçlarını park edebilir.',
   },
   'Park_P/p-3b.png': {
-    title: 'Park Yeri (Sağ Taraf)',
-    description: 'Yolun sağ tarafında park yapılabileceğini belirtir.',
+    title: 'Park Yeri (P-3b)',
+    description: 'Bu levha, belirtilen alanın araç park etmeye ayrılmış bir park yeri olduğunu gösterir. Sürücüler bu alanda araçlarını park edebilir.',
   },
   'Park_P/p-3c.png': {
-    title: 'Park Yeri (Sol Taraf)',
-    description: 'Yolun sol tarafında park yapılabileceğini belirtir.',
+    title: 'Park Yeri (P-3c)',
+    description: 'Bu levha, belirtilen alanın araç park etmeye ayrılmış bir park yeri olduğunu gösterir. Sürücüler bu alanda araçlarını park edebilir.',
   },
   'Park_P/p-3d.png': {
-    title: 'Park Yeri (Her İki Taraf)',
-    description: 'Yolun her iki tarafında park yapılabileceğini belirtir.',
+    title: 'Park Yeri (P-3d)',
+    description: 'Bu levha, belirtilen alanın araç park etmeye ayrılmış bir park yeri olduğunu gösterir. Sürücüler bu alanda araçlarını park edebilir.',
+  },
+  'Tanzim_TT/b-14e.png': {
+    title: 'Yaya Bölgesi (B-14e)',
+    description: 'Yaya bölgesi levhası, belirtilen alanın yayalara ayrılmış olduğunu ve bu bölgede yayaların öncelikli olduğunu gösterir. Sürücüler bu bölgede yayalara karşı azami dikkat göstermelidir.',
+  },
+  'Tanzim_TT/b-14f.png': {
+    title: 'Yaya Bölgesi (B-14f)',
+    description: 'Yaya bölgesi levhası, belirtilen alanın yayalara ayrılmış olduğunu ve bu bölgede yayaların öncelikli olduğunu gösterir. Sürücüler bu bölgede yayalara karşı azami dikkat göstermelidir.',
+  },
+  'Tanzim_TT/b-37.png': {
+    title: 'Önceliği Olan Yol (B-37)',
+    description: 'Önceliği olan yol levhası, üzerinde bulunulan yolun, kavşaklarda diğer yollara göre öncelikli olduğunu bildirir. Sürücüler bu yolda öncelikle geçme hakkına sahiptir.',
+  },
+  'Tanzim_TT/b-38.png': {
+    title: 'Anayol (B-38)',
+    description: 'Anayol levhası, üzerinde bulunulan yolun anayol olduğunu ve kavşaklarda geçiş önceliğine sahip olduğunu bildirir.',
+  },
+  'Tanzim_TT/b-39.png': {
+    title: 'Anayol Sonu (B-39)',
+    description: 'Anayol sonu levhası, anayolun bittiğini ve bu noktadan itibaren geçiş önceliği kuralının değiştiğini bildirir.',
+  },
+  'Tanzim_TT/tt-1.png': {
+    title: 'Yol Ver (TT-1)',
+    description: 'Yol ver levhası, sürücülerin ana yoldan gelen araçlara yol vermesi gerektiğini bildirir. Sürücüler kavşağa yaklaşırken hızını azaltmalı, ana yoldaki trafiğe göre durup geçiş hakkı vermelidir.',
+  },
+  'Tanzim_TT/tt-10a.png': {
+    title: 'Kamyon Giremez (TT-10a)',
+    description: 'Kamyon giremez levhası, belirtilen yola kamyonların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-10b.png': {
+    title: 'Otobüs Giremez (TT-10b)',
+    description: 'Otobüs giremez levhası, belirtilen yola otobüslerin girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-11.png': {
+    title: 'Treyler Giremez (TT-11)',
+    description: 'Treyler (yarı römork) giremez levhası, belirtilen yola treyler çeken araçların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-12.png': {
+    title: 'Yaya Giremez (TT-12)',
+    description: 'Yaya giremez levhası, belirtilen yola yayaların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-13.png': {
+    title: 'At Arabası Giremez (TT-13)',
+    description: 'At arabası giremez levhası, belirtilen yola at arabalarının girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-14.png': {
+    title: 'El Arabası Giremez (TT-14)',
+    description: 'El arabası giremez levhası, belirtilen yola el arabalarının girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-15.png': {
+    title: 'Traktör Giremez (TT-15)',
+    description: 'Traktör giremez levhası, belirtilen yola traktörlerin girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-16a.png': {
+    title: 'Patlayıcı ve Parlayıcı Madde Taşıyan Taşıt Giremez (TT-16a)',
+    description: 'Belirli miktardan fazla patlayıcı ve parlayıcı madde taşıyan taşıtların giremeyeceğini bildirir.',
+  },
+  'Tanzim_TT/tt-16b.png': {
+    title: 'Tehlikeli Madde Taşıyan Taşıt Giremez (TT-16b)',
+    description: 'Tehlikeli madde taşıyan taşıt giremez levhası, belirtilen yola tehlikeli madde taşıyan taşıtların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-17.png': {
+    title: 'Su Kirletici Madde Taşıyan Taşıt Giremez (TT-17)',
+    description: 'Belirli miktardan fazla su kirletici madde taşıyan taşıt giremez levhası, belirtilen yola su kirletici madde taşıyan taşıtların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-18.png': {
+    title: 'Motorlu Taşıt Giremez (TT-18)',
+    description: 'Motorlu taşıt giremez levhası, belirtilen yola motorlu taşıtların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-19.png': {
+    title: 'Taşıt Giremez (TT-19)',
+    description: 'Taşıt giremez levhası, belirtilen yola tüm taşıtların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-2.png': {
+    title: 'Dur (TT-2)',
+    description: 'Dur levhası, sürücülerin bu noktada tamamen durması zorunlu olduğunu bildirir. Sürücüler durduktan sonra trafik durumuna göre yola devam etmelidir.',
+  },
+  'Tanzim_TT/tt-20.png': {
+    title: 'Genişliği ... metreden Fazla Olan Taşıt Giremez (TT-20)',
+    description: 'Genişliği belirtilen metreden fazla olan taşıtların giremeyeceğini bildirir. Araç genişliği sınırı aşıyorsa bu yola girilmemelidir.',
+  },
+  'Tanzim_TT/tt-21.png': {
+    title: 'Yüksekliği ... metreden Fazla Olan Taşıt Giremez (TT-21)',
+    description: 'Yüksekliği belirtilen metreden fazla olan taşıtların giremeyeceğini bildirir. Araç yüksekliği sınırı aşıyorsa bu yola girilmemelidir.',
+  },
+  'Tanzim_TT/tt-22.png': {
+    title: 'Uzunluğu ... metreden Fazla Olan Taşıt Giremez (TT-22)',
+    description: 'Uzunluğu belirtilen metreden fazla olan taşıtların giremeyeceğini bildirir.',
+  },
+  'Tanzim_TT/tt-23.png': {
+    title: 'Dingil Ağırlığı ... tondan Fazla Olan Taşıt Giremez (TT-23)',
+    description: 'Dingil başına belirtilen tondan fazla yük düşen taşıtların giremeyeceğini bildirir.',
+  },
+  'Tanzim_TT/tt-24.png': {
+    title: 'Yüklü Ağırlığı ... tondan Fazla Olan Taşıt Giremez (TT-24)',
+    description: 'Yüklü ağırlığı belirtilen tondan fazla olan taşıtların giremeyeceğini bildirir.',
+  },
+  'Tanzim_TT/tt-25.png': {
+    title: 'Öndeki Taşıt ... metreden Yakın Takip Edilemez (TT-25)',
+    description: 'Öndeki taşıtı belirtilen metreden daha yakın takip etmenin yasak olduğunu bildirir. Sürücüler güvenli takip mesafesini korumalıdır.',
+  },
+  'Tanzim_TT/tt-26a.png': {
+    title: 'Sağa Dönülemez (TT-26a)',
+    description: 'Sağa dönülemez levhası, bu noktada sağa dönüşün yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-26b.png': {
+    title: 'Sola Dönülemez (TT-26b)',
+    description: 'Sola dönülemez levhası, bu noktada sola dönüşün yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-26c.png': {
+    title: 'U Dönüşü Yapılamaz (TT-26c)',
+    description: 'U dönüşü yapılamaz levhası, bu noktada U dönüşünün yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-27.png': {
+    title: 'Öndeki Taşıtı Geçmek Yasaktır (TT-27)',
+    description: 'Öndeki taşıtı geçmek yasaktır levhası, bu bölgede öndeki taşıtı geçmenin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-28.png': {
+    title: 'Kamyonlar İçin Öndeki Taşıtı Geçmek Yasaktır (TT-28)',
+    description: 'Kamyonlar için öndeki taşıtı geçmek yasaktır levhası, kamyonların bu bölgede öndeki taşıtı geçmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-29-130.png': {
+    title: 'Azami Hız Sınırlaması 130 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 130 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-140.png': {
+    title: 'Azami Hız Sınırlaması 140 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 140 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-30.png': {
+    title: 'Azami Hız Sınırlaması 30 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 30 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-40.png': {
+    title: 'Azami Hız Sınırlaması 40 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 40 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-50.png': {
+    title: 'Azami Hız Sınırlaması 50 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 50 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-60.png': {
+    title: 'Azami Hız Sınırlaması 60 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 60 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-70.png': {
+    title: 'Azami Hız Sınırlaması 70 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 70 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-80.png': {
+    title: 'Azami Hız Sınırlaması 80 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 80 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29-90.png': {
+    title: 'Azami Hız Sınırlaması 90 km (TT-29a)',
+    description: 'Azami hız sınırlaması levhası, bu noktadan itibaren azami hızın 90 km/s olduğunu bildirir. Sürücüler bu hızı aşmamalıdır.',
+  },
+  'Tanzim_TT/tt-29b.png': {
+    title: 'Okul Bölgesi Azami Hız Sınırı (TT-29b)',
+    description: 'Okul bölgesi azami hız sınırı levhası, okul bölgesinde belirtilen hız sınırına uyulması gerektiğini bildirir. Öğrencilerin yoğun olduğu bu bölgelerde çok dikkatli olunmalıdır.',
+  },
+  'Tanzim_TT/tt-2a.png': {
+    title: 'Çocuklar İçin Dur (TT-2a)',
+    description: 'Çocuklar için dur levhası, okul geçitleri ve çocukların yoğun olduğu noktalarda sürücülerin tamamen durması gerektiğini bildirir.',
+  },
+  'Tanzim_TT/tt-3.png': {
+    title: 'Karşıdan Gelene Yol Ver (TT-3)',
+    description: 'Karşıdan gelene yol ver levhası, daralan yollarda karşı yönden gelen araçlara yol verilmesi gerektiğini bildirir.',
+  },
+  'Tanzim_TT/tt-30.png': {
+    title: 'Sesli İkaz Cihazlarının Kullanımı Yasaktır (TT-30)',
+    description: 'Sesli ikaz cihazlarının (korna) kullanımı yasaktır levhası, belirtilen bölgede korna çalmanın yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-31.png': {
+    title: 'Gümrük (TT-31)',
+    description: 'Gümrük levhası, ileride gümrük kontrol noktası bulunduğunu bildirir. Sürücüler gümrük noktasında durmalıdır.',
+  },
+  'Tanzim_TT/tt-32.png': {
+    title: 'Bütün Yasaklama ve Kısıtlamaların Sonu (TT-32)',
+    description: 'Bütün yasaklama ve kısıtlamaların sonu levhası, bu noktadan itibaren daha önce konulmuş tüm yasaklama ve kısıtlamaların sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-30.png': {
+    title: 'Hız Sınırlaması Sonu 30 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 30 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-40.png': {
+    title: 'Hız Sınırlaması Sonu 40 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 40 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-50.png': {
+    title: 'Hız Sınırlaması Sonu 50 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 50 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-60.png': {
+    title: 'Hız Sınırlaması Sonu 60 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 60 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-70.png': {
+    title: 'Hız Sınırlaması Sonu 70 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 70 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-80.png': {
+    title: 'Hız Sınırlaması Sonu 80 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 80 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33-90.png': {
+    title: 'Hız Sınırlaması Sonu 90 km (TT-33a)',
+    description: 'Hız sınırlaması sonu levhası, 90 km/s hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-33b.png': {
+    title: 'Azami Hız Bölgesi Sonu (TT-33b)',
+    description: 'Azami hız bölgesi sonu levhası, azami hız bölgesinin bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-34a.png': {
+    title: 'Geçme Yasağı Sonu (TT-34a)',
+    description: 'Geçme yasağı sonu levhası, öndeki taşıtı geçme yasağının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-34b.png': {
+    title: 'Kamyonlar İçin Geçme Yasağı Sonu (TT-34b)',
+    description: 'Kamyonlar için geçme yasağı sonu levhası, kamyonlar için öndeki taşıtı geçme yasağının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-35a.png': {
+    title: 'Sağa Mecburi Yön (TT-35a)',
+    description: 'Sağa mecburi yön levhası, sürücülerin bu noktada sadece sağa dönmek zorunda olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-35b.png': {
+    title: 'Sola Mecburi Yön (TT-35b)',
+    description: 'Sola mecburi yön levhası, sürücülerin bu noktada sadece sola dönmek zorunda olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-35c.png': {
+    title: 'İleri Mecburi Yön (TT-35c)',
+    description: 'İleri mecburi yön levhası, sürücülerin bu noktada sadece ileri gitmek zorunda olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-35d.png': {
+    title: 'İleri ve Sağa Mecburi Yön (TT-35d)',
+    description: 'İleri ve sağa mecburi yön levhası, sürücülerin bu noktada sadece ileri veya sağa gidebileceğini bildirir.',
+  },
+  'Tanzim_TT/tt-35e.png': {
+    title: 'İleri ve Sola Mecburi Yön (TT-35e)',
+    description: 'İleri ve sola mecburi yön levhası, sürücülerin bu noktada sadece ileri veya sola gidebileceğini bildirir.',
+  },
+  'Tanzim_TT/tt-35f.png': {
+    title: 'Sağa ve Sola Mecburi Yön (TT-35f)',
+    description: 'Sağa ve sola mecburi yön levhası, sürücülerin bu noktada sağa veya sola gidebileceğini, ileri gidemeyeceğini bildirir.',
+  },
+  'Tanzim_TT/tt-35g.png': {
+    title: 'İleriden Sağa Mecburi Yön (TT-35g)',
+    description: 'İleriden sağa mecburi yön levhası, sürücülerin ilerideki kavşaktan sağa dönmek zorunda olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-35h.png': {
+    title: 'İleriden Sola Mecburi Yön (TT-35h)',
+    description: 'İleriden sola mecburi yön levhası, sürücülerin ilerideki kavşaktan sola dönmek zorunda olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-36a.png': {
+    title: 'Sağdan Gidiniz (TT-36a)',
+    description: 'Sağdan gidiniz levhası, engel veya çalışma alanı bulunan noktada araçların sağdan geçmesi gerektiğini bildirir.',
+  },
+  'Tanzim_TT/tt-36b.png': {
+    title: 'Soldan Gidiniz (TT-36b)',
+    description: 'Soldan gidiniz levhası, engel veya çalışma alanı bulunan noktada araçların soldan geçmesi gerektiğini bildirir.',
+  },
+  'Tanzim_TT/tt-36c.png': {
+    title: 'Her İki Yandan Gidiniz (TT-36c)',
+    description: 'Her iki yandan gidiniz levhası, engel bulunan noktada araçların hem sağdan hem soldan geçebileceğini bildirir.',
+  },
+  'Tanzim_TT/tt-37.png': {
+    title: 'Ada Etrafında Dönünüz (TT-37)',
+    description: 'Ada etrafında dönünüz levhası, trafik adası bulunan noktada araçların ada etrafından dönerek geçmesi gerektiğini bildirir.',
+  },
+  'Tanzim_TT/tt-38a.png': {
+    title: 'Mecburi Bisiklet Yolu (TT-38a)',
+    description: 'Mecburi bisiklet yolu levhası, belirtilen yolun sadece bisikletliler tarafından kullanılması zorunlu olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-38b.png': {
+    title: 'Mecburi Bisiklet Yolu Sonu (TT-38b)',
+    description: 'Mecburi bisiklet yolu sonu levhası, mecburi bisiklet yolunun bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-39a.png': {
+    title: 'Mecburi Yaya Yolu (TT-39a)',
+    description: 'Mecburi yaya yolu levhası, belirtilen yolun sadece yayalar tarafından kullanılması zorunlu olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-39b.png': {
+    title: 'Mecburi Yaya Yolu Sonu (TT-39b)',
+    description: 'Mecburi yaya yolu sonu levhası, mecburi yaya yolunun bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-4.png': {
+    title: 'Girişi Olmayan Yol (TT-4)',
+    description: 'Girişi olmayan yol levhası, belirtilen yola araç girişinin yasak olduğunu bildirir. Bu yolun aksi yönde tek yönlü olduğunu gösterir.',
+  },
+  'Tanzim_TT/tt-40a.png': {
+    title: 'Mecburi Atlı Yolu (TT-40a)',
+    description: 'Mecburi atlı yolu levhası, belirtilen yolun sadece atlılar tarafından kullanılması zorunlu olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-40b.png': {
+    title: 'Mecburi Atlı Yolu Sonu (TT-40b)',
+    description: 'Mecburi atlı yolu sonu levhası, mecburi atlı yolunun bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-41a-30.png': {
+    title: 'Mecburi Asgari Hız 30 km (TT-41a)',
+    description: 'Mecburi asgari hız levhası, bu yolda araçların 30 km/s altında hızla gidemeyeceğini bildirir.',
+  },
+  'Tanzim_TT/tt-41b-30.png': {
+    title: 'Mecburi Asgari Hız Sonu (TT-41b)',
+    description: 'Mecburi asgari hız sonu levhası, mecburi asgari hız sınırlamasının bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-42a.png': {
+    title: 'Zincir Takmak Mecburidir (TT-42a)',
+    description: 'Zincir takmak mecburidir levhası, kış şartlarında bu yolda araçlara zincir takmanın zorunlu olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-42b.png': {
+    title: 'Zincir Takmak Mecburiyeti Sonu (TT-42b)',
+    description: 'Zincir takmak mecburiyeti sonu levhası, zincir takma zorunluluğunun bu noktada sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-43.png': {
+    title: 'Ağır Taşıtlar ve Tehlikeli Madde Taşıyan Taşıtlar İçin Mecburi Yön (TT-43)',
+    description: 'Ağır taşıtlar ve tehlikeli madde taşıyan taşıtlar için mecburi yön levhası, bu araçların belirtilen yöne gitmek zorunda olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-43a.png': {
+    title: 'Tehlikeli Madde Taşıyan Taşıtların Mecburi Yönü (TT-43a)',
+    description: 'Tehlikeli madde taşıyan taşıtların izleyecekleri mecburi yönü gösterir.',
+  },
+  'Tanzim_TT/tt-43b.png': {
+    title: 'Tehlikeli Madde Taşıyan Taşıtların Mecburi Yönü (TT-43b)',
+    description: 'Tehlikeli madde taşıyan taşıtların izleyecekleri mecburi yönü gösterir.',
+  },
+  'Tanzim_TT/tt-43c.png': {
+    title: 'Tehlikeli Madde Taşıyan Taşıtların Mecburi Yönü (TT-43c)',
+    description: 'Tehlikeli madde taşıyan taşıtların izleyecekleri mecburi yönü gösterir.',
+  },
+  'Tanzim_TT/tt-44a.png': {
+    title: 'Yayalar ve Bisikletliler Tarafından Kullanılabilen Yol (TT-44a)',
+    description: 'Yayalar ve bisikletliler tarafından kullanılabilen yol levhası, belirtilen yolun yayalar ve bisikletliler tarafından kullanılabileceğini gösterir.',
+  },
+  'Tanzim_TT/tt-44b.png': {
+    title: 'Yayalar ve Bisikletliler Yolunun Sonu (TT-44b)',
+    description: 'Yayalar ve bisikletliler tarafından kullanılabilen yolun sonu levhası, bu uygulamanın sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-45a.png': {
+    title: 'Yayalar ve Bisikletliler İçin Ayrı Ayrı Kullanılabilen Yol (TT-45a)',
+    description: 'Yayalar ve bisikletliler için ayrı ayrı kullanılabilen yol levhası, belirtilen yolun yayalar ve bisikletliler için ayrılmış bölümlerden oluştuğunu gösterir.',
+  },
+  'Tanzim_TT/tt-45b.png': {
+    title: 'Yayalar ve Bisikletliler İçin Ayrı Yolun Sonu (TT-45b)',
+    description: 'Yayalar ve bisikletliler için ayrı ayrı kullanılabilen yolun sonu levhası, bu uygulamanın sona erdiğini bildirir.',
+  },
+  'Tanzim_TT/tt-5.png': {
+    title: 'Taşıt Trafiğine Kapalı Yol (TT-5)',
+    description: 'Taşıt trafiğine kapalı yol levhası, belirtilen yolun tüm taşıt trafiğine kapalı olduğunu bildirir. Sadece yayalar kullanabilir.',
+  },
+  'Tanzim_TT/tt-6.png': {
+    title: 'Araba Giremez (TT-6)',
+    description: 'Araba giremez levhası, belirtilen yola otomobil ve benzeri araçların girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-7.png': {
+    title: 'Motosiklet Giremez (TT-7)',
+    description: 'Motosiklet giremez levhası, belirtilen yola motosikletlerin girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-8.png': {
+    title: 'Bisiklet Giremez (TT-8)',
+    description: 'Bisiklet giremez levhası, belirtilen yola bisikletlerin girmesinin yasak olduğunu bildirir.',
+  },
+  'Tanzim_TT/tt-9.png': {
+    title: 'Motorlu Bisiklet Giremez (TT-9)',
+    description: 'Motorlu bisiklet giremez levhası, belirtilen yola motorlu bisikletlerin girmesinin yasak olduğunu bildirir.',
+  },
+  'Tehlike_T/t-10.png': {
+    title: 'Gevşek Şev (T-10)',
+    description: 'Gevşek şev levhası, yol kenarındaki şevin (yamaç) gevşek olduğunu ve kayma riski bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-11.png': {
+    title: 'Yaya Geçidi (T-11)',
+    description: 'Yaya geçidi levhası, ileride yayaların karşıdan karşıya geçebileceği bir yaya geçidi bulunduğunu bildirir. Sürücüler hızını azaltmalı ve yayalara yol vermelidir.',
+  },
+  'Tehlike_T/t-12.png': {
+    title: 'Okul Geçidi (T-12)',
+    description: 'Okul geçidi levhası, ileride öğrencilerin karşıdan karşıya geçtiği bir okul geçidi bulunduğunu bildirir. Sürücüler çok dikkatli olmalı ve hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-13.png': {
+    title: 'Bisiklet Geçebilir (T-13)',
+    description: 'Bisiklet geçebilir levhası, yol üzerinde bisikletlilerin geçebileceğini bildirir. Sürücüler bisikletlilere dikkat etmelidir.',
+  },
+  'Tehlike_T/t-14a.png': {
+    title: 'Ehli Hayvanlar Geçebilir (T-14a)',
+    description: 'Ehli hayvanlar geçebilir levhası, yol üzerinde evcil hayvanların geçebileceğini bildirir. Sürücüler hayvanlara dikkat etmelidir.',
+  },
+  'Tehlike_T/t-14b.png': {
+    title: 'Vahşi Hayvanlar Geçebilir (T-14b)',
+    description: 'Vahşi hayvanlar geçebilir levhası, yol üzerinde vahşi hayvanların geçebileceğini bildirir. Sürücüler özellikle gece çok dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-15.png': {
+    title: 'Yolda Çalışma (T-15)',
+    description: 'Yolda çalışma levhası, ileride yol yapım, bakım ve onarım çalışması yapıldığını bildirir. Sürücüler hızını azaltmalı ve çalışma alanında dikkatli ilerlemelidir.',
+  },
+  'Tehlike_T/t-16.png': {
+    title: 'Işıklı İşaret Cihazı (T-16)',
+    description: 'Işıklı işaret cihazı levhası, ileride trafik ışıkları (sinyalizasyon) bulunduğunu önceden bildirir.',
+  },
+  'Tehlike_T/t-17.png': {
+    title: 'Havalimanı - Alçak Uçuş (T-17)',
+    description: 'Havalimanı (alçak uçuş) levhası, yol üzerinde alçak uçan uçak bulunabileceğini ve havalimanına yaklaşıldığını bildirir.',
+  },
+  'Tehlike_T/t-18.png': {
+    title: 'Yandan Rüzgar (T-18)',
+    description: 'Yandan rüzgar levhası, yolun bu kesiminde kuvvetli yandan rüzgar olabileceğini bildirir. Sürücüler direksiyon hakimiyetine dikkat etmelidir.',
+  },
+  'Tehlike_T/t-19.png': {
+    title: 'İki Yönlü Trafik (T-19)',
+    description: 'İki yönlü trafik levhası, tek yönlü yolun sona erip iki yönlü trafiğin başladığını bildirir. Sürücüler karşı yönden gelen araçlara dikkat etmelidir.',
+  },
+  'Tehlike_T/t-1a.png': {
+    title: 'Sağa Tehlikeli Viraj (T-1a)',
+    description: 'Sağa tehlikeli viraj levhası, ileride sağa doğru tehlikeli bir viraj bulunduğunu bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-1b.png': {
+    title: 'Sola Tehlikeli Viraj (T-1b)',
+    description: 'Sola tehlikeli viraj levhası, ileride sola doğru tehlikeli bir viraj bulunduğunu bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-20.png': {
+    title: 'Dikkat (T-20)',
+    description: 'Dikkat levhası, yol güzergahında ek levhalarla belirtilecek bir tehlike veya durum bulunduğunu bildirir. Sürücüler dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-21.png': {
+    title: 'Kontrolsüz Kavşak (T-21)',
+    description: 'Kontrolsüz kavşak levhası, ileride trafik ışığı veya trafik işaretçisi bulunmayan bir kavşak bulunduğunu bildirir. Sürücüler hızını azaltmalı ve dikkatli geçmelidir.',
+  },
+  'Tehlike_T/t-22a.png': {
+    title: 'Ana Yol - Tali Yol Kavşağı (T-22a)',
+    description: 'Ana yol - tali yol kavşağı levhası, ileride ana yola tali yolun katıldığı bir kavşak bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-22b.png': {
+    title: 'Ana Yol - Tali Yol Kavşağı (T-22b)',
+    description: 'Ana yol - tali yol kavşağı levhası, ileride ana yola tali yolun katıldığı bir kavşak bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-22c.png': {
+    title: 'Ana Yol - Tali Yol Kavşağı (T-22c)',
+    description: 'Ana yol - tali yol kavşağı levhası, ileride ana yola tali yolun katıldığı bir kavşak bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-22d.png': {
+    title: 'Ana Yol - Tali Yol Kavşağı (T-22d)',
+    description: 'Ana yol - tali yol kavşağı levhası, ileride ana yola tali yolun katıldığı bir kavşak bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-22e.png': {
+    title: 'Ana Yol - Tali Yol Kavşağı (T-22e)',
+    description: 'Ana yol - tali yol kavşağı levhası, ileride ana yola tali yolun katıldığı bir kavşak bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-23a.png': {
+    title: 'Sağdan Ana Yola Giriş (T-23a)',
+    description: 'Sağdan ana yola giriş levhası, tali yoldan sağdan ana yola girildiğini ve ana yoldaki araçlara yol verilmesi gerektiğini bildirir.',
+  },
+  'Tehlike_T/t-23b.png': {
+    title: 'Soldan Ana Yola Giriş (T-23b)',
+    description: 'Soldan ana yola giriş levhası, tali yoldan soldan ana yola girildiğini ve ana yoldaki araçlara yol verilmesi gerektiğini bildirir.',
+  },
+  'Tehlike_T/t-24.png': {
+    title: 'Dönel Kavşak (T-24)',
+    description: 'Dönel kavşak levhası, ileride bir dönel kavşak (ada) bulunduğunu bildirir. Sürücüler hızını azaltmalı ve dönel kavşak içindeki araçlara yol vermelidir.',
+  },
+  'Tehlike_T/t-25.png': {
+    title: 'Kontrollü Demiryolu Geçidi (T-25)',
+    description: 'Kontrollü demiryolu geçidi levhası, ileride bariyerli ve ışıklı kontrollü bir demiryolu geçidi bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-26.png': {
+    title: 'Kontrolsüz Demiryolu Geçidi (T-26)',
+    description: 'Kontrolsüz demiryolu geçidi levhası, ileride bariyeri olmayan kontrolsüz bir demiryolu geçidi bulunduğunu bildirir. Sürücüler tren gelip gelmediğini kontrol ederek geçmelidir.',
+  },
+  'Tehlike_T/t-27a.png': {
+    title: 'Kontrolsüz Demiryolu Geçidi - Tek Hat (T-27a)',
+    description: 'Kontrolsüz demiryolu geçidi (tek hat) levhası, ileride tek hatlı kontrolsüz bir demiryolu geçidi bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-27b.png': {
+    title: 'Kontrolsüz Demiryolu Geçidi - Çift Hat (T-27b)',
+    description: 'Kontrolsüz demiryolu geçidi (çift hat) levhası, ileride çift hatlı kontrolsüz bir demiryolu geçidi bulunduğunu bildirir.',
+  },
+  'Tehlike_T/t-28a-b.png': {
+    title: 'Demiryolu Hemzemin Geçit Yaklaşımı (T-28a-b)',
+    description: 'Demiryolu hemzemin geçit yaklaşımı levhası, demiryolu geçidine yaklaşıldığını bildirir. Sürücüler dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-29a-b.png': {
+    title: 'Demiryolu Hemzemin Geçit Yaklaşımı (T-29a-b)',
+    description: 'Demiryolu hemzemin geçit yaklaşımı levhası, demiryolu geçidine yaklaşıldığını bildirir. Sürücüler dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-2a.png': {
+    title: 'Sağa Tehlikeli Devamlı Virajlar (T-2a)',
+    description: 'Sağa tehlikeli devamlı virajlar levhası, ileride sağa doğru birbirini takip eden tehlikeli virajlar bulunduğunu bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-2b.png': {
+    title: 'Sola Tehlikeli Devamlı Virajlar (T-2b)',
+    description: 'Sola tehlikeli devamlı virajlar levhası, ileride sola doğru birbirini takip eden tehlikeli virajlar bulunduğunu bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-30a-b.png': {
+    title: 'Demiryolu Hemzemin Geçit Yaklaşımı (T-30a-b)',
+    description: 'Demiryolu hemzemin geçit yaklaşımı levhası, demiryolu geçidine yaklaşıldığını bildirir. Sürücüler dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-31a-b.png': {
+    title: 'Köprü Başı Levhası (T-31a-b)',
+    description: 'Köprü başı levhası, köprüye yaklaşıldığını bildirir. Sürücüler köprüye girmeden önce dikkatli olmalı ve trafik durumuna göre hızını ayarlamalıdır.',
+  },
+  'Tehlike_T/t-32.png': {
+    title: 'Engel İşareti (T-32)',
+    description: 'Engel işareti levhası, yol üzerinde veya yol kenarında bir engel bulunduğunu bildirir. Sürücüler engelden güvenle geçmek için dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-33a.png': {
+    title: 'Tehlikeli Viraj Yön Levhası (T-33a)',
+    description: 'Tehlikeli viraj yön levhası, tehlikeli virajın bulunduğu yönü gösterir. Sürücüler viraja uygun hızda girmelidir.',
+  },
+  'Tehlike_T/t-33b.png': {
+    title: 'Tehlikeli Viraj Yön Levhası (T-33b)',
+    description: 'Tehlikeli viraj yön levhası, tehlikeli virajın bulunduğu yönü gösterir. Sürücüler viraja uygun hızda girmelidir.',
+  },
+  'Tehlike_T/t-33d-e.png': {
+    title: 'Onarım Yaklaşım Levhası (T-33d-e)',
+    description: 'Onarım yaklaşım levhası, yol onarım çalışmasının bulunduğu bölgeye yaklaşıldığını bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-33f.png': {
+    title: 'Onarım Yaklaşım Levhası (T-33f)',
+    description: 'Onarım yaklaşım levhası, yol onarım çalışmasının bulunduğu bölgeye yaklaşıldığını bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-34a-b.png': {
+    title: 'Refüj Başı Ek Levhası (T-34a-b)',
+    description: 'Refüj başı ek levhası, refüjün (orta ayırıcı) başladığını bildirir. Sürücüler refüjün bulunduğu bölgede dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-35.png': {
+    title: 'Dönüş Adası Ek Levhası (T-35)',
+    description: 'Dönüş adası ek levhası, yol üzerinde dönüş adası bulunduğunu bildirir. Sürücüler ada etrafında dikkatli dönmelidir.',
+  },
+  'Tehlike_T/t-36.png': {
+    title: 'Düşük Banket (T-36)',
+    description: 'Düşük banket levhası, yolun banketinin (kenar kısmı) düşük olduğunu bildirir. Sürücüler yolun kenarına yaklaşırken dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-37.png': {
+    title: 'Gizli Buzlanma (T-37)',
+    description: 'Gizli buzlanma levhası, yolun bu kesiminde görünmeyen buzlanma riski bulunduğunu bildirir. Sürücüler özellikle kış aylarında hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-38.png': {
+    title: 'Olası Trafik Sıkışıklığı (T-38)',
+    description: 'Olası trafik sıkışıklığı levhası, ileride trafik sıkışıklığı olabileceğini bildirir. Sürücüler hızını azaltmalı ve kuyruğa hazırlıklı olmalıdır.',
+  },
+  'Tehlike_T/t-39.png': {
+    title: 'Tramvay Hattı ile Oluşan Kavşak (T-39)',
+    description: 'Tramvay hattı ile oluşan kavşak levhası, ileride tramvay hattı ile yolun kesiştiği bir kavşak bulunduğunu bildirir. Sürücüler tramvaya dikkat etmelidir.',
+  },
+  'Tehlike_T/t-3a.png': {
+    title: 'Tehlikeli Eğim - İniş (T-3a)',
+    description: 'Tehlikeli eğim (iniş) levhası, ileride tehlikeli bir iniş eğimi bulunduğunu bildirir. Sürücüler fren sistemine dikkat etmeli ve düşük viteste inmeli.',
+  },
+  'Tehlike_T/t-3b.png': {
+    title: 'Tehlikeli Eğim - Çıkış (T-3b)',
+    description: 'Tehlikeli eğim (çıkış) levhası, ileride tehlikeli bir çıkış eğimi bulunduğunu bildirir. Sürücüler uygun vitesle çıkmalıdır.',
+  },
+  'Tehlike_T/t-4a.png': {
+    title: 'Her İki Taraftan Daralan Kaplama (T-4a)',
+    description: 'Her iki taraftan daralan kaplama levhası, yolun her iki taraftan daraldığını bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-4b.png': {
+    title: 'Sağdan Daralan Kaplama (T-4b)',
+    description: 'Sağdan daralan kaplama levhası, yolun sağ taraftan daraldığını bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-4c.png': {
+    title: 'Soldan Daralan Kaplama (T-4c)',
+    description: 'Soldan daralan kaplama levhası, yolun sol taraftan daraldığını bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-5.png': {
+    title: 'Açılan Köprü (T-5)',
+    description: 'Açılan köprü levhası, ileride açılır kapanır bir köprü bulunduğunu bildirir. Sürücüler köprünün açık olduğu durumlarda durmalıdır.',
+  },
+  'Tehlike_T/t-6.png': {
+    title: 'Deniz veya Nehir Kıyısında Biten Yol (T-6)',
+    description: 'Deniz veya nehir kıyısında biten yol levhası, yolun deniz veya nehir kıyısında sona erdiğini bildirir. Sürücüler dikkatli olmalıdır.',
+  },
+  'Tehlike_T/t-7.png': {
+    title: 'Kasisli Yol (T-7)',
+    description: 'Kasisli yol levhası, yol üzerinde kasis (hız tümseği) bulunduğunu bildirir. Sürücüler hızını azaltmalıdır.',
+  },
+  'Tehlike_T/t-8.png': {
+    title: 'Kaygan Yol (T-8)',
+    description: 'Kaygan yol levhası, yolun bu kesiminin kaygan olabileceğini bildirir. Sürücüler hızını azaltmalı ve ani fren yapmamalıdır.',
+  },
+  'Tehlike_T/t-9.png': {
+    title: 'Gevşek Malzemeli Zemin (T-9)',
+    description: 'Gevşek malzemeli zemin levhası, yol yüzeyinde gevşek malzeme (çakıl, kum vb.) bulunabileceğini bildirir. Sürücüler hızını azaltmalı ve dikkatli olmalıdır.',
   },
 };
 

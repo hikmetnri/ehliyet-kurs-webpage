@@ -1,11 +1,11 @@
-// Auto-generated from .agent/content/signs/isg-turkce-kategorili/manifest.json
-// Keep source files in .agent/content/signs/isg-turkce-kategorili and regenerate when the asset set changes.
+// Auto-generated from Cloudinary isg/ (doğru başlık + açıklama)
+// Kaynak: Cloudinary isg/ klasörü (296 levha)
 
 export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M033--m033-mandatory-lower-safety-restraining-bar-on-ski-chairlift.svg",
     "title": "Telesiyej Güvenlik Barını İndir",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M033.",
+    "description": "Telesiyej (teleferik) güvenlik barını indirerek inişe hazırlanma işlemini gösterir. Yolcuların güvenli bir şekilde araçtan ayrılmasını sağlayan zorunlu prosedürü belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -17,7 +17,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M034--m034-mandatory-raise-safety-restraining-bar-on-ski-chairlift.svg",
     "title": "Telesiyej Güvenlik Barını Kaldır",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M034.",
+    "description": "Telesiyej güvenlik barını kaldırarak çıkışa hazırlanma işlemini gösterir. Yolcuların araça güvenli bir şekilde binmesini sağlayan zorunlu prosedürü belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -29,7 +29,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M036--m036-mandatory-keep-ski-tips-up.svg",
     "title": "Kayak Uçlarını Yukarıda Tut",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M036.",
+    "description": "Kayak yaparken kayak uçlarını yukarıda tutma talimatını verir. Çarpışmaları önlemek ve diğer kayakçıları korumak için uyulması gereken güvenlik kuralıdır.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -41,7 +41,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M037--m037-mandatory-close-and-secure-the-hatch-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botu Kapağını Kapat ve Sabitle",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M037.",
+    "description": "Cankurtaran botu tahliyesi sırasında kapağın kapatılıp sabitlenmesi gerektiğini gösterir. Tahliye prosedürünün güvenli ve hızlı bir şekilde gerçekleşmesini sağlayan talimatı belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -53,7 +53,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M038--m038-mandatory-start-the-motor-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botu Motorunu Çalıştır",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M038.",
+    "description": "Cankurtaran botu motorunun çalıştırılması talimatını verir. Tahliye operasyonunun başlaması için gerekli adımı belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -65,7 +65,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M039--m039-mandatory-lower-the-lifeboat-to-the-water-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botunu Suya İndir",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M039.",
+    "description": "Cankurtaran botunun suya indirilmesi talimatını gösterir. Tahliye prosedürünün ikinci aşamasını belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -77,7 +77,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M040--m040-mandatory-lower-the-lifeboat-to-the-water-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botunu Suya İndir",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M040.",
+    "description": "Cankurtaran botunun suya indirilmesine devam eden talimatı gösterir. Tahliye operasyonunun devamını belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -89,7 +89,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M041--m041-mandatory-lower-the-rescue-boat-to-the-water-lifeboat-launch-sequence.svg",
     "title": "Kurtarma Botunu Suya İndir",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M041.",
+    "description": "Kurtarma botunun suya indirilmesi talimatını verir. Kurtarma operasyonunun başlamasını sağlayan prosedürü belirtir.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -101,7 +101,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M042--m042-mandatory-release-the-hooks-holding-the-lifeboat-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botu Kancalarını Serbest Bırak",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M042.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Cankurtaran Botu Kancalarını Serbest Bırak işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M042.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -113,7 +113,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M043--m043-mandatory-start-the-water-spray-for-the-lifeboat-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botu Su Spreyini Başlat",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M043.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Cankurtaran Botu Su Spreyini Başlat işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M043.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -125,7 +125,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M044--m044-mandatory-start-the-air-supply-for-the-lifeboat-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botu Hava Beslemesini Başlat",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M044.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Cankurtaran Botu Hava Beslemesini Başlat işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M044.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -137,7 +137,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M045--m045-mandatory-release-the-ropes-gripes-lifeboat-launch-sequence.svg",
     "title": "Cankurtaran Botu Halatlarını Serbest Bırak",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M045.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Cankurtaran Botu Halatlarını Serbest Bırak işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M045.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -149,7 +149,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M050--m050-mandatory-exit-sled-toboggan-to-the-left.svg",
     "title": "Kızak Çıkışı Soldan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M050.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kızak Çıkışı Soldan işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M050.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -161,7 +161,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M051--m051-mandatory-exit-sled-toboggan-to-the-right.svg",
     "title": "Kızak Çıkışı Sağdan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M051.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kızak Çıkışı Sağdan işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M051.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -173,7 +173,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M052--m052-mandatory-keep-a-safe-distance-between-sleds-toboggans.svg",
     "title": "Kızaklar Arasında Güvenli Mesafe Bırak",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M052.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kızaklar Arasında Güvenli Mesafe Bırak işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M052.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -185,7 +185,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/deniz-spor-ve-ozel-alan/M054--m054-supervise-children-during-aquatic-activities.svg",
     "title": "Su Etkinliklerinde Çocukları Gözet",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Kod: M054.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Deniz, Spor ve Özel Alan grubunda yer alır. Su Etkinliklerinde Çocukları Gözet işareti, Deniz, Spor ve Özel Alan alanında güvenlik prosedürlerini belirtir. Kod: M054.",
     "category": "zorunlu_talimatlar",
     "subcategory": "deniz-spor-ve-ozel-alan",
     "subcategoryLabel": "Deniz, Spor ve Özel Alan",
@@ -197,7 +197,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M001--m001.svg",
     "title": "Genel Zorunlu Talimat",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M001.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Genel Zorunlu Talimat işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M001.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -209,7 +209,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M002--m002.svg",
     "title": "Kullanım Kılavuzunu Oku",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M002.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kullanım Kılavuzunu Oku işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M002.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -221,7 +221,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M005--m005.svg",
     "title": "Topraklama Bağlantısını Yap",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M005.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Topraklama Bağlantısını Yap işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M005.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -233,7 +233,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M006--m006.svg",
     "title": "Fişi Prizden Çıkar",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M006.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Fişi Prizden Çıkar işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M006.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -245,7 +245,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M007--m007.svg",
     "title": "Opak Göz Koruyucu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M007.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Opak Göz Koruyucu Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M007.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -257,7 +257,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M011--ellerini-yika.svg",
     "title": "Ellerini Yıka",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M011.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Ellerini Yıka işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M011.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -269,7 +269,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M012--tutunma-korkulugu-kullan.svg",
     "title": "Tutunma Korkuluğunu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M012.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Tutunma Korkuluğunu Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M012.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -281,7 +281,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M020--m020.svg",
     "title": "Emniyet Kemeri Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M020.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Emniyet Kemeri Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M020.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -293,7 +293,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M021--m021.svg",
     "title": "Bakım Öncesi Enerjiyi Kes",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M021.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Bakım Öncesi Enerjiyi Kes işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M021.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -305,7 +305,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M022--m022.svg",
     "title": "Koruyucu Krem Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M022.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Koruyucu Krem Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M022.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -317,7 +317,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M023--m023.svg",
     "title": "Yaya Yolunu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M023.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Yaya Yolunu Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M023.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -329,7 +329,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M024--m024.svg",
     "title": "Yürüme Yolunu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M024.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Yürüme Yolunu Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M024.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -341,7 +341,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M025--m025.svg",
     "title": "Bebek Göz Koruyucu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M025.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Bebek Göz Koruyucu Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M025.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -353,7 +353,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M026--m026.svg",
     "title": "Koruyucu Önlük Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M026.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Koruyucu Önlük Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M026.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -365,7 +365,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M030--m030-mandatory-place-trash-in-the-bin.svg",
     "title": "Çöpü Kutusuna At",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M030.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Çöpü Kutusuna At işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M030.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -377,7 +377,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M035--m035-mandatory-exit-towpath-after-falling.svg",
     "title": "Düştükten Sonra Çekme Yolundan Çık",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M035.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Düştükten Sonra Çekme Yolundan Çık işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M035.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -389,7 +389,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M055--m055.svg",
     "title": "Çocukların Ulaşamayacağı Yerde Tut",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M055.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Çocukların Ulaşamayacağı Yerde Tut işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M055.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -401,7 +401,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M056--m056.svg",
     "title": "Havalandırma Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M056.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Havalandırma Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M056.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -413,7 +413,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M057--m057.svg",
     "title": "Kapıyı Kapalı Tut",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M057.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kapıyı Kapalı Tut işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M057.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -425,7 +425,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M058--m058.svg",
     "title": "Sensörü Temiz Tut",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M058.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Sensörü Temiz Tut işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M058.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -437,7 +437,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M059--m059.svg",
     "title": "Koruyucu Bariyeri Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M059.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Koruyucu Bariyeri Kullan işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M059.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -449,7 +449,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M060--m060.svg",
     "title": "Yüksekliği Ayarla",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M060.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Yüksekliği Ayarla işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M060.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -461,7 +461,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M061--m061.svg",
     "title": "Kapakları Kapalı Tut",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M061.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kapakları Kapalı Tut işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M061.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -473,7 +473,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M062--m062.svg",
     "title": "Ellerini Dezenfekte Et",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M062.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Ellerini Dezenfekte Et işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M062.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -485,7 +485,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M063--m063.svg",
     "title": "Maskeyi Doğru Tak",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M063.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Maskeyi Doğru Tak işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M063.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -497,7 +497,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M064--m064.svg",
     "title": "Eldivenleri Doğru Çıkar",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M064.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Eldivenleri Doğru Çıkar işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M064.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -509,7 +509,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M065--m065.svg",
     "title": "Mesafeyi Koru",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M065.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Mesafeyi Koru işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M065.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -521,7 +521,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M066--m066.svg",
     "title": "Temizlik Yap",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M066.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Temizlik Yap işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M066.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -533,7 +533,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M067--m067.svg",
     "title": "Koruyucu Ekipmanı Kontrol Et",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M067.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Koruyucu Ekipmanı Kontrol Et işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M067.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -545,7 +545,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M068--m068.svg",
     "title": "Ekipmanı Yerine Koy",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M068.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Ekipmanı Yerine Koy işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M068.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -557,7 +557,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M069--m069.svg",
     "title": "Yükü Sabitle",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M069.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Yükü Sabitle işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M069.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -569,7 +569,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M070--m070.svg",
     "title": "Yetkili Talimatına Uy",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M070.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Yetkili Talimatına Uy işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M070.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -581,7 +581,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M071--m071.svg",
     "title": "Araç Motorunu Durdur",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M071.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Araç Motorunu Durdur işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M071.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -593,7 +593,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/genel-zorunlu-talimatlar/M072--m072.svg",
     "title": "Kapıyı Kilitle",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kod: M072.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Genel Zorunlu Talimatlar grubunda yer alır. Kapıyı Kilitle işareti, Genel Zorunlu Talimatlar alanında güvenlik prosedürlerini belirtir. Kod: M072.",
     "category": "zorunlu_talimatlar",
     "subcategory": "genel-zorunlu-talimatlar",
     "subcategoryLabel": "Genel Zorunlu Talimatlar",
@@ -605,7 +605,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M003--kulak-koruyucu-kullan.svg",
     "title": "Kulak Koruyucu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M003.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kulak Koruyucu Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M003.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -617,7 +617,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M004--goz-koruyucu-kullan.svg",
     "title": "Göz Koruyucu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M004.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Göz Koruyucu Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M004.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -629,7 +629,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M008--is-guvenlik-ayakkabisi-giy.svg",
     "title": "İş Güvenliği Ayakkabısı Giy",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M008.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. İş Güvenliği Ayakkabısı Giy işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M008.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -641,7 +641,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M009--koruyucu-eldiven-kullan.svg",
     "title": "Koruyucu Eldiven Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M009.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Koruyucu Eldiven Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M009.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -653,7 +653,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M010--koruyucu-giysi-giy.svg",
     "title": "Koruyucu Giysi Giy",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M010.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Koruyucu Giysi Giy işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M010.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -665,7 +665,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M013--yuz-koruyucu-kullan.svg",
     "title": "Yüz Koruyucu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M013.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Yüz Koruyucu Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M013.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -677,7 +677,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M015--fosforlu-yelek-giy.svg",
     "title": "Fosforlu Yelek Giy",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M015.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Fosforlu Yelek Giy işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M015.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -689,7 +689,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M016--maske-kullan.svg",
     "title": "Maske Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M016.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Maske Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M016.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -701,7 +701,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M017--solunum-koruyucu-kullan.svg",
     "title": "Solunum Koruyucu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M017.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Solunum Koruyucu Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M017.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -713,7 +713,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M018--emniyet-kemeri-kullan.svg",
     "title": "Emniyet Kemeri Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M018.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Emniyet Kemeri Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M018.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -725,7 +725,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M019--kaynak-maskesi-kullan.svg",
     "title": "Kaynak Maskesi Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M019.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kaynak Maskesi Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M019.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -737,7 +737,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M032--antistatik-ayakkabi-giy.svg",
     "title": "Antistatik Ayakkabı Giy",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M032.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Antistatik Ayakkabı Giy işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M032.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -749,7 +749,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M047--solunum-cihazi-kullan.svg",
     "title": "Solunum Cihazı Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M047.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Solunum Cihazı Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M047.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -761,7 +761,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M049--m049-mandatory-use-personal-protective-equipment-for-sport.svg",
     "title": "Spor İçin Kişisel Koruyucu Donanım Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M049.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Spor İçin Kişisel Koruyucu Donanım Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M049.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -773,7 +773,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/kisisel-koruyucu-donanim/M053--m053-mandatory-wear-personal-floatation-device-pfd-lifejacket.svg",
     "title": "Can Yeleği Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Kod: M053.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Kişisel Koruyucu Donanım grubunda yer alır. Can Yeleği Kullan işareti, Kişisel Koruyucu Donanım alanında güvenlik prosedürlerini belirtir. Kod: M053.",
     "category": "zorunlu_talimatlar",
     "subcategory": "kisisel-koruyucu-donanim",
     "subcategoryLabel": "Kişisel Koruyucu Donanım",
@@ -785,7 +785,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/makine-ekipman-ve-tesisat/M027--koruyucu-kapak-kontrol-et.svg",
     "title": "Koruyucu Kapak Kontrol Et",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Kod: M027.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Koruyucu Kapak Kontrol Et işareti, Makine, Ekipman ve Tesisat alanında güvenlik prosedürlerini belirtir. Kod: M027.",
     "category": "zorunlu_talimatlar",
     "subcategory": "makine-ekipman-ve-tesisat",
     "subcategoryLabel": "Makine, Ekipman ve Tesisat",
@@ -797,7 +797,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/makine-ekipman-ve-tesisat/M028--kilitleri-tak-ve-kilitli-tut.svg",
     "title": "Kilitleri Tak Ve Kilitli Tut",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Kod: M028.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Kilitleri Tak Ve Kilitli Tut işareti, Makine, Ekipman ve Tesisat alanında güvenlik prosedürlerini belirtir. Kod: M028.",
     "category": "zorunlu_talimatlar",
     "subcategory": "makine-ekipman-ve-tesisat",
     "subcategoryLabel": "Makine, Ekipman ve Tesisat",
@@ -809,7 +809,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/makine-ekipman-ve-tesisat/M029--korna-cal.svg",
     "title": "Korna Çal",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Kod: M029.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Korna Çal işareti, Makine, Ekipman ve Tesisat alanında güvenlik prosedürlerini belirtir. Kod: M029.",
     "category": "zorunlu_talimatlar",
     "subcategory": "makine-ekipman-ve-tesisat",
     "subcategoryLabel": "Makine, Ekipman ve Tesisat",
@@ -821,7 +821,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/makine-ekipman-ve-tesisat/M031--testere-koruyucusu-kullan.svg",
     "title": "Testere Koruyucusu Kullan",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Kod: M031.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Testere Koruyucusu Kullan işareti, Makine, Ekipman ve Tesisat alanında güvenlik prosedürlerini belirtir. Kod: M031.",
     "category": "zorunlu_talimatlar",
     "subcategory": "makine-ekipman-ve-tesisat",
     "subcategoryLabel": "Makine, Ekipman ve Tesisat",
@@ -833,7 +833,7 @@ export const isgSignsData = [
   {
     "id": "isg/01-zorunlu-talimatlar/makine-ekipman-ve-tesisat/M046--gaz-tuplerini-sabitle.svg",
     "title": "Gaz Tüplerini Sabitle",
-    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Kod: M046.",
+    "description": "İş sağlığı ve güvenliği kapsamında uyulması gereken zorunlu talimatı gösterir. Makine, Ekipman ve Tesisat grubunda yer alır. Gaz Tüplerini Sabitle işareti, Makine, Ekipman ve Tesisat alanında güvenlik prosedürlerini belirtir. Kod: M046.",
     "category": "zorunlu_talimatlar",
     "subcategory": "makine-ekipman-ve-tesisat",
     "subcategoryLabel": "Makine, Ekipman ve Tesisat",
@@ -845,7 +845,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/elektrik-yangin-kimyasal/W008--elektrik-tehlikesi.svg",
     "title": "Elektrik Tehlikesi",
-    "description": "Elektrik çarpması tehlikesi bulunduğunu bildirir. Elektrikli ekipmanlara, açık kablolara veya yüksek gerilim alanlarına dikkat edilmesi gerektiğini belirtir. Elektrik, Yangın ve Kimyasal grubunda yer alır. Kod: W008.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Elektrik, Yangın ve Kimyasal grubunda yer alır. Elektrik Tehlikesi işareti, Elektrik, Yangın ve Kimyasal alanında güvenlik prosedürlerini belirtir. Kod: W008.",
     "category": "uyari_ve_tehlike",
     "subcategory": "elektrik-yangin-kimyasal",
     "subcategoryLabel": "Elektrik, Yangın ve Kimyasal",
@@ -857,7 +857,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/elektrik-yangin-kimyasal/W021--yanici-madde.svg",
     "title": "Yanıcı Madde Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Elektrik, Yangın ve Kimyasal grubunda yer alır. Kod: W021.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Elektrik, Yangın ve Kimyasal grubunda yer alır. Yanıcı Madde Tehlikesi işareti, Elektrik, Yangın ve Kimyasal alanında güvenlik prosedürlerini belirtir. Kod: W021.",
     "category": "uyari_ve_tehlike",
     "subcategory": "elektrik-yangin-kimyasal",
     "subcategoryLabel": "Elektrik, Yangın ve Kimyasal",
@@ -869,7 +869,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/elektrik-yangin-kimyasal/W022--kesici-madde.svg",
     "title": "Kesici Madde Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Elektrik, Yangın ve Kimyasal grubunda yer alır. Kod: W022.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Elektrik, Yangın ve Kimyasal grubunda yer alır. Kesici Madde Tehlikesi işareti, Elektrik, Yangın ve Kimyasal alanında güvenlik prosedürlerini belirtir. Kod: W022.",
     "category": "uyari_ve_tehlike",
     "subcategory": "elektrik-yangin-kimyasal",
     "subcategoryLabel": "Elektrik, Yangın ve Kimyasal",
@@ -881,7 +881,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/elektrik-yangin-kimyasal/W023--w023.svg",
     "title": "Aşındırıcı Madde Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Elektrik, Yangın ve Kimyasal grubunda yer alır. Kod: W023.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Elektrik, Yangın ve Kimyasal grubunda yer alır. Aşındırıcı Madde Tehlikesi işareti, Elektrik, Yangın ve Kimyasal alanında güvenlik prosedürlerini belirtir. Kod: W023.",
     "category": "uyari_ve_tehlike",
     "subcategory": "elektrik-yangin-kimyasal",
     "subcategoryLabel": "Elektrik, Yangın ve Kimyasal",
@@ -893,7 +893,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/elektrik-yangin-kimyasal/W025--w025.svg",
     "title": "Dönen Silindir Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Elektrik, Yangın ve Kimyasal grubunda yer alır. Kod: W025.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Elektrik, Yangın ve Kimyasal grubunda yer alır. Dönen Silindir Tehlikesi işareti, Elektrik, Yangın ve Kimyasal alanında güvenlik prosedürlerini belirtir. Kod: W025.",
     "category": "uyari_ve_tehlike",
     "subcategory": "elektrik-yangin-kimyasal",
     "subcategoryLabel": "Elektrik, Yangın ve Kimyasal",
@@ -905,7 +905,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W001--genel-uyari.svg",
     "title": "Genel Uyarı",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W001.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Genel Uyarı işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W001.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -917,7 +917,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W002--w002.svg",
     "title": "Patlayıcı Madde Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W002.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Patlayıcı Madde Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W002.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -929,7 +929,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W003--w003.svg",
     "title": "Radyoaktif Madde Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W003.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Radyoaktif Madde Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W003.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -941,7 +941,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W004--w004.svg",
     "title": "Lazer Işını Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W004.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Lazer Işını Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W004.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -953,7 +953,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W005--w005.svg",
     "title": "İyonlaştırıcı Olmayan Radyasyon Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W005.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. İyonlaştırıcı Olmayan Radyasyon Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W005.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -965,7 +965,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W006--w006.svg",
     "title": "Manyetik Alan Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W006.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Manyetik Alan Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W006.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -977,7 +977,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W007--w007.svg",
     "title": "Zemin Seviyesi Farkı Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W007.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Zemin Seviyesi Farkı Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W007.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -989,7 +989,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W011--kaygan-zemin.svg",
     "title": "Kaygan Zemin Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W011.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Kaygan Zemin Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W011.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1001,7 +1001,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W012--takilma-engel-tehlikesi.svg",
     "title": "Takılma ve Engel Tehlikesi",
-    "description": "Zeminde veya geçiş alanlarında takılma, tökezleme veya düşmeye neden olabilecek engeller bulunduğunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W012.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Takılma ve Engel Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W012.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1013,7 +1013,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W013--w013.svg",
     "title": "Köpek Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W013.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Köpek Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W013.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1025,7 +1025,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W016--toksik-madde-tehlikesi.svg",
     "title": "Zehirli Madde Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W016.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Zehirli Madde Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W016.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1037,7 +1037,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W017--sicak-yuzey.svg",
     "title": "Sıcak Yüzey Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W017.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Sıcak Yüzey Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W017.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1049,7 +1049,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W018--w018.svg",
     "title": "Otomatik Başlama Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W018.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Otomatik Başlama Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W018.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1061,7 +1061,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W020--bas-carpma-tehlikesi.svg",
     "title": "Baş Üstü Engel Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W020.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Baş Üstü Engel Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W020.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1073,7 +1073,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W027--w027.svg",
     "title": "Optik Radyasyon Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W027.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Optik Radyasyon Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W027.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1085,7 +1085,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W055--w055-warning-sewage-effluent-outfall.svg",
     "title": "Atık Su Deşarj Noktası Tehlikesi",
-    "description": "Yakında atık su veya kanalizasyon deşarj noktası bulunduğunu bildirir; su kirliliği ve sağlık riski içerebilir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W055.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Atık Su Deşarj Noktası Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W055.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1097,7 +1097,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W063--w063-warning-parasailing.svg",
     "title": "Parasailing Tehlikesi",
-    "description": "Bu alanda parasailing (paraşütle çekilme) aktivitesi yapıldığını ve havadan gelen tehlikelere karşı dikkatli olunması gerektiğini bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W063.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Genel Fiziksel Tehlikeler grubunda yer alır. Parasailing Tehlikesi işareti, Genel Fiziksel Tehlikeler alanında güvenlik prosedürlerini belirtir. Kod: W063.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1108,8 +1108,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W073--w073.svg",
-    "title": "Uyarı Levhası W073",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W073.",
+    "title": "Büyük Ölçekli Yangın Bölgesi (W073)",
+    "description": "Bu işaret, büyük ölçekli bir yangın bölgesi bulunduğunu ve bu alanda yangın riski olduğunu uyarır. Bölgede alev alabilecek faaliyetlerden kaçınılmalı ve yangın güvenliği kurallarına uyulmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1120,8 +1120,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W074--w074.svg",
-    "title": "Uyarı Levhası W074",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W074.",
+    "title": "Hortum Bölgesi (W074)",
+    "description": "Bu işaret, bölgede hortum (tornado) oluşma riski bulunduğunu uyarır. Hortum anında güvenli bir yere sığınılmalı ve açık alanlardan uzak durulmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1132,8 +1132,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W075--w075.svg",
-    "title": "Uyarı Levhası W075",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W075.",
+    "title": "Aktif Yanardağ Bölgesi (W075)",
+    "description": "Bu işaret, aktif bir yanardağ bölgesi bulunduğunu ve volkanik patlama riski olduğunu uyarır. Bölgede yetkililerin talimatlarına uyulmalı ve tehlikeli alanlara girilmemelidir.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1144,8 +1144,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W076--w076.svg",
-    "title": "Uyarı Levhası W076",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W076.",
+    "title": "Enkaz Akıntısı Bölgesi (W076)",
+    "description": "Bu işaret, bölgede enkaz akıntısı veya ani sel oluşabileceğini uyarır. Şiddetli yağışlarda bölgeden uzak durulmalı ve güvenli yükseklere çıkılmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1156,8 +1156,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W077--w077.svg",
-    "title": "Uyarı Levhası W077",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W077.",
+    "title": "Sel Bölgesi (W077)",
+    "description": "Bu işaret, bölgede sel (su baskını) riski bulunduğunu uyarır. Sel anında yüksek ve güvenli bölgelere çıkılmalı, su birikintilerine ve akıntıya girilmemelidir.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1168,8 +1168,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W078--w078.svg",
-    "title": "Uyarı Levhası W078",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W078.",
+    "title": "Heyelan Bölgesi (W078)",
+    "description": "Bu işaret, bölgede heyelan (toprak kayması) veya dengesiz yamaç riski bulunduğunu uyarır. Eğimli ve gevşek zeminli alanlardan uzak durulmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1180,8 +1180,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W080--w080.svg",
-    "title": "Uyarı Levhası W080",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W080.",
+    "title": "Sıcak Buhar Tehlikesi (W080)",
+    "description": "Bu işaret, bölgede sıcak buhar çıkışı tehlikesi bulunduğunu uyarır. Sıcak buhar çıkış noktalarına yaklaşılmamalı ve gerekli koruyucu önlemler alınmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1192,8 +1192,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W082--w082.svg",
-    "title": "Uyarı Levhası W082",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W082.",
+    "title": "Kar Altı Yarıkları Tehlikesi (W082)",
+    "description": "Bu işaret, kar altında gizli yarıklar (çatlaklar) bulunabileceğini uyarır. Karlı bölgelerde dikkatli yürünmeli ve güvenli rotalar tercih edilmelidir.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1204,8 +1204,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W084--w084.svg",
-    "title": "Uyarı Levhası W084",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W084.",
+    "title": "Gök Gürültülü Fırtına (W084)",
+    "description": "Bu işaret, bölgede gök gürültülü fırtına riski bulunduğunu uyarır. Yıldırım düşme riskine karşı açık alanlardan ve yüksek noktalardan uzak durulmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1216,8 +1216,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W085--w085.svg",
-    "title": "Uyarı Levhası W085",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W085.",
+    "title": "Tayfun/Kasırga/Siklon Bölgesi (W085)",
+    "description": "Bu işaret, bölgede tayfun, kasırga veya siklon oluşma riski bulunduğunu uyarır. Fırtına anında güvenli kapalı alanlara sığınılmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1228,8 +1228,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/02-uyari-ve-tehlike/genel-fiziksel-tehlikeler/W088--w088.svg",
-    "title": "Uyarı Levhası W088",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. Genel Fiziksel Tehlikeler grubunda yer alır. Kod: W088.",
+    "title": "Hareketli Bıçak Tehlikesi (W088)",
+    "description": "Bu işaret, bölgede hareketli bıçak veya kesici kanat bulunduğunu uyarır. Dönen veya hareket eden kesici parçalara yaklaşılmamalı ve güvenlik mesafesi korunmalıdır.",
     "category": "uyari_ve_tehlike",
     "subcategory": "genel-fiziksel-tehlikeler",
     "subcategoryLabel": "Genel Fiziksel Tehlikeler",
@@ -1241,7 +1241,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/is-makinesi-yuk-ve-ekipman/W014--forklift-is-makinesi-cikabilir.svg",
     "title": "Forklift ve İş Makinesi Çıkabilir",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. İş Makinesi, Yük ve Ekipman grubunda yer alır. Kod: W014.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. İş Makinesi, Yük ve Ekipman grubunda yer alır. Forklift ve İş Makinesi Çıkabilir işareti, İş Makinesi, Yük ve Ekipman alanında güvenlik prosedürlerini belirtir. Kod: W014.",
     "category": "uyari_ve_tehlike",
     "subcategory": "is-makinesi-yuk-ve-ekipman",
     "subcategoryLabel": "İş Makinesi, Yük ve Ekipman",
@@ -1253,7 +1253,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/is-makinesi-yuk-ve-ekipman/W015--asili-yuk-tehlikesi.svg",
     "title": "Asılı Yük Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. İş Makinesi, Yük ve Ekipman grubunda yer alır. Kod: W015.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. İş Makinesi, Yük ve Ekipman grubunda yer alır. Asılı Yük Tehlikesi işareti, İş Makinesi, Yük ve Ekipman alanında güvenlik prosedürlerini belirtir. Kod: W015.",
     "category": "uyari_ve_tehlike",
     "subcategory": "is-makinesi-yuk-ve-ekipman",
     "subcategoryLabel": "İş Makinesi, Yük ve Ekipman",
@@ -1265,7 +1265,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/is-makinesi-yuk-ve-ekipman/W024--el-ezilme-tehlikesi.svg",
     "title": "El Ezilme Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. İş Makinesi, Yük ve Ekipman grubunda yer alır. Kod: W024.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. İş Makinesi, Yük ve Ekipman grubunda yer alır. El Ezilme Tehlikesi işareti, İş Makinesi, Yük ve Ekipman alanında güvenlik prosedürlerini belirtir. Kod: W024.",
     "category": "uyari_ve_tehlike",
     "subcategory": "is-makinesi-yuk-ve-ekipman",
     "subcategoryLabel": "İş Makinesi, Yük ve Ekipman",
@@ -1277,7 +1277,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/is-makinesi-yuk-ve-ekipman/W026--aku-sarj-tehlikesi.svg",
     "title": "Akü Şarjı Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. İş Makinesi, Yük ve Ekipman grubunda yer alır. Kod: W026.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. İş Makinesi, Yük ve Ekipman grubunda yer alır. Akü Şarjı Tehlikesi işareti, İş Makinesi, Yük ve Ekipman alanında güvenlik prosedürlerini belirtir. Kod: W026.",
     "category": "uyari_ve_tehlike",
     "subcategory": "is-makinesi-yuk-ve-ekipman",
     "subcategoryLabel": "İş Makinesi, Yük ve Ekipman",
@@ -1289,7 +1289,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/is-makinesi-yuk-ve-ekipman/W029--basincli-tup.svg",
     "title": "Basınçlı Tüp Tehlikesi",
-    "description": "Çalışma ortamında dikkat edilmesi gereken tehlike veya risk durumunu bildirir. İş Makinesi, Yük ve Ekipman grubunda yer alır. Kod: W029.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. İş Makinesi, Yük ve Ekipman grubunda yer alır. Basınçlı Tüp Tehlikesi işareti, İş Makinesi, Yük ve Ekipman alanında güvenlik prosedürlerini belirtir. Kod: W029.",
     "category": "uyari_ve_tehlike",
     "subcategory": "is-makinesi-yuk-ve-ekipman",
     "subcategoryLabel": "İş Makinesi, Yük ve Ekipman",
@@ -1301,7 +1301,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W054--w054-warning-sharks.svg",
     "title": "Köpekbalığı Tehlikesi",
-    "description": "Bu sularda köpekbalığı bulunduğuna dair uyarı işaretidir. Yüzme ve su sporlarına girilmeden önce dikkatli olunması gerektiğini bildirir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W054.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Köpekbalığı Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W054.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1313,7 +1313,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W056--w056-warning-tsunami-hazard-zone.svg",
     "title": "Tsunami Tehlike Bölgesi",
-    "description": "Bu bölgenin tsunami tehlike alanında olduğunu bildirir. Deprem veya uyarı durumunda derhal yüksek alanlara çıkılması gerektiğini belirtir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W056.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Tsunami Tehlike Bölgesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W056.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1325,7 +1325,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W057--w057-warning-strong-currents.svg",
     "title": "Güçlü Akıntı Tehlikesi",
-    "description": "Bu sularda güçlü akıntı bulunduğunu bildirir. Yüzme ve su sporları tehlikeli olabilir; dikkatli olunması gerekmektedir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W057.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Güçlü Akıntı Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W057.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1337,7 +1337,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W058--w058-warning-boating-area.svg",
     "title": "Tekne Alanı Tehlikesi",
-    "description": "Bu suda tekne ve deniz araçlarının bulunduğunu bildirir; yüzücüler ve su sporcuları için tehlike oluşturabilir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W058.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Tekne Alanı Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W058.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1349,7 +1349,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W059--w059-sand-yachting.svg",
     "title": "Kum Yelkenciliği Tehlikesi",
-    "description": "Bu alanda kum yelkenciliği (sand yachting) aktivitesi yapıldığını bildirir; yayalar ve plaj kullanıcıları için tehlike oluşturabilir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W059.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kum Yelkenciliği Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W059.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1361,7 +1361,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W060--w060-warning-incoming-tides.svg",
     "title": "Gelen Gelgit Tehlikesi",
-    "description": "Bu alanda gelgit sularının hızla yükselebileceğini bildirir; kıyıya yakın alçak bölgelerde mahsur kalma riski bulunmaktadır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W060.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Gelen Gelgit Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W060.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1373,7 +1373,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W061--w061-warning-quicksand-mud-deep-mud-or-silt.svg",
     "title": "Bataklık ve Çamur Tehlikesi",
-    "description": "Bu alanda bataklık, derin çamur veya çöken zemin tehlikesi bulunduğunu bildirir; içine girilmemesi gerekmektedir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W061.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Bataklık ve Çamur Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W061.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1385,7 +1385,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W062--w062-warning-kite-surfing.svg",
     "title": "Uçurtma Sörfü Tehlikesi",
-    "description": "Bu alanda uçurtma sörfü (kite surfing) aktivitesi yapıldığını bildirir; yüzücüler ve diğer su sporcuları için tehlike oluşturabilir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W062.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Uçurtma Sörfü Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W062.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1397,7 +1397,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W064--w064-warning-strong-winds.svg",
     "title": "Güçlü Rüzgar Tehlikesi",
-    "description": "Bu alanda güçlü rüzgar tehlikesi bulunduğunu bildirir; denizde veya açık alanda bulunanların dikkatli olması gerekmektedir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W064.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Güçlü Rüzgar Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W064.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1409,7 +1409,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W065--w065-warning-high-surf-or-large-breaking-waves.svg",
     "title": "Yüksek Dalga Tehlikesi",
-    "description": "Bu kıyıda yüksek dalga veya büyük kırıcı dalgalar bulunduğunu bildirir; yüzme ve su sporları tehlikeli olabilir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W065.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Yüksek Dalga Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W065.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1421,7 +1421,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W066--w066-warning-sudden-drop-to-deep-water.svg",
     "title": "Ani Derin Su Tehlikesi",
-    "description": "Zemin seviyesinin aniden düşerek derin suya geçtiğini bildirir; beklenmedik biçimde derine düşme riski bulunmaktadır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W066.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Ani Derin Su Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W066.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1433,7 +1433,7 @@ export const isgSignsData = [
   {
     "id": "isg/02-uyari-ve-tehlike/su-deniz-ve-doga-tehlikeleri/W067--w067-warning-alligators-caymans-and-crocodiles.svg",
     "title": "Timsah ve Aligator Tehlikesi",
-    "description": "Bu sularda veya çevresinde timsah, kaymen veya aligator bulunduğunu bildirir; suya girilmemesi ve dikkatli olunması gerekmektedir. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Kod: W067.",
+    "description": "Çalışma alanında mevcut tehlikeleri ve riskleri uyarır. Su, Deniz ve Doğa Tehlikeleri grubunda yer alır. Timsah ve Aligator Tehlikesi işareti, Su, Deniz ve Doğa Tehlikeleri alanında güvenlik prosedürlerini belirtir. Kod: W067.",
     "category": "uyari_ve_tehlike",
     "subcategory": "su-deniz-ve-doga-tehlikeleri",
     "subcategoryLabel": "Su, Deniz ve Doğa Tehlikeleri",
@@ -1445,7 +1445,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/davranis-yasaklari/P002--sigara-icilmez.svg",
     "title": "Sigara İçilmez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Davranış Yasakları grubunda yer alır. Kod: P002.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Davranış Yasakları grubunda yer alır. Sigara İçilmez işareti, Davranış Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P002.",
     "category": "yasak_isaretleri",
     "subcategory": "davranis-yasaklari",
     "subcategoryLabel": "Davranış Yasakları",
@@ -1457,7 +1457,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/davranis-yasaklari/P003--atesle-yaklasma.svg",
     "title": "Açık Alev Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Davranış Yasakları grubunda yer alır. Kod: P003.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Davranış Yasakları grubunda yer alır. Açık Alev Yasaktır işareti, Davranış Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P003.",
     "category": "yasak_isaretleri",
     "subcategory": "davranis-yasaklari",
     "subcategoryLabel": "Davranış Yasakları",
@@ -1469,7 +1469,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/davranis-yasaklari/P013--cep-telefonu-yasak.svg",
     "title": "Cep Telefonu Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Davranış Yasakları grubunda yer alır. Kod: P013.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Davranış Yasakları grubunda yer alır. Cep Telefonu Yasaktır işareti, Davranış Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P013.",
     "category": "yasak_isaretleri",
     "subcategory": "davranis-yasaklari",
     "subcategoryLabel": "Davranış Yasakları",
@@ -1481,7 +1481,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P001--p001.svg",
     "title": "Genel Yasak",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P001.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Genel Yasak işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P001.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1493,7 +1493,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P005--p005.svg",
     "title": "İçme Suyu Değildir",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P005.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. İçme Suyu Değildir işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P005.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1505,7 +1505,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P007--p007.svg",
     "title": "Kalp Pili Olanlar Giremez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P007.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Kalp Pili Olanlar Giremez işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P007.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1517,7 +1517,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P008--p008.svg",
     "title": "Metal Malzeme veya Saat Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P008.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Metal Malzeme veya Saat Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P008.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1529,7 +1529,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P009--p009.svg",
     "title": "Üzerine Çıkmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P009.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Üzerine Çıkmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P009.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1541,7 +1541,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P011--p011.svg",
     "title": "Su ile Söndürmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P011.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Su ile Söndürmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P011.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1553,7 +1553,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P012--p012.svg",
     "title": "Ağır Yük Taşımak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P012.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Ağır Yük Taşımak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P012.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1565,7 +1565,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P014--p014.svg",
     "title": "Metal İmplantı Olanlar Giremez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P014.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Metal İmplantı Olanlar Giremez işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P014.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1577,7 +1577,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P015--p015.svg",
     "title": "El Sokmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P015.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. El Sokmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P015.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1589,7 +1589,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P016--p016.svg",
     "title": "Su Püskürtmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P016.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Su Püskürtmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P016.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1601,7 +1601,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P017--p017.svg",
     "title": "İtmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P017.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. İtmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P017.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1613,7 +1613,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P018--p018.svg",
     "title": "Oturmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P018.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Oturmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P018.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1625,7 +1625,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P020--p020.svg",
     "title": "Asansör Yangında Kullanılmaz",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P020.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Asansör Yangında Kullanılmaz işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P020.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1637,7 +1637,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P021--p021.svg",
     "title": "Köpek Giremez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P021.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Köpek Giremez işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P021.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1649,7 +1649,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P022--p022.svg",
     "title": "Yeme İçme Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P022.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Yeme İçme Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P022.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1661,7 +1661,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P024--p024.svg",
     "title": "Burada Durmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P024.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Burada Durmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P024.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1673,7 +1673,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P025--p025.svg",
     "title": "Çocuk Giremez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P025.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Çocuk Giremez işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P025.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1685,7 +1685,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P026--p026.svg",
     "title": "Acil Durdurmayı Engelleme",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P026.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Acil Durdurmayı Engelleme işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P026.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1697,7 +1697,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P027--p027.svg",
     "title": "Duşta Kullanma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P027.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Duşta Kullanma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P027.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1709,7 +1709,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P028--p028.svg",
     "title": "Eldiven Kullanma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P028.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Eldiven Kullanma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P028.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1721,7 +1721,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P029--p029.svg",
     "title": "Fotoğraf Çekmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P029.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Fotoğraf Çekmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P029.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1733,7 +1733,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P030--p030.svg",
     "title": "Düğüm Atmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P030.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Düğüm Atmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P030.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1745,7 +1745,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P031--p031.svg",
     "title": "Şalteri Açma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P031.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Şalteri Açma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P031.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1757,7 +1757,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P032--p032.svg",
     "title": "Taşlama Yapma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P032.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Taşlama Yapma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P032.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1769,7 +1769,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P033--p033.svg",
     "title": "Islak Elle Dokunma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P033.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Islak Elle Dokunma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P033.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1781,7 +1781,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P034--p034.svg",
     "title": "Parmakla Dokunma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P034.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Parmakla Dokunma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P034.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1793,7 +1793,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P036--p036.svg",
     "title": "Kişi Taşımak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P036.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Kişi Taşımak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P036.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1805,7 +1805,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P037--p037.svg",
     "title": "Römorka Binmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P037.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Römorka Binmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P037.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1817,7 +1817,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P038--p038.svg",
     "title": "Çalıştırma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P038.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Çalıştırma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P038.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1829,7 +1829,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P039--p039.svg",
     "title": "Sıcak İşlem Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P039.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Sıcak İşlem Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P039.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1841,7 +1841,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P040--p040.svg",
     "title": "Havai Fişek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P040.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Havai Fişek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P040.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1853,7 +1853,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P041--p041.svg",
     "title": "Ateş Yakmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P041.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Ateş Yakmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P041.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1865,7 +1865,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P042--p042.svg",
     "title": "Kıvılcım Oluşturmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P042.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Kıvılcım Oluşturmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P042.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1877,7 +1877,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P043--p043.svg",
     "title": "Alev Kullanmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P043.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Alev Kullanmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P043.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1889,7 +1889,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P044--p044.svg",
     "title": "Yüzük Takmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P044.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Yüzük Takmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P044.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1901,7 +1901,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P045--p045.svg",
     "title": "Uzanmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P045.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Uzanmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P045.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1913,7 +1913,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P046--p046.svg",
     "title": "Çocuk Arabası Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P046.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Çocuk Arabası Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P046.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1925,7 +1925,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P047--p047.svg",
     "title": "Oturmak İçin Kullanma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P047.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Oturmak İçin Kullanma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P047.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1937,7 +1937,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P048--p048.svg",
     "title": "Bisiklet Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P048.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Bisiklet Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P048.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1949,7 +1949,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P049--p049.svg",
     "title": "Yüzmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P049.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Yüzmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P049.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1961,7 +1961,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P050--p050.svg",
     "title": "Dalış Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P050.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Dalış Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P050.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1973,7 +1973,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P051--p051.svg",
     "title": "İskeleye Çıkmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P051.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. İskeleye Çıkmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P051.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1985,7 +1985,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P052--p052.svg",
     "title": "Yelken Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P052.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Yelken Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P052.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -1997,7 +1997,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P053--p053.svg",
     "title": "Sörf Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P053.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Sörf Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P053.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2009,7 +2009,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P054--p054.svg",
     "title": "Kite Surf Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P054.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Kite Surf Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P054.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2021,7 +2021,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P055--p055.svg",
     "title": "Paraşütle Çekilme Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P055.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Paraşütle Çekilme Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P055.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2033,7 +2033,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P056--p056.svg",
     "title": "Deniz Aracı Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P056.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Deniz Aracı Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P056.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2045,7 +2045,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P057--p057.svg",
     "title": "Deniz Motosikleti Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P057.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Deniz Motosikleti Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P057.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2057,7 +2057,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P058--p058.svg",
     "title": "Kürek Çekmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P058.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Kürek Çekmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P058.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2069,7 +2069,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P059--p059.svg",
     "title": "Balık Tutmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P059.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Balık Tutmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P059.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2081,7 +2081,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P060--p060.svg",
     "title": "Şnorkel Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P060.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Şnorkel Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P060.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2093,7 +2093,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P061--p061.svg",
     "title": "Ayakta Durmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P061.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Ayakta Durmak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P061.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2105,7 +2105,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P062--p062.svg",
     "title": "Atlamak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P062.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Atlamak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P062.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2117,7 +2117,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P063--p063.svg",
     "title": "Yolcu İndirme Bindirme Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P063.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Yolcu İndirme Bindirme Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P063.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2129,7 +2129,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P064--p064.svg",
     "title": "Dalga Havuzu Kullanımı Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P064.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Dalga Havuzu Kullanımı Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P064.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2141,7 +2141,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P065--p065.svg",
     "title": "Suya İtmek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P065.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Suya İtmek Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P065.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2153,7 +2153,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P066--p066.svg",
     "title": "Baş Üstü Atlama Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P066.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Baş Üstü Atlama Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P066.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2165,7 +2165,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P067--p067.svg",
     "title": "Kaydıraktan Baş Aşağı Kaymak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P067.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Kaydıraktan Baş Aşağı Kaymak Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P067.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2177,7 +2177,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P068--p068.svg",
     "title": "Atık Su İçme",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P068.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Atık Su İçme işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P068.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2189,7 +2189,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P069--p069.svg",
     "title": "İzin Verilmeyen Alan",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P069.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. İzin Verilmeyen Alan işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P069.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2201,7 +2201,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P070--p070.svg",
     "title": "Ekipmansız Giriş Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P070.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Ekipmansız Giriş Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P070.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2213,7 +2213,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P071--p071.svg",
     "title": "Yetkisiz Giriş Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P071.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Yetkisiz Giriş Yasaktır işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P071.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2225,7 +2225,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P072--p072.svg",
     "title": "Bu Alanı Kullanma",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P072.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Bu Alanı Kullanma işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P072.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2237,7 +2237,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P073--p073.svg",
     "title": "Çıkış Değildir",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P073.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Genel Yasaklar grubunda yer alır. Çıkış Değildir işareti, Genel Yasaklar alanında güvenlik prosedürlerini belirtir. Kod: P073.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2248,8 +2248,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P074--p074.svg",
-    "title": "Yasak Levhası P074",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P074.",
+    "title": "Çocuk Koltuğu Takılması Yasak (P074)",
+    "description": "Bu işaret, belirtilen alanda veya durumda çocuk koltuğu (özellikle hava yastığı aktifken ön koltuğa arkaya bakan çocuk koltuğu) takılmasının yasak olduğunu bildirir.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2260,8 +2260,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P075--p075.svg",
-    "title": "Yasak Levhası P075",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P075.",
+    "title": "Işık Kaynağına Bakmak Yasak (P075)",
+    "description": "Bu işaret, belirtilen bölgede ışık kaynağına doğrudan bakmanın yasak olduğunu bildirir. Gözler, güçlü ışık kaynaklarının zararlı etkilerinden korunmalıdır.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2272,8 +2272,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P076--p076.svg",
-    "title": "Yasak Levhası P076",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P076.",
+    "title": "Kayak Yapmak Yasak (P076)",
+    "description": "Bu işaret, belirtilen alanda kayak yapmanın yasak olduğunu bildirir. Güvenlik gerekçesiyle bu alanda kayak faaliyeti gerçekleştirilmemelidir.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2284,8 +2284,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P077--p077.svg",
-    "title": "Yasak Levhası P077",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P077.",
+    "title": "Snowboard Yapmak Yasak (P077)",
+    "description": "Bu işaret, belirtilen alanda snowboard yapmanın yasak olduğunu bildirir. Güvenlik gerekçesiyle bu alanda snowboard faaliyeti gerçekleştirilmemelidir.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2296,8 +2296,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P078--p078.svg",
-    "title": "Yasak Levhası P078",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P078.",
+    "title": "Kızakla Kaymak Yasak (P078)",
+    "description": "Bu işaret, belirtilen alanda kızakla kaymanın (toboggan/sled) yasak olduğunu bildirir. Güvenlik gerekçesiyle bu alanda kızakla kayma yapılmamalıdır.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2308,8 +2308,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P079--p079.svg",
-    "title": "Yasak Levhası P079",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P079.",
+    "title": "Buz Pateni Yapmak Yasak (P079)",
+    "description": "Bu işaret, belirtilen alanda buz pateni yapmanın yasak olduğunu bildirir. Buz yüzeyinin güvenli olmaması nedeniyle buz pateni yapılmamalıdır.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2320,8 +2320,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/03-yasak-isaretleri/genel-yasaklar/P080--p080.svg",
-    "title": "Yasak Levhası P080",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Genel Yasaklar grubunda yer alır. Kod: P080.",
+    "title": "Yetkisiz Kişilerin Girişi Yasak (P080)",
+    "description": "Bu işaret, belirtilen alana yetkisiz kişilerin girişinin yasak olduğunu bildirir. Yalnızca yetkili personel bu alana girebilir.",
     "category": "yasak_isaretleri",
     "subcategory": "genel-yasaklar",
     "subcategoryLabel": "Genel Yasaklar",
@@ -2333,7 +2333,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/giris-gecis-ve-alan-yasaklari/P004--gecis-yasak.svg",
     "title": "Yaya Giremez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Kod: P004.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Yaya Giremez işareti, Giriş, Geçiş ve Alan Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P004.",
     "category": "yasak_isaretleri",
     "subcategory": "giris-gecis-ve-alan-yasaklari",
     "subcategoryLabel": "Giriş, Geçiş ve Alan Yasakları",
@@ -2345,7 +2345,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/giris-gecis-ve-alan-yasaklari/P006--forklift-giremez.svg",
     "title": "Forklift Giremez",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Kod: P006.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Forklift Giremez işareti, Giriş, Geçiş ve Alan Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P006.",
     "category": "yasak_isaretleri",
     "subcategory": "giris-gecis-ve-alan-yasaklari",
     "subcategoryLabel": "Giriş, Geçiş ve Alan Yasakları",
@@ -2357,7 +2357,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/giris-gecis-ve-alan-yasaklari/P019--yetkisiz-giris-yasak.svg",
     "title": "Yetkisiz Giriş Yasaktır",
-    "description": "Bu alana yetkisiz kişilerin girmesinin yasak olduğunu belirtir. Yalnızca izinli ve yetkili personelin girebileceğini gösterir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Kod: P019.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Yetkisiz Giriş Yasaktır işareti, Giriş, Geçiş ve Alan Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P019.",
     "category": "yasak_isaretleri",
     "subcategory": "giris-gecis-ve-alan-yasaklari",
     "subcategoryLabel": "Giriş, Geçiş ve Alan Yasakları",
@@ -2369,7 +2369,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/giris-gecis-ve-alan-yasaklari/P023--engellemek-yasak.svg",
     "title": "Engellemek Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Kod: P023.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Giriş, Geçiş ve Alan Yasakları grubunda yer alır. Engellemek Yasaktır işareti, Giriş, Geçiş ve Alan Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P023.",
     "category": "yasak_isaretleri",
     "subcategory": "giris-gecis-ve-alan-yasaklari",
     "subcategoryLabel": "Giriş, Geçiş ve Alan Yasakları",
@@ -2381,7 +2381,7 @@ export const isgSignsData = [
   {
     "id": "isg/03-yasak-isaretleri/makine-ekipman-yasaklari/P010--dokunmak-yasak.svg",
     "title": "Dokunmak Yasaktır",
-    "description": "Çalışma alanında yapılması yasak olan davranışları, girişleri veya kullanımları belirtir. Makine ve Ekipman Yasakları grubunda yer alır. Kod: P010.",
+    "description": "İş ortamında yapılması yasak olan eylemleri gösterir. Makine ve Ekipman Yasakları grubunda yer alır. Dokunmak Yasaktır işareti, Makine ve Ekipman Yasakları alanında güvenlik prosedürlerini belirtir. Kod: P010.",
     "category": "yasak_isaretleri",
     "subcategory": "makine-ekipman-yasaklari",
     "subcategoryLabel": "Makine ve Ekipman Yasakları",
@@ -2392,8 +2392,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-cikis-ve-yonlendirme/E002--acil-cikis-sag--varyant-2.svg",
-    "title": "Acil Çıkış Yönü",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
+    "title": "Acil Cikis Sag Varyant 2",
+    "description": "Görselde \"Acil Çıkış Yönü\" işareti/levhası yer alıyor. Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-cikis-ve-yonlendirme",
     "subcategoryLabel": "Acil Çıkış ve Yönlendirme",
@@ -2404,8 +2404,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-cikis-ve-yonlendirme/E002--acil-cikis-sag--varyant-3.svg",
-    "title": "Acil Çıkış Yönü",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
+    "title": "Acil Cikis Sag Varyant 3",
+    "description": "Görselde \"Acil Çıkış Yönü\" işareti/levhası yer alıyor. Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-cikis-ve-yonlendirme",
     "subcategoryLabel": "Acil Çıkış ve Yönlendirme",
@@ -2416,8 +2416,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-cikis-ve-yonlendirme/E002--acil-cikis-sag--varyant-4.svg",
-    "title": "Acil Çıkış Yönü",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
+    "title": "Acil Cikis Sag Varyant 4",
+    "description": "Görselde \"Acil Çıkış Yönü\" işareti/levhası yer alıyor. Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-cikis-ve-yonlendirme",
     "subcategoryLabel": "Acil Çıkış ve Yönlendirme",
@@ -2429,7 +2429,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-cikis-ve-yonlendirme/E002--acil-cikis-sag.svg",
     "title": "Acil Çıkış Yönü",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: E002.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Çıkış ve Yönlendirme grubunda yer alır. Acil Çıkış Yönü işareti, Acil Çıkış ve Yönlendirme alanında güvenlik prosedürlerini belirtir. Kod: E002.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-cikis-ve-yonlendirme",
     "subcategoryLabel": "Acil Çıkış ve Yönlendirme",
@@ -2441,7 +2441,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-cikis-ve-yonlendirme/unknown--safe-condition-arrow-1.svg",
     "title": "Güvenli Yön Oku",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: unknown.",
+    "description": "Bu işaret, güvenli durum koşullarını ve acil durumda izlenecek güvenli yönü gösterir. Yeşil zeminli acil durum yönlendirme işaretidir.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-cikis-ve-yonlendirme",
     "subcategoryLabel": "Acil Çıkış ve Yönlendirme",
@@ -2452,8 +2452,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-cikis-ve-yonlendirme/unknown--safe-condition-arrow-2.svg",
-    "title": "Güvenli Yön Oku",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Çıkış ve Yönlendirme grubunda yer alır. Kod: unknown.",
+    "title": "Güvenli Yön Oku 2",
+    "description": "Bu işaret, güvenli durum koşullarını ve acil durumda izlenecek güvenli yönü gösterir. Yeşil zeminli acil durum yönlendirme işaretidir.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-cikis-ve-yonlendirme",
     "subcategoryLabel": "Acil Çıkış ve Yönlendirme",
@@ -2465,7 +2465,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E008--e008.svg",
     "title": "Cam Kırma Çekici",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E008.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Cam Kırma Çekici işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E008.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2477,7 +2477,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E009--e009.svg",
     "title": "Sedye",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E009.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Sedye işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E009.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2489,7 +2489,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E010--e010.svg",
     "title": "Otomatik Harici Defibrilatör",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E010.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Otomatik Harici Defibrilatör işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E010.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2501,7 +2501,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E014--e014.svg",
     "title": "Güvenlik Kabini",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E014.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Güvenlik Kabini işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E014.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2513,7 +2513,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E015--e015.svg",
     "title": "İçme Suyu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E015.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. İçme Suyu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E015.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2525,7 +2525,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E016--e016.svg",
     "title": "Acil Pencere",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E016.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Pencere işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E016.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2537,7 +2537,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E017--e017.svg",
     "title": "Kurtarma Penceresi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E017.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kurtarma Penceresi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E017.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2549,7 +2549,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E018--e018.svg",
     "title": "Acil Çıkış Sağa",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E018.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Çıkış Sağa işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E018.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2561,7 +2561,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E019--e019.svg",
     "title": "Saat Yönünün Tersine Çevir",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E019.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Saat Yönünün Tersine Çevir işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E019.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2573,7 +2573,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E020--e020.svg",
     "title": "Saat Yönünde Çevir",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E020.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Saat Yönünde Çevir işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E020.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2585,7 +2585,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E021--e021.svg",
     "title": "Sığınak",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E021.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Sığınak işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E021.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2597,7 +2597,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E022--e022.svg",
     "title": "Kapıyı Açmak İçin İt",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E022.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kapıyı Açmak İçin İt işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E022.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2609,7 +2609,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E023--e023.svg",
     "title": "Kapıyı Açmak İçin Çek",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E023.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kapıyı Açmak İçin Çek işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E023.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2621,7 +2621,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E024--e024.svg",
     "title": "Geçici Sığınak",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E024.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Geçici Sığınak işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E024.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2633,7 +2633,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E025--e025.svg",
     "title": "Acil Çıkış Sol",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E025.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Çıkış Sol işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E025.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2645,7 +2645,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E026--e026.svg",
     "title": "Acil Çıkış Sağ",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E026.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Çıkış Sağ işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E026.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2657,7 +2657,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E027--e027.svg",
     "title": "Tıbbi Acil Durum Çantası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E027.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tıbbi Acil Durum Çantası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E027.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2669,7 +2669,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E028--e028.svg",
     "title": "Oksijen Solunum Cihazı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E028.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Oksijen Solunum Cihazı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E028.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2681,7 +2681,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E029--e029.svg",
     "title": "Acil Durdurma Düğmesi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E029.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durdurma Düğmesi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E029.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2693,7 +2693,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E030--e030.svg",
     "title": "Acil Durum Telefonu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E030.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Telefonu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E030.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2705,7 +2705,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E031--e031.svg",
     "title": "Tahliye Sandalyesi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E031.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tahliye Sandalyesi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E031.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2717,7 +2717,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E032--e032.svg",
     "title": "Tahliye Merdiveni",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E032.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tahliye Merdiveni işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E032.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2729,7 +2729,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E033--e033.svg",
     "title": "Güvenli Alan",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E033.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Güvenli Alan işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E033.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2741,7 +2741,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E034--e034.svg",
     "title": "Çocuk Toplanma Alanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E034.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Çocuk Toplanma Alanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E034.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2753,7 +2753,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E035--e035.svg",
     "title": "Bebek Toplanma Alanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E035.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Bebek Toplanma Alanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E035.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2765,7 +2765,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E036--e036.svg",
     "title": "Acil Durum Malzemeleri",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E036.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Malzemeleri işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E036.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2777,7 +2777,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E037--e037.svg",
     "title": "Kurtarma Kiti",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E037.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kurtarma Kiti işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E037.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2789,7 +2789,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E038--e038.svg",
     "title": "Tahliye Yönü",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E038.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tahliye Yönü işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E038.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2801,7 +2801,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E039--e039.svg",
     "title": "Acil Durum Kolu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E039.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Kolu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E039.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2813,7 +2813,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E040--e040.svg",
     "title": "Acil Kapı Açma",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E040.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Kapı Açma işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E040.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2825,7 +2825,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E041--e041.svg",
     "title": "Acil Durum Basma Düğmesi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E041.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Basma Düğmesi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E041.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2837,7 +2837,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E042--e042.svg",
     "title": "Engelli Acil Çıkışı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E042.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Engelli Acil Çıkışı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E042.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2849,7 +2849,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E043--e043.svg",
     "title": "Tekerlekli Sandalye Alanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E043.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tekerlekli Sandalye Alanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E043.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2861,7 +2861,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E044--e044.svg",
     "title": "Acil Durum Yardımı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E044.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Yardımı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E044.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2873,7 +2873,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E045--e045.svg",
     "title": "Acil Durum Çıkış Yolu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E045.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Çıkış Yolu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E045.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2885,7 +2885,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E046--e046.svg",
     "title": "İlk Yardım Odası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E046.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. İlk Yardım Odası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E046.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2897,7 +2897,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E047--e047.svg",
     "title": "Tıbbi Yardım Noktası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E047.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tıbbi Yardım Noktası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E047.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2909,7 +2909,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E048--e048.svg",
     "title": "Acil Müdahale Noktası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E048.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Müdahale Noktası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E048.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2921,7 +2921,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E049--e049.svg",
     "title": "Güvenli Bekleme Alanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E049.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Güvenli Bekleme Alanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E049.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2933,7 +2933,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E050--e050.svg",
     "title": "Tahliye Noktası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E050.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tahliye Noktası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E050.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2945,7 +2945,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E051--e051.svg",
     "title": "Kurtarma İstasyonu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E051.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kurtarma İstasyonu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E051.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2957,7 +2957,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E052--e052.svg",
     "title": "Acil Durum Merdiveni",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E052.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Merdiveni işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E052.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2969,7 +2969,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E053--e053.svg",
     "title": "Acil Çıkış Kapısı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E053.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Çıkış Kapısı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E053.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2981,7 +2981,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E054--e054.svg",
     "title": "Acil Durum Toplanma Noktası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E054.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Toplanma Noktası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E054.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -2993,7 +2993,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E055--e055.svg",
     "title": "Acil Durum Planı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E055.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Planı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E055.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3005,7 +3005,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E056--e056.svg",
     "title": "Acil Durum Talimatı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E056.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Talimatı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E056.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3017,7 +3017,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E057--e057.svg",
     "title": "Acil Durum Ekipmanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E057.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Ekipmanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E057.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3029,7 +3029,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E058--e058.svg",
     "title": "Acil Kaçış Rotası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E058.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Kaçış Rotası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E058.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3041,7 +3041,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E059--e059.svg",
     "title": "Kurtarma Yönü",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E059.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kurtarma Yönü işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E059.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3053,7 +3053,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E060--e060.svg",
     "title": "Acil Yardım Çağrısı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E060.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Yardım Çağrısı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E060.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3065,7 +3065,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E061--e061.svg",
     "title": "Acil Müdahale Ekipmanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E061.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Müdahale Ekipmanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E061.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3077,7 +3077,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E062--e062.svg",
     "title": "Güvenli Tahliye Alanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E062.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Güvenli Tahliye Alanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E062.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3089,7 +3089,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E063--e063.svg",
     "title": "Acil Durum Kontrol Noktası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E063.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Kontrol Noktası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E063.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3101,7 +3101,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E064--e064.svg",
     "title": "İlk Yardım Malzemesi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E064.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. İlk Yardım Malzemesi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E064.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3113,7 +3113,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E065--e065.svg",
     "title": "Acil Güvenlik Noktası",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E065.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Güvenlik Noktası işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E065.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3125,7 +3125,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E067--e067.svg",
     "title": "Acil Çıkış Bilgisi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E067.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Çıkış Bilgisi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E067.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3137,7 +3137,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E068--e068.svg",
     "title": "Güvenli Yönlendirme",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E068.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Güvenli Yönlendirme işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E068.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3149,7 +3149,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E069--e069.svg",
     "title": "Acil Yardım Yolu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E069.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Yardım Yolu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E069.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3161,7 +3161,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E070--e070.svg",
     "title": "Tahliye Yardımı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E070.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tahliye Yardımı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E070.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3173,7 +3173,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E071--e071.svg",
     "title": "Acil Durum İşareti",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E071.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum İşareti işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E071.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3185,7 +3185,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E072--e072.svg",
     "title": "Acil Durum Bölgesi",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E072.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Bölgesi işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E072.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3197,7 +3197,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E073--e073.svg",
     "title": "Kurtarma Alanı",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E073.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Kurtarma Alanı işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E073.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3209,7 +3209,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E074--e074.svg",
     "title": "Acil Durum Yolu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E074.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Yolu işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E074.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3221,7 +3221,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E075--e075.svg",
     "title": "Tahliye İşareti",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E075.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Tahliye İşareti işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E075.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3233,7 +3233,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/acil-durum-ekipmanlari/E076--e076.svg",
     "title": "Acil Durum Güvenli Bölge",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. Acil Durum Ekipmanları grubunda yer alır. Kod: E076.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. Acil Durum Ekipmanları grubunda yer alır. Acil Durum Güvenli Bölge işareti, Acil Durum Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: E076.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "acil-durum-ekipmanlari",
     "subcategoryLabel": "Acil Durum Ekipmanları",
@@ -3244,8 +3244,8 @@ export const isgSignsData = [
   },
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/ilk-yardim-ve-saglik/E003--ilk-yardim--varyant-2.svg",
-    "title": "İlk Yardım",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E003.",
+    "title": "İlk Yardim Varyant 2",
+    "description": "Görselde \"İlk Yardım\" işareti/levhası yer alıyor. Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E003.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "ilk-yardim-ve-saglik",
     "subcategoryLabel": "İlk Yardım ve Sağlık",
@@ -3257,7 +3257,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/ilk-yardim-ve-saglik/E003--ilk-yardim.svg",
     "title": "İlk Yardım",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E003.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. İlk Yardım ve Sağlık grubunda yer alır. İlk Yardım işareti, İlk Yardım ve Sağlık alanında güvenlik prosedürlerini belirtir. Kod: E003.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "ilk-yardim-ve-saglik",
     "subcategoryLabel": "İlk Yardım ve Sağlık",
@@ -3269,7 +3269,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/ilk-yardim-ve-saglik/E004--acil-telefon.svg",
     "title": "Acil Telefon",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E004.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. İlk Yardım ve Sağlık grubunda yer alır. Acil Telefon işareti, İlk Yardım ve Sağlık alanında güvenlik prosedürlerini belirtir. Kod: E004.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "ilk-yardim-ve-saglik",
     "subcategoryLabel": "İlk Yardım ve Sağlık",
@@ -3281,7 +3281,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/ilk-yardim-ve-saglik/E011--goz-dusu.svg",
     "title": "Göz Duşu",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E011.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. İlk Yardım ve Sağlık grubunda yer alır. Göz Duşu işareti, İlk Yardım ve Sağlık alanında güvenlik prosedürlerini belirtir. Kod: E011.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "ilk-yardim-ve-saglik",
     "subcategoryLabel": "İlk Yardım ve Sağlık",
@@ -3293,7 +3293,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/ilk-yardim-ve-saglik/E012--acil-dus.svg",
     "title": "Acil Duş",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E012.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. İlk Yardım ve Sağlık grubunda yer alır. Acil Duş işareti, İlk Yardım ve Sağlık alanında güvenlik prosedürlerini belirtir. Kod: E012.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "ilk-yardim-ve-saglik",
     "subcategoryLabel": "İlk Yardım ve Sağlık",
@@ -3305,7 +3305,7 @@ export const isgSignsData = [
   {
     "id": "isg/04-acil-durum-ve-ilk-yardim/ilk-yardim-ve-saglik/E013--sedye.svg",
     "title": "Sedye",
-    "description": "Acil çıkış, yönlendirme, ilk yardım veya kurtarma ekipmanı bilgisini gösterir. İlk Yardım ve Sağlık grubunda yer alır. Kod: E013.",
+    "description": "Acil durum prosedürleri ve ilk yardım konularında bilgi verir. İlk Yardım ve Sağlık grubunda yer alır. Sedye işareti, İlk Yardım ve Sağlık alanında güvenlik prosedürlerini belirtir. Kod: E013.",
     "category": "acil_durum_ve_ilk_yardim",
     "subcategory": "ilk-yardim-ve-saglik",
     "subcategoryLabel": "İlk Yardım ve Sağlık",
@@ -3317,7 +3317,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F002--yangin-hortumu.svg",
     "title": "Yangın Hortumu",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F002.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Hortumu işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F002.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3329,7 +3329,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F003--yangin-merdiveni.svg",
     "title": "Yangın Merdiveni",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F003.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Merdiveni işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F003.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3341,7 +3341,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F005--yangin-alarmi.svg",
     "title": "Yangın Alarmı",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F005.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Alarmı işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F005.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3353,7 +3353,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F006--f006.svg",
     "title": "Yangın Telefonu",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F006.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Telefonu işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F006.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3365,7 +3365,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F007--f007.svg",
     "title": "Yangın Kapısı",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F007.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Kapısı işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F007.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3377,7 +3377,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F008--f008.svg",
     "title": "Yangın Battaniyesi",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F008.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Battaniyesi işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F008.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3389,7 +3389,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F009--f009.svg",
     "title": "Yangın Kovası",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F009.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Kovası işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F009.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3401,7 +3401,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F010--f010.svg",
     "title": "Yangın Kum Kutusu",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F010.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Kum Kutusu işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F010.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3413,7 +3413,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F011--f011.svg",
     "title": "Yangın Söndürme Sistemi",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F011.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Söndürme Sistemi işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F011.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3425,7 +3425,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F012--f012.svg",
     "title": "Yangın Dolabı",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F012.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Dolabı işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F012.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3437,7 +3437,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F013--f013.svg",
     "title": "Yangın Pompası",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F013.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Pompası işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F013.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3449,7 +3449,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F014--f014.svg",
     "title": "Yangın Düğmesi",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F014.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Düğmesi işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F014.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3461,7 +3461,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F015--f015.svg",
     "title": "Yangın Dedektörü",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F015.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Dedektörü işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F015.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3473,7 +3473,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F016--f016.svg",
     "title": "Yangın Basınçlandırma",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F016.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Basınçlandırma işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F016.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3485,7 +3485,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F017--f017.svg",
     "title": "Yangın Su Kaynağı",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F017.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Su Kaynağı işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F017.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3497,7 +3497,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F018--f018.svg",
     "title": "Yangın Müdahale Noktası",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F018.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Müdahale Noktası işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F018.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3509,7 +3509,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/F019--f019.svg",
     "title": "Yangın Ekipmanı",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: F019.",
+    "description": "Yangın güvenliği ve yangınla mücadele ile ilgili bilgiler verir. Yangın Ekipmanları grubunda yer alır. Yangın Ekipmanı işareti, Yangın Ekipmanları alanında güvenlik prosedürlerini belirtir. Kod: F019.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3521,7 +3521,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-ekipmanlari/unknown--hacha-axe.svg",
     "title": "Yangın Baltası",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Ekipmanları grubunda yer alır. Kod: unknown.",
+    "description": "Bu işaret, yangın müdahalesinde kullanılmak üzere yangın baltasının bulunduğu yeri gösterir. Yangın ekipmanları arasında yer alır.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-ekipmanlari",
     "subcategoryLabel": "Yangın Ekipmanları",
@@ -3533,7 +3533,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-yonlendirme/unknown--fire-protection-arrow-1.svg",
     "title": "Yangın Yön Oku 1",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Yönlendirme grubunda yer alır. Kod: unknown.",
+    "description": "Bu işaret, yangın ekipmanlarının veya yangın müdahale noktasının bulunduğu yönü gösterir. Yangın güvenliği yönlendirme işaretidir.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-yonlendirme",
     "subcategoryLabel": "Yangın Yönlendirme",
@@ -3545,7 +3545,7 @@ export const isgSignsData = [
   {
     "id": "isg/05-yangin-guvenligi/yangin-yonlendirme/unknown--fire-protection-arrow-2.svg",
     "title": "Yangın Yön Oku 2",
-    "description": "Yangın ekipmanları, yangın müdahale noktaları veya yangın yönlendirme bilgisini belirtir. Yangın Yönlendirme grubunda yer alır. Kod: unknown.",
+    "description": "Bu işaret, yangın ekipmanlarının veya yangın müdahale noktasının bulunduğu yönü gösterir. Yangın güvenliği yönlendirme işaretidir.",
     "category": "yangin_guvenligi",
     "subcategory": "yangin-yonlendirme",
     "subcategoryLabel": "Yangın Yönlendirme",
