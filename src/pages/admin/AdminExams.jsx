@@ -346,6 +346,13 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
   // Ehliyet kategorisi seçimi: 'b_class' | 'is_makinesi' — prop'tan başlangıç değerini al
   const [examCategory, setExamCategory] = useState(initialExamCategory);
 
+  // Modal her açıldığında initialExamCategory prop'u değişirse güncelle
+  useEffect(() => {
+    if (isOpen) {
+      setExamCategory(initialExamCategory);
+    }
+  }, [isOpen, initialExamCategory]);
+
   // Taslak otomatik kaydetme — form değişince 1.5s sonra yaz
   useEffect(() => {
     if (!isOpen || isEdit) return;
@@ -584,7 +591,11 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
     return result;
   };
 
-  const catOptions = buildCategoryOptions(true); // video hariç
+  // Seçili ehliyet kategorisine göre sadece o kökün alt kategorilerini göster
+  const catOptions = useMemo(() => {
+    const all = buildCategoryOptions(true); // video hariç
+    return all.filter(cat => getCategoryGroup(cat, categories) === examCategory);
+  }, [categories, examCategory]);
 
   if (!isOpen) return null;
 
@@ -640,35 +651,33 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
 
-          {/* Ehliyet Kategorisi Seçimi — Sadece sınav soruları için */}
-          {!isShortTest && (
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <Folder className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-bold text-text-secondary">Ehliyet Kategorisi</span>
-              </div>
-              <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl gap-1">
-                {[
-                  { id: 'b_class', label: '🚗 B Sınıfı', desc: 'Trafik, Motor, İlkyardım, Adap' },
-                  { id: 'is_makinesi', label: '🏗️ İş Makinesi', desc: 'MEB ortak 4 teorik branş' },
-                ].map(cat => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => { setExamCategory(cat.id); setField('subject', ''); }}
-                    className={`flex-1 flex flex-col items-center py-2.5 px-3 rounded-xl transition-all ${
-                      examCategory === cat.id
-                        ? 'bg-primary/20 border border-primary/40 text-primary-light'
-                        : 'text-text-muted hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <span className="text-xs font-black">{cat.label}</span>
-                    <span className="text-[10px] text-text-muted mt-0.5">{cat.desc}</span>
-                  </button>
-                ))}
-              </div>
+          {/* Ehliyet Kategorisi Seçimi — hem sınav hem kısa test soruları için */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Folder className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-bold text-text-secondary">Ehliyet Kategorisi</span>
             </div>
-          )}
+            <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl gap-1">
+              {[
+                { id: 'b_class', label: '🚗 B Sınıfı', desc: 'Trafik, Motor, İlkyardım, Adap' },
+                { id: 'is_makinesi', label: '🏗️ İş Makinesi', desc: 'MEB ortak 4 teorik branş' },
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => { setExamCategory(cat.id); setField('subject', ''); }}
+                  className={`flex-1 flex flex-col items-center py-2.5 px-3 rounded-xl transition-all ${
+                    examCategory === cat.id
+                      ? 'bg-primary/20 border border-primary/40 text-primary-light'
+                      : 'text-text-muted hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <span className="text-xs font-black">{cat.label}</span>
+                  <span className="text-[10px] text-text-muted mt-0.5">{cat.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Category / Exam Selection */}
           {isShortTest ? (
@@ -1953,6 +1962,11 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             categories={categories}
             exams={exams}
             initialCategoryId={formModal.categoryId}
+            initialExamCategory={
+              formModal.categoryId
+                ? getCategoryGroup(formModal.categoryId, categories) || 'b_class'
+                : 'b_class'
+            }
             existingQuestion={formModal.question}
             isCopy={formModal.isCopy}
           />
