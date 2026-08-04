@@ -130,9 +130,12 @@ const loadDraft = () => {
 const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* localStorage kullanılamıyorsa atlanır */ } };
 
 const normalizeTestType = (testType) => {
-  if (testType === 'exam') return 'mock_exam';
+  // Legacy `exam` kayıtları kullanıcı tarafında gerçek sınav fallback'idir.
+  if (testType === 'exam') return 'real_exam';
   return testType || '';
 };
+
+const defaultDurationForGroup = (group) => group === 'is_makinesi' ? 50 : 45;
 
 const questionExamId = (question) => question.exam?._id || question.exam || '';
 
@@ -376,7 +379,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           exam: existingQuestion.exam?._id || existingQuestion.exam || initialExamId || '',
           difficulty: existingQuestion.difficulty || 'medium',
           explanation: existingQuestion.explanation || '',
-          testType: existingQuestion.testType || testType,
+          testType: isShortTest ? (existingQuestion.testType || testType) : testType,
           coefficient: String(existingQuestion.coefficient || 1.0),
           media: existingQuestion.media || '',
           subject: existingQuestion.subject || '',
@@ -402,7 +405,7 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
       setErrors({});
       setDraftSavedAt(null);
     }
-  }, [isOpen, existingQuestion, initialCategoryId, initialExamId, testType, isCopy]);
+  }, [isOpen, existingQuestion, initialCategoryId, initialExamId, testType, isCopy, isShortTest]);
 
   const applyDraft = () => {
     const draft = loadDraft();
@@ -577,10 +580,8 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
   };
 
   // Seçili ehliyet kategorisine göre sadece o kökün alt kategorilerini göster
-  const catOptions = useMemo(() => {
-    const all = buildCategoryOptions(true); // video hariç
-    return all.filter(cat => getCategoryGroup(cat, categories) === examCategory);
-  }, [categories, examCategory]);
+  const catOptions = buildCategoryOptions(true)
+    .filter(cat => getCategoryGroup(cat, categories) === examCategory);
 
   if (!isOpen) return null;
 
@@ -686,13 +687,24 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
               </select>
             </InputField>
           ) : (
-            <InputField label="Sınav Bağlantısı (Opsiyonel)" icon={PenTool}>
+            <InputField label="Sınav Bağlantısı" icon={PenTool} required error={errors.exam}>
               <select
                 className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-medium outline-none focus:border-primary/40 transition-all"
                 value={form.exam}
-                onChange={e => setField('exam', e.target.value)}
+                onChange={e => {
+                  const examId = e.target.value;
+                  const nextExam = exams.find(exam => exam._id === examId);
+                  const nextGroup = nextExam ? getExamCategoryGroup(nextExam, categories) : examCategory;
+                  if (nextGroup) setExamCategory(nextGroup);
+                  setForm(current => ({
+                    ...current,
+                    exam: examId,
+                    subject: nextGroup && nextGroup !== examCategory ? '' : current.subject,
+                    testType,
+                  }));
+                }}
               >
-                <option value="" className="bg-bg-card text-white/40">Sınav ata (opsiyonel)</option>
+                <option value="" className="bg-bg-card text-white/40">Sınav seçin...</option>
                 {examOptions.map(exam => (
                   <option key={exam._id} value={exam._id} className="bg-bg-card text-white">
                     {EXAM_TYPES[normalizeTestType(exam._resolvedTestType || exam.testType)]?.icon || '📋'} {exam.name} ({exam.duration} dk)
@@ -734,36 +746,18 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
               </div>
               {/* Seçili değil ise uyarı */}
               {!form.subject && (
-                <p className="text-[11px] text-text-muted mt-2 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3 text-warning/60" /> Bir konu seçin (filtreleme ve istatistikler için kullanılır)
+                <p className={`text-[11px] mt-2 flex items-center gap-1 ${errors.subject ? 'text-danger' : 'text-text-muted'}`}>
+                  <AlertCircle className={`w-3 h-3 ${errors.subject ? 'text-danger' : 'text-warning/60'}`} /> {errors.subject || 'Bir konu seçin (dağılım ve istatistiklerde kullanılır)'}
                 </p>
               )}
             </div>
           )}
 
-          {/* Sınav Türü Seçimi (Sadece sınavlar için) */}
+          {/* Tür aktif sekmeden gelir; soru yanlışlıkla diğer sınav grubuna taşınamaz. */}
           {!isShortTest && (
-            <InputField label="Sınav Grubu (Deneme / Gerçek)" icon={RefreshCw}>
-              <div className="flex p-1 bg-black/20 border border-white/10 rounded-2xl">
-                {[
-                  { id: 'mock_exam', label: '📊 Deneme Sınavı' },
-                  { id: 'real_exam', label: '🛡️ Gerçek Sınav' }
-                ].map(t => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setForm(f => ({
-                      ...f,
-                      testType: t.id,
-                      exam: exams.some(exam => exam._id === f.exam && examMatchesType(exam, t.id)) ? f.exam : '',
-                    }))}
-                    className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${form.testType === t.id
-                      ? `${t.id === 'real_exam' ? 'bg-purple-500/20 border border-purple-500/30 text-purple-300' : 'bg-primary/20 border border-primary/30 text-primary-light'}`
-                      : 'text-text-muted hover:bg-white/[0.04] hover:text-white'}`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+            <InputField label="Sınav Grubu" icon={RefreshCw}>
+              <div className={`rounded-2xl border px-4 py-3 text-xs font-black ${testType === 'real_exam' ? 'border-purple-500/30 bg-purple-500/15 text-purple-300' : 'border-primary/30 bg-primary/15 text-primary-light'}`}>
+                {testType === 'real_exam' ? '🛡️ Gerçek Sınav' : '📊 Deneme Sınavı'}
               </div>
             </InputField>
           )}
@@ -1240,7 +1234,7 @@ const ExamFormModal = ({
       .sort((a, b) => (a.order || 0) - (b.order || 0));
   }, [categories, lockTestType]);
 
-  const [form, setForm] = useState({ name: '', description: '', duration: '45', categoryId: '', isPro: false, isMiniTest: forceMiniTest, testType, passingScore: '70' });
+  const [form, setForm] = useState({ name: '', description: '', duration: String(defaultDurationForGroup(initialCategoryGroup)), categoryId: '', isPro: false, isMiniTest: forceMiniTest, testType, passingScore: '70' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -1261,7 +1255,8 @@ const ExamFormModal = ({
         const initialCategory =
           catOptions.find(category => getCategoryGroupFromText(category.name) === initialCategoryGroup) ||
           catOptions[0];
-        setForm({ name: '', description: '', duration: '45', categoryId: initialCategory?._id || '', isPro: false, isMiniTest: forceMiniTest, testType: forceMiniTest ? 'short_test' : testType, passingScore: '70' });
+        const initialGroup = getCategoryGroupFromText(initialCategory?.name) || initialCategoryGroup;
+        setForm({ name: '', description: '', duration: String(defaultDurationForGroup(initialGroup)), categoryId: initialCategory?._id || '', isPro: false, isMiniTest: forceMiniTest, testType: forceMiniTest ? 'short_test' : testType, passingScore: '70' });
       }
       setError('');
     }
@@ -1271,17 +1266,21 @@ const ExamFormModal = ({
     e.preventDefault();
     if (!form.name.trim()) { setError('Sınav adı zorunludur.'); return; }
     if (lockTestType && !form.categoryId) { setError('B Sınıfı veya İş Makinesi kategorisi seçilmelidir.'); return; }
+    const duration = Number(form.duration);
+    const passingScore = Number(form.passingScore);
+    if (!Number.isInteger(duration) || duration < 1 || duration > 180) { setError('Süre 1-180 dakika arasında tam sayı olmalıdır.'); return; }
+    if (!Number.isInteger(passingScore) || passingScore < 0 || passingScore > 100) { setError('Geçme notu 0-100 arasında tam sayı olmalıdır.'); return; }
     setLoading(true);
     try {
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
-        duration: parseInt(form.duration) || 45,
+        duration,
         categoryId: form.categoryId || null,
         isPro: form.isPro,
         isMiniTest: form.isMiniTest,
         testType: form.isMiniTest ? 'short_test' : lockTestType ? testType : form.testType,
-        passingScore: parseInt(form.passingScore) || 70,
+        passingScore,
       };
       if (isEdit) {
         await api.put(`/exams/${existingExam._id}`, payload);
@@ -1291,7 +1290,7 @@ const ExamFormModal = ({
       onSaved();
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Hata oluştu.');
+      setError(err.response?.data?.error || err.response?.data?.message || 'Hata oluştu.');
     } finally {
       setLoading(false);
     }
@@ -1392,7 +1391,7 @@ const ExamFormModal = ({
                 <Clock className="w-3.5 h-3.5 text-warning" /> Süre (Dakika)
               </label>
               <input
-                type="number" min="1"
+                type="number" min="1" max="180" step="1"
                 className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
                 value={form.duration}
                 onChange={e => setForm(f => ({ ...f, duration: e.target.value }))}
@@ -1403,7 +1402,7 @@ const ExamFormModal = ({
                 <BarChart2 className="w-3.5 h-3.5 text-warning" /> Geçme Notu (%)
               </label>
               <input
-                type="number" min="0" max="100"
+                type="number" min="0" max="100" step="1"
                 className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
                 value={form.passingScore}
                 onChange={e => setForm(f => ({ ...f, passingScore: e.target.value }))}
@@ -1420,7 +1419,12 @@ const ExamFormModal = ({
               <select
                 className="w-full bg-black/20 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-warning/40 transition-colors"
                 value={form.categoryId}
-                onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
+                onChange={e => {
+                  const categoryId = e.target.value;
+                  const category = catOptions.find(item => item._id === categoryId);
+                  const group = getCategoryGroupFromText(category?.name) || initialCategoryGroup;
+                  setForm(current => ({ ...current, categoryId, duration: String(defaultDurationForGroup(group)) }));
+                }}
               >
                 <option value="" className="bg-bg-card text-white/40">Kategori seçin...</option>
                 {catOptions.map(c => (
@@ -1431,7 +1435,7 @@ const ExamFormModal = ({
               </select>
               {!form.categoryId && (
                 <p className="text-[11px] text-warning mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" /> Deneme sınavları için kategori seçin
+                  <AlertCircle className="w-3 h-3" /> {typeLabel} için kategori seçin
                 </p>
               )}
             </div>
@@ -1483,7 +1487,7 @@ const ExamFormModal = ({
 };
 
 // ─── CSV Import Modal ──────────────────────────────────────────────────────────
-const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_exam' }) => {
+const CsvImportModal = ({ isOpen, onClose, onImported, exams, categories, testType = 'mock_exam' }) => {
   const [selectedExamId, setSelectedExamId] = useState('');
   const [csv, setCsv] = useState('');
   const [loading, setLoading] = useState(false);
@@ -1491,9 +1495,21 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
   const [error, setError] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
 
-  useEffect(() => { if (isOpen) { setCsv(''); setResult(null); setError(''); setSelectedExamId(''); } }, [isOpen]);
+  useEffect(() => { if (isOpen) { setCsv(''); setResult(null); setError(''); setSelectedExamId(''); setSelectedSubject(''); } }, [isOpen]);
+
+  const selectedExam = exams.find(exam => exam._id === selectedExamId);
+  const selectedGroup = selectedExam ? getExamCategoryGroup(selectedExam, categories) : null;
+  const availableSubjects = selectedGroup === 'is_makinesi' ? IS_MAKINESI_SUBJECTS : B_CLASS_SUBJECTS;
 
   const handleImport = async () => {
+    if (!selectedExamId) {
+      setError('Soruların bağlanacağı sınavı seçin.');
+      return;
+    }
+    if (!selectedSubject) {
+      setError('Tüm sorular için bir branş seçin.');
+      return;
+    }
     if (!csv.trim()) {
       setError('CSV içeriği boş olamaz.');
       return;
@@ -1530,7 +1546,7 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
         async () => {
           return await api.post('/questions/bulk-csv', {
             questions: parseResult.data,
-            examId: selectedExamId || null,
+            examId: selectedExamId,
             testType,
             subject: selectedSubject,
           });
@@ -1583,29 +1599,29 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
         </div>
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           <div>
-            <label className="text-xs font-bold text-text-secondary mb-2 block">Sınav Seçimi (Opsiyonel)</label>
+            <label className="text-xs font-bold text-text-secondary mb-2 block">Sınav Seçimi <span className="text-danger">*</span></label>
             <select
               className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-primary/40 transition-colors"
               value={selectedExamId}
-              onChange={e => setSelectedExamId(e.target.value)}
+              onChange={e => { setSelectedExamId(e.target.value); setSelectedSubject(''); setError(''); }}
             >
-              <option value="" className="bg-bg-card text-white/40">Sınav atamadan ekle</option>
+              <option value="" className="bg-bg-card text-white/40">Sınav seçin...</option>
               {exams.map(ex => <option key={ex._id} value={ex._id} className="bg-bg-card">{ex.name}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-text-secondary mb-2 block">Soru Konusu / Branş (Tüm liste için geçerli)</label>
+            <label className="text-xs font-bold text-text-secondary mb-2 block">Soru Konusu / Branş <span className="text-danger">*</span> (tüm liste için)</label>
             <select
               className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-primary/40 transition-colors"
               value={selectedSubject}
-              onChange={e => setSelectedSubject(e.target.value)}
+              disabled={!selectedExamId}
+              onChange={e => { setSelectedSubject(e.target.value); setError(''); }}
             >
-              <option value="" className="bg-bg-card text-white/40">Konu seçilmedi</option>
-              <option value="trafik" className="bg-bg-card">🚦 Trafik ve Çevre Bilgisi</option>
-              <option value="ilkyardim" className="bg-bg-card">🚑 İlk Yardım Bilgisi</option>
-              <option value="motor" className="bg-bg-card">🔧 Motor ve Araç Tekniği</option>
-              <option value="adabi" className="bg-bg-card">🤝 Trafik Adabı</option>
+              <option value="" className="bg-bg-card text-white/40">{selectedExamId ? 'Branş seçin...' : 'Önce sınav seçin'}</option>
+              {availableSubjects.map(subject => (
+                <option key={subject.value} value={subject.value} className="bg-bg-card">{subject.emoji} {subject.label}</option>
+              ))}
             </select>
           </div>
 
@@ -1671,12 +1687,12 @@ const CsvImportModal = ({ isOpen, onClose, onImported, exams, testType = 'mock_e
 };
 
 // ─── Short Test Tab ────────────────────────────────────────────────────────────
-const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
+const ShortTestTab = ({ questions, categories, onRefresh }) => {
+  const [activeCatFilter, setActiveCatFilter] = useState('b_class');
   const [search, setSearch] = useState('');
   const [filterDifficulty, setFilterDifficulty] = useState('all');
   const [filterMedia, setFilterMedia] = useState('all');
   const [formModal, setFormModal] = useState({ open: false, question: null, isCopy: false, categoryId: null });
-  const [examModal, setExamModal] = useState({ open: false, exam: null });
   const [openCats, setOpenCats] = useState({});
   const toggleCat = (id) => setOpenCats(s => ({ ...s, [id]: !s[id] }));
 
@@ -1687,7 +1703,10 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
   };
   const collapseAll = () => setOpenCats({});
 
-  const shortQuestions = questions.filter(q => q.testType === 'short_test');
+  const shortQuestions = questions.filter(q =>
+    normalizeTestType(q.testType) === 'short_test' &&
+    getCategoryGroup(q.category, categories) === activeCatFilter
+  );
 
   const filtered = shortQuestions.filter(q => {
     const matchesSearch = !search || q.text.toLowerCase().includes(search.toLowerCase());
@@ -1703,16 +1722,26 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
     try { await api.delete(`/questions/${id}`); onRefresh(); } catch { alert('Soru silinemedi.'); }
   };
 
-  const roots = categories.filter(c => !c.parent?._id && !c.parent);
+  const roots = categories.filter(c =>
+    !isVideoCategory(c) &&
+    !c.parent?._id &&
+    !c.parent &&
+    getCategoryGroupFromText(c.name) === activeCatFilter
+  );
+
+  const countQuestionsDeep = (categoryId) => {
+    const ownCount = getQuestionsForCat(categoryId).length;
+    return categories
+      .filter(category => (category.parent?._id || category.parent) === categoryId)
+      .reduce((total, child) => total + countQuestionsDeep(child._id), ownCount);
+  };
 
   const renderCategory = (cat, level = 0) => {
     const children = categories.filter(c => (c.parent?._id || c.parent) === cat._id);
     const isLeaf = children.length === 0;
     const catQuestions = isLeaf ? getQuestionsForCat(cat._id) : [];
     const isOpen = openCats[cat._id] === true;
-    const totalDeep = isLeaf ? catQuestions.length : categories
-      .filter(c => (c.parent?._id || c.parent) === cat._id)
-      .reduce((acc, child) => acc + getQuestionsForCat(child._id).length, 0);
+    const totalDeep = countQuestionsDeep(cat._id);
 
     return (
       <div key={cat._id} className={`mb-3 transition-all duration-300 ${level > 0 ? 'ml-6 border-l border-white/10 pl-4' : ''}`}>
@@ -1723,9 +1752,17 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             : 'bg-white/[0.015] border-white/10 hover:border-white/20 hover:bg-white/[0.025]'}
         `}>
           {/* Category Header */}
-          <button
+          <div
+            role="button"
+            tabIndex={0}
             className="w-full flex items-center gap-4 p-4 text-left transition-all"
             onClick={() => toggleCat(cat._id)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleCat(cat._id);
+              }
+            }}
           >
             <div className={`
               w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 shrink-0
@@ -1775,7 +1812,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
                 <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
               </div>
             </div>
-          </button>
+          </div>
 
           {/* Content */}
           <AnimatePresence>
@@ -1829,6 +1866,31 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
 
   return (
     <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#243044] bg-[#0B1220] p-1.5">
+        {[
+          { id: 'b_class', label: 'B Sınıfı', icon: Shield },
+          { id: 'is_makinesi', label: 'İş Makinesi', icon: HardHat },
+        ].map(item => {
+          const Icon = item.icon;
+          const active = activeCatFilter === item.id;
+          const count = questions.filter(question =>
+            normalizeTestType(question.testType) === 'short_test' &&
+            getCategoryGroup(question.category, categories) === item.id
+          ).length;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => { setActiveCatFilter(item.id); setOpenCats({}); }}
+              className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-xs font-black transition-all ${active ? 'border-[#7C6CFF]/35 bg-[#7C6CFF]/15 text-white' : 'border-transparent text-[#8F9BB0] hover:bg-[#151E2E] hover:text-white'}`}
+            >
+              <Icon className="h-4 w-4" /> {item.label}
+              <span className="rounded-lg bg-white/[0.06] px-1.5 py-0.5 text-[10px]">{count}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Toolbar & Filters */}
       <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 space-y-4">
         <div className="flex flex-wrap items-center gap-3">
@@ -1842,20 +1904,12 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             {search && <button onClick={() => setSearch('')}><X className="w-4 h-4 text-text-muted hover:text-white" /></button>}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setFormModal({ open: true, question: null, isCopy: false, categoryId: null })}
-              className="flex items-center gap-2 px-5 py-2.5 bg-accent text-white font-bold text-sm rounded-2xl shadow-md shadow-accent/10 hover:bg-accent/90 hover:-translate-y-0.5 transition-all whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4" /> Soru Ekle
-            </button>
-            <button
-              onClick={() => setExamModal({ open: true, exam: null })}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/[0.05] border border-white/10 text-text-secondary font-bold text-sm rounded-2xl hover:bg-white/[0.1] hover:text-white transition-all whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4" /> Test Oluştur
-            </button>
-          </div>
+          <button
+            onClick={() => setFormModal({ open: true, question: null, isCopy: false, categoryId: null })}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-accent text-white font-bold text-sm rounded-2xl shadow-md shadow-accent/10 hover:bg-accent/90 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" /> Soru Ekle
+          </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
@@ -1907,7 +1961,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
       </div>
 
       {/* Summary & Controls */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-xs">
           <div className="flex items-center gap-1.5 text-text-secondary border-r border-white/10 pr-4">
             <BookOpen className="w-4 h-4 text-accent" />
@@ -1915,7 +1969,7 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
           </div>
           <div className="flex items-center gap-1.5 text-text-secondary">
             <FolderOpen className="w-4 h-4 text-primary-light" />
-            <span><strong className="text-white">{categories.length}</strong> Kategori</span>
+            <span><strong className="text-white">{categories.filter(category => !isVideoCategory(category) && getCategoryGroup(category._id, categories) === activeCatFilter).length}</strong> Kategori</span>
           </div>
           {search && <span className="text-text-muted text-[11px] ml-auto">• Aramada {filtered.length} sonuç</span>}
         </div>
@@ -1945,28 +1999,15 @@ const ShortTestTab = ({ questions, categories, exams, onRefresh }) => {
             onSaved={onRefresh}
             testType="short_test"
             categories={categories}
-            exams={exams}
+            exams={[]}
             initialCategoryId={formModal.categoryId}
             initialExamCategory={
               formModal.categoryId
                 ? getCategoryGroup(formModal.categoryId, categories) || 'b_class'
-                : 'b_class'
+                : activeCatFilter
             }
             existingQuestion={formModal.question}
             isCopy={formModal.isCopy}
-          />
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {examModal.open && (
-          <ExamFormModal
-            isOpen={examModal.open}
-            onClose={() => setExamModal({ open: false, exam: null })}
-            onSaved={onRefresh}
-            categories={categories}
-            existingExam={examModal.exam}
-            forceMiniTest
-            testType="short_test"
           />
         )}
       </AnimatePresence>
@@ -2023,12 +2064,13 @@ const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefres
   };
 
   const handleDeleteExam = async (exam) => {
-    if (!window.confirm(`"${exam.name}" ${title.toLowerCase()}ını silmek istediğinizden emin misiniz?\n\nBu ${title.toLowerCase()}daki sorular silinmez, atama kaldırılır.`)) return;
+    if (!window.confirm(`"${exam.name}" ${title.toLowerCase()}ını kaldırmak istediğinizden emin misiniz?\n\nSınav ve bağlı aktif sorular kullanıcı görünümünden kaldırılır.`)) return;
     try { await api.delete(`/exams/${exam._id}`); onRefresh(); } catch { alert('Sınav silinemedi.'); }
   };
 
   const handlePublishExam = async (exam) => {
-    if (!window.confirm(`"${exam.name}" sınavını yayınlamak istediğinizden emin misiniz?\n\nYayınlandıktan sonra tüm kullanıcılara bildirim gönderilecek.`)) return;
+    const audience = activeCatFilter === 'is_makinesi' ? 'İş Makinesi' : 'B Sınıfı';
+    if (!window.confirm(`"${exam.name}" sınavını yayınlamak istediğinizden emin misiniz?\n\nBildirim ${audience} kategorisindeki uygun kullanıcılara gönderilir.`)) return;
     try {
       await api.put(`/exams/${exam._id}/publish`);
       onRefresh();
@@ -2138,7 +2180,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefres
       </div>
 
       {/* Summary & Controls */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-3 text-xs">
           <div className="flex items-center gap-1.5 text-text-secondary border-r border-white/10 pr-4">
             <PenTool className={`w-4 h-4 ${testType === 'trial_exam' ? 'text-warning' : 'text-primary'}`} />
@@ -2222,9 +2264,17 @@ const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefres
                     ? 'bg-white/[0.015] border-dashed border-white/20 hover:border-amber-500/40 hover:bg-white/[0.025]'
                     : 'bg-white/[0.015] border-white/10 hover:border-warning/30 hover:bg-white/[0.025]'}
               `}>
-                <button
+                <div
+                  role="button"
+                  tabIndex={0}
                   className="w-full flex items-center gap-5 p-6 text-left"
                   onClick={() => toggleExam(exam._id)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      toggleExam(exam._id);
+                    }
+                  }}
                 >
                   <div className={`
                     w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-300 shrink-0
@@ -2278,7 +2328,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefres
                       <button
                         onClick={(e) => { e.stopPropagation(); handlePublishExam(exam); }}
                         className="flex items-center gap-1.5 px-3 py-2 bg-success/20 border border-success/30 text-success text-xs font-bold rounded-xl hover:bg-success hover:text-white transition-all"
-                        title="Yayınla — tüm kullanıcılara bildirim gönderilir"
+                        title="Yayınla — ilgili kategori kullanıcılarına bildirim gönderilir"
                       >
                         <Send className="w-3.5 h-3.5" /> Yayınla
                       </button>
@@ -2309,7 +2359,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefres
                   `}>
                     <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
                   </div>
-                </button>
+                </div>
 
                 <AnimatePresence>
                   {isOpen && (
@@ -2428,6 +2478,7 @@ const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefres
             onClose={() => setCsvModal(false)}
             onImported={onRefresh}
             exams={tabExams}
+            categories={categories}
             testType={testType}
           />
         )}
@@ -2457,11 +2508,13 @@ const AdminExams = () => {
   const [categories, setCategories] = useState([]);
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
+      setError('');
       const [qRes, cRes, eRes] = await Promise.all([
         api.get('/questions'),
         api.get('/categories/all'),
@@ -2472,6 +2525,7 @@ const AdminExams = () => {
       setExams(Array.isArray(eRes.data) ? eRes.data : (eRes.data.data || eRes.data || []));
     } catch (err) {
       console.error('Veri çekme hatası:', err);
+      setError(err.response?.data?.error || err.response?.data?.message || 'Sınav verileri alınamadı. Bağlantınızı kontrol edip yeniden deneyin.');
     } finally {
       setLoading(false);
     }
@@ -2626,6 +2680,15 @@ const AdminExams = () => {
           <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
           <p className="text-text-muted text-sm font-bold uppercase tracking-widest">Yükleniyor...</p>
         </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-danger/20 bg-danger/5 px-6 py-20 text-center">
+          <AlertCircle className="mb-4 h-10 w-10 text-danger" />
+          <p className="font-bold text-white">Sınav sistemi yüklenemedi</p>
+          <p className="mt-2 max-w-md text-sm text-text-muted">{error}</p>
+          <button type="button" onClick={fetchData} className="mt-5 rounded-2xl border border-danger/30 bg-danger/15 px-5 py-2.5 text-sm font-black text-danger transition-colors hover:bg-danger/25">
+            Yeniden Dene
+          </button>
+        </div>
       ) : (
         <AnimatePresence mode="wait">
           <motion.div
@@ -2639,7 +2702,6 @@ const AdminExams = () => {
               <ShortTestTab
                 questions={questions}
                 categories={categories}
-                exams={exams}
                 onRefresh={handleRefresh}
               />
             ) : (

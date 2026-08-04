@@ -85,14 +85,20 @@ export const validateQuestionForm = (form) => {
     }
   }
 
-  // Exam validation
-  if (!form.exam || !form.exam.trim()) {
-    errors.exam = 'Sınav seçimi zorunludur';
-  }
-
-  // Category validation
-  if (!form.category || !form.category.trim()) {
-    errors.category = 'Kategori seçimi zorunludur';
+  // Bağlantı doğrulaması soru türüne göre değişir. Kısa test doğrudan
+  // konuya, deneme/gerçek sınav sorusu ise mutlaka bir sınava bağlanır.
+  const testType = form.testType || 'short_test';
+  if (testType === 'short_test') {
+    if (!form.category || !String(form.category).trim()) {
+      errors.category = 'Konu seçimi zorunludur';
+    }
+  } else {
+    if (!form.exam || !String(form.exam).trim()) {
+      errors.exam = 'Sınav seçimi zorunludur';
+    }
+    if (!form.subject || !String(form.subject).trim()) {
+      errors.subject = 'Soru branşı seçimi zorunludur';
+    }
   }
 
   return {
