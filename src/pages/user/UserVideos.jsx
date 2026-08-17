@@ -112,14 +112,14 @@ const UserVideos = () => {
   }
 
   return (
-    <div className="space-y-6 pb-20 text-white">
+    <div className="space-y-6 pb-4 text-white lg:pb-20">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5">
             <Sparkles className="h-3.5 w-3.5 text-primary-light" />
             <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Video Eğitimler</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight">
+          <h1 className="text-2xl font-black tracking-tight lg:text-3xl">
             {showingUncategorized ? 'Kategorisiz Videolar' : selectedCategory ? selectedCategory.name : 'Video Dersler'}
           </h1>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-secondary">
@@ -128,13 +128,13 @@ const UserVideos = () => {
         </div>
 
         <div className="flex flex-col gap-3 xl:items-end">
-          <div className="grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+          <div className="grid w-full grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2 xl:w-auto">
             {[
               ['Video', videos.length],
               ['Kategori', categories.length],
               ['PRO', proVideoCount],
             ].map(([label, value]) => (
-              <div key={label} className="min-w-24 rounded-2xl bg-white/[0.035] px-4 py-3 text-center">
+              <div key={label} className="min-w-0 rounded-2xl bg-white/[0.035] px-2 py-3 text-center sm:px-4 xl:min-w-24">
                 <p className="text-lg font-black text-white">{value}</p>
                 <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</p>
               </div>

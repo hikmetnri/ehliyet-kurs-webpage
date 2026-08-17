@@ -105,7 +105,6 @@ const UserLayout = ({ fullscreen = false }) => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentPage = getPageMeta(location.pathname);
-  const hideHeaderOnMobile = ['/dashboard', '/dashboard/', '/dashboard/settings', '/dashboard/settings/'].includes(location.pathname);
   const isRealExamRoute =
     location.pathname.startsWith('/dashboard/exams/real-test/') ||
     (location.pathname.startsWith('/dashboard/exams/') && searchParams.get('mode') === 'real');
@@ -139,7 +138,7 @@ const UserLayout = ({ fullscreen = false }) => {
   }, [fetchUnreadCount]);
 
   return (
-    <div className="flex bg-bg-dark min-h-screen text-text-primary overflow-hidden lg:bg-bg-dark">
+    <div className="flex min-h-[100dvh] overflow-hidden bg-bg-dark text-text-primary">
       
       {/* Onboarding Modals */}
 
@@ -151,9 +150,9 @@ const UserLayout = ({ fullscreen = false }) => {
       <UserSidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
+      <div className="relative flex h-[100dvh] min-w-0 flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className={`h-14 lg:h-[72px] bg-bg-card/95 backdrop-blur-xl border-b border-border-color flex items-center justify-between gap-3 px-3 sm:px-4 lg:px-8 sticky top-0 z-10 shrink-0 ${hideHeaderOnMobile ? 'hidden lg:flex' : 'flex'}`}>
+        <header className="sticky top-0 z-10 hidden h-[72px] shrink-0 items-center justify-between gap-3 border-b border-border-color bg-bg-card/95 px-8 backdrop-blur-xl lg:flex">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setCollapsed(!collapsed)}
@@ -277,7 +276,7 @@ const UserLayout = ({ fullscreen = false }) => {
         </header>
 
         {/* Page Content */}
-        <main className={`flex-1 overflow-hidden relative z-0 ${fullscreen ? 'p-0' : 'overflow-y-auto px-4 py-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:p-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
+        <main className={`relative z-0 flex-1 overflow-hidden ${fullscreen ? 'p-0' : 'mobile-safe-page overflow-y-auto px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:px-4 md:px-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
           <Outlet context={{ themeMode, toggleThemeMode, changeThemeMode, isThemeLocked }} />
         </main>
         {!hideFloatingAIChat && <FloatingAIChat />}

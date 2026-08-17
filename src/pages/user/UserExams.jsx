@@ -78,32 +78,52 @@ const UserExams = () => {
         const userDescendants = user?.selectedCategoryId ? getDescendants(user.selectedCategoryId) : [];
         const validCatIds = [user?.selectedCategoryId, ...userDescendants.map(c => c._id)].filter(Boolean);
 
-        // İçeriği olan alt konu başlıklarını bul (Kısa test üretmek için)
-        const lessonCategories = userDescendants.filter(c => c.content && c.content.trim().length > 0);
-
-        // Her konu/içerik kategorisi için otomatik, sentetik bir Mini Test oluştur
-        const syntheticExams = lessonCategories.map(cat => ({
-          _id: `short_${cat._id}`,
-          name: `${cat.name} Mini Test`,
-          description: 'İlgili konuyu pekiştirmen için özel hazırlanan değerlendirme testi.',
-          categoryId: cat._id,
-          duration: 5,
-          isMiniTest: true,
-          isPro: false,
-          _isSynthetic: true,
-          _realCategoryId: cat._id
-        }));
-
-        // Tüm sınavları ve kullanıcının son sonuçlarını getir
-        const [examRes, resultRes, reviewRes, wrongRes] = await Promise.all([
+        // Tüm sınavları, kısa test sorularını ve kullanıcının son sonuçlarını getir.
+        // Flutter da kısa test sayılarını tek seferde çekilen short_test havuzundan hesaplıyor.
+        const [examRes, shortQuestionRes, resultRes, reviewRes, wrongRes] = await Promise.all([
           api.get('/exams'),
+          api.get('/questions?testType=short_test'),
           api.get('/exam-results').catch(() => ({ data: [] })),
           api.get('/wrong-answers/review-due?limit=100').catch(() => ({ data: { data: [] } })),
           api.get('/wrong-answers').catch(() => ({ data: { data: [] } })),
         ]);
         const allExams = examRes.data?.exams || examRes.data || [];
+        const shortQuestionRows = shortQuestionRes.data?.data || shortQuestionRes.data || [];
         const resultRows = resultRes.data?.results || resultRes.data || [];
         const validCatSet = new Set(validCatIds.map((id) => normalizeId(id)).filter(Boolean));
+
+        const shortQuestionCountByCategory = new Map();
+        if (Array.isArray(shortQuestionRows)) {
+          shortQuestionRows.forEach((question) => {
+            const questionCategoryId = normalizeId(question.categoryId || question.category);
+            if (!questionCategoryId || !validCatSet.has(questionCategoryId)) return;
+            shortQuestionCountByCategory.set(
+              questionCategoryId,
+              (shortQuestionCountByCategory.get(questionCategoryId) || 0) + 1,
+            );
+          });
+        }
+
+        // Sadece gerçekten sorusu bulunan konu başlıklarını kısa test olarak göster.
+        // Böylece kartta "0 soru" yazmaz ve boş teste giriş yapılamaz.
+        const syntheticExams = userDescendants
+          .map((category) => {
+            const questionCount = shortQuestionCountByCategory.get(normalizeId(category._id)) || 0;
+            if (questionCount === 0) return null;
+            return {
+              _id: `short_${category._id}`,
+              name: `${category.name} Mini Test`,
+              description: 'İlgili konuyu pekiştirmen için özel hazırlanan değerlendirme testi.',
+              categoryId: category._id,
+              questionCount,
+              duration: Math.max(5, Math.ceil(questionCount * 1.5)),
+              isMiniTest: true,
+              isPro: false,
+              _isSynthetic: true,
+              _realCategoryId: category._id,
+            };
+          })
+          .filter(Boolean);
         const reviewRows = reviewRes.data?.data || reviewRes.data || [];
         setReviewDueCount(Array.isArray(reviewRows)
           ? reviewRows.filter((item) => validCatSet.size === 0 || validCatSet.has(normalizeId(item.categoryId || item.category))).length
@@ -120,9 +140,6 @@ const UserExams = () => {
             : result.examId;
           if (key && !resultMap[key]) resultMap[key] = result;
         });
-
-        // MEB E-Sınav Simülatörü kaldırıldı — artık gösterilmez
-        const syntheticMebExam = null;
 
         // Filtreleme: mini test hariç, kategorisiz sınavlar herkese görünür,
         // kategorili sınavlar sadece ilgili kategori seçilince görünür
@@ -199,8 +216,6 @@ const UserExams = () => {
   }, {});
 
   const displayedExams = exams.filter(e => {
-    const catId = e.categoryId?._id || e.categoryId;
-
     if (activeTab === 'general') {
       return generalExams.includes(e);
     }
@@ -562,7 +577,7 @@ const UserExams = () => {
 
 
       {/* Mobile View */}
-      <div className="block lg:hidden space-y-6 pb-24 text-white">
+      <div className="block space-y-6 pb-4 text-white lg:hidden">
         {activeTab === 'real_sim_cat' ? (
           // MEB E-Sınav / Sınavlar View (ExamListScreen Parity)
           <div className="space-y-6 animate-fadeIn">
@@ -821,6 +836,10 @@ const UserExams = () => {
                     .map(([groupName, count]) => {
                       const isExpanded = expandedCategories[groupName];
                       const groupExams = shortTests.filter(e => getParentName(e.categoryId) === groupName);
+                      const groupQuestionCount = groupExams.reduce(
+                        (total, exam) => total + Number(exam.questionCount || 0),
+                        0,
+                      );
                       const matchedCat = validCategories.find(c => c.name === groupName || getCategoryName(c._id) === groupName);
                       const categoryColor = matchedCat?.color || '#6366f1';
 
@@ -846,7 +865,7 @@ const UserExams = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-bold text-sm text-white truncate">{groupName}</h3>
-                              <p className="text-[11px] text-text-muted mt-0.5">{count} Test • Süreli değil</p>
+                              <p className="text-[11px] text-text-muted mt-0.5">{count} Test • {groupQuestionCount} Soru</p>
                             </div>
                             <ChevronDown
                               className={`w-5 h-5 text-text-muted transition-transform duration-300 ${
@@ -879,7 +898,9 @@ const UserExams = () => {
                                           <span className="text-[10px] text-text-muted">• Başarı: {score}%</span>
                                         </div>
                                       ) : (
-                                        <p className="text-[10px] text-text-muted mt-1">Konu Değerlendirme Testi</p>
+                                        <p className="text-[10px] text-text-muted mt-1">
+                                          {exam.questionCount} Soru • {exam.duration} Dk
+                                        </p>
                                       )}
                                     </div>
 

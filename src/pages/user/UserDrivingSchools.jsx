@@ -207,7 +207,7 @@ const UserDrivingSchools = () => {
   const nearbyLabel = [city, district].filter(Boolean).join(' / ') || (debouncedQuery ? `"${debouncedQuery}" araması` : profileCity || 'şehir seçimi');
 
   return (
-    <div className="space-y-6 pb-24 text-white sm:space-y-7">
+    <div className="space-y-6 pb-4 text-white sm:space-y-7 lg:pb-24">
       <Motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

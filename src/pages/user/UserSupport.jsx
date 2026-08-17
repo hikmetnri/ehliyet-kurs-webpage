@@ -112,7 +112,7 @@ export default function UserSupport() {
   });
 
   return (
-    <div className="mx-auto max-w-7xl pb-24 px-4">
+    <div className="mx-auto max-w-7xl px-0 pb-4 sm:px-4 lg:pb-24">
 
       {/* ── Desktop View (Dual Pane) ── */}
       <div className="hidden lg:grid grid-cols-12 gap-6 h-[calc(100vh-160px)] min-h-[600px] pb-6">

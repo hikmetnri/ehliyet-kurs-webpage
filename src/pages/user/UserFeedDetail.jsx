@@ -389,7 +389,7 @@ export default function UserFeedDetail() {
       </div>
 
       {/* Mobile View */}
-      <div className="block lg:hidden mx-auto max-w-3xl pb-24 text-white px-2 space-y-4">
+      <div className="mx-auto block max-w-3xl space-y-4 px-1 pb-4 text-white sm:px-2 lg:hidden">
         {/* Sticky-like Header */}
         <div className="flex items-center gap-3 pt-2">
           <button

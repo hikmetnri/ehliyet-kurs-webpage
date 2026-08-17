@@ -34,6 +34,8 @@ const UserTrafficSigns = () => {
   }
 
   useEffect(() => {
+    // Filtering changes the result set, so pagination must return to its first page.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [searchQuery, activeCategory]);
 
@@ -74,14 +76,14 @@ const UserTrafficSigns = () => {
     : categories.length - 1;
 
   return (
-    <div className="space-y-6 pb-16">
+    <div className="space-y-6 pb-4 lg:pb-16">
       <header className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5">
             <TriangleAlert className="h-3.5 w-3.5 text-primary-light" />
             <span className="text-[9px] font-black uppercase tracking-widest text-primary-light">Levha Kütüphanesi</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white">{library.title}</h1>
+          <h1 className="text-2xl font-black tracking-tight text-white lg:text-3xl">{library.title}</h1>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
             {library.description} Kategori, kod veya anlamına göre ara; görseli ve açıklamayı hızlıca incele.
           </p>
@@ -92,13 +94,13 @@ const UserTrafficSigns = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2">
+        <div className="grid w-full grid-cols-3 gap-2 rounded-3xl border border-white/10 bg-white/[0.025] p-2 xl:w-auto">
           {[
             ['Toplam', signsData.length],
             ['Listede', filteredSigns.length],
             [library.id === 'traffic' ? 'Tanımlı' : 'Kategori', knownSignCount],
           ].map(([label, value]) => (
-            <div key={label} className="min-w-24 rounded-2xl bg-white/[0.035] px-4 py-3 text-center">
+            <div key={label} className="min-w-0 rounded-2xl bg-white/[0.035] px-2 py-3 text-center sm:px-4 xl:min-w-24">
               <p className="text-lg font-black text-white">{value}</p>
               <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">{label}</p>
             </div>
@@ -174,7 +176,7 @@ const UserTrafficSigns = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.18, delay: Math.min(index * 0.01, 0.08) }}
                 onClick={() => setSelectedSign(sign)}
-                className="group flex min-h-[260px] flex-col rounded-3xl border border-white/10 bg-white/[0.025] p-4 text-left transition hover:border-primary/25 hover:bg-white/[0.04]"
+                className="group flex min-h-[230px] flex-col rounded-3xl border border-white/10 bg-white/[0.025] p-3 text-left transition hover:border-primary/25 hover:bg-white/[0.04] sm:min-h-[260px] sm:p-4"
               >
                 <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl bg-white/[0.035] p-4">
                   <img

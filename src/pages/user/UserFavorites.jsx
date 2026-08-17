@@ -100,26 +100,26 @@ const UserFavorites = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-128px)] flex-col gap-5 pb-20 lg:h-[calc(100vh-128px)] lg:pb-0">
+    <div className="flex min-h-[calc(100dvh-128px)] flex-col gap-5 pb-4 lg:h-[calc(100vh-128px)] lg:pb-0">
       <div className="flex shrink-0 flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
           <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1.5">
             <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
             <span className="text-[9px] font-black uppercase tracking-widest text-amber-300">Kayıtlı Sorular</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white">Favori Sorular</h1>
+          <h1 className="text-2xl font-black tracking-tight text-white lg:text-3xl">Favori Sorular</h1>
           <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-text-muted">
             Zorlandığın veya tekrar görmek istediğin soruları filtrele, doğru cevabı ve açıklamayı aynı ekranda incele.
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-white/5 bg-[#0e1017]/80 p-1.5">
+        <div className="grid w-full grid-cols-3 gap-2 rounded-2xl border border-white/5 bg-[#0e1017]/80 p-1.5 xl:w-auto">
           {[
             ['Toplam', favorites.length],
             ['Konu', Math.max(0, subjectOptions.length - 1)],
             ['Görsel', imageCount],
           ].map(([label, value]) => (
-            <div key={label} className="min-w-24 rounded-xl bg-white/[0.015] border border-white/[0.04] px-4 py-3 text-center transition hover:border-amber-500/20 hover:bg-amber-500/[0.02]">
+            <div key={label} className="min-w-0 rounded-xl border border-white/[0.04] bg-white/[0.015] px-2 py-3 text-center transition hover:border-amber-500/20 hover:bg-amber-500/[0.02] sm:px-4 xl:min-w-24">
               <p className="text-lg font-black text-amber-300 leading-none">{value}</p>
               <p className="mt-2 text-[9px] font-black uppercase tracking-widest text-text-muted">{label}</p>
             </div>

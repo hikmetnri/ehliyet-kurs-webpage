@@ -53,6 +53,8 @@ export default function UserAIChat() {
   useEffect(() => {
     // Get current prompt count status on mount
     fetchPromptCount();
+    // fetchPromptCount only reads the current authenticated session on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -216,7 +218,7 @@ export default function UserAIChat() {
   const remainingPrompts = activeLimit - promptCount;
 
   return (
-    <div className="mx-auto max-w-5xl pb-24 px-4 h-[calc(100vh-120px)] min-h-[500px] flex flex-col">
+    <div className="mx-auto flex h-[calc(100dvh-120px)] min-h-[500px] max-w-5xl flex-col px-0 pb-4 sm:px-4 lg:h-[calc(100vh-120px)] lg:pb-24">
       {/* Page Header */}
       <div className="flex items-center justify-between shrink-0 mb-4">
         <div>

@@ -55,10 +55,10 @@ const AdminFeed = () => {
   useEffect(() => { fetchPosts(); }, [fetchPosts]);
 
   useEffect(() => {
-    if (selectedPost && posts.length > 0) {
-      const updated = posts.find(p => p._id === selectedPost._id);
-      if (updated) setSelected(updated);
-    }
+    setSelected((current) => {
+      if (!current || posts.length === 0) return current;
+      return posts.find(p => p._id === current._id) || current;
+    });
   }, [posts]);
 
   const handleApprove = async (postId) => {

@@ -187,7 +187,7 @@ const UserDrivingSchoolApply = () => {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-24 text-white">
+    <div className="mx-auto max-w-4xl space-y-6 pb-4 text-white lg:pb-24">
       {/* Header / Back */}
       <div className="flex items-center gap-3">
         <button

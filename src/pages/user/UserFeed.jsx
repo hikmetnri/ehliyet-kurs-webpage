@@ -43,13 +43,11 @@ export default function UserFeed() {
     setPage(1);
     setPosts([]);
     fetchPosts(1, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilter, searchQuery]);
 
   // İlk yüklemede de çalış
   useEffect(() => {
     fetchPosts(1, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchPosts = async (pageNum = 1, reset = false) => {
@@ -476,7 +474,7 @@ export default function UserFeed() {
       </div>
 
       {/* Mobile View */}
-      <div className="block lg:hidden mx-auto max-w-3xl pb-24 text-white px-2 space-y-5">
+      <div className="mx-auto block max-w-3xl space-y-5 px-1 pb-4 text-white sm:px-2 lg:hidden">
         {/* Header Component */}
         <div className="flex items-center justify-between pt-2">
           <div>

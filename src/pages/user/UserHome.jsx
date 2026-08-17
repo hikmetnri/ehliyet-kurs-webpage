@@ -37,7 +37,6 @@ import {
 import useAuthStore from '../../store/authStore';
 import CategorySelectorModal from '../../components/user/CategorySelectorModal';
 import NotificationPanel from '../../components/user/NotificationPanel';
-import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { isVideoRecord, limitQuoteText } from '../../utils/categoryContent';
 import { getSignLibraryForCategoryName } from '../../data/signLibrariesData';
 import { buildScopedStats } from '../../utils/scopedStats';
@@ -919,7 +918,7 @@ const UserHome = () => {
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* MOBILE VIEW (FLUTTER DASHBOARD STYLE) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="block lg:hidden space-y-4 pb-24 px-1 sm:px-2">
+      <div className="block space-y-4 px-1 pb-4 sm:px-2 lg:hidden">
         {/* Header (Flutter style) */}
         <div className="flex items-center justify-between py-3 px-1">
           <Link

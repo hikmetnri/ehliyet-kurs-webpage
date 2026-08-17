@@ -197,7 +197,7 @@ const UserStats = () => {
   );
 
   return (
-    <div className="space-y-6 pb-10 sm:space-y-8">
+    <div className="space-y-6 pb-4 sm:space-y-8 lg:pb-10">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">İstatistiklerim</h1>

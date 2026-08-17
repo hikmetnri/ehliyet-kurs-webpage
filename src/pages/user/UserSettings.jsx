@@ -590,7 +590,7 @@ const UserSettings = () => {
   };
 
   return (
-    <div className="text-white pb-24">
+    <div className="pb-0 text-white lg:pb-24">
       {message.text && (
         <Motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -1826,7 +1826,7 @@ const UserSettings = () => {
       </div>
 
       {/* ── MOBILE VIEW (Aligns with Flutter profile_screen.dart) ── */}
-      <div className="block lg:hidden space-y-6 px-1 pb-32">
+      <div className="block space-y-6 px-1 pb-4 lg:hidden">
         {/* Header Block */}
         <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-[#20193A] to-[#101827] p-5 shadow-lg shadow-black/25">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />

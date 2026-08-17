@@ -55,7 +55,7 @@ const AdminLayout = () => {
   const pageLabel = getPageLabel(pathname);
 
   return (
-    <div className="flex min-h-screen overflow-hidden bg-[#080D18] text-[#F4F7FB]">
+    <div className="flex min-h-[100dvh] overflow-hidden bg-[#080D18] text-[#F4F7FB]">
       <AdminSidebar 
         isOpen={sidebarOpen} 
         setIsOpen={setSidebarOpen} 
@@ -63,8 +63,8 @@ const AdminLayout = () => {
         setIsCollapsed={handleToggleCollapse}
       />
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden min-w-0">
-        <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between gap-2 border-b border-[#243044] bg-[#080D18]/95 px-4 backdrop-blur-xl lg:h-[72px] lg:px-6">
+      <div className="flex h-[100dvh] min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="sticky top-0 z-20 flex min-h-[calc(68px+env(safe-area-inset-top))] items-center justify-between gap-2 border-b border-[#243044] bg-[#080D18]/95 px-4 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:h-[72px] lg:min-h-[72px] lg:px-6 lg:pt-0">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3 flex-1">
             <button
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[13px] border transition-colors lg:pointer-events-none ${
@@ -123,7 +123,7 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        <main className="relative flex-1 overflow-y-auto bg-[#080D18] p-4 pb-24 custom-scrollbar sm:pb-24 lg:p-6 lg:pb-6">
+        <main className="relative flex-1 overflow-y-auto bg-[#080D18] p-4 pb-[calc(5.75rem+env(safe-area-inset-bottom))] custom-scrollbar lg:p-6 lg:pb-6">
           <Outlet />
         </main>
         <AdminBottomNav />

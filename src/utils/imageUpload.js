@@ -186,7 +186,7 @@ export const uploadImage = async (file, options = {}) => {
     // Upload with retry and timeout
     let uploadedUrl = '';
 
-    const uploadResult = await retryWithBackoff(
+    await retryWithBackoff(
       async () => {
         return new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
@@ -224,7 +224,7 @@ export const uploadImage = async (file, options = {}) => {
                 }
                 onProgress?.(90);
                 resolve(response);
-              } catch (error) {
+              } catch {
                 reject(new Error('Invalid response format'));
               }
             } else {

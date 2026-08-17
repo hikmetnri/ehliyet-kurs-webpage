@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { soundService } from '../../services/soundService';
@@ -248,11 +248,8 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
 const UserExamSolve = ({ customType }) => {
   const { examId, categoryId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user, logout } = useAuthStore();
-
-  const fromQuickStart = location.state?.fromQuickStart;
 
   let guestBlockNode = null;
   if (user?.isGuest) {
@@ -331,10 +328,10 @@ const UserExamSolve = ({ customType }) => {
         if (customType === 'short_test') {
           // Synthetic exam based on category questions
           const [qRes, catRes] = await Promise.all([
-            api.get(`/questions?category=${categoryId}&testType=short_test&subject=operator`),
+            api.get(`/questions?category=${categoryId}&testType=short_test`),
             api.get(`/categories/${categoryId}`)
           ]);
-          const qs = qRes.data || [];
+          const qs = readApiList(qRes);
           setQuestions(qs);
           setExam({
             _id: `short_test_${categoryId}`,

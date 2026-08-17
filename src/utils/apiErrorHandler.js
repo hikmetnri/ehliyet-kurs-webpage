@@ -232,7 +232,7 @@ export const uploadFileWithRetry = async (file, uploadFn, options = {}) => {
             const response = JSON.parse(xhr.responseText);
             onProgress?.(100);
             resolve({ success: true, data: response, error: null });
-          } catch (e) {
+          } catch {
             reject(new Error('Invalid response format'));
           }
         } else {

@@ -46,8 +46,8 @@ const UserBottomNav = () => {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#16161f]/95 shadow-[0_-6px_18px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:hidden">
-      <div className="grid h-[74px] grid-cols-5 pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border-color bg-bg-card2/95 shadow-[0_-6px_18px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:hidden">
+      <div className="grid h-[calc(70px+env(safe-area-inset-bottom))] grid-cols-5 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
@@ -57,34 +57,41 @@ const UserBottomNav = () => {
               key={item.to}
               to={item.to}
               end={item.exact}
-              className="group relative flex min-w-0 flex-col items-center justify-between pt-1.5 pb-0 text-[10.5px] font-semibold transition-colors"
+              className="group relative flex min-w-0 flex-col items-center justify-between pt-[5px] text-[10.5px] font-semibold transition-colors"
             >
               <div className="flex flex-col items-center justify-center flex-1">
                 <div
+                  style={active ? {
+                    color: 'var(--mobile-nav-active)',
+                    borderColor: 'color-mix(in srgb, var(--mobile-nav-active) 18%, transparent)',
+                    backgroundColor: 'color-mix(in srgb, var(--mobile-nav-active) 18%, transparent)',
+                  } : undefined}
                   className={
                     "flex items-center justify-center rounded-2xl transition-all duration-200 " +
                     (active
-                      ? "w-11 h-7 bg-accent/15 border border-accent/25 text-accent-light shadow-[0_0_10px_rgba(6,182,212,0.15)]"
-                      : "w-9 h-7 text-text-muted group-hover:text-white")
+                      ? "h-[30px] w-11 border shadow-sm"
+                      : "h-[30px] w-9 text-text-secondary group-hover:text-text-primary")
                   }
                 >
                   <Icon className="h-5 w-5" strokeWidth={active ? 2.6 : 2.0} />
                 </div>
                 <span
+                  style={active ? { color: 'var(--mobile-nav-active)' } : undefined}
                   className={
                     "mt-1 truncate px-1 transition-all duration-200 " +
                     (active
-                      ? "font-extrabold text-accent-light text-[11px]"
-                      : "text-text-muted group-hover:text-white font-medium")
+                      ? "text-[11px] font-extrabold"
+                      : "font-semibold text-text-secondary group-hover:text-text-primary")
                   }
                 >
                   {item.label}
                 </span>
               </div>
               <div
+                style={active ? { backgroundColor: 'var(--mobile-nav-active)' } : undefined}
                 className={
-                  "h-[3px] rounded-t-full bg-accent transition-all duration-300 " +
-                  (active ? "w-7 shadow-[0_0_10px_rgba(6,182,212,0.8)]" : "w-0")
+                  "h-[3px] rounded-t-full transition-all duration-300 " +
+                  (active ? "w-7 shadow-md" : "w-0")
                 }
               />
             </NavLink>

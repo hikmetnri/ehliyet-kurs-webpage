@@ -244,7 +244,7 @@ export default function FloatingAIChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 18, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="fixed bottom-[6.25rem] right-3 z-50 flex h-[min(680px,calc(100vh-8rem))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-[32px] border border-white/[0.08] bg-gradient-to-b from-[#0b0d13] to-[#06080c] shadow-[0_20px_50px_rgba(0,0,0,0.5)] lg:bottom-6 lg:right-6"
+            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-3 z-50 flex h-[min(680px,calc(100dvh-8rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)))] w-[calc(100vw-1.5rem)] max-w-[420px] flex-col overflow-hidden rounded-[32px] border border-white/[0.08] bg-gradient-to-b from-[#0b0d13] to-[#06080c] shadow-[0_20px_50px_rgba(0,0,0,0.5)] lg:bottom-6 lg:right-6"
           >
             <header className="flex items-center justify-between gap-3 border-b border-white/[0.08] bg-white/[0.015] px-4 py-3">
               <div className="flex min-w-0 items-center gap-3">
@@ -402,8 +402,8 @@ export default function FloatingAIChat() {
 
       <div className={`fixed z-40 flex items-center gap-2 ${
         isSolvePage 
-          ? 'bottom-[5.25rem] right-4 lg:bottom-[5.5rem] lg:right-6' 
-          : 'bottom-[6.25rem] right-4 lg:bottom-6 lg:right-6'
+          ? 'bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-[5.5rem] lg:right-6'
+          : 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-6 lg:right-6'
       } ${open ? 'pointer-events-none' : ''}`}>
         <AnimatePresence mode="wait">
           {!open && showAssistantLabel && (
