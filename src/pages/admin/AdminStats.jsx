@@ -1227,6 +1227,10 @@ const formatDateTime = (value) => {
 
 const eventLabels = {
   register_completed: 'Kayıt tamamlandı',
+  app_tour_started: 'Uygulama tanıtımına başladı',
+  app_tour_step_viewed: 'Tanıtım adımını gördü',
+  app_tour_completed: 'Uygulama tanıtımını tamamladı',
+  app_tour_skipped: 'Uygulama tanıtımını atladı',
   login_completed: 'Giriş yaptı',
   category_selected: 'Kategori seçti',
   daily_goal_set: 'Günlük hedef',
@@ -1279,6 +1283,9 @@ const getVisibleTimelineMetadata = (metadata = {}) => (
 );
 
 const timelineMetadataLabels = {
+  step: 'Tanıtım adımı',
+  stepId: 'Tanıtılan bölüm',
+  version: 'Tur sürümü',
   email: 'E-posta',
   name: 'Ad soyad',
   selectedCategoryId: 'Kategori ID',
@@ -1358,6 +1365,10 @@ const getTimelineMetadataItems = (metadata = {}) => (
 );
 
 const getTimelineDescription = (event, metadata) => {
+  if (event.eventType === 'app_tour_started') return 'Yeni kullanıcı uygulama tanıtımına başladı.';
+  if (event.eventType === 'app_tour_step_viewed') return `${metadata.step ?? ''}. tanıtım adımına geçti.`;
+  if (event.eventType === 'app_tour_completed') return 'Tanıtımı bitirip Sınavlar bölümüne geçti.';
+  if (event.eventType === 'app_tour_skipped') return `${metadata.step ?? ''}. adımda tanıtımı atladı.`;
   const examName = metadata.examName || metadata.categoryName || 'Test';
   const categoryName = metadata.selectedCategoryName || metadata.categoryName || 'Kategori';
 
