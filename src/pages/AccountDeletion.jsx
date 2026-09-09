@@ -6,7 +6,7 @@ import useAuthStore from '../store/authStore';
 
 const AccountDeletion = () => {
   const navigate = useNavigate();
-  const { user, token, logout } = useAuthStore();
+  const { user, token } = useAuthStore();
   const [confirmText, setConfirmText] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState('');
@@ -21,7 +21,7 @@ const AccountDeletion = () => {
     setMessage('');
     try {
       await api.delete('/auth/me');
-      logout();
+      useAuthStore.getState().clearSession();
       setMessage('Hesabınız kalıcı olarak silindi. Giriş sayfasına yönlendiriliyorsunuz.');
       setTimeout(() => navigate('/login', { replace: true }), 1200);
     } catch (err) {

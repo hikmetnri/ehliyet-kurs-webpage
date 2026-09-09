@@ -1,20 +1,9 @@
 import { create } from 'zustand'
+import { signOut } from 'firebase/auth'
+import { auth } from '../config/firebase'
 import { registerWebPushToken } from '../services/webPushService'
-import api from '../api'
-
-const getStoredUser = () => {
-  try {
-    const u = localStorage.getItem('user')
-    return u ? JSON.parse(u) : null
-  } catch {
-    return null
-  }
-}
-
-const getStoredToken = () => {
-  // ✅ Token sadece sessionStorage'da (HttpOnly cookie + sessionStorage backup)
-  return sessionStorage.getItem('token') || null
-}
+import api, { revokeSession } from '../api'
+import { setAccessToken, clearAccessToken } from '../api/session'
 
 const clearCategorySession = () => {
   localStorage.removeItem('last_visited_id')
@@ -44,7 +33,7 @@ const syncGuestData = async () => {
     if (guestResults) {
       const results = JSON.parse(guestResults)
       for (const resPayload of results) {
-        await api.post('/exam-results', resPayload).catch(e => console.warn('Sync exam result failed:', e))
+        await api.post('/exam-results', resPayload).catch(() => console.warn('Sync exam result failed'))
       }
       localStorage.removeItem('guest_saved_results')
     }
@@ -58,26 +47,29 @@ const syncGuestData = async () => {
         categoryName: '',
         testType: 'short_test',
       }
-      await api.post('/wrong-answers/bulk', wrongPayload).catch(e => console.warn('Sync wrong answers failed:', e))
+      await api.post('/wrong-answers/bulk', wrongPayload).catch(() => console.warn('Sync wrong answers failed'))
       localStorage.removeItem('guest_wrong_answers')
     }
 
     localStorage.removeItem('guest_solved_test_count')
     localStorage.removeItem('guest_ai_credits')
-  } catch (err) {
-    console.error('Error syncing guest data:', err)
+  } catch {
+    console.error('Error syncing guest data')
   }
 }
 
 const useAuthStore = create((set) => ({
-  user: getStoredUser(),
-  token: getStoredToken(),
+  user: null,
+  token: null,
+  initialized: false,
+  startupError: null,
+  logoutError: null,
   loading: false,
   error: null,
 
   setAuth: (user, token) => {
-    localStorage.setItem('user', JSON.stringify(user))
-    sessionStorage.setItem('token', token)
+    localStorage.removeItem('user')
+    setAccessToken(token)
     localStorage.removeItem('token')
     syncCategorySession(user)
     registerPushAfterAuth()
@@ -88,7 +80,7 @@ const useAuthStore = create((set) => ({
   },
 
   setUser: (user) => {
-    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.removeItem('user')
     syncCategorySession(user)
     set({ user })
   },
@@ -97,9 +89,29 @@ const useAuthStore = create((set) => ({
 
   setError: (error) => set({ error }),
 
-  logout: () => {
+  logout: async () => {
+    if (!useAuthStore.getState().user?.isGuest) {
+      try { await revokeSession() } catch {
+        set({ logoutError: 'Çıkış tamamlanamadı. Bağlantınızı kontrol edip tekrar deneyin.' })
+        return false
+      }
+    }
+    try { await signOut(auth) } catch { /* Local application session is still cleared. */ }
+    useAuthStore.getState().clearSession()
+    if (typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel('ehliyet-auth')
+      channel.postMessage('logout')
+      channel.close()
+    }
+    return true
+  },
+
+  clearSession: () => {
+    clearAccessToken()
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('web_push_token_key')
+    sessionStorage.removeItem('csrf-token')
+    sessionStorage.removeItem('ehliyet_yolu_ai_chat')
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('guest_solved_test_count')
@@ -115,7 +127,7 @@ const useAuthStore = create((set) => ({
       document.documentElement.setAttribute('data-theme-mode', currentMode)
     }
 
-    set({ user: null, token: null, error: null })
+    set({ user: null, token: null, error: null, logoutError: null })
   },
 
   startGuestMode: (categoryId = null, categoryName = null) => {
@@ -129,8 +141,8 @@ const useAuthStore = create((set) => ({
     // Guest token olarak basit string kullanmak yerine unique identifier oluştur
     // Produksiyonda bu backend'den gelmeli, şimdilik client-side token
     const guestToken = `guest-${Math.random().toString(36).substr(2, 20)}`
-    localStorage.setItem('user', JSON.stringify(guestUser))
-    sessionStorage.setItem('token', guestToken)
+    clearAccessToken()
+    localStorage.removeItem('user')
     set({ user: guestUser, token: guestToken, error: null })
   },
 
@@ -144,5 +156,10 @@ const useAuthStore = create((set) => ({
     return !!state.token && !!state.user && !state.user.isGuest
   },
 }))
+
+if (typeof BroadcastChannel !== 'undefined') {
+  const channel = new BroadcastChannel('ehliyet-auth')
+  channel.onmessage = event => { if (event.data === 'logout') useAuthStore.getState().clearSession() }
+}
 
 export default useAuthStore

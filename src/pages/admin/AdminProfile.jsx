@@ -102,8 +102,8 @@ const AdminProfile = () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       return showMessage('error', 'Yeni şifreler eşleşmiyor.');
     }
-    if (passwordData.newPassword.length < 6) {
-      return showMessage('error', 'Yeni şifre en az 6 karakter olmalıdır.');
+    if (passwordData.newPassword.length < 12) {
+      return showMessage('error', 'Yeni şifre en az 12 karakter olmalıdır.');
     }
     setLoading(true);
     try {
@@ -111,6 +111,8 @@ const AdminProfile = () => {
         currentPassword: passwordData.currentPassword,
         newPassword:     passwordData.newPassword,
       });
+      useAuthStore.getState().clearSession();
+      window.location.href = '/login';
       if (res.data.success) {
         showMessage('success', 'Şifre başarıyla güncellendi.');
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -368,7 +370,7 @@ const AdminProfile = () => {
               </div>
               <div>
                 <h3 className="text-base font-bold text-white">Şifre ve güvenlik</h3>
-                <p className="text-xs text-text-muted mt-0.5">Giriş şifresini değiştirirken en az 6 karakter kullan</p>
+                <p className="text-xs text-text-muted mt-0.5">Giriş şifresini değiştirirken en az 12 karakter kullan</p>
               </div>
             </div>
 

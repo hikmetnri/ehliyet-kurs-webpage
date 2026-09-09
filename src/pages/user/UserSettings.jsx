@@ -270,8 +270,8 @@ const UserSettings = () => {
       showMessage('error', 'Yeni şifreler eşleşmiyor.');
       return false;
     }
-    if (passwordData.newPassword.length < 6) {
-      showMessage('error', 'Yeni şifre en az 6 karakter olmalıdır.');
+    if (passwordData.newPassword.length < 12) {
+      showMessage('error', 'Yeni şifre en az 12 karakter olmalıdır.');
       return false;
     }
     setLoading(true);
@@ -280,6 +280,8 @@ const UserSettings = () => {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       });
+      useAuthStore.getState().clearSession();
+      window.location.href = '/login';
       if (res.data.success) {
         showMessage('success', 'Şifreniz başarıyla değiştirildi.');
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });

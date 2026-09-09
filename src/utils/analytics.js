@@ -1,4 +1,5 @@
 import api from '../api';
+import { getAccessToken } from '../api/session';
 
 const SOURCE_KEY = 'analytics_source';
 const CONTEXT_KEY = 'analytics_acquisition_context';
@@ -48,7 +49,7 @@ export const getAcquisitionSource = () => {
 
 export const trackEvent = async (eventType, metadata = {}) => {
   localStorage.removeItem('token');
-  const token = sessionStorage.getItem('token');
+  const token = getAccessToken();
   if (!token) return;
 
   try {

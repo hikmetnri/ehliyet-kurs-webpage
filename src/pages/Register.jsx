@@ -61,8 +61,8 @@ const Register = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setErrorObj('Şifre en az 6 karakter olmalıdır.');
+    if (formData.password.length < 12) {
+      setErrorObj('Şifre en az 12 karakter olmalıdır.');
       setLoading(false);
       return;
     }
@@ -288,7 +288,7 @@ const Register = () => {
 
             <div className="flex items-start gap-1.5 text-xs text-text-muted mt-1 ml-1 leading-relaxed">
               <Info className="w-3.5 h-3.5 text-accent-light shrink-0 mt-0.5" />
-              <span>Şifre en az 6 karakter olmalıdır.</span>
+              <span>Şifre en az 12 karakter olmalıdır.</span>
             </div>
 
             <div className="pt-6 space-y-3">

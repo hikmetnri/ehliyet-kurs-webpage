@@ -19,9 +19,8 @@ const UserSidebar = ({ collapsed, setCollapsed }) => {
   const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    if (await logout()) navigate('/login');
   };
 
   const isActive = (item) => {
