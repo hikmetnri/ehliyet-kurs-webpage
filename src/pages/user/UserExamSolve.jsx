@@ -13,6 +13,7 @@ import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
 import GuestBlocker from '../../components/user/GuestBlocker';
+import { createExamClock, getPassingScore, getExamScore } from '../../utils/examTiming';
 import {
   filterQuestionsToCategoryTree,
   hydrateWrongAnswers,
@@ -48,53 +49,44 @@ const cleanOptionText = (option, index) => {
 // ─── Timer Hook ──────────────────────────────────────────────────────────────
 const useTimer = (durationMinutes, onExpire, active = false) => {
   const durationSeconds = Math.max(1, durationMinutes || 45) * 60;
-  const [timerState, setTimerState] = useState({
-    durationSeconds,
-    remaining: durationSeconds,
-  });
+  const [remaining, setRemaining] = useState(durationSeconds);
+  const clockRef = useRef(null);
   const intervalRef = useRef(null);
   const onExpireRef = useRef(onExpire);
-  const remainingRef = useRef(durationSeconds);
-  const remaining = timerState.durationSeconds === durationSeconds
-    ? timerState.remaining
-    : durationSeconds;
 
-  useEffect(() => {
-    remainingRef.current = remaining;
-  }, [remaining]);
-
-  const setRemaining = useCallback((updater) => {
-    setTimerState((prev) => {
-      const current = prev.durationSeconds === durationSeconds
-        ? prev.remaining
-        : durationSeconds;
-      const nextRemaining = typeof updater === 'function'
-        ? updater(current)
-        : updater;
-      return {
-        durationSeconds,
-        remaining: nextRemaining,
-      };
-    });
-  }, [durationSeconds]);
-
-  useEffect(() => {
-    onExpireRef.current = onExpire;
-  }, [onExpire]);
+  useEffect(() => { onExpireRef.current = onExpire; }, [onExpire]);
 
   useEffect(() => {
     if (!active) return undefined;
-    if (remainingRef.current <= 0) { onExpireRef.current?.(); return undefined; }
-    intervalRef.current = setInterval(() => {
-      setRemaining(prev => {
-        if (prev <= 1) { clearInterval(intervalRef.current); onExpireRef.current?.(); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(intervalRef.current);
-  }, [active, setRemaining]);
+    const clock = createExamClock(durationSeconds);
+    clockRef.current = clock;
+    const tick = () => {
+      if (clock.stopped) return;
+      const value = clock.remaining();
+      setRemaining(value);
+      if (value === 0) {
+        clock.stop();
+        clearInterval(intervalRef.current);
+        onExpireRef.current?.();
+      }
+    };
+    tick();
+    intervalRef.current = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
+    window.addEventListener('focus', tick);
+    return () => {
+      clock.stop();
+      clearInterval(intervalRef.current);
+      document.removeEventListener('visibilitychange', tick);
+      window.removeEventListener('focus', tick);
+    };
+  }, [active, durationSeconds]);
 
-  const stop = () => clearInterval(intervalRef.current);
+  const stop = () => {
+    clockRef.current?.stop();
+    clearInterval(intervalRef.current);
+    return clockRef.current?.elapsed() ?? 0;
+  };
 
   const formatted = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
   const pct = ((durationSeconds - remaining) / durationSeconds) * 100;
@@ -105,7 +97,7 @@ const useTimer = (durationMinutes, onExpire, active = false) => {
 };
 
 // ─── Result Screen ────────────────────────────────────────────────────────────
-const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome }) => {
+const ResultScreen = ({ questions, answers, exam, reviewSync, resultSync, onRetry, onHome }) => {
   let correct = 0, wrong = 0, empty = 0;
   questions.forEach((q, i) => {
     if (answers[i] === undefined || answers[i] === null) empty++;
@@ -113,8 +105,8 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
     else wrong++;
   });
   const total = questions.length;
-  const score = total > 0 ? Math.round((correct / total) * 100) : 0;
-  const passed = score >= 70;
+  const score = getExamScore(correct, total);
+  const passed = score >= getPassingScore(exam);
   const isReview = exam?.testType === 'wrong_review' || exam?._id === 'wrong_review_today';
   const isWrongPool = exam?.testType === 'wrong_answers' || exam?._id === 'wrong_answers_all';
   const isAdaptiveReview = isReview || isWrongPool;
@@ -201,9 +193,16 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, onRetry, onHome })
                     : reviewSync.wrongCount > 0
                       ? `${reviewSync.wrongCount} yanlış cevap tekrar listene eklendi.`
                       : 'Bu sınavda yeni yanlış yok; tekrar listen güncellendi.'
-                  : 'Sonuç ekranı kaydedildi, ancak yanlış cevaplar şu an tekrar listesine eklenemedi.'}
+                  : 'Yanlış cevaplar şu an tekrar listesine eklenemedi.'}
               </p>
             </div>
+          </div>
+        )}
+
+        {resultSync === 'error' && (
+          <div role="alert" className="mb-6 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-left text-warning">
+            <p className="font-bold">Sınav sonucu geçmişe kaydedilemedi</p>
+            <p className="mt-1 text-sm">Bu ekrandaki sonuç cihazınızda hesaplandı. Kaydın sunucuya ulaştığı doğrulanamadı; sınav geçmişinizi kontrol edin.</p>
           </div>
         )}
 
@@ -280,6 +279,8 @@ const UserExamSolve = ({ customType }) => {
   const [guestMsg, setGuestMsg] = useState(null);
   const [reviewSync, setReviewSync] = useState({ status: 'idle', wrongCount: 0 });
   const [reloadKey, setReloadKey] = useState(0);
+  const [resultSync, setResultSync] = useState('idle');
+  const submittedRef = useRef(false);
 
   useEffect(() => {
     fetchFavorites();
@@ -504,12 +505,16 @@ const UserExamSolve = ({ customType }) => {
       questionCount: questions.length,
       duration: exam?.duration || 45,
     });
+    submittedRef.current = false;
+    setResultSync('idle');
     setPhase('solving');
   };
 
   const handleSubmit = async (forced = false) => {
+    if (submittedRef.current) return;
     if (!forced && !window.confirm('Sınavı bitirmek istediğinize emin misiniz?')) return;
-    timer.stop();
+    submittedRef.current = true;
+    const timeSpentSecs = timer.stop();
     setSubmitting(true);
     setReviewSync({ status: 'idle', wrongCount: 0 });
 
@@ -545,10 +550,9 @@ const UserExamSolve = ({ customType }) => {
 
       const total = questions.length;
       const empty = total - correct - wrong;
-      const score = total > 0 ? parseFloat(((correct / total) * 100).toFixed(1)) : 0;
-      const passed = score >= 70;
-      const timeSpentSecs = (exam?.duration || 45) * 60 - timer.remaining;
-      const isReviewMode = customType === 'wrong_review';
+      const score = getExamScore(correct, total);
+      const passed = score >= getPassingScore(exam);
+
       const isWrongPoolMode = customType === 'wrong_answers';
 
       const resultPayload = {
@@ -563,7 +567,7 @@ const UserExamSolve = ({ customType }) => {
         emptyCount: empty,
         score,
         passed,
-        duration: Math.round(timeSpentSecs / 60),
+        duration: timeSpentSecs,
         wrongQuestions,
       };
 
@@ -613,22 +617,13 @@ const UserExamSolve = ({ customType }) => {
           summary: { added: wrongQuestions.length, removed: 0 }
         });
       } else {
-        if (isReviewMode) {
-          await syncWrongAnswers();
-          await api.post('/exam-results', resultPayload).catch((err) => {
-            console.warn('Tekrar testi sonucu geçmişe kaydedilemedi:', err);
-          });
-        } else if (isWrongPoolMode) {
-          await api.post('/exam-results', resultPayload).catch((err) => {
-            console.warn('Yanlışlar testi sonucu geçmişe kaydedilemedi:', err);
-          });
-          await syncWrongAnswers();
-        } else {
-          await api.post('/exam-results', resultPayload).catch((err) => {
-            console.warn('Sınav sonucu geçmişe kaydedilemedi:', err);
-          });
-          await syncWrongAnswers();
+        try {
+          await api.post('/exam-results', resultPayload);
+          setResultSync('success');
+        } catch {
+          setResultSync('error');
         }
+        await syncWrongAnswers();
       }
 
       if (passed) {
@@ -637,6 +632,7 @@ const UserExamSolve = ({ customType }) => {
         soundService.playFailed();
       }
     } catch (err) {
+      setResultSync('error');
       console.error('Sonuç kaydedilemedi:', err);
     } finally {
       setSubmitting(false);
@@ -741,6 +737,7 @@ const UserExamSolve = ({ customType }) => {
       answers={answers}
       exam={exam}
       reviewSync={reviewSync}
+      resultSync={resultSync}
       onRetry={() => {
         setAnswers({});
         setCurrentIdx(0);
@@ -801,7 +798,7 @@ const UserExamSolve = ({ customType }) => {
               </div>
               <div className="w-px bg-white/10" />
               <div className="text-center">
-                <p className="text-2xl font-black text-success">70</p>
+                <p className="text-2xl font-black text-success">{getPassingScore(exam)}</p>
                 <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Geçme Puanı</p>
               </div>
             </div>

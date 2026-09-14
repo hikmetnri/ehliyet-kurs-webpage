@@ -1,0 +1,271 @@
+/* Mobile measurements come from Flutter's app_theme, MainLayoutScreen,
+   HomeScreen, ExamListScreen and ProfileHeader. Desktop keeps its own layout. */
+@font-face {
+  font-family: 'Flutter Inter';
+  src: url('/fonts/Inter.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@media (max-width: 1023px) {
+  .flutter-web, .flutter-mobile-sheet {
+    font-family: 'Flutter Inter', Inter, sans-serif;
+    --color-success: #4caf50;
+    --color-warning: #ffb74d;
+    --color-danger: #e53935;
+    --flutter-shadow: 0 10px 24px #00000025;
+    --flutter-daily-gradient: linear-gradient(135deg, #21183e, #101827);
+    --flutter-header-gradient: linear-gradient(135deg, #20193a, #111827);
+  }
+  :root[data-theme-mode='light'] :is(.flutter-web, .flutter-mobile-sheet) {
+    --flutter-shadow: 0 10px 24px #0000000f;
+    --flutter-daily-gradient: linear-gradient(135deg, #ffffff, #effbff);
+    --flutter-header-gradient: linear-gradient(135deg, #eeeaff, #f5f5f5);
+  }
+  .flutter-web .flutter-page.mobile-safe-page {
+    padding: max(12px, env(safe-area-inset-top)) 20px calc(100px + env(safe-area-inset-bottom));
+    scrollbar-width: none;
+  }
+  .flutter-web .flutter-page::-webkit-scrollbar { display: none; }
+  .flutter-web .flutter-page[data-mobile-page='exams'] { padding-inline: 16px; }
+  .flutter-web .flutter-page[data-mobile-page='settings'] { padding-inline: 20px; }
+  .flutter-mobile { color: var(--text-primary); padding: 0; max-width: none; }
+  .flutter-mobile > * + * { margin-top: 14px; }
+  .flutter-mobile :is(button, a) { -webkit-tap-highlight-color: transparent; }
+  .flutter-mobile button:focus-visible, .flutter-mobile a:focus-visible {
+    outline: 2px solid var(--color-accent); outline-offset: 3px;
+  }
+  .flutter-mobile .uppercase { text-transform: none; letter-spacing: normal; }
+  .flutter-mobile .text-text-muted { color: var(--text-secondary); }
+  .flutter-mobile :is(.text-\[9px\], .text-\[10px\]) { font-size: 11px; }
+  .flutter-mobile .text-xs { font-size: 12.5px; }
+  .flutter-mobile :is(h1, h2, h3, h4) { letter-spacing: -.35px; }
+  .flutter-mobile :is([class*='bg-[#171927]'], [class*='bg-[#111218]'], [class*='bg-[#11141b]']) {
+    background-color: var(--bg-card);
+  }
+  .flutter-primary-button {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; border-radius: 18px; padding: 10px 14px;
+    background: linear-gradient(100deg, var(--color-primary), var(--color-accent));
+    color: white; font-size: 15px; font-weight: 900; line-height: 1.25;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--color-primary) 22%, transparent);
+  }
+  .flutter-primary-button:disabled { opacity: .45; }
+  .flutter-primary-button:active { transform: scale(.98); }
+  .flutter-web .flutter-primary-button svg, .flutter-web .flutter-exam-arrow svg { stroke: white; }
+  .flutter-primary-button svg { width: 19px; height: 19px; flex-shrink: 0; }
+
+  /* Home: 20px gutters, compact profile pill, 26px focus card, 3 shortcuts. */
+  .flutter-home-header { display: flex; align-items: center; gap: 12px; margin: 0 -4px 0; min-height: 54px; padding: 0 0 4px; }
+  .flutter-greeting { display: flex; flex: 1; min-width: 0; align-items: center; gap: 10px; padding: 6px; border-radius: 24px; border: 1px solid var(--border-color); background: color-mix(in srgb, var(--bg-card) 65%, transparent); }
+  .flutter-greeting-avatar { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: 50%; overflow: hidden; color: var(--color-primary); background: var(--bg-card); }
+  .flutter-greeting > .min-w-0 { flex: 1; }
+  .flutter-greeting p { font-size: 10px; font-weight: 800; letter-spacing: .4px; }
+  .flutter-greeting h2 { font-size: 14px; font-weight: 900; margin-top: 3px; }
+  .flutter-home-actions { display: flex; align-items: center; gap: 8px; }
+  .flutter-home-actions > .relative { order: 2; }
+  .flutter-home-actions > .relative button { width: 52px; height: 24px; }
+  .flutter-notification-button { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; position: relative; border-radius: 50%; background: color-mix(in srgb, var(--color-accent) 12%, transparent); color: var(--color-accent); }
+  .flutter-notification-button svg { width: 21px; height: 21px; }
+  .flutter-quote { display: flex; align-items: center; overflow: hidden; height: 40px; border-radius: 18px; padding: 4px 10px; border: 1px solid var(--border-color); background: var(--bg-card); }
+  .flutter-quote > div:first-child { width: 30px; height: 30px; border: 0; margin-right: 8px; }
+  .flutter-quote .quote-marquee-track span { font-size: 12px; font-weight: 700; }
+  .flutter-quote .quote-marquee-track svg { color: var(--color-primary); }
+  .flutter-daily-card { width: 100%; padding: 18px; border-radius: 26px; border: 1px solid var(--border-color); background: var(--flutter-daily-gradient); box-shadow: var(--flutter-shadow); }
+  .flutter-daily-card h3 { font-size: 18.5px; line-height: 1.25; margin-top: 12px; }
+  .flutter-daily-card p { font-size: 12.5px; line-height: 1.45; margin-top: 8px; color: var(--text-secondary); }
+  .flutter-daily-card > div:first-child > div:last-child { width: 62px; height: 62px; }
+  .flutter-daily-card > div:first-child > div:last-child > svg { width: 62px; height: 62px; }
+  .flutter-daily-card > div:first-child > div:last-child span:first-child { font-size: 17px; }
+  .flutter-daily-card > div:first-child > div:last-child span:last-child { font-size: 11px; }
+  .flutter-daily-metrics { margin-top: 18px; gap: 10px; }
+  .flutter-daily-metrics > div { height: 36px; padding: 0 5px; border-radius: 14px; gap: 5px; }
+  .flutter-daily-metrics > div span { font-size: 12px; }
+  .flutter-daily-start { width: 100%; margin-top: 16px; min-height: 54px; }
+  .flutter-quick-rail { gap: 10px; }
+  .flutter-quick-rail > button { height: 92px; padding: 11px; border-radius: 18px; box-shadow: none; }
+  .flutter-quick-rail h4 { font-size: 12.5px; line-height: 1.1; }
+  .flutter-quick-rail p { font-size: 10.5px; margin-top: 5px; }
+  .flutter-quick-rail > button > div:first-child { width: 32px; height: 32px; }
+  .flutter-guidance { min-height: 86px; border-radius: 22px; gap: 10px; padding: 14px; }
+  .flutter-guidance h4 { white-space: normal; font-size: 14px; line-height: 1.2; }
+  .flutter-guidance p { -webkit-line-clamp: 2; font-size: 12px; }
+  .flutter-guidance > button { padding: 10px 12px; font-size: 11px; border-radius: 14px; }
+
+  /* Real exams use Flutter's short, tinted rows, not tall web cards. */
+  .flutter-exam-hero { position: relative; overflow: hidden; border-radius: 22px; border: 1px solid var(--border-color); background: var(--bg-card); padding: 16px; box-shadow: var(--flutter-shadow); }
+  .flutter-exam-hero > div:first-child { background: linear-gradient(90deg, #ffb74d, #ff7043); height: 3px; }
+  .flutter-exam-hero h1 { font-size: 28px; line-height: 1.1; margin-top: 10px; }
+  .flutter-exam-hero h1 + p { font-size: 12.5px; line-height: 1.4; margin-top: 7px; }
+  .flutter-exam-hero > .flex > .flex-1 > .inline-flex { color: #ffb74d; font-size: 11px; padding: 4px 10px; }
+  .flutter-exam-hero > .flex > .w-16 { width: 56px; height: 56px; box-shadow: none; }
+  .flutter-exam-hero > .flex > .w-16 > span:first-child { font-size: 18px; }
+  .flutter-exam-hero > .grid { border-block: 0; padding-block: 0; margin-block: 12px; }
+  .flutter-exam-hero .grid p { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .flutter-exam-hero .grid p + p { font-size: 10px; color: var(--text-secondary); }
+  .flutter-exam-hero .grid .w-8 { width: 28px; height: 28px; }
+  .flutter-exam-start { flex: 1; background: linear-gradient(95deg, #ffb74d, #ff7043); font-size: 14px; min-height: 42px; box-shadow: 0 8px 18px #ffb74d22; border-radius: 16px; }
+  .flutter-exam-hero > .flex:last-child > button:last-child { width: 42px; height: 42px; color: var(--color-success); background: var(--bg-card2); }
+  .flutter-list-heading { margin-top: 18px; padding: 0 4px; }
+  .flutter-list-heading > div { min-width: 0; }
+  .flutter-list-heading h2 { font-size: 17px; }
+  .flutter-list-heading p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+  .flutter-list-heading > span { flex-shrink: 0; font-size: 11px; padding: 8px 10px; }
+  .flutter-exam-list { display: grid; gap: 12px; padding-inline: 4px; margin-top: 12px; }
+  .flutter-exam-row { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 86px; padding: 16px 14px; border-radius: 22px; border: 1px solid color-mix(in srgb, var(--exam-color) 24%, transparent); background: linear-gradient(100deg, color-mix(in srgb, var(--exam-color) 8%, var(--bg-card)), color-mix(in srgb, var(--exam-color) 22%, var(--bg-card))); text-align: left; }
+  .flutter-exam-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 17px; border: 1px solid color-mix(in srgb, var(--exam-color) 28%, transparent); background: color-mix(in srgb, var(--exam-color) 12%, transparent); color: var(--exam-color); }
+  .flutter-exam-info { flex: 1; min-width: 0; }
+  .flutter-exam-info > strong { display: block; font-size: 15px; font-weight: 900; line-height: 1.25; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .flutter-exam-tags { display: flex; gap: 6px; margin-top: 8px; }
+  .flutter-exam-tags > span { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px; border-radius: 9px; background: var(--bg-card2); color: var(--text-secondary); font-size: 10px; font-weight: 700; white-space: nowrap; }
+  .flutter-exam-tags svg { color: var(--exam-color); flex-shrink: 0; }
+  .flutter-exam-arrow { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 14px; background: var(--exam-color); color: white; flex-shrink: 0; }
+  .flutter-exam-info > small { display: block; margin-top: 5px; font-size: 10px; }
+  .flutter-exam-row:active { transform: scale(.99); }
+  .flutter-question-hero { padding: 18px; border-radius: 24px; border: 1px solid var(--border-color); background: var(--flutter-header-gradient); }
+  .flutter-question-hero h1 { font-size: 25px; }
+  .flutter-segmented { background: var(--bg-card2); border: 1px solid var(--border-color); padding: 4px; }
+  .flutter-segmented > button { font-size: 12px; font-weight: 800; min-height: 40px; }
+  .flutter-mock-row { min-height: 84px; }
+
+  /* ProfileHeader: same horizontal avatar/identity layout and level ring. */
+  .flutter-profile-header { display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: start; column-gap: 16px; row-gap: 14px; position: relative; min-height: 148px; padding: 16px; margin-inline: -4px; border-radius: 20px; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 45%, var(--bg-dark)), var(--bg-dark)); }
+  :root[data-theme-mode='light'] .flutter-profile-header { background: linear-gradient(135deg, #6c63ff2e, #f5f5f5); }
+  .flutter-profile-header::after { content: ''; position: absolute; width: 140px; height: 140px; border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 7%, transparent); right: -30px; top: -30px; pointer-events: none; }
+  .flutter-profile-avatar { width: 84px; height: 84px; position: relative; border-radius: 50%; padding: 4px; background: conic-gradient(var(--level-color) var(--level-progress), var(--border-color) 0); }
+  .flutter-profile-avatar-inner { border-radius: 50%; display: flex; align-items: center; justify-content: center; width: 76px; height: 76px; border: 4px solid var(--bg-dark); background: var(--bg-card); color: var(--color-primary); overflow: hidden; }
+  .flutter-profile-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+  .flutter-avatar-camera { position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card2); border: 1px solid var(--border-color); color: var(--text-primary); }
+  .flutter-profile-identity { min-width: 0; padding-top: 4px; z-index: 1; }
+  .flutter-profile-name { display: flex; align-items: center; gap: 6px; }
+  .flutter-profile-name h1 { font-size: 20px; font-weight: 900; line-height: 1.2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .flutter-profile-name > button { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; background: var(--bg-card2); border-radius: 50%; color: var(--text-secondary); }
+  .flutter-level-chip { display: inline-block; padding: 3px 10px; margin-top: 7px; font-size: 11px; font-weight: 800; border-radius: 20px; color: var(--level-color); border: 1px solid color-mix(in srgb, var(--level-color) 35%, transparent); background: color-mix(in srgb, var(--level-color) 14%, transparent); }
+  .flutter-profile-points { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; font-weight: 800; }
+  .flutter-profile-points > span { display: inline-flex; align-items: center; gap: 4px; color: #ffb74d; }
+  .flutter-profile-points > strong { padding: 2px 7px; border-radius: 6px; background: #ffb74d; color: #0f1220; font-size: 9px; }
+  .flutter-profile-bio { grid-column: 1 / -1; font-size: 12.5px; color: var(--text-secondary); line-height: 1.4; }
+  .flutter-profile > .space-y-4 { margin-top: 20px; }
+  .flutter-profile > .space-y-4 h4 { font-size: 12px; color: var(--text-secondary); }
+  .flutter-profile > .space-y-4 .grid-cols-3 { gap: 10px; }
+  .flutter-profile > .space-y-4 .grid :is(a, button) { box-shadow: none; }
+
+  /* Native-style page headings, sheets and persistent navigation. */
+  .flutter-feed-header { min-height: 80px; padding: 8px 4px; }
+  .flutter-feed-header h1 { font-size: 32px; font-weight: 800; letter-spacing: -1.2px; }
+  .flutter-feed-header p { font-size: 13px; }
+  .flutter-feed-header button { width: 48px; height: 48px; border-radius: 50%; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); box-shadow: none; }
+  .flutter-feed > .grid-cols-3 > div { padding: 10px 8px; gap: 6px; }
+  .flutter-feed > .grid-cols-3 p { font-size: 11px; }
+  .flutter-mobile-sheet { background: var(--bg-card); color: var(--text-primary); border-radius: 28px 28px 0 0; padding: 24px 20px max(28px, env(safe-area-inset-bottom)); max-height: calc(92dvh - env(safe-area-inset-top)); }
+  .flutter-mobile-sheet h3 { font-size: 18px; text-transform: none; letter-spacing: -.3px; }
+  .flutter-mobile-sheet :is(input, select, textarea) { font-size: 16px; }
+  .flutter-bottom-nav { background: var(--bg-card2); backdrop-filter: none; }
+  .flutter-bottom-nav svg { width: 22px; height: 22px; }
+  .flutter-bottom-nav [aria-current='page'] svg { fill: color-mix(in srgb, currentColor 12%, transparent); }
+  .flutter-bottom-nav a { padding-top: 5px; }
+  .flutter-bottom-nav a > div:last-child { margin-bottom: 5px; }
+  .flutter-ai-button { width: 56px; height: 56px; border-radius: 18px; border: 0; background: linear-gradient(135deg, #6c63ff, #4fc3f7); color: white; }
+  .flutter-web .flutter-ai-button svg { stroke: white; }
+  .flutter-ai-button > span { display: none; }
+  .flutter-ai-label { display: none; }
+  .flutter-ai-position { right: 16px; }
+}
+
+@media (max-width: 379px) {
+  .flutter-web .flutter-page.mobile-safe-page { padding-inline: 16px; }
+  .flutter-greeting h2 { font-size: 12px; }
+  .flutter-home-header { gap: 8px; }
+  .flutter-daily-card { padding: 14px; }
+  .flutter-daily-card h3 { font-size: 17px; }
+  .flutter-daily-start { min-height: 48px; }
+  .flutter-exam-row { padding: 12px 10px; gap: 10px; }
+  .flutter-exam-icon { width: 42px; height: 46px; }
+  .flutter-exam-tags > span { font-size: 9px; padding-inline: 4px; }
+  .flutter-exam-info > strong { font-size: 14px; }
+  .flutter-profile-header { column-gap: 12px; padding: 14px; }
+  .flutter-profile-name h1 { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flutter-mobile *, .flutter-bottom-nav * { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 1023px) {
+  /* Legacy light-theme utility overrides must not recolor white CTA icons. */
+  :root[data-theme-mode='light'] .flutter-web :is(.flutter-primary-button, .flutter-ai-button, .flutter-exam-arrow) svg { stroke: white; }
+  :root[data-theme-mode='light'] .flutter-web .flutter-notification-button svg { stroke: var(--color-accent); }
+  .flutter-web .flutter-greeting-avatar { color: var(--color-primary); }
+  .flutter-profile .grid-cols-3 > :is(a, button) > span { color: var(--text-primary); }
+  .flutter-profile .grid-cols-3 > :is(a, button) { gap: 8px; }
+  .flutter-profile-stats > h2 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; margin-bottom: 12px; }
+  .flutter-profile-stats > h2 svg { color: var(--color-primary); }
+  .flutter-profile-stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .flutter-profile-stats-grid > div { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; aspect-ratio: 1.1; padding: 10px; border: 1px solid var(--border-color); border-radius: 16px; background: var(--bg-card); }
+  .flutter-profile-stats-grid > div > span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; color: var(--stat-color); background: color-mix(in srgb, var(--stat-color) 10%, transparent); }
+  .flutter-profile-stats-grid strong { font-size: 18px; font-weight: 900; }
+  .flutter-profile-stats-grid small { font-size: 10px; font-weight: 600; color: var(--text-secondary); }
+  .flutter-web .flutter-lessons { min-height: 100%; padding-bottom: 12px; background: var(--bg-dark) !important; }
+  :root[data-theme-mode='light'] .flutter-web .flutter-lessons { background-color: var(--bg-dark) !important; }
+  .flutter-lesson-browser { padding: 12px 0; }
+  .flutter-lesson-browser > div:first-child > div:first-child { align-items: center; gap: 10px; margin-bottom: 18px; }
+  .flutter-lesson-browser > div:first-child h2 { font-size: 26px; line-height: 1.1; font-weight: 900; letter-spacing: -.8px; text-transform: none; }
+  .flutter-lesson-browser > div:first-child > div:first-child > div > span { width: 48px; height: 48px; border-radius: 16px; }
+  .flutter-lesson-browser > div:first-child > div:first-child > div > span svg { width: 24px; height: 24px; }
+  .flutter-lesson-browser > div:first-child > div:first-child > div > div > div { flex-direction: column; align-items: start; }
+  .flutter-lesson-browser input { background: transparent !important; font-size: 16px; }
+  .flutter-web .flutter-lesson-card { background: linear-gradient(135deg, color-mix(in srgb, var(--lesson-color) 10%, var(--bg-card)), var(--bg-card)); border: 1px solid color-mix(in srgb, var(--lesson-color) 20%, transparent); border-radius: 20px; min-height: 168px; padding: 14px; box-shadow: none; }
+  .flutter-lesson-card h3 { color: var(--text-primary); font-size: 15px; line-height: 1.25; }
+  .flutter-lesson-card > div:first-child { color: color-mix(in srgb, var(--lesson-color) 5%, transparent); }
+  .flutter-web .flutter-lessons .flutter-lesson-card > div:first-child svg { stroke: currentColor; }
+  .flutter-lesson-card > .mt-auto { color: var(--text-secondary); }
+  .flutter-lessons :is(.bg-\[\#0b0d12\], .bg-\[\#11141b\], .bg-\[\#121521\]) { background-color: var(--bg-card); }
+  .flutter-lessons .prose { font-size: 15px; line-height: 1.8; }
+  .flutter-stats { padding-top: 8px; }
+  .flutter-stats > div:first-child h1 { font-size: 28px; }
+  .flutter-stats .uppercase { text-transform: none; letter-spacing: normal; }
+  .flutter-stats .text-\[10px\] { font-size: 11px; }
+  .flutter-stats-hero { padding: 18px; border-radius: 24px; background: var(--flutter-daily-gradient) !important; border-color: var(--border-color); }
+  .flutter-stats-hero h2 { font-size: 20px; }
+  .flutter-stats-hero .relative.shrink-0 { width: 84px; height: 84px; }
+  .flutter-stats-hero .relative.shrink-0 > svg { width: 84px; height: 84px; }
+  .flutter-stats-hero p { font-size: 12.5px; }
+  .flutter-stats-hero svg circle:first-child { stroke: var(--border-color-mid); }
+  .flutter-web .flutter-page:not([data-mobile-page='home']):not([data-mobile-page='exams']):not([data-mobile-page='settings']) > div > div:first-child h1 { letter-spacing: -.8px; }
+  .flutter-mobile-sheet input, .flutter-mobile-sheet select, .flutter-mobile-sheet textarea { color: var(--text-primary); }
+}
+
+@media (max-width: 1023px) {
+  .flutter-subpage-bar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; flex-shrink: 0; min-height: calc(56px + env(safe-area-inset-top)); padding: env(safe-area-inset-top) 12px 0; border-bottom: 1px solid var(--border-color); background: var(--bg-dark); }
+  .flutter-subpage-bar > a { width: 44px; height: 44px; display: grid; place-items: center; color: var(--text-primary); }
+  .flutter-subpage-bar h1 { font-size: 18px; font-weight: 700; text-align: center; }
+  .flutter-subpage-bar ~ .flutter-page.mobile-safe-page { padding-top: 20px; }
+  .flutter-stats > div:first-child > div:first-child { display: none; }
+  .flutter-stats > div:first-child > div:last-child { display: flex; width: 100%; }
+  .flutter-stats > div:first-child > div:last-child > button { flex: 1; justify-content: center; }
+  .flutter-analytics-summary { display: flex; align-items: center; gap: 18px; padding: 20px; background: var(--flutter-daily-gradient); border-radius: 26px; border: 1px solid var(--border-color); box-shadow: var(--flutter-shadow); }
+  .flutter-analytics-summary > div:last-child { flex: 1; min-width: 0; }
+  .flutter-analytics-summary h2 { font-size: 20px; font-weight: 900; line-height: 1.2; letter-spacing: -.6px; }
+  .flutter-analytics-summary p { font-size: 11.5px; line-height: 1.4; margin-top: 6px; color: var(--text-secondary); }
+  .flutter-analytics-summary p.flutter-scope { font-size: 11px; font-weight: 900; color: var(--color-primary); margin-top: 4px; }
+  .flutter-analytics-ring { position: relative; width: 82px; height: 82px; flex-shrink: 0; }
+  .flutter-analytics-ring svg { width: 100%; height: 100%; fill: none; transform: rotate(-90deg); }
+  .flutter-analytics-ring circle { stroke-width: 7px; stroke: var(--border-color-mid); }
+  .flutter-analytics-ring circle:last-child { stroke: var(--accuracy-color); stroke-linecap: round; }
+  .flutter-analytics-ring strong { position: absolute; inset: 0; display: grid; place-items: center; font-size: 18px; font-weight: 900; }
+  .flutter-analytics-status { display: inline-block; padding: 5px 8px; border-radius: 10px; font-size: 10px; font-weight: 800; background: var(--bg-card2); margin-top: 10px; }
+  .flutter-analytics-goals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .flutter-analytics-goals > div { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 14px; }
+  .flutter-analytics-goals span { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+  .flutter-analytics-goals > div:first-child svg { color: #ffb74d; }
+  .flutter-analytics-goals > div:last-child svg { color: var(--color-primary); }
+  .flutter-analytics-goals strong { display: block; margin-top: 10px; font-size: 24px; font-weight: 900; }
+  .flutter-analytics-goals small { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .flutter-analytics-goals p { font-size: 10px; color: var(--text-secondary); margin-top: 5px; }
+  .flutter-goal-track { height: 6px; margin-top: 12px; overflow: hidden; background: var(--border-color); border-radius: 9px; }
+  .flutter-goal-track i { display: block; height: 100%; background: var(--color-primary); border-radius: inherit; }
+  .flutter-page[data-mobile-page='stats'] .flutter-stats-hero { display: none; }
+  .flutter-page:is([data-mobile-page='videos'], [data-mobile-page='favorites'], [data-mobile-page='support'], [data-mobile-page='traffic-signs'], [data-mobile-page='driving-schools']) h1 { display: none; }
+  .flutter-page:is([data-mobile-page='videos'], [data-mobile-page='favorites'], [data-mobile-page='support'], [data-mobile-page='traffic-signs'], [data-mobile-page='driving-schools']) :is(button, a).uppercase { text-transform: none; letter-spacing: 0; }
+  .flutter-page:is([data-mobile-page='videos'], [data-mobile-page='favorites'], [data-mobile-page='support'], [data-mobile-page='traffic-signs'], [data-mobile-page='driving-schools']) .glass-card { background: var(--bg-card); border-color: var(--border-color); }
+}

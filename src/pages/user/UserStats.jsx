@@ -197,7 +197,7 @@ const UserStats = () => {
   );
 
   return (
-    <div className="space-y-6 pb-4 sm:space-y-8 lg:pb-10">
+    <div className="flutter-stats space-y-6 pb-4 sm:space-y-8 lg:pb-10">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">İstatistiklerim</h1>
@@ -282,7 +282,20 @@ const UserStats = () => {
 
               return (
                 <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
-                  <section className={`rounded-3xl border ${heroBorderColor} bg-white/[0.025] p-5 sm:p-6`}>
+                  <section className="flutter-analytics-mobile lg:hidden">
+                    <div className="flutter-analytics-summary">
+                      <div className="flutter-analytics-ring" style={{ '--accuracy-color': strokeColorHex }}>
+                        <svg viewBox="0 0 90 90" aria-hidden="true"><circle cx="45" cy="45" r="39" /><circle cx="45" cy="45" r="39" strokeDasharray={`${Math.min(100, accuracy) * 2.4504} 245.04`} /></svg>
+                        <strong>%{accuracy}</strong>
+                      </div>
+                      <div><h2>Performans Özeti</h2><p className="flutter-scope">{scopeLabel}</p><p>{stats?.totalExams || 0} sınav · {totalQ} soru · %{Math.round(success)} başarı</p><span className="flutter-analytics-status" style={{ color: strokeColorHex }}>{accuracy >= 70 ? 'Sınava Yakınsın' : accuracy >= 45 ? 'Tekrar Alanı Açık' : 'Çalışmaya Başla'}</span></div>
+                    </div>
+                    <div className="flutter-analytics-goals">
+                      <div><span><Flame size={17} /> Gün Serisi</span><strong>{stats?.streak || 0} <small>gün</small></strong><p>Her gün bir adım ileri</p></div>
+                      <div><span><Target size={17} /> Günlük Hedef</span><strong>{todayQ}<small> / {dailyGoal}</small></strong><div className="flutter-goal-track"><i style={{ width: `${goalProgressPct}%` }} /></div></div>
+                    </div>
+                  </section>
+                  <section className={`flutter-stats-hero hidden lg:block rounded-3xl border ${heroBorderColor} bg-white/[0.025] p-5 sm:p-6`}>
                      <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
                       <div className="relative flex h-28 w-28 shrink-0 items-center justify-center">
                         <svg width="112" height="112" viewBox="0 0 112 112">

@@ -6,7 +6,7 @@ import FloatingAIChat from './FloatingAIChat';
 
 import CategorySelectorModal from './CategorySelectorModal';
 import NotificationPanel from './NotificationPanel';
-import { Menu, Bell, Sun, Moon, Lock, Monitor } from 'lucide-react';
+import { Menu, Bell, Sun, Moon, Lock, Monitor, ArrowLeft } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import api from '../../api';
 
@@ -105,6 +105,10 @@ const UserLayout = ({ fullscreen = false }) => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentPage = getPageMeta(location.pathname);
+  const showMobileSubpageHeader = !fullscreen && !['/dashboard', '/dashboard/exams', '/dashboard/feed', '/dashboard/settings'].includes(location.pathname);
+  const mobileBackTarget = location.pathname.startsWith('/dashboard/feed/') ? '/dashboard/feed'
+    : location.pathname.startsWith('/dashboard/driving-schools/') ? '/dashboard/driving-schools'
+    : location.pathname === '/dashboard/lessons' ? '/dashboard' : '/dashboard/settings';
   const isRealExamRoute =
     location.pathname.startsWith('/dashboard/exams/real-test/') ||
     (location.pathname.startsWith('/dashboard/exams/') && searchParams.get('mode') === 'real');
@@ -138,7 +142,7 @@ const UserLayout = ({ fullscreen = false }) => {
   }, [fetchUnreadCount]);
 
   return (
-    <div className="flex min-h-[100dvh] overflow-hidden bg-bg-dark text-text-primary">
+    <div className="flutter-web flex min-h-[100dvh] overflow-hidden bg-bg-dark text-text-primary">
       
       {/* Onboarding Modals */}
 
@@ -275,8 +279,16 @@ const UserLayout = ({ fullscreen = false }) => {
           </div>
         </header>
 
+        {showMobileSubpageHeader && (
+          <header className="flutter-subpage-bar lg:hidden">
+            <Link to={mobileBackTarget} aria-label="Geri dön"><ArrowLeft size={21} /></Link>
+            <h1>{currentPage.title}</h1>
+            <span aria-hidden="true" />
+          </header>
+        )}
+
         {/* Page Content */}
-        <main className={`relative z-0 flex-1 overflow-hidden ${fullscreen ? 'p-0' : 'mobile-safe-page overflow-y-auto px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:px-4 md:px-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
+        <main data-mobile-page={location.pathname.split('/')[2] || 'home'} className={`flutter-page relative z-0 flex-1 overflow-hidden ${fullscreen ? 'p-0' : 'mobile-safe-page overflow-y-auto px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:px-4 md:px-6 lg:p-8 lg:pb-8 custom-scrollbar'}`}>
           <Outlet context={{ themeMode, toggleThemeMode, changeThemeMode, isThemeLocked }} />
         </main>
         {!hideFloatingAIChat && <FloatingAIChat />}

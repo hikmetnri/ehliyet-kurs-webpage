@@ -119,7 +119,9 @@ const MobileCategoryCard = ({ category, parentColor, onClick, user, completedIds
   return (
     <div
       onClick={() => onClick(category)}
-      className="relative overflow-hidden rounded-2xl border border-white/5 bg-[#151821] p-4 flex flex-col min-h-[160px] cursor-pointer transition-all active:scale-95 active:border-white/20 select-none shadow-lg shadow-black/25"
+      role="button" tabIndex={0} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onClick(category); } }}
+      style={{ '--lesson-color': catColor }}
+      className="flutter-lesson-card relative overflow-hidden rounded-2xl border border-white/5 bg-[#151821] p-4 flex flex-col min-h-[160px] cursor-pointer transition-all active:scale-95 active:border-white/20 select-none shadow-lg shadow-black/25"
     >
       <div className="absolute -right-4 -bottom-4 text-white/[0.02] pointer-events-none">
         {React.createElement(icon, { className: "w-24 h-24 stroke-[1]" })}
@@ -772,7 +774,7 @@ const UserLessons = () => {
     if (!currentCategory) {
       // Root Topics View
       return (
-        <div className="relative flex flex-col flex-1 px-4 py-3">
+        <div className="flutter-lesson-browser relative flex flex-col flex-1 px-4 py-3">
           {/* Header Block */}
           <div className="mb-4">
             <div className="flex items-center justify-between gap-3 mb-3">
@@ -1454,7 +1456,7 @@ const UserLessons = () => {
 
   if (isMobile) {
     return (
-      <div className="min-h-[calc(100vh-88px)] bg-[#0b0d12] text-white flex flex-col relative pb-20">
+      <div className="flutter-mobile flutter-lessons min-h-[calc(100vh-88px)] bg-[#0b0d12] text-white flex flex-col relative pb-20">
         {selectedLesson ? renderMobileReader() : renderMobileList()}
         {renderMobileDrawer()}
         {renderPreviewModal()}

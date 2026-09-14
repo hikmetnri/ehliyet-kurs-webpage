@@ -474,9 +474,9 @@ export default function UserFeed() {
       </div>
 
       {/* Mobile View */}
-      <div className="mx-auto block max-w-3xl space-y-5 px-1 pb-4 text-white sm:px-2 lg:hidden">
+      <div className="flutter-mobile flutter-feed mx-auto block lg:hidden">
         {/* Header Component */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="flutter-feed-header flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-white">Akış</h1>
             <p className="text-xs font-semibold text-text-muted mt-0.5">Sorular, ipuçları ve sınav deneyimleri</p>

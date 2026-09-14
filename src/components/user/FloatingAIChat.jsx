@@ -400,7 +400,7 @@ export default function FloatingAIChat() {
         )}
       </AnimatePresence>
 
-      <div className={`fixed z-40 flex items-center gap-2 ${
+      <div className={`flutter-ai-position fixed z-40 flex items-center gap-2 ${
         isSolvePage 
           ? 'bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-[5.5rem] lg:right-6'
           : 'bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 lg:bottom-6 lg:right-6'
@@ -415,7 +415,7 @@ export default function FloatingAIChat() {
               animate={{ opacity: 1, x: 0, scaleX: 1 }}
               exit={{ opacity: 0, x: 18, scaleX: 0.82 }}
               transition={{ duration: 0.32, ease: 'easeOut' }}
-              className="origin-right whitespace-nowrap rounded-2xl border border-primary/25 bg-[#111424]/95 px-4 py-2.5 text-xs font-black text-white shadow-xl shadow-black/30 backdrop-blur-md"
+              className="flutter-ai-label origin-right whitespace-nowrap rounded-2xl border border-primary/25 bg-[#111424]/95 px-4 py-2.5 text-xs font-black text-white shadow-xl shadow-black/30 backdrop-blur-md"
             >
               {assistantLabelIndex === 0 ? 'Yolla AI' : 'Yolla AI Asistanı'}
             </motion.button>
@@ -424,7 +424,7 @@ export default function FloatingAIChat() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className={`relative flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary text-white shadow-2xl shadow-primary/25 transition hover:bg-primary-light active:scale-95 ${open ? 'opacity-0' : 'opacity-100'}`}
+          className={`flutter-ai-button relative flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary text-white shadow-2xl shadow-primary/25 transition hover:bg-primary-light active:scale-95 ${open ? 'opacity-0' : 'opacity-100'}`}
           aria-label="Yolla AI asistanını aç"
         >
           <MessageCircle className="h-6 w-6" />

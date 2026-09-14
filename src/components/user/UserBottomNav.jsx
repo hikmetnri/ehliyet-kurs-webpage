@@ -1,10 +1,10 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  ClipboardList,
+  GraduationCap,
   HelpCircle,
   Home,
-  Radio,
+  MessagesSquare,
   User,
 } from 'lucide-react';
 
@@ -13,7 +13,7 @@ const items = [
   {
     to: '/dashboard/exams?tab=real_sim_cat',
     label: 'Sınavlar',
-    icon: ClipboardList,
+    icon: GraduationCap,
     match: ['/dashboard/exams'],
     tab: 'exam_modes',
   },
@@ -24,7 +24,7 @@ const items = [
     match: ['/dashboard/exams'],
     tab: 'short_tests',
   },
-  { to: '/dashboard/feed', label: 'Akış', icon: Radio },
+  { to: '/dashboard/feed', label: 'Akış', icon: MessagesSquare },
   { to: '/dashboard/settings', label: 'Profil', icon: User },
 ];
 
@@ -35,28 +35,28 @@ const UserBottomNav = () => {
     if (item.exact) return location.pathname === item.to;
     if (item.tab === 'short_tests') {
       const tab = new URLSearchParams(location.search).get('tab') || 'short_tests';
-      return location.pathname === '/dashboard/exams' && ['short_tests', 'wrong_answers'].includes(tab);
+      return location.pathname === '/dashboard/exams' && ['short_tests', 'general', 'wrong_answers'].includes(tab);
     }
     if (item.tab === 'exam_modes') {
       const tab = new URLSearchParams(location.search).get('tab') || 'short_tests';
-      return location.pathname === '/dashboard/exams' && ['general', 'real_sim_cat'].includes(tab);
+      return location.pathname === '/dashboard/exams' && ['real_sim_cat'].includes(tab);
     }
     if (item.match?.some((path) => location.pathname.startsWith(path))) return true;
     return location.pathname.startsWith(item.to);
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border-color bg-bg-card2/95 shadow-[0_-6px_18px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:hidden">
+    <nav aria-label="Ana gezinme" className="flutter-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-border-color bg-bg-card2/95 shadow-[0_-6px_18px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:hidden">
       <div className="grid h-[calc(70px+env(safe-area-inset-bottom))] grid-cols-5 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
 
           return (
-            <NavLink
+            <Link
               key={item.to}
               to={item.to}
-              end={item.exact}
+              aria-current={active ? 'page' : undefined}
               className="group relative flex min-w-0 flex-col items-center justify-between pt-[5px] text-[10.5px] font-semibold transition-colors"
             >
               <div className="flex flex-col items-center justify-center flex-1">
@@ -94,7 +94,7 @@ const UserBottomNav = () => {
                   (active ? "w-7 shadow-md" : "w-0")
                 }
               />
-            </NavLink>
+            </Link>
           );
         })}
       </div>

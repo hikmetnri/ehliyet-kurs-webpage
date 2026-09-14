@@ -577,12 +577,12 @@ const UserExams = () => {
 
 
       {/* Mobile View */}
-      <div className="block space-y-6 pb-4 text-white lg:hidden">
+      <div className="flutter-mobile flutter-exams block lg:hidden">
         {activeTab === 'real_sim_cat' ? (
           // MEB E-Sınav / Sınavlar View (ExamListScreen Parity)
           <div className="space-y-6 animate-fadeIn">
             {/* Premium Header Card */}
-            <div className="relative overflow-hidden rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-[#171927] to-[#11141b] shadow-xl">
+            <div className="flutter-exam-hero">
               {/* Orange/Deep gradient border top like Flutter */}
               <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#ff9f43] to-[#ff6b6b]" />
 
@@ -649,7 +649,7 @@ const UserExams = () => {
                       navigate(`/dashboard/exams/real-test/${user?.selectedCategoryId}`);
                     }
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#ff9f43] to-[#ff6b6b] text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-[#ff9f43]/20 hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                  className="flutter-primary-button flutter-exam-start"
                 >
                   <Play className="w-4 h-4 fill-white" />
                   Sınav Moduna Başla
@@ -664,7 +664,7 @@ const UserExams = () => {
             </div>
 
             {/* List Header */}
-            <div className="flex items-center justify-between gap-3 px-1 mt-6">
+            <div className="flutter-list-heading flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-base font-black text-white">Gerçek Sınavlar</h2>
                 <p className="text-xs text-text-muted mt-0.5">MEB temposunda çöz, sonucu analiz ekranında takip et.</p>
@@ -675,84 +675,20 @@ const UserExams = () => {
             </div>
 
             {/* Real MEB simulator card list */}
-            <div className="space-y-4">
-              {realSimExams.map((exam) => {
-                const isSyntheticSimulator = exam._isRealMeb;
-                const resultKey = exam._id;
-                const lastResult = latestResults[resultKey];
-                const score = Number(lastResult?.score || 0);
-                const completed = Boolean(lastResult);
-                const passed = Boolean(lastResult?.passed);
-
+            <div className="flutter-exam-list">
+              {realSimExams.map((exam, index) => {
+                const lastResult = latestResults[exam._id];
+                const color = ['#6c63ff', '#3ecfcf', '#ff6b6b', '#ffb74d', '#4caf50'][index % 5];
                 return (
-                  <div
-                    key={exam._id}
-                    className="relative overflow-hidden rounded-3xl border border-white/5 bg-[#171927]/60 p-5 shadow-lg flex flex-col justify-between gap-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-[#ff9f43]/10 border border-[#ff9f43]/20 text-[#ff9f43] flex items-center justify-center shrink-0">
-                        <GraduationCap className="w-6 h-6" />
-                      </div>
-                      <div className="flex flex-col items-end gap-1.5">
-                        <span className="px-2.5 py-1 bg-[#ff9f43]/10 text-[#ff9f43] border border-[#ff9f43]/20 rounded-xl text-[9px] font-black uppercase tracking-widest">
-                          MEB E-SINAV
-                        </span>
-                        {completed && (
-                          <span className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
-                            passed ? 'bg-success/15 text-success border-success/20' : 'bg-danger/15 text-danger border-danger/20'
-                          }`}>
-                            {passed ? 'GEÇİLDİ' : 'TEKRAR'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="text-white font-black text-base">{exam.name}</h3>
-                      <p className="text-xs text-text-muted mt-2 leading-relaxed font-semibold">{exam.description}</p>
-                    </div>
-
-                    {completed && (
-                      <div className="rounded-2xl bg-black/20 p-3.5 border border-white/5">
-                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest mb-2">
-                          <span className={passed ? 'text-success' : 'text-danger'}>
-                            {passed ? 'BAŞARILI' : 'TAMAMLANDI'}
-                          </span>
-                          <span className="text-white font-black">{score}%</span>
-                        </div>
-                        <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                          <div
-                            className={`h-full rounded-full ${passed ? 'bg-success' : 'bg-danger'}`}
-                            style={{ width: `${Math.max(5, score)}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-3 py-3 border-y border-white/5 text-[10px] font-black text-text-secondary uppercase tracking-wider">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#ff9f43]" />
-                        <span>{exam.duration || 45} DAKİKA</span>
-                      </div>
-                      <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
-                      <div className="flex items-center gap-1.5">
-                        <ClipboardList className="w-3.5 h-3.5 text-[#a55eea]" />
-                        <span>50 SORU</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => navigate(
-                        isSyntheticSimulator
-                          ? `/dashboard/exams/real-test/${user?.selectedCategoryId}`
-                          : `/dashboard/exams/${exam._id}?mode=real`
-                      )}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#ff9f43] hover:bg-[#ff9f43]/90 text-white rounded-2xl text-xs font-black uppercase tracking-wider shadow-lg shadow-[#ff9f43]/10 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer"
-                    >
-                      <Play className="w-4 h-4 fill-white" />
-                      Sınavı Başlat
-                    </button>
-                  </div>
+                  <button key={exam._id} type="button" className="flutter-exam-row" style={{ '--exam-color': color }} onClick={() => navigate(exam._isRealMeb ? `/dashboard/exams/real-test/${user?.selectedCategoryId}` : `/dashboard/exams/${exam._id}?mode=real`)}>
+                    <span className="flutter-exam-icon"><FileQuestion size={26} /></span>
+                    <span className="flutter-exam-info">
+                      <strong>{exam.name}</strong>
+                      <span className="flutter-exam-tags"><span><Clock size={13} /> {exam.duration || 45} Dk</span><span><ListChecks size={13} /> {exam.questionCount ? `${exam.questionCount} Soru` : 'Karma Test'}</span></span>
+                      {lastResult && <small className={lastResult.passed ? 'text-success' : 'text-danger'}>{lastResult.passed ? 'Geçildi' : 'Tekrar'} · %{Number(lastResult.score || 0)}</small>}
+                    </span>
+                    <span className="flutter-exam-arrow"><ArrowRight size={23} /></span>
+                  </button>
                 );
               })}
             </div>
@@ -761,7 +697,7 @@ const UserExams = () => {
           // Soru Merkezi View (TestListScreen Parity)
           <div className="space-y-6 animate-fadeIn">
             {/* Premium Header Card */}
-            <div className="relative overflow-hidden rounded-3xl p-5 border border-white/5 bg-gradient-to-br from-[#20193A] to-[#111827] shadow-xl">
+            <div className="flutter-question-hero">
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 bg-radial-gradient(circle, #6366f1, transparent)" />
               </div>
@@ -797,7 +733,7 @@ const UserExams = () => {
             </div>
 
             {/* Modern Tab Bar */}
-            <div className="p-1 bg-white/5 border border-white/5 rounded-full flex gap-1">
+            <div className="flutter-segmented p-1 rounded-full flex gap-1">
               {[
                 { id: 'short_tests', label: 'Kısa Testler' },
                 { id: 'general', label: 'Deneme' },
@@ -971,7 +907,7 @@ const UserExams = () => {
                     return (
                       <div
                         key={exam._id}
-                        className="p-4 rounded-2xl border border-white/5 bg-[#171927]/60 shadow-md flex items-center gap-3.5 animate-fadeIn"
+                        className="flutter-mock-row p-4 rounded-2xl border border-border-color bg-bg-card flex items-center gap-3.5"
                       >
                         <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 text-warning flex items-center justify-center shrink-0">
                           <Target className="w-5 h-5" />

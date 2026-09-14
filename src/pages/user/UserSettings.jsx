@@ -568,13 +568,16 @@ const UserSettings = () => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2rem] bg-[#111218] border-t border-x border-white/5 p-6 pb-12 space-y-5 shadow-2xl overflow-y-auto max-h-[85vh] text-white"
+              role="dialog" aria-modal="true" aria-label={title}
+              onKeyDown={(event) => { if (event.key === 'Escape') onClose(false); }}
+              className="flutter-mobile-sheet w-full max-w-lg rounded-t-[2.5rem] sm:rounded-[2rem] bg-[#111218] border-t border-x border-white/5 p-6 pb-12 space-y-5 shadow-2xl overflow-y-auto max-h-[85vh] text-white"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pb-3 border-b border-white/5">
                 <h3 className="text-sm font-black text-white uppercase tracking-wider">{title}</h3>
                 <button
                   onClick={() => onClose(false)}
+                  aria-label="Pencereyi kapat"
                   className="p-1.5 hover:bg-white/5 rounded-full transition-colors text-text-muted hover:text-white"
                 >
                   <X className="w-5 h-5" />
@@ -1828,106 +1831,22 @@ const UserSettings = () => {
       </div>
 
       {/* ── MOBILE VIEW (Aligns with Flutter profile_screen.dart) ── */}
-      <div className="block space-y-6 px-1 pb-4 lg:hidden">
-        {/* Header Block */}
-        <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-[#20193A] to-[#101827] p-5 shadow-lg shadow-black/25">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
-
-          <div className="flex flex-col items-center">
-            {/* Avatar inside Progress Ring */}
-            <div className="relative cursor-pointer" onClick={handleAvatarClick}>
-              <div className="w-24 h-24 rounded-full flex items-center justify-center relative">
-                {/* SVG Progress Ring */}
-                <svg className="absolute inset-0" width="96" height="96">
-                  <g transform="rotate(-90 48 48)">
-                    <circle
-                      stroke="rgba(255,255,255,0.05)"
-                      fill="transparent"
-                      strokeWidth="3.2"
-                      r="40"
-                      cx="48"
-                      cy="48"
-                    />
-                    <circle
-                      stroke={levelInfo.hex}
-                      fill="transparent"
-                      strokeWidth="3.2"
-                      strokeDasharray={2 * Math.PI * 40}
-                      strokeDashoffset={2 * Math.PI * 40 * (1 - levelInfo.progress)}
-                      strokeLinecap="round"
-                      style={{ transition: 'stroke-dashoffset 0.8s ease-in-out' }}
-                      r="40"
-                      cx="48"
-                      cy="48"
-                    />
-                  </g>
-                </svg>
-
-                {/* Avatar Image */}
-                <div className="w-20 h-20 rounded-full overflow-hidden border border-white/10 bg-bg-dark flex items-center justify-center shadow-lg">
-                  {loading && fileInputRef.current?.files?.length > 0 ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-primary-light" />
-                  ) : user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <span className="text-xl font-bold text-white uppercase">{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Edit Camera Icon overlay */}
-                <div className="absolute bottom-1 right-1 p-1.5 bg-bg-card rounded-full border border-white/10 shadow-md">
-                  <Camera className="w-3.5 h-3.5 text-white" />
-                </div>
-              </div>
-            </div>
-
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleAvatarChange}
-            />
-
-            {/* Level Name Badge */}
-            <div className={`mt-3.5 px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-wider ${levelInfo.bgColor}`}>
-              {levelInfo.name}
-            </div>
-
-            {/* Name with edit icon */}
-            <div className="mt-3 flex items-center gap-2">
-              <h3 className="text-xl font-black tracking-tight text-white">{user?.firstName} {user?.lastName}</h3>
-              <button
-                onClick={() => setIsEditProfileOpen(true)}
-                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-text-muted hover:text-white"
-              >
-                <User className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Bio */}
-            {user?.bio && (
-              <p className="mt-1.5 text-xs text-text-muted text-center max-w-[250px] leading-relaxed">
-                {user.bio}
-              </p>
-            )}
-
-            {/* Score Badge */}
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <div className="flex items-center gap-1 px-3 py-1 bg-orange-500/10 border border-orange-500/20 rounded-full text-orange-400 font-bold text-xs">
-                <Star className="w-3.5 h-3.5 fill-current" />
-                <span>{user?.totalScore || 0} Puan</span>
-              </div>
-              {user?.proStatus && (
-                <div className="px-2.5 py-1 bg-warning text-bg-dark text-[9px] font-black tracking-wider rounded-full border border-bg-dark shadow-[0_0_10px_rgba(234,179,8,0.3)]">
-                  PRO
-                </div>
-              )}
-            </div>
+      <div className="flutter-mobile flutter-profile block lg:hidden">
+        <section className="flutter-profile-header">
+          <button type="button" className="flutter-profile-avatar" onClick={handleAvatarClick} aria-label="Profil fotoğrafını değiştir" style={{ '--level-color': levelInfo.hex, '--level-progress': `${levelInfo.progress * 100}%` }}>
+            <span className="flutter-profile-avatar-inner">
+              {loading && fileInputRef.current?.files?.length > 0 ? <Loader2 className="animate-spin" /> : user?.avatarUrl ? <img src={user.avatarUrl} alt="" /> : <User size={36} />}
+            </span>
+            <span className="flutter-avatar-camera"><Camera size={13} /></span>
+          </button>
+          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarChange} />
+          <div className="flutter-profile-identity">
+            <div className="flutter-profile-name"><h1>{user?.firstName} {user?.lastName}</h1><button aria-label="Profili düzenle" onClick={() => setIsEditProfileOpen(true)}><User size={13} /></button></div>
+            <span className="flutter-level-chip" style={{ '--level-color': levelInfo.hex }}>{levelInfo.name}</span>
+            <div className="flutter-profile-points"><span><Star size={13} /> {user?.totalScore || 0} Puan</span>{user?.proStatus && <strong>PRO</strong>}</div>
           </div>
-        </div>
+          {user?.bio && <p className="flutter-profile-bio">{user.bio}</p>}
+        </section>
 
         {/* Quick Actions (Kişisel Merkez & Kısayollar) */}
         <div className="space-y-4">
@@ -1973,7 +1892,7 @@ const UserSettings = () => {
               </div>
               <button
                 onClick={() => setIsCategoryModalOpen(true)}
-                className="flex items-center gap-1.2 px-2.5 py-2 bg-purple-500/12 border border-purple-500/18 rounded-xl text-purple-400 font-black text-[11px] hover:bg-purple-500/20 transition-colors"
+                className="flex items-center gap-2 px-2.5 py-2 bg-purple-500/12 border border-purple-500/18 rounded-xl text-purple-400 font-black text-[11px] hover:bg-purple-500/20 transition-colors"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span className="ml-1">{user?.selectedCategoryId ? 'Değiştir' : 'Seç'}</span>
@@ -1988,67 +1907,67 @@ const UserSettings = () => {
               {/* Dersler */}
               <Link
                 to="/dashboard/lessons"
-                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-2"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                   <BookOpen className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Dersler</span>
+                <span className="text-[10px] font-black text-text-primary leading-none truncate max-w-full">Dersler</span>
               </Link>
 
               {/* Video */}
               <Link
                 to="/dashboard/videos"
-                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-2"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                   <PlayCircle className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Video</span>
+                <span className="text-[10px] font-black text-text-primary leading-none truncate max-w-full">Video</span>
               </Link>
 
               {/* Rozetler */}
               <button
                 onClick={() => setIsBadgesOpen(true)}
-                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-2"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                   <Award className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Rozetler</span>
+                <span className="text-[10px] font-black text-text-primary leading-none truncate max-w-full">Rozetler</span>
               </button>
 
               {/* Sıralama */}
               <button
                 onClick={() => setIsLeaderboardOpen(true)}
-                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-2"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                   <Trophy className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Sıralama</span>
+                <span className="text-[10px] font-black text-text-primary leading-none truncate max-w-full">Sıralama</span>
               </button>
 
               {/* Favoriler */}
               <Link
                 to="/dashboard/favorites"
-                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-2"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                   <Star className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">Favoriler</span>
+                <span className="text-[10px] font-black text-text-primary leading-none truncate max-w-full">Favoriler</span>
               </Link>
 
               {/* Sürücü Kursu */}
               <Link
                 to="/dashboard/driving-schools"
-                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-1.2"
+                className="flex flex-col items-center justify-center text-center p-2 h-[76px] rounded-2xl bg-bg-card border border-white/5 shadow-md hover:bg-white/[0.02] transition-all gap-2"
               >
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
                   <MapPinned className="w-[18px] h-[18px] text-purple-400" />
                 </div>
-                <span className="text-[10px] font-black text-white/95 leading-none truncate max-w-full">S. Kursu</span>
+                <span className="text-[10px] font-black text-text-primary leading-none truncate max-w-full">S. Kursu</span>
               </Link>
             </div>
           </div>
@@ -2087,46 +2006,19 @@ const UserSettings = () => {
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="p-5 rounded-3xl border border-white/5 bg-bg-card shadow-lg shadow-black/10">
-          <div className="grid grid-cols-5 gap-1">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-9 h-9 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                <Star className="w-4 h-4 text-yellow-500 fill-current" />
-              </div>
-              <span className="text-xs font-black text-white mt-1.5">{user?.totalScore || 0}</span>
-              <span className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-0.5">Puan</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="w-9 h-9 rounded-full bg-purple-500/10 flex items-center justify-center">
-                <BookOpen className="w-4 h-4 text-purple-400" />
-              </div>
-              <span className="text-xs font-black text-white mt-1.5">{stats.totalExams || 0}</span>
-              <span className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-0.5">Sınav</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="w-9 h-9 rounded-full bg-cyan-500/10 flex items-center justify-center">
-                <HelpCircle className="w-4 h-4 text-cyan-400" />
-              </div>
-              <span className="text-xs font-black text-white mt-1.5">{stats.totalQuestions || 0}</span>
-              <span className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-0.5">Soru</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="w-9 h-9 rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle2 className="w-4 h-4 text-success" />
-              </div>
-              <span className="text-xs font-black text-white mt-1.5">{stats.totalCorrect || 0}</span>
-              <span className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-0.5">Doğru</span>
-            </div>
-            <div className="flex flex-col items-center text-center">
-              <div className="w-9 h-9 rounded-full bg-orange-500/10 flex items-center justify-center">
-                <span className="text-xs font-black text-orange-400">%</span>
-              </div>
-              <span className="text-xs font-black text-white mt-1.5">%{stats.successRate || 0}</span>
-              <span className="text-[8px] font-bold text-text-muted uppercase tracking-wider mt-0.5">Başarı</span>
-            </div>
+        <section className="flutter-profile-stats">
+          <h2><BarChart2 size={16} /> İstatistikler</h2>
+          <div className="flutter-profile-stats-grid">
+            {[
+              { icon: Star, label: 'Puan', value: user?.totalScore || 0, color: '#ffd700' },
+              { icon: BookOpen, label: 'Sınav', value: stats.totalExams || 0, color: 'var(--color-primary)' },
+              { icon: HelpCircle, label: 'Soru', value: stats.totalQuestions || 0, color: 'var(--color-accent)' },
+              { icon: CheckCircle2, label: 'Doğru', value: stats.totalCorrect || 0, color: '#4caf50' },
+              { icon: Target, label: 'Başarı', value: `%${stats.successRate || 0}`, color: '#ffb74d' },
+              { icon: Trophy, label: 'Seviye', value: user?.level || 1, color: '#ff7043' },
+            ].map(({ icon: Icon, label, value, color }) => <div key={label} style={{ '--stat-color': color }}><span><Icon size={20} /></span><strong>{value}</strong><small>{label}</small></div>)}
           </div>
-        </div>
+        </section>
 
         {/* Hesap Ayarları Section */}
         <div className="space-y-4">
@@ -2815,7 +2707,7 @@ const UserSettings = () => {
                               opacity: badge.isEarned ? 1 : 0.35
                             }}
                           >
-                            {badge.icon || '🏆'}
+                            <BadgeIcon name={badge.icon} className="h-6 w-6" />
                           </div>
 
                           <span className={`text-[11px] font-black mt-2 ${badge.isEarned ? 'text-white' : 'text-text-muted'}`}>

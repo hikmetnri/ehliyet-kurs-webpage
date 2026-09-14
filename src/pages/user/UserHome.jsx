@@ -918,15 +918,15 @@ const UserHome = () => {
       {/* ───────────────────────────────────────────────────────────────────────────── */}
       {/* MOBILE VIEW (FLUTTER DASHBOARD STYLE) */}
       {/* ───────────────────────────────────────────────────────────────────────────── */}
-      <div className="block space-y-4 px-1 pb-4 sm:px-2 lg:hidden">
+      <div className="flutter-mobile flutter-home block lg:hidden">
         {/* Header (Flutter style) */}
-        <div className="flex items-center justify-between py-3 px-1">
+        <div className="flutter-home-header">
           <Link
             to="/dashboard/settings"
-            className="flex items-center gap-3 bg-white/[0.02] border border-white/5 hover:border-white/10 active:bg-white/[0.05] pl-2 pr-4 py-1.5 rounded-2xl transition-all max-w-[75%] group"
+            className="flutter-greeting group"
           >
             <div className="relative shrink-0">
-              <div className="h-11 w-11 rounded-full border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden shadow-lg shadow-black/20 group-hover:scale-105 transition-transform">
+              <div className="flutter-greeting-avatar">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -945,12 +945,12 @@ const UserHome = () => {
                 <ChevronRight className="w-2.5 h-2.5" />
               </div>
               <h2 className="text-sm font-black text-white truncate mt-1 leading-none group-hover:text-primary-light transition-colors">
-                {user?.firstName || 'Sürücü Adayı'}
+                {[user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Sürücü Adayı'}
               </h2>
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flutter-home-actions">
             {/* Tema Değiştirici */}
             <div className="relative flex items-center">
               <button
@@ -993,7 +993,7 @@ const UserHome = () => {
             {/* Bildirimler */}
             <button
               onClick={() => setShowNotifications(true)}
-              className="relative w-9 h-9 flex items-center justify-center rounded-full bg-white/[0.03] border border-white/5 text-text-muted hover:text-white"
+              aria-label="Bildirimler" className="flutter-notification-button"
             >
               <Bell className="w-4.5 h-4.5" />
               {unreadCount > 0 && (
@@ -1042,7 +1042,7 @@ const UserHome = () => {
 
         {/* Günün Sözü (Flutter scrolling text format) */}
         {quote && (
-          <div className="relative overflow-hidden rounded-2xl border border-primary/10 bg-bg-card p-3 flex items-center shadow-lg shadow-black/10">
+          <div className="flutter-quote">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 border border-primary/15 mr-3 shrink-0">
               <Quote className="h-4 w-4 text-primary-light" />
             </div>
@@ -1053,7 +1053,7 @@ const UserHome = () => {
               >
                 {[0, 1].map((item) => (
                   <div key={item} className="flex items-center gap-3 px-6">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-primary-light italic">Günün Sözü:</span>
+
                     <span className="text-xs font-bold text-white/90 italic">
                       "{quoteText}"
                     </span>
@@ -1068,7 +1068,7 @@ const UserHome = () => {
         )}
 
         {/* Bugünün Görevi (Daily Action Panel) */}
-        <div className="w-full p-4 rounded-3xl border border-white/5 bg-gradient-to-br from-[#21183e] to-[#101827] shadow-xl shadow-black/15">
+        <div className="flutter-daily-card">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0 pr-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -1077,7 +1077,7 @@ const UserHome = () => {
                     ? 'bg-success/10 border-success/20 text-success'
                     : 'bg-primary/10 border-primary/20 text-primary-light'
                 }`}>
-                  {todayQuestions >= dailyGoal ? 'Günlük hedef tamamlandı' : 'Bugünkü görev'}
+                  {todayQuestions >= dailyGoal ? 'Günlük hedef tamamlandı' : 'Bugünkü odak'}
                 </span>
 
                 {examCountdown && (
@@ -1098,7 +1098,7 @@ const UserHome = () => {
                   </Link>
                 )}
               </div>
-              
+
               <h3 className="text-xl font-black text-white mt-3 leading-snug tracking-tight">
                 {dailyPlan?.title || (todayQuestions >= dailyGoal ? 'Serini korudun, şimdi pekiştir.' : 'Bugünkü Testi Çöz')}
               </h3>
@@ -1110,12 +1110,12 @@ const UserHome = () => {
             <div className="relative shrink-0 flex items-center justify-center w-16 h-16">
               <svg className="w-16 h-16">
                 <g transform="rotate(-90 32 32)">
-                  <circle cx="32" cy="32" r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth={strokeWidth} fill="transparent" />
+                  <circle cx="32" cy="32" r={radius} stroke="var(--border-color-mid)" strokeWidth={strokeWidth} fill="transparent" />
                   <circle
                     cx="32"
                     cy="32"
                     r={radius}
-                    stroke={todayQuestions >= dailyGoal ? "#10b981" : "#6366f1"}
+                    stroke={todayQuestions >= dailyGoal ? "var(--color-success)" : "var(--color-primary)"}
                     strokeWidth={strokeWidth}
                     fill="transparent"
                     strokeDasharray={circumference}
@@ -1133,7 +1133,7 @@ const UserHome = () => {
           </div>
 
           {/* Metrics row */}
-          <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="flutter-daily-metrics grid grid-cols-3 gap-2 mt-4">
             {/* Streak */}
             <div
               onClick={() => navigate('/dashboard/exams')}
@@ -1176,7 +1176,7 @@ const UserHome = () => {
               if (actionType === 'select_category') setShowCategoryModal(true);
               else navigate(dailyPlan?.primaryAction?.target || planRouteByAction[actionType] || '/dashboard/exams', { state: { fromQuickStart: true } });
             }}
-            className="w-full h-12 rounded-2xl bg-gradient-to-r from-primary to-accent font-black text-xs uppercase tracking-widest text-white mt-4 flex items-center justify-center gap-2 shadow-lg shadow-primary/25 active:scale-[0.98] transition-transform"
+            className="flutter-primary-button flutter-daily-start"
           >
             <Play className="w-4 h-4" />
             {dailyPlan?.primaryAction?.label || 'Hızlı Teste Başla'}
@@ -1184,7 +1184,7 @@ const UserHome = () => {
         </div>
 
         {/* Quick Action Rail */}
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="flutter-quick-rail grid grid-cols-3 gap-2.5">
           {/* Hızlı Test */}
           <button
             onClick={() => navigate('/dashboard/exams')}
@@ -1269,7 +1269,7 @@ const UserHome = () => {
 
         {/* Smart Guidance (Kişisel Yönlendirme) */}
         {recommendation && (
-          <div className={`p-4 rounded-3xl border ${recommendationBorderMobile} bg-bg-card flex items-center justify-between shadow-lg shadow-black/10`}>
+          <div className={`flutter-guidance p-4 rounded-3xl border ${recommendationBorderMobile} bg-bg-card flex items-center justify-between shadow-lg shadow-black/10`}>
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${recommendationBgMobile}`}>
                 {React.createElement(recommendation.icon, { className: `w-5 h-5 ${recommendationColorMobile}` })}
