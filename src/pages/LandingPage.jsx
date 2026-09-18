@@ -420,8 +420,6 @@ const LandingPage = () => {
 
             {/* Telefon */}
             <div className="relative w-[290px] sm:w-[320px] bg-[#0c0c12] rounded-[3rem] border-[10px] border-[#1f2029] shadow-[0_40px_80px_rgba(0,0,0,0.8)] overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-700">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-[#1f2029] rounded-b-2xl z-20" />
-
               <img src="/app-hero.png" alt="Ehliyet Yolu uygulaması — koyu tema ana ekran" width="598" height="1300" loading="lazy" decoding="async" className="block w-full h-[620px] object-cover" />
             </div>
 
