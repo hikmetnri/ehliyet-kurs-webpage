@@ -174,6 +174,9 @@ const AdManagement = () => {
     admob_banner_id: '',
     admob_interstitial_id: '',
     admob_rewarded_id: '',
+    admob_banner_id_ios: '',
+    admob_interstitial_id_ios: '',
+    admob_rewarded_id_ios: '',
     interstitial_freq: 5,
   });
   const [loading, setLoading] = useState(true);
@@ -194,6 +197,9 @@ const AdManagement = () => {
         admob_banner_id: ads.bannerId || settingsRes.data.admob_banner_id || '',
         admob_interstitial_id: ads.interstitialId || settingsRes.data.admob_interstitial_id || '',
         admob_rewarded_id: ads.rewardedId || settingsRes.data.admob_rewarded_id || '',
+        admob_banner_id_ios: ads.bannerIdIos || settingsRes.data.admob_banner_id_ios || '',
+        admob_interstitial_id_ios: ads.interstitialIdIos || settingsRes.data.admob_interstitial_id_ios || '',
+        admob_rewarded_id_ios: ads.rewardedIdIos || settingsRes.data.admob_rewarded_id_ios || '',
         interstitial_freq: ads.interstitialFreq || 5,
       });
       setAdsEnabled(
@@ -219,17 +225,23 @@ const AdManagement = () => {
           ads: {
             bannerEnabled: enabled,
             bannerId: nextSettings.admob_banner_id || '',
+            bannerIdIos: nextSettings.admob_banner_id_ios || '',
             interstitialEnabled: enabled,
             interstitialId: nextSettings.admob_interstitial_id || '',
+            interstitialIdIos: nextSettings.admob_interstitial_id_ios || '',
             interstitialFreq: Number(nextSettings.interstitial_freq || 5),
             rewardedEnabled: enabled,
             rewardedId: nextSettings.admob_rewarded_id || '',
+            rewardedIdIos: nextSettings.admob_rewarded_id_ios || '',
           },
         }),
         api.put('/admin/settings-map/ads_enabled', { value: String(enabled) }),
         api.put('/admin/settings-map/admob_banner_id', { value: nextSettings.admob_banner_id || '' }),
         api.put('/admin/settings-map/admob_interstitial_id', { value: nextSettings.admob_interstitial_id || '' }),
         api.put('/admin/settings-map/admob_rewarded_id', { value: nextSettings.admob_rewarded_id || '' }),
+        api.put('/admin/settings-map/admob_banner_id_ios', { value: nextSettings.admob_banner_id_ios || '' }),
+        api.put('/admin/settings-map/admob_interstitial_id_ios', { value: nextSettings.admob_interstitial_id_ios || '' }),
+        api.put('/admin/settings-map/admob_rewarded_id_ios', { value: nextSettings.admob_rewarded_id_ios || '' }),
       ]);
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -249,6 +261,7 @@ const AdManagement = () => {
   const adFields = [
     {
       key: 'admob_banner_id',
+      keyIos: 'admob_banner_id_ios',
       label: 'Banner Reklam ID',
       icon: Monitor,
       desc: 'Uygulama içinde sabit banner reklamlar için AdMob birim IDsi',
@@ -259,6 +272,7 @@ const AdManagement = () => {
     },
     {
       key: 'admob_interstitial_id',
+      keyIos: 'admob_interstitial_id_ios',
       label: 'Geçiş Reklamı ID',
       icon: Zap,
       desc: 'Ekran geçişlerinde gösterilen tam ekran reklam IDsi',
@@ -269,6 +283,7 @@ const AdManagement = () => {
     },
     {
       key: 'admob_rewarded_id',
+      keyIos: 'admob_rewarded_id_ios',
       label: 'Ödüllü Reklam ID',
       icon: Shield,
       desc: 'Kullanıcının ödül karşılığı izlediği reklam IDsi',
@@ -343,13 +358,26 @@ const AdManagement = () => {
                 <p className="text-[10px] text-text-muted">{field.desc}</p>
               </div>
             </div>
-            <input
-              type="text"
-              value={settings[field.key] || ''}
-              onChange={e => setSettings(s => ({ ...s, [field.key]: e.target.value }))}
-              placeholder={field.placeholder}
-              className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
-            />
+            <div>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">Android Reklam Kimliği (Google Play)</p>
+              <input
+                type="text"
+                value={settings[field.key] || ''}
+                onChange={e => setSettings(s => ({ ...s, [field.key]: e.target.value }))}
+                placeholder={field.placeholder}
+                className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
+              />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1.5">iOS Reklam Kimliği (App Store)</p>
+              <input
+                type="text"
+                value={settings[field.keyIos] || ''}
+                onChange={e => setSettings(s => ({ ...s, [field.keyIos]: e.target.value }))}
+                placeholder={field.placeholder}
+                className="w-full bg-white/[0.02] border border-white/10 rounded-2xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-primary/50 transition-all placeholder:text-white/20"
+              />
+            </div>
           </MotionDiv>
         ))}
       </div>
