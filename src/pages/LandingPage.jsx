@@ -237,7 +237,7 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050508] relative w-full font-sans text-white selection:bg-primary/30 overflow-x-hidden"
+    <div className="landing-shell min-h-screen bg-[#050508] relative w-full font-sans text-white selection:bg-primary/30 overflow-x-hidden"
       style={{
         '--color-primary': '#f97316',
         '--color-primary-light': '#fb923c',

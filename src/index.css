@@ -44,6 +44,31 @@
   --mobile-nav-active: var(--color-primary);
 }
 
+/* Landing sayfası her zaman koyu tasarımlıdır (bg: #050508).
+   Açık moda veya özel temalara geçilse bile landing içindeki metin ve
+   kenarlık değişkenleri koyu tasarım değerlerinde sabit kalır; aksi halde
+   koyu zemin üzerinde koyu yazılar okunmaz hale gelir.
+   Not: Tailwind utility'leri (text-text-muted vb.) --color-* değişkenlerini
+   kullandığı için ikisi birlikte sabitlenmelidir. */
+.landing-shell {
+  --bg-dark: #07070a;
+  --bg-card: #101017;
+  --bg-card2: #16161f;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-mid: rgba(255, 255, 255, 0.15);
+  --color-bg-dark: #07070a;
+  --color-bg-card: #101017;
+  --color-bg-card2: #16161f;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-border-color: rgba(255, 255, 255, 0.08);
+  --color-border-color-mid: rgba(255, 255, 255, 0.15);
+}
+
 :root[data-theme="emerald"] {
   --color-primary: #10b981;
   --color-primary-light: #34d399;
