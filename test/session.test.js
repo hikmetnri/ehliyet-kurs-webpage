@@ -1,4 +1,5 @@
 import { test } from 'node:test'
+import { webcrypto } from 'node:crypto'
 import { Buffer } from 'node:buffer'
 import assert from 'node:assert/strict'
 import vm from 'node:vm'
@@ -13,9 +14,9 @@ function storage(initial = {}) {
 async function harness({ legacyToken = null, transport = async () => ({ status: 200, data: {} }) } = {}) {
   const localStorage = storage({ user: JSON.stringify({ role: 'admin' }) })
   const sessionStorage = storage(legacyToken ? { token: legacyToken } : {})
-  const context = vm.createContext({ console, localStorage, sessionStorage, navigator: {}, document: { documentElement: { removeAttribute() {}, setAttribute() {} } }, window: { location: { pathname: '/admin' } }, atob, setTimeout, clearTimeout })
+  const context = vm.createContext({ URL, crypto: webcrypto, console, localStorage, sessionStorage, navigator: {}, document: { documentElement: { removeAttribute() {}, setAttribute() {} } }, window: { location: { pathname: '/admin' } }, atob, setTimeout, clearTimeout })
   const modules = new Map()
-  const paths = { api: 'src/api/index.js', session: 'src/api/session.js', store: 'src/store/authStore.js' }
+  const paths = { api: 'src/api/index.js', session: 'src/api/session.js', store: 'src/store/authStore.js', outbox: 'src/services/resultOutbox.js' }
   for (const [name, path] of Object.entries(paths)) {
     modules.set(name, new vm.SourceTextModule(await readFile(path, 'utf8'), { context, identifier: name, initializeImportMeta: meta => { meta.env = { VITE_API_URL: 'https://test.invalid/api' } } }))
   }
@@ -31,6 +32,7 @@ async function harness({ legacyToken = null, transport = async () => ({ status: 
   stub('../services/webPushService', { registerWebPushToken: async () => {} })
   await modules.get('api').link(specifier => {
     if (specifier === '../store/authStore') return modules.get('store')
+    if (specifier === '../services/resultOutbox') return modules.get('outbox')
     if (specifier === '../api') return modules.get('api')
     if (specifier === './session' || specifier === '../api/session') return modules.get('session')
     if (!modules.has(specifier)) throw new Error(`Unexpected dependency: ${specifier}`)
@@ -47,7 +49,7 @@ async function harness({ legacyToken = null, transport = async () => ({ status: 
     if (result.status >= 400) throw new axios.AxiosError('Test response', axios.AxiosError.ERR_BAD_RESPONSE, config, null, response)
     return response
   }
-  return { ...exports, api, store, session, localStorage, sessionStorage }
+  return { ...exports, api, store, session, localStorage, sessionStorage, outbox: modules.get('outbox').namespace }
 }
 const payload = { id: 'user-id', email: 'user@example.com', role: 'user' }
 const fakeAccess = `header.${Buffer.from(JSON.stringify({ sid: 'session-id' })).toString('base64url')}.signature`
@@ -143,4 +145,23 @@ test('errors exposed to UI logging exclude passwords, access and refresh credent
   assert.ok(!serialized.includes('do-not-log-password'))
   assert.ok(!serialized.includes('do-not-log-refresh'))
   assert.equal(error.response.status, 401)
+})
+
+test('failed guest uploads remain account-bound and retry without losing results', async () => {
+  let fail = true
+  const h = await harness({ transport: async config => ({ status: config.url === '/exam-results' && fail ? 503 : 200, data: {} }) })
+  h.localStorage.setItem('guest_saved_results', JSON.stringify([{ examName: 'Guest', attemptId: 'attempt', answers: [] }]))
+  h.store.getState().setAuth(payload, fakeAccess)
+  await new Promise(resolve => setTimeout(resolve, 20))
+  const rows = JSON.parse(h.localStorage.getItem('assessment_outbox_v1'))
+  assert.equal(rows.length, 1)
+  assert.equal(rows[0].owner, payload.id)
+  fail = false
+  await h.outbox.flushOperations(payload.id)
+  assert.equal(JSON.parse(h.localStorage.getItem('assessment_outbox_v1')).length, 0)
+})
+test('question loading follows bounded pages and does not truncate at two hundred', async () => {
+  const h = await harness({ transport: async config => ({ status: 200, data: Array.from({ length: config.params?.page === 2 ? 5 : 200 }, (_, i) => ({ _id: `${config.params?.page || 1}-${i}` })) }) })
+  const response = await h.api.get('/questions?testType=short_test')
+  assert.equal(response.data.length, 205)
 })

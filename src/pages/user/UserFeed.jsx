@@ -88,7 +88,7 @@ export default function UserFeed() {
     );
   });
 
-  const totalComments = posts.reduce((sum, p) => sum + (p.comments?.length || 0), 0);
+  const totalComments = posts.reduce((sum, p) => sum + (p.commentsCount ?? p.comments?.length ?? 0), 0);
   const questionCount = posts.filter(p => p.type === 'question').length;
   const tipCount = posts.filter(p => p.type === 'tip').length;
   const desktopStats = [
@@ -132,14 +132,21 @@ export default function UserFeed() {
     }
   };
 
+  const expandComments = async (postId, expanded) => {
+    if (expanded) { setExpandedPostId(null); return; }
+    try {
+      const response = await api.get(`/posts/${postId}`);
+      setPosts(previous => previous.map(post => post._id === postId ? response.data : post));
+      setExpandedPostId(postId);
+    } catch { window.alert('Yorumlar alınamadı. Tekrar dene.'); }
+  };
   const handleLike = async (postId) => {
     try {
-      await api.post(`/posts/${postId}/like`);
-      setPosts(prev => prev.map(p => {
-        if (p._id !== postId) return p;
-        const liked = p.likes.includes(userId);
-        return { ...p, likes: liked ? p.likes.filter(id => id !== userId) : [...p.likes, userId] };
-      }));
+      const response = await api.post(`/posts/${postId}/like`);
+      setPosts(previous => previous.map(post => post._id === postId ? {
+        ...post, likesCount: response.data.likesCount,
+        likes: response.data.isLiked ? [userId] : [],
+      } : post));
     } catch (e) { console.error(e); }
   };
 
@@ -149,7 +156,7 @@ export default function UserFeed() {
     try {
       await api.post(`/posts/${postId}/comment`, { text });
       setCommentTexts(prev => ({ ...prev, [postId]: '' }));
-      fetchPosts();
+      await expandComments(postId, false);
     } catch (e) { console.error(e); }
   };
 
@@ -311,16 +318,16 @@ export default function UserFeed() {
                       }`}
                     >
                       <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-primary-light' : ''}`} />
-                      <span>{post.likes?.length || 0} Beğeni</span>
+                      <span>{post.likesCount ?? post.likes?.length ?? 0} Beğeni</span>
                     </button>
                     <button
-                      onClick={() => setExpandedPostId(isExpanded ? null : post._id)}
+                      onClick={() => expandComments(post._id, isExpanded)}
                       className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                         isExpanded ? 'bg-white/5 text-white' : 'text-text-muted hover:bg-white/5 hover:text-white'
                       }`}
                     >
                       <MessageCircle className="w-4 h-4" />
-                      <span>{post.comments?.length || 0} Yorum</span>
+                      <span>{post.commentsCount ?? post.comments?.length ?? 0} Yorum</span>
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                     </button>
                     <button
@@ -655,16 +662,16 @@ export default function UserFeed() {
                         }`}
                       >
                         <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-primary-light' : ''}`} />
-                        <span>{post.likes?.length || 0}</span>
+                        <span>{post.likesCount ?? post.likes?.length ?? 0}</span>
                       </button>
                       <button
-                        onClick={() => setExpandedPostId(isExpanded ? null : post._id)}
+                        onClick={() => expandComments(post._id, isExpanded)}
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           isExpanded ? 'bg-white/5 text-white' : 'text-text-muted hover:bg-white/5 hover:text-white'
                         }`}
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        <span>{post.comments?.length || 0}</span>
+                        <span>{post.commentsCount ?? post.comments?.length ?? 0}</span>
                       </button>
                       <button
                         type="button"

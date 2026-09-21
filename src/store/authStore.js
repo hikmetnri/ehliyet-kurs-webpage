@@ -1,9 +1,10 @@
+import { queueOperation, flushOperations } from '../services/resultOutbox'
 import { create } from 'zustand'
 import { signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { registerWebPushToken } from '../services/webPushService'
 import api, { revokeSession } from '../api'
-import { setAccessToken, clearAccessToken } from '../api/session'
+import { setAccessToken, clearAccessToken, getSessionGeneration } from '../api/session'
 
 const clearCategorySession = () => {
   localStorage.removeItem('last_visited_id')
@@ -25,37 +26,26 @@ const registerPushAfterAuth = () => {
   })
 }
 
-const syncGuestData = async () => {
+const syncGuestData = async (user) => {
+  const owner = String(user?._id || user?.id || '')
+  const generation = getSessionGeneration()
   try {
-    const guestResults = localStorage.getItem('guest_saved_results')
-    const guestWrong = localStorage.getItem('guest_wrong_answers')
-
-    if (guestResults) {
-      const results = JSON.parse(guestResults)
-      for (const resPayload of results) {
-        await api.post('/exam-results', resPayload).catch(() => console.warn('Sync exam result failed'))
+    for (const key of ['guest_saved_results', 'guest_wrong_answers']) {
+      const rows = JSON.parse(localStorage.getItem(key) || '[]').map(row => ({ ...row, _ownerId: row._ownerId || owner, operationId: row.operationId || crypto.randomUUID() }))
+      localStorage.setItem(key, JSON.stringify(rows))
+      for (const row of rows) {
+        if (generation !== getSessionGeneration()) return
+        if (row._ownerId !== owner) continue
+        const result = key === 'guest_saved_results'
+        queueOperation(owner, result ? '/exam-results' : '/wrong-answers/bulk', result ? row : {
+          operationId: row.operationId, wrongQuestions: [row], correctQuestionIds: [], testType: row.testType || 'short_test', categoryId: row.categoryId || '',
+        })
+        const current = JSON.parse(localStorage.getItem(key) || '[]')
+        localStorage.setItem(key, JSON.stringify(current.filter(item => item.operationId !== row.operationId)))
       }
-      localStorage.removeItem('guest_saved_results')
     }
-
-    if (guestWrong) {
-      const wrong = JSON.parse(guestWrong)
-      const wrongPayload = {
-        wrongQuestions: wrong,
-        correctQuestionIds: [],
-        categoryId: null,
-        categoryName: '',
-        testType: 'short_test',
-      }
-      await api.post('/wrong-answers/bulk', wrongPayload).catch(() => console.warn('Sync wrong answers failed'))
-      localStorage.removeItem('guest_wrong_answers')
-    }
-
-    localStorage.removeItem('guest_solved_test_count')
-    localStorage.removeItem('guest_ai_credits')
-  } catch {
-    console.error('Error syncing guest data')
-  }
+    await flushOperations(owner)
+  } catch { console.warn('Misafir verileri cihazda korunuyor; aktarım tekrar denenecek.') }
 }
 
 const useAuthStore = create((set) => ({
@@ -74,7 +64,7 @@ const useAuthStore = create((set) => ({
     syncCategorySession(user)
     registerPushAfterAuth()
     if (user && !user.isGuest) {
-      syncGuestData()
+      syncGuestData(user)
     }
     set({ user, token, error: null })
   },

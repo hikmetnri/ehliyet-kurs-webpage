@@ -15,6 +15,7 @@ let bootstrapping = null
 api.interceptors.request.use(config => {
   if (['/auth/login', '/auth/register', '/auth/google'].includes(config.url)) clearAccessToken()
   config.authGeneration ??= getSessionGeneration()
+  if (config.authGeneration !== getSessionGeneration()) throw new axios.CanceledError('Oturum değişti')
   const token = getAccessToken()
   if (token && !credentialPaths.has(config.url)) config.headers.Authorization = `Bearer ${token}`
   if (['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase()) && csrfToken) {
@@ -53,8 +54,19 @@ export const revokeSession = async () => {
   return navigator.locks ? navigator.locks.request('ehliyet-auth-refresh', run) : run()
 }
 
-api.interceptors.response.use(response => {
+api.interceptors.response.use(async response => {
   if (response.data?._csrf) csrfToken = response.data._csrf
+  const config = response.config
+  const url = new URL(config.url, 'https://local.invalid')
+  if (url.pathname === '/questions' && !config.questionPage && !url.searchParams.has('page') && !config.params?.page && Array.isArray(response.data) && response.data.length === 200) {
+    const all = [...response.data]
+    for (let page = 2; page <= 10000; page++) {
+      const next = await api({ ...config, questionPage: true, params: { ...config.params, page, limit: 200 } })
+      all.push(...next.data)
+      if (next.data.length < 200) break
+    }
+    response.data = all
+  }
   return response
 }, async error => {
   const config = error.config

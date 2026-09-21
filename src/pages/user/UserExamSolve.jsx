@@ -1,3 +1,4 @@
+import { queueOperation, flushOperations } from '../../services/resultOutbox';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
@@ -106,7 +107,7 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, resultSync, onRetr
   });
   const total = questions.length;
   const score = getExamScore(correct, total);
-  const passed = score >= getPassingScore(exam);
+  const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
   const isReview = exam?.testType === 'wrong_review' || exam?._id === 'wrong_review_today';
   const isWrongPool = exam?.testType === 'wrong_answers' || exam?._id === 'wrong_answers_all';
   const isAdaptiveReview = isReview || isWrongPool;
@@ -494,7 +495,24 @@ const UserExamSolve = ({ customType }) => {
     setAnswers(prev => ({ ...prev, [currentIdx]: optionIdx }));
   };
 
-  const handleStartExam = () => {
+  const attemptRef = useRef(null);
+  const startingRef = useRef(false);
+  const handleStartExam = async () => {
+    if (startingRef.current) return;
+    startingRef.current = true;
+    try {
+      const response = await api.post('/exam-results/attempts', {
+        questionIds: questions.map(question => question._id),
+        examId: customType ? '' : examId,
+        categoryId: normalizeId(exam?.categoryId) || '',
+        testType: customType === 'real_test' ? 'real_test' : (customType || exam?.testType || persistedTestType),
+      });
+      attemptRef.current = response.data.attemptId;
+    } catch {
+      window.alert('Test başlatılamadı. Bağlantını kontrol edip tekrar dene.');
+      return;
+    } finally { startingRef.current = false; }
+
     trackEvent(mode === 'review' ? 'wrong_review_started' : 'test_started', {
       examId: exam?._id,
       examName: exam?.name,
@@ -551,7 +569,7 @@ const UserExamSolve = ({ customType }) => {
       const total = questions.length;
       const empty = total - correct - wrong;
       const score = getExamScore(correct, total);
-      const passed = score >= getPassingScore(exam);
+      const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
 
       const isWrongPoolMode = customType === 'wrong_answers';
 
@@ -568,44 +586,16 @@ const UserExamSolve = ({ customType }) => {
         score,
         passed,
         duration: timeSpentSecs,
-        wrongQuestions,
+        operationId: crypto.randomUUID(),
+        attemptId: attemptRef.current,
+        answers: questions.map((q, i) => ({ questionId: q._id, answer: answers[i] ?? -1 })),
       };
-
-      const wrongAnswerPayload = {
-        wrongQuestions,
-        correctQuestionIds,
-        categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
-        categoryName: exam?.categoryName || (typeof exam?.categoryId === 'object' ? exam?.categoryId?.name : ''),
-        testType: persistedTestType,
-      };
-
-      const syncWrongAnswers = async () => api.post('/wrong-answers/bulk', wrongAnswerPayload).then((res) => {
-        setReviewSync({
-          status: 'success',
-          wrongCount: wrongQuestions.length,
-          summary: res.data?.summary || null,
-        });
-      }).catch((err) => {
-        console.warn('Yanlış cevap listesi güncellenemedi:', err);
-        setReviewSync({ status: 'error', wrongCount: wrongQuestions.length });
-      });
 
       if (user?.isGuest) {
         // Save test results locally
         const localResults = JSON.parse(localStorage.getItem('guest_saved_results') || '[]');
         localResults.push(resultPayload);
         localStorage.setItem('guest_saved_results', JSON.stringify(localResults));
-
-        // Save wrong questions locally
-        if (wrongQuestions.length > 0) {
-          const localWrong = JSON.parse(localStorage.getItem('guest_wrong_answers') || '[]');
-          wrongQuestions.forEach(wq => {
-            if (!localWrong.some(item => item.questionId === wq.questionId)) {
-              localWrong.push(wq);
-            }
-          });
-          localStorage.setItem('guest_wrong_answers', JSON.stringify(localWrong));
-        }
 
         // Increment solved test count
         const currentCount = parseInt(localStorage.getItem('guest_solved_test_count') || '0', 10);
@@ -618,12 +608,13 @@ const UserExamSolve = ({ customType }) => {
         });
       } else {
         try {
-          await api.post('/exam-results', resultPayload);
-          setResultSync('success');
-        } catch {
-          setResultSync('error');
-        }
-        await syncWrongAnswers();
+          const owner = String(user?._id || user?.id || '');
+          queueOperation(owner, '/exam-results', resultPayload);
+          const synced = await flushOperations(owner);
+          setResultSync(synced ? 'success' : 'error');
+          setReviewSync({ status: synced ? 'success' : 'error', wrongCount: wrongQuestions.length });
+        } catch { setResultSync('error'); }
+
       }
 
       if (passed) {
