@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
+import { TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ClipboardList, Clock, Lock,
@@ -82,7 +83,7 @@ const UserExams = () => {
         // Flutter da kısa test sayılarını tek seferde çekilen short_test havuzundan hesaplıyor.
         const [examRes, shortQuestionRes, resultRes, reviewRes, wrongRes] = await Promise.all([
           api.get('/exams'),
-          api.get('/questions?testType=short_test'),
+          api.get(`/questions?testType=${TEST_TYPES.SHORT_TEST}`),
           api.get('/exam-results').catch(() => ({ data: [] })),
           api.get('/wrong-answers/review-due?limit=100').catch(() => ({ data: { data: [] } })),
           api.get('/wrong-answers').catch(() => ({ data: { data: [] } })),
@@ -135,7 +136,7 @@ const UserExams = () => {
         const resultMap = {};
 
         resultRows.forEach((result) => {
-          const key = result.testType === 'short_test'
+          const key = result.testType === TEST_TYPES.SHORT_TEST
             ? `short_${result.categoryId}`
             : result.examId;
           if (key && !resultMap[key]) resultMap[key] = result;
@@ -193,8 +194,8 @@ const UserExams = () => {
       if (catId.toString() !== user.selectedCategoryId.toString()) return false;
     }
     
-    if (e.testType === 'mock_exam') return true;
-    if (e.testType === 'real_exam') return false;
+    if (e.testType === TEST_TYPES.MOCK_EXAM) return true;
+    if (e.testType === TEST_TYPES.REAL_EXAM) return false;
     // testType belirsizse isim heuristiği
     return e.name.toLowerCase().includes('deneme');
   });
@@ -204,8 +205,8 @@ const UserExams = () => {
     if (e._isRealMeb) return false; // Sentetik MEB simülatörünü gösterme
     if (e._isSynthetic) return false;
     if (e.isMiniTest) return false;
-    if (e.testType === 'real_exam') return true;
-    if (e.testType === 'mock_exam') return false;
+    if (e.testType === TEST_TYPES.REAL_EXAM) return true;
+    if (e.testType === TEST_TYPES.MOCK_EXAM) return false;
     return false;
   });
 
@@ -448,8 +449,8 @@ const UserExams = () => {
             const isSimulation = exam._isRealMeb;
             const isShort = exam._isSynthetic;
             // testType'a göre sınav türü belirle — kategorili sınavlar da doğru etiket alır
-            const isRealExam = !isSimulation && !isShort && exam.testType === 'real_exam';
-            const isMockExam = !isSimulation && !isShort && (exam.testType === 'mock_exam' || exam.testType === 'exam');
+            const isRealExam = !isSimulation && !isShort && exam.testType === TEST_TYPES.REAL_EXAM;
+            const isMockExam = !isSimulation && !isShort && (exam.testType === TEST_TYPES.MOCK_EXAM || exam.testType === TEST_TYPES.EXAM);
             const catName = isShort ? getParentName(exam.categoryId) : getCategoryName(exam.categoryId);
             const badgeLabel = isSimulation ? 'E-Sınav Sim.' : isRealExam ? 'MEB E-Sınav' : isMockExam ? 'Deneme' : isShort ? 'Kısa Test' : 'Deneme';
             const Icon = isSimulation ? GraduationCap : isRealExam ? GraduationCap : isMockExam ? Target : isShort ? FileQuestion : Target;

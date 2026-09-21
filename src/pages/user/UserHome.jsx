@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
 import api from '../../api';
+import { TEST_TYPES } from '../../constants/testTypes';
 import { AnimatePresence, motion as Motion } from 'framer-motion';
 import {
   Activity,
@@ -77,21 +78,21 @@ const getExamCountdown = (dateValue) => {
 
 const planIconByType = {
   select_category: ShieldCheck,
-  wrong_review: RefreshCcw,
+  [TEST_TYPES.WRONG_REVIEW]: RefreshCcw,
   weak_topic: BookOpen,
   lesson: BookOpen,
   daily_goal: Target,
-  short_test: FileQuestion,
-  mock_exam: GraduationCap,
+  [TEST_TYPES.SHORT_TEST]: FileQuestion,
+  [TEST_TYPES.MOCK_EXAM]: GraduationCap,
 };
 
 const planRouteByAction = {
-  wrong_review: '/dashboard/exams/wrong-review',
+  [TEST_TYPES.WRONG_REVIEW]: '/dashboard/exams/wrong-review',
   weak_topic: '/dashboard/lessons',
   lesson: '/dashboard/lessons',
   daily_goal: '/dashboard/exams',
-  short_test: '/dashboard/exams',
-  mock_exam: '/dashboard/exams',
+  [TEST_TYPES.SHORT_TEST]: '/dashboard/exams',
+  [TEST_TYPES.MOCK_EXAM]: '/dashboard/exams',
   stats: '/dashboard/stats',
 };
 
@@ -356,7 +357,7 @@ const UserHome = () => {
   const recommendation = (() => {
     if (dailyPlan?.title) {
       const action = dailyPlan.primaryAction || {};
-      const actionType = action.type || dailyPlan.tasks?.find((task) => !task.completed)?.type || 'short_test';
+      const actionType = action.type || dailyPlan.tasks?.find((task) => !task.completed)?.type || TEST_TYPES.SHORT_TEST;
       const to = actionType === 'select_category'
         ? undefined
         : action.target || planRouteByAction[actionType] || '/dashboard/exams';
@@ -1172,7 +1173,7 @@ const UserHome = () => {
 
           <button
             onClick={() => {
-              const actionType = dailyPlan?.primaryAction?.type || 'short_test';
+              const actionType = dailyPlan?.primaryAction?.type || TEST_TYPES.SHORT_TEST;
               if (actionType === 'select_category') setShowCategoryModal(true);
               else navigate(dailyPlan?.primaryAction?.target || planRouteByAction[actionType] || '/dashboard/exams', { state: { fromQuickStart: true } });
             }}

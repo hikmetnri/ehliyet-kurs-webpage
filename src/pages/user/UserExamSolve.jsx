@@ -2,6 +2,7 @@ import { queueOperation, flushOperations } from '../../services/resultOutbox';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
+import { TEST_TYPES, WRONG_REVIEW_TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { soundService } from '../../services/soundService';
 import {
@@ -108,8 +109,8 @@ const ResultScreen = ({ questions, answers, exam, reviewSync, resultSync, onRetr
   const total = questions.length;
   const score = getExamScore(correct, total);
   const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
-  const isReview = exam?.testType === 'wrong_review' || exam?._id === 'wrong_review_today';
-  const isWrongPool = exam?.testType === 'wrong_answers' || exam?._id === 'wrong_answers_all';
+  const isReview = exam?.testType === TEST_TYPES.WRONG_REVIEW || exam?._id === 'wrong_review_today';
+  const isWrongPool = exam?.testType === TEST_TYPES.WRONG_ANSWERS || exam?._id === 'wrong_answers_all';
   const isAdaptiveReview = isReview || isWrongPool;
   const reviewSummary = reviewSync?.summary || {};
   const resultTone = isAdaptiveReview ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
@@ -327,10 +328,10 @@ const UserExamSolve = ({ customType }) => {
     const fetchExam = async () => {
       try {
         setLoading(true);
-        if (customType === 'short_test') {
+        if (customType === TEST_TYPES.SHORT_TEST) {
           // Synthetic exam based on category questions
           const [qRes, catRes] = await Promise.all([
-            api.get(`/questions?category=${categoryId}&testType=short_test`),
+            api.get(`/questions?category=${categoryId}&testType=${TEST_TYPES.SHORT_TEST}`),
             api.get(`/categories/${categoryId}`)
           ]);
           const qs = readApiList(qRes);
@@ -343,7 +344,7 @@ const UserExamSolve = ({ customType }) => {
             duration: Math.max(10, Math.ceil(qs.length * 1.5)), // ~1.5 min per question
             categoryId: categoryId
           });
-        } else if (customType === 'real_test') {
+        } else if (customType === TEST_TYPES.REAL_TEST) {
           // Real MEB Simulator
           const qRes = await api.get('/questions');
           let allQ = qRes.data || [];
@@ -359,7 +360,7 @@ const UserExamSolve = ({ customType }) => {
             duration: 45,
             categoryId: categoryId
           });
-        } else if (customType === 'wrong_review') {
+        } else if (customType === TEST_TYPES.WRONG_REVIEW) {
           const [reviewRes, categoryRes] = await Promise.all([
             api.get('/wrong-answers/review-due?limit=100'),
             user?.selectedCategoryId
@@ -388,9 +389,9 @@ const UserExamSolve = ({ customType }) => {
             categoryId: user?.selectedCategoryId || null,
             reviewTotalCount,
             reviewSessionLimit: REVIEW_SESSION_LIMIT,
-            testType: 'wrong_review',
+            testType: TEST_TYPES.WRONG_REVIEW,
           });
-        } else if (customType === 'wrong_answers') {
+        } else if (customType === TEST_TYPES.WRONG_ANSWERS) {
           const [wrongRes, categoryRes] = await Promise.all([
             api.get('/wrong-answers'),
             user?.selectedCategoryId
@@ -416,7 +417,7 @@ const UserExamSolve = ({ customType }) => {
             description: 'Yanlış yaptığın sorulardan oluşan kişisel tekrar testi.',
             duration: Math.max(10, Math.ceil(qs.length * 1.5)),
             categoryId: user?.selectedCategoryId || null,
-            testType: 'wrong_answers',
+            testType: TEST_TYPES.WRONG_ANSWERS,
           });
         } else {
           // Normal exam
@@ -443,18 +444,18 @@ const UserExamSolve = ({ customType }) => {
   const forceRealMode = searchParams.get('mode') === 'real';
   // testType alanı varsa öncelikli kullan; yoksa isim heuristiğine fallback yap
   const mode = forceRealMode ? 'real' :
-               customType === 'short_test' ? 'short' :
-               customType === 'wrong_review' ? 'review' :
-               customType === 'wrong_answers' ? 'wrong' :
-               customType === 'real_test' ? 'real' :
-               exam?.testType === 'real_exam' ? 'real' :
-               exam?.testType === 'short_test' ? 'short' :
-               exam?.testType === 'mock_exam' ? 'mock' :
+               customType === TEST_TYPES.SHORT_TEST ? 'short' :
+               customType === TEST_TYPES.WRONG_REVIEW ? 'review' :
+               customType === TEST_TYPES.WRONG_ANSWERS ? 'wrong' :
+               customType === TEST_TYPES.REAL_TEST ? 'real' :
+               exam?.testType === TEST_TYPES.REAL_EXAM ? 'real' :
+               exam?.testType === TEST_TYPES.SHORT_TEST ? 'short' :
+               exam?.testType === TEST_TYPES.MOCK_EXAM ? 'mock' :
                // legacy fallback: adında "deneme" yoksa AND "mock" da geçmiyorsa real say
                (exam?.name && !exam.name.toLowerCase().includes('deneme') && !exam.name.toLowerCase().includes('mock') ? 'real' : 'mock');
   const persistedTestType = mode === 'real'
-    ? 'real_exam'
-    : customType || exam?.testType || (exam?.categoryId ? 'mock_exam' : 'exam');
+    ? TEST_TYPES.REAL_EXAM
+    : customType || exam?.testType || (exam?.categoryId ? TEST_TYPES.MOCK_EXAM : TEST_TYPES.EXAM);
                
   // Kısa test ve tekrar çalışmaları öğretim modudur. Deneme ile gerçek sınavda
   // cevaplar sınav bitene kadar değerlendirilmez.
@@ -505,7 +506,7 @@ const UserExamSolve = ({ customType }) => {
         questionIds: questions.map(question => question._id),
         examId: customType ? '' : examId,
         categoryId: normalizeId(exam?.categoryId) || '',
-        testType: customType === 'real_test' ? 'real_test' : (customType || exam?.testType || persistedTestType),
+        testType: customType === TEST_TYPES.REAL_TEST ? TEST_TYPES.REAL_TEST : (customType || exam?.testType || persistedTestType),
       });
       attemptRef.current = response.data.attemptId;
     } catch {
@@ -517,7 +518,7 @@ const UserExamSolve = ({ customType }) => {
       examId: exam?._id,
       examName: exam?.name,
       mode,
-      testType: customType || (exam?.categoryId ? 'mock_exam' : 'exam'),
+      testType: customType || (exam?.categoryId ? TEST_TYPES.MOCK_EXAM : TEST_TYPES.EXAM),
       categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
       categoryName: exam?.categoryName || '',
       questionCount: questions.length,
@@ -571,10 +572,10 @@ const UserExamSolve = ({ customType }) => {
       const score = getExamScore(correct, total);
       const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
 
-      const isWrongPoolMode = customType === 'wrong_answers';
+      const isWrongPoolMode = customType === TEST_TYPES.WRONG_ANSWERS;
 
       const resultPayload = {
-        examId: (customType === 'short_test' || customType === 'real_test' || isWrongPoolMode) ? null : examId,
+        examId: (customType === TEST_TYPES.SHORT_TEST || customType === TEST_TYPES.REAL_TEST || isWrongPoolMode) ? null : examId,
         examName: exam?.name,
         testType: persistedTestType,
         categoryId: typeof exam?.categoryId === 'object' ? exam?.categoryId?._id : exam?.categoryId,
@@ -733,13 +734,13 @@ const UserExamSolve = ({ customType }) => {
         setAnswers({});
         setCurrentIdx(0);
         setReviewSync({ status: 'idle', wrongCount: 0 });
-        if (customType === 'wrong_review' || customType === 'wrong_answers') {
+        if (WRONG_REVIEW_TEST_TYPES.includes(customType)) {
           setLoading(true);
           setQuestions([]);
           setExam(null);
         }
         setPhase('intro');
-        if (customType === 'wrong_review' || customType === 'wrong_answers') setReloadKey((key) => key + 1);
+        if (WRONG_REVIEW_TEST_TYPES.includes(customType)) setReloadKey((key) => key + 1);
       }}
       onHome={(path) => navigate(path || '/dashboard/exams')}
     />;

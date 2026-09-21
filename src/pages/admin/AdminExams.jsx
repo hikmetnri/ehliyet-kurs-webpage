@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import api from '../../api';
+import { TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Search, Plus, FileEdit, Trash2, CheckCircle2, XCircle,
@@ -41,9 +42,9 @@ const SIGN_CATEGORIES = [
 ];
 
 const EXAM_TYPES = {
-  short_test: { label: 'Kısa Test', icon: '📚' },
-  mock_exam: { label: 'Deneme Sınavı', icon: '⚡' },
-  real_exam: { label: 'Gerçek Sınav', icon: '🛡️' },
+  [TEST_TYPES.SHORT_TEST]: { label: 'Kısa Test', icon: '📚' },
+  [TEST_TYPES.MOCK_EXAM]: { label: 'Deneme Sınavı', icon: '⚡' },
+  [TEST_TYPES.REAL_EXAM]: { label: 'Gerçek Sınav', icon: '🛡️' },
 };
 
 // Konu/Branş konfigürasyonu — kategori adına göre otomatik seçim
@@ -131,7 +132,7 @@ const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /
 
 const normalizeTestType = (testType) => {
   // Legacy `exam` kayıtları kullanıcı tarafında gerçek sınav fallback'idir.
-  if (testType === 'exam') return 'real_exam';
+  if (testType === TEST_TYPES.EXAM) return TEST_TYPES.REAL_EXAM;
   return testType || '';
 };
 
@@ -141,28 +142,28 @@ const questionExamId = (question) => question.exam?._id || question.exam || '';
 
 const inferExamTypeFromName = (exam) => {
   const text = `${exam?.name || ''} ${exam?.description || ''}`.toLocaleLowerCase('tr-TR');
-  if (/(gerçek|gercek|meb|e-sınav|e sinav|simülatör|simulator)/i.test(text)) return 'real_exam';
-  if (/(deneme|mock|trial)/i.test(text)) return 'mock_exam';
+  if (/(gerçek|gercek|meb|e-sınav|e sinav|simülatör|simulator)/i.test(text)) return TEST_TYPES.REAL_EXAM;
+  if (/(deneme|mock|trial)/i.test(text)) return TEST_TYPES.MOCK_EXAM;
   return '';
 };
 
 const resolveExamTestType = (exam, questions = []) => {
-  if (exam?.isMiniTest) return 'short_test';
+  if (exam?.isMiniTest) return TEST_TYPES.SHORT_TEST;
   if (normalizeTestType(exam?._resolvedTestType)) return normalizeTestType(exam._resolvedTestType);
 
   const relatedQuestions = questions.filter(q => questionExamId(q) === exam?._id);
-  const realQuestionCount = relatedQuestions.filter(q => normalizeTestType(q.testType) === 'real_exam').length;
-  const mockQuestionCount = relatedQuestions.filter(q => normalizeTestType(q.testType) === 'mock_exam').length;
+  const realQuestionCount = relatedQuestions.filter(q => normalizeTestType(q.testType) === TEST_TYPES.REAL_EXAM).length;
+  const mockQuestionCount = relatedQuestions.filter(q => normalizeTestType(q.testType) === TEST_TYPES.MOCK_EXAM).length;
 
-  if (realQuestionCount > 0 && mockQuestionCount === 0) return 'real_exam';
-  if (mockQuestionCount > 0 && realQuestionCount === 0) return 'mock_exam';
-  if (realQuestionCount > mockQuestionCount) return 'real_exam';
-  if (mockQuestionCount > realQuestionCount) return 'mock_exam';
+  if (realQuestionCount > 0 && mockQuestionCount === 0) return TEST_TYPES.REAL_EXAM;
+  if (mockQuestionCount > 0 && realQuestionCount === 0) return TEST_TYPES.MOCK_EXAM;
+  if (realQuestionCount > mockQuestionCount) return TEST_TYPES.REAL_EXAM;
+  if (mockQuestionCount > realQuestionCount) return TEST_TYPES.MOCK_EXAM;
 
   const inferred = inferExamTypeFromName(exam);
   if (inferred) return inferred;
 
-  return normalizeTestType(exam?.testType) || 'mock_exam';
+  return normalizeTestType(exam?.testType) || TEST_TYPES.MOCK_EXAM;
 };
 
 const fetchSignsInCategory = async (category) => {
@@ -328,7 +329,7 @@ const BASE_EMPTY_FORM = {
 // ─── Question Form Modal ───────────────────────────────────────────────────────
 const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exams, initialCategoryId, initialExamId, existingQuestion, isCopy, initialExamCategory = 'b_class' }) => {
   const isEdit = existingQuestion && !isCopy;
-  const isShortTest = testType === 'short_test';
+  const isShortTest = testType === TEST_TYPES.SHORT_TEST;
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState(() => ({
@@ -756,8 +757,8 @@ const QuestionFormModal = ({ isOpen, onClose, onSaved, testType, categories, exa
           {/* Tür aktif sekmeden gelir; soru yanlışlıkla diğer sınav grubuna taşınamaz. */}
           {!isShortTest && (
             <InputField label="Sınav Grubu" icon={RefreshCw}>
-              <div className={`rounded-2xl border px-4 py-3 text-xs font-black ${testType === 'real_exam' ? 'border-purple-500/30 bg-purple-500/15 text-purple-300' : 'border-primary/30 bg-primary/15 text-primary-light'}`}>
-                {testType === 'real_exam' ? '🛡️ Gerçek Sınav' : '📊 Deneme Sınavı'}
+              <div className={`rounded-2xl border px-4 py-3 text-xs font-black ${testType === TEST_TYPES.REAL_EXAM ? 'border-purple-500/30 bg-purple-500/15 text-purple-300' : 'border-primary/30 bg-primary/15 text-primary-light'}`}>
+                {testType === TEST_TYPES.REAL_EXAM ? '🛡️ Gerçek Sınav' : '📊 Deneme Sınavı'}
               </div>
             </InputField>
           )}
@@ -1215,7 +1216,7 @@ const ExamFormModal = ({
   categories,
   existingExam,
   forceMiniTest = false,
-  testType = 'mock_exam',
+  testType = TEST_TYPES.MOCK_EXAM,
   lockTestType = false,
   initialCategoryGroup = 'b_class',
 }) => {
@@ -1223,7 +1224,7 @@ const ExamFormModal = ({
   // Tür bazlı etiketler — deneme/gerçek/kısa test karışmasın
   const typeLabel = forceMiniTest
     ? 'Kısa Test'
-    : testType === 'real_exam'
+    : testType === TEST_TYPES.REAL_EXAM
       ? 'Gerçek Sınav'
       : 'Deneme Sınavı';
   // Gerçek sınav ekranında yalnızca B Sınıfı ve İş Makinesi kökleri seçilebilir.
@@ -1248,7 +1249,7 @@ const ExamFormModal = ({
           categoryId: existingExam.categoryId?._id || existingExam.categoryId || '',
           isPro: existingExam.isPro || false,
           isMiniTest: existingExam.isMiniTest || false,
-          testType: existingExam.isMiniTest ? 'short_test' : resolveExamTestType(existingExam),
+          testType: existingExam.isMiniTest ? TEST_TYPES.SHORT_TEST : resolveExamTestType(existingExam),
           passingScore: String(existingExam.passingScore || 70),
         });
       } else {
@@ -1256,7 +1257,7 @@ const ExamFormModal = ({
           catOptions.find(category => getCategoryGroupFromText(category.name) === initialCategoryGroup) ||
           catOptions[0];
         const initialGroup = getCategoryGroupFromText(initialCategory?.name) || initialCategoryGroup;
-        setForm({ name: '', description: '', duration: String(defaultDurationForGroup(initialGroup)), categoryId: initialCategory?._id || '', isPro: false, isMiniTest: forceMiniTest, testType: forceMiniTest ? 'short_test' : testType, passingScore: '70' });
+        setForm({ name: '', description: '', duration: String(defaultDurationForGroup(initialGroup)), categoryId: initialCategory?._id || '', isPro: false, isMiniTest: forceMiniTest, testType: forceMiniTest ? TEST_TYPES.SHORT_TEST : testType, passingScore: '70' });
       }
       setError('');
     }
@@ -1279,7 +1280,7 @@ const ExamFormModal = ({
         categoryId: form.categoryId || null,
         isPro: form.isPro,
         isMiniTest: form.isMiniTest,
-        testType: form.isMiniTest ? 'short_test' : lockTestType ? testType : form.testType,
+        testType: form.isMiniTest ? TEST_TYPES.SHORT_TEST : lockTestType ? testType : form.testType,
         passingScore,
       };
       if (isEdit) {
@@ -1343,8 +1344,8 @@ const ExamFormModal = ({
               </label>
               <div className="grid grid-cols-2 gap-2 p-1 bg-black/20 border border-white/10 rounded-2xl">
                 {[
-                  { id: 'mock_exam', label: 'Deneme Sınavı', icon: Zap },
-                  { id: 'real_exam', label: 'Gerçek Sınav', icon: Shield },
+                  { id: TEST_TYPES.MOCK_EXAM, label: 'Deneme Sınavı', icon: Zap },
+                  { id: TEST_TYPES.REAL_EXAM, label: 'Gerçek Sınav', icon: Shield },
                 ].map(type => {
                   const Icon = type.icon;
                   const active = form.testType === type.id;
@@ -1355,7 +1356,7 @@ const ExamFormModal = ({
                       onClick={() => setForm(f => ({ ...f, testType: type.id }))}
                       className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold transition-all ${
                         active
-                          ? type.id === 'real_exam'
+                          ? type.id === TEST_TYPES.REAL_EXAM
                             ? 'bg-warning/20 border border-warning/30 text-amber-300'
                             : 'bg-primary/20 border border-primary/30 text-primary-light'
                           : 'text-text-muted hover:text-white hover:bg-white/[0.04]'
@@ -1487,7 +1488,7 @@ const ExamFormModal = ({
 };
 
 // ─── CSV Import Modal ──────────────────────────────────────────────────────────
-const CsvImportModal = ({ isOpen, onClose, onImported, exams, categories, testType = 'mock_exam' }) => {
+const CsvImportModal = ({ isOpen, onClose, onImported, exams, categories, testType = TEST_TYPES.MOCK_EXAM }) => {
   const [selectedExamId, setSelectedExamId] = useState('');
   const [csv, setCsv] = useState('');
   const [loading, setLoading] = useState(false);
@@ -1704,7 +1705,7 @@ const ShortTestTab = ({ questions, categories, onRefresh }) => {
   const collapseAll = () => setOpenCats({});
 
   const shortQuestions = questions.filter(q =>
-    normalizeTestType(q.testType) === 'short_test' &&
+    normalizeTestType(q.testType) === TEST_TYPES.SHORT_TEST &&
     getCategoryGroup(q.category, categories) === activeCatFilter
   );
 
@@ -1874,7 +1875,7 @@ const ShortTestTab = ({ questions, categories, onRefresh }) => {
           const Icon = item.icon;
           const active = activeCatFilter === item.id;
           const count = questions.filter(question =>
-            normalizeTestType(question.testType) === 'short_test' &&
+            normalizeTestType(question.testType) === TEST_TYPES.SHORT_TEST &&
             getCategoryGroup(question.category, categories) === item.id
           ).length;
           return (
@@ -1997,7 +1998,7 @@ const ShortTestTab = ({ questions, categories, onRefresh }) => {
             isOpen={formModal.open}
             onClose={() => setFormModal({ open: false })}
             onSaved={onRefresh}
-            testType="short_test"
+            testType={TEST_TYPES.SHORT_TEST}
             categories={categories}
             exams={[]}
             initialCategoryId={formModal.categoryId}
@@ -2016,7 +2017,7 @@ const ShortTestTab = ({ questions, categories, onRefresh }) => {
 };
 
 // ─── Exam Questions Tab ────────────────────────────────────────────────────────
-const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefresh, testType = 'exam', title = 'Sınav', activeCatFilter = 'b_class' }) => {
+const ExamQuestionsTab = ({ questions, categories, exams, allTypeExams, onRefresh, testType = TEST_TYPES.EXAM, title = 'Sınav', activeCatFilter = 'b_class' }) => {
   const [search, setSearch] = useState('');
   const [filterDifficulty, setFilterDifficulty] = useState('all');
   const [filterMedia, setFilterMedia] = useState('all');
@@ -2503,7 +2504,7 @@ const ExamOverviewCard = ({ icon: Icon, label, value, detail, color, bg, border 
 // ─── Main AdminExams Component ────────────────────────────────────────────────
 const AdminExams = () => {
   const [activeCatFilter, setActiveCatFilter] = useState('b_class');
-  const [activeTypeFilter, setActiveTypeFilter] = useState('real_exam'); // 'real_exam' | 'mock_exam' | 'short_test'
+  const [activeTypeFilter, setActiveTypeFilter] = useState(TEST_TYPES.REAL_EXAM); // 'real_exam' | 'mock_exam' | 'short_test'
   const [questions, setQuestions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [exams, setExams] = useState([]);
@@ -2564,19 +2565,19 @@ const AdminExams = () => {
 
   // Sekme başlığı ve açıklamaları
   const typeMeta = {
-    real_exam: {
+    [TEST_TYPES.REAL_EXAM]: {
       kicker: 'Gerçek Sınav Yönetimi',
       title: 'Sınav Merkezi',
       desc: 'B Sınıfı ve İş Makinesi gerçek sınavlarını, soru dağılımlarını ve yayın durumlarını yönetin.',
       label: 'Gerçek Sınav',
     },
-    mock_exam: {
+    [TEST_TYPES.MOCK_EXAM]: {
       kicker: 'Deneme Sınavı Yönetimi',
       title: 'Deneme Sınavları',
       desc: 'B Sınıfı ve İş Makinesi deneme sınavlarını, soru dağılımlarını ve yayın durumlarını yönetin.',
       label: 'Deneme Sınavı',
     },
-    short_test: {
+    [TEST_TYPES.SHORT_TEST]: {
       kicker: 'Kısa Test Yönetimi',
       title: 'Kısa Testler',
       desc: 'Konu bazlı kısa testleri ve soru dağılımlarını yönetin.',
@@ -2584,7 +2585,7 @@ const AdminExams = () => {
     },
   }[activeTypeFilter];
 
-  const isShort = activeTypeFilter === 'short_test';
+  const isShort = activeTypeFilter === TEST_TYPES.SHORT_TEST;
 
   return (
     <div className="space-y-6 pb-12">
@@ -2604,9 +2605,9 @@ const AdminExams = () => {
         {/* Sınav Türü Seçimi */}
         <div className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-[#243044] bg-[#0B1220] p-1.5 sm:max-w-lg">
           {[
-            { id: 'real_exam', label: 'Gerçek Sınav', icon: Shield, color: 'text-[#AFA5FF]' },
-            { id: 'mock_exam', label: 'Deneme Sınavı', icon: Zap, color: 'text-[#FFB85C]' },
-            { id: 'short_test', label: 'Kısa Test', icon: BookOpen, color: 'text-[#6EE7B7]' },
+            { id: TEST_TYPES.REAL_EXAM, label: 'Gerçek Sınav', icon: Shield, color: 'text-[#AFA5FF]' },
+            { id: TEST_TYPES.MOCK_EXAM, label: 'Deneme Sınavı', icon: Zap, color: 'text-[#FFB85C]' },
+            { id: TEST_TYPES.SHORT_TEST, label: 'Kısa Test', icon: BookOpen, color: 'text-[#6EE7B7]' },
           ].map(item => {
             const Icon = item.icon;
             const active = activeTypeFilter === item.id;
@@ -2712,7 +2713,7 @@ const AdminExams = () => {
                 allTypeExams={allTypedExams}
                 onRefresh={handleRefresh}
                 testType={activeTypeFilter}
-                title={activeTypeFilter === 'mock_exam' ? 'Deneme Sınavı' : 'Gerçek Sınav'}
+                title={activeTypeFilter === TEST_TYPES.MOCK_EXAM ? 'Deneme Sınavı' : 'Gerçek Sınav'}
                 activeCatFilter={activeCatFilter}
               />
             )}
