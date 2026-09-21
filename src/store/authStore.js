@@ -1,4 +1,5 @@
 import { queueOperation, flushOperations } from '../services/resultOutbox'
+import { TEST_TYPES } from '../constants/testTypes'
 import { create } from 'zustand'
 import { signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
@@ -38,7 +39,7 @@ const syncGuestData = async (user) => {
         if (row._ownerId !== owner) continue
         const result = key === 'guest_saved_results'
         queueOperation(owner, result ? '/exam-results' : '/wrong-answers/bulk', result ? row : {
-          operationId: row.operationId, wrongQuestions: [row], correctQuestionIds: [], testType: row.testType || 'short_test', categoryId: row.categoryId || '',
+          operationId: row.operationId, wrongQuestions: [row], correctQuestionIds: [], testType: row.testType || TEST_TYPES.SHORT_TEST, categoryId: row.categoryId || '',
         })
         const current = JSON.parse(localStorage.getItem(key) || '[]')
         localStorage.setItem(key, JSON.stringify(current.filter(item => item.operationId !== row.operationId)))

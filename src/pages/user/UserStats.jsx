@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import api from '../../api';
+import { TEST_TYPES, WRONG_REVIEW_TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search, BookOpen, PlayCircle, CheckCircle2, XCircle, HelpCircle, AlertCircle, Percent } from 'lucide-react';
 import ExamDetailModal from '../../components/user/ExamDetailModal';
@@ -740,11 +741,11 @@ const UserStats = () => {
                                   {res.examName || res.categoryName || 'Genel Deneme'}
                                 </span>
                                 <span className="text-[10px] text-text-muted uppercase tracking-tighter mt-0.5">
-                                  {res.testType === 'short_test'
+                                  {res.testType === TEST_TYPES.SHORT_TEST
                                     ? 'Konu Testi'
-                                    : res.testType === 'real_exam'
+                                    : res.testType === TEST_TYPES.REAL_EXAM
                                       ? 'Simülasyon'
-                                      : res.testType === 'wrong_review' || res.testType === 'wrong_answers'
+                                      : WRONG_REVIEW_TEST_TYPES.includes(res.testType)
                                         ? 'Yanlış Tekrarı'
                                         : 'Deneme Sınavı'}
                                 </span>
@@ -816,11 +817,11 @@ const UserStats = () => {
                               {res.examName || res.categoryName || 'Genel Deneme'}
                             </span>
                             <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider mt-0.5 block">
-                              {res.testType === 'short_test'
+                              {res.testType === TEST_TYPES.SHORT_TEST
                                 ? 'Konu Testi'
-                                : res.testType === 'real_exam'
+                                : res.testType === TEST_TYPES.REAL_EXAM
                                   ? 'Simülasyon'
-                                  : res.testType === 'wrong_review' || res.testType === 'wrong_answers'
+                                  : WRONG_REVIEW_TEST_TYPES.includes(res.testType)
                                     ? 'Yanlış Tekrarı'
                                     : 'Deneme Sınavı'}
                             </span>

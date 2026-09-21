@@ -16,7 +16,7 @@ async function harness({ legacyToken = null, transport = async () => ({ status: 
   const sessionStorage = storage(legacyToken ? { token: legacyToken } : {})
   const context = vm.createContext({ URL, crypto: webcrypto, console, localStorage, sessionStorage, navigator: {}, document: { documentElement: { removeAttribute() {}, setAttribute() {} } }, window: { location: { pathname: '/admin' } }, atob, setTimeout, clearTimeout })
   const modules = new Map()
-  const paths = { api: 'src/api/index.js', session: 'src/api/session.js', store: 'src/store/authStore.js', outbox: 'src/services/resultOutbox.js' }
+  const paths = { api: 'src/api/index.js', session: 'src/api/session.js', store: 'src/store/authStore.js', outbox: 'src/services/resultOutbox.js', testTypes: 'src/constants/testTypes.js' }
   for (const [name, path] of Object.entries(paths)) {
     modules.set(name, new vm.SourceTextModule(await readFile(path, 'utf8'), { context, identifier: name, initializeImportMeta: meta => { meta.env = { VITE_API_URL: 'https://test.invalid/api' } } }))
   }
@@ -31,6 +31,7 @@ async function harness({ legacyToken = null, transport = async () => ({ status: 
   stub('../config/firebase', { auth: {} })
   stub('../services/webPushService', { registerWebPushToken: async () => {} })
   await modules.get('api').link(specifier => {
+    if (specifier === '../constants/testTypes') return modules.get('testTypes')
     if (specifier === '../store/authStore') return modules.get('store')
     if (specifier === '../services/resultOutbox') return modules.get('outbox')
     if (specifier === '../api') return modules.get('api')

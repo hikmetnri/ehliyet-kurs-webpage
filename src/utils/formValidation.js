@@ -1,3 +1,5 @@
+import { TEST_TYPES } from '../constants/testTypes';
+
 /**
  * Form Validation Utilities for AdminExams
  * Handles question form validation with detailed error messages
@@ -87,8 +89,8 @@ export const validateQuestionForm = (form) => {
 
   // Bağlantı doğrulaması soru türüne göre değişir. Kısa test doğrudan
   // konuya, deneme/gerçek sınav sorusu ise mutlaka bir sınava bağlanır.
-  const testType = form.testType || 'short_test';
-  if (testType === 'short_test') {
+  const testType = form.testType || TEST_TYPES.SHORT_TEST;
+  if (testType === TEST_TYPES.SHORT_TEST) {
     if (!form.category || !String(form.category).trim()) {
       errors.category = 'Konu seçimi zorunludur';
     }

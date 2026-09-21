@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import api from '../../api';
+import { TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -1162,7 +1163,7 @@ const AdminContent = () => {
     if (!catId) return;
     setLoadingQuestions(true);
     try {
-      const res = await api.get('/questions', { params: { testType: 'short_test', category: catId } });
+      const res = await api.get('/questions', { params: { testType: TEST_TYPES.SHORT_TEST, category: catId } });
       const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       setShortTestQuestions(data.filter(q => (q.category?._id || q.category) === catId));
     } catch (err) {
@@ -1360,7 +1361,7 @@ const AdminContent = () => {
       difficulty: questionForm.difficulty,
       explanation: questionForm.explanation.trim(),
       media: questionForm.media.trim(),
-      testType: 'short_test',
+      testType: TEST_TYPES.SHORT_TEST,
       category: selectedCatId,
     };
 

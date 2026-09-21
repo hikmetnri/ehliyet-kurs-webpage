@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
+import { TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Search, User, Shield, Star, Crown,
@@ -145,9 +146,9 @@ const AdminUsers = () => {
       return res.examId.name.toString().trim();
     }
     if (res.categoryName) return res.categoryName.toString().trim();
-    if (res.testType === 'wrong_review') return 'Yanlış Tekrarı';
-    if (res.testType === 'short_test') return 'Kısa Test';
-    if (res.testType === 'real_exam') return 'Sınav';
+    if (res.testType === TEST_TYPES.WRONG_REVIEW) return 'Yanlış Tekrarı';
+    if (res.testType === TEST_TYPES.SHORT_TEST) return 'Kısa Test';
+    if (res.testType === TEST_TYPES.REAL_EXAM) return 'Sınav';
     return 'Genel Sınav';
   };
 

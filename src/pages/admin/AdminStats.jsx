@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api';
+import { TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip,
@@ -1313,12 +1314,12 @@ const timelineMetadataLabels = {
 };
 
 const testTypeLabels = {
-  short_test: 'Kısa test',
-  mock_exam: 'Deneme sınavı',
-  real_exam: 'Gerçek sınav',
-  exam: 'Test',
-  wrong_review: 'Yanlış tekrar',
-  wrong_answers: 'Yanlışlar testi',
+  [TEST_TYPES.SHORT_TEST]: 'Kısa test',
+  [TEST_TYPES.MOCK_EXAM]: 'Deneme sınavı',
+  [TEST_TYPES.REAL_EXAM]: 'Gerçek sınav',
+  [TEST_TYPES.EXAM]: 'Test',
+  [TEST_TYPES.WRONG_REVIEW]: 'Yanlış tekrar',
+  [TEST_TYPES.WRONG_ANSWERS]: 'Yanlışlar testi',
 };
 
 const resultLabels = {

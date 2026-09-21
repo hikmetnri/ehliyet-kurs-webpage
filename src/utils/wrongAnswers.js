@@ -1,3 +1,5 @@
+import { TEST_TYPES } from '../constants/testTypes';
+
 export const readApiList = (payload) => {
   const data = payload?.data?.data || payload?.data?.items || payload?.data;
   return Array.isArray(data) ? data : [];
@@ -67,7 +69,7 @@ const mapWrongAnswerToQuestion = (item, source) => {
     mediaDescription: source?.mediaDescription || item?.mediaDescription || '',
     category: sourceCategory || item?.categoryId || '',
     categoryName: sourceCategory?.name || item?.categoryName || '',
-    testType: source?.testType || item?.testType || 'wrong_answers',
+    testType: source?.testType || item?.testType || TEST_TYPES.WRONG_ANSWERS,
     subject: source?.subject || item?.subject || '',
     wrongCount: item?.wrongCount || 1,
     reviewStage: Number(item?.reviewStage || 0),
