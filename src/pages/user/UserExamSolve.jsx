@@ -1,4 +1,3 @@
-import { queueOperation, flushOperations } from '../../services/resultOutbox';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
@@ -7,15 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { soundService } from '../../services/soundService';
 import {
   Loader2, Clock, ChevronLeft, ChevronRight,
-  CheckCircle2, XCircle, AlertCircle, BarChart2,
-  Send, RefreshCw, Home, Flag, BookOpen, Star, ListChecks, X
+  CheckCircle2, XCircle,
+  Send, Flag, Star, ListChecks, X
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import ReportQuestionModal from '../../components/user/ReportQuestionModal';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
 import GuestBlocker from '../../components/user/GuestBlocker';
-import { createExamClock, getPassingScore, getExamScore } from '../../utils/examTiming';
+import { getPassingScore, getExamScore } from '../../utils/examTiming';
 import {
   filterQuestionsToCategoryTree,
   hydrateWrongAnswers,
@@ -23,227 +22,16 @@ import {
   readApiList,
 } from '../../utils/wrongAnswers';
 import { clearAiPageContext, compactQuestionContext, setAiPageContext } from '../../utils/aiPageContext';
+import { queueOperation, flushOperations } from '../../services/resultOutbox';
 
-const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
-const REVIEW_SESSION_LIMIT = 20;
+// ─── Extracted Modules (SRP) ──────────────────────────────────────────────────
+import { OPTION_LABELS, REVIEW_SESSION_LIMIT, shuffleArray, cleanOptionText } from './examSolve/examSolveUtils';
+import { useTimer } from './examSolve/useExamTimer';
+import { ResultScreen } from './examSolve/ResultScreen';
+import { EmptyReviewState, ExamIntroScreen } from './examSolve/ExamScreens';
+
 const MotionDiv = motion.div;
 const MotionButton = motion.button;
-
-// Fisher-Yates shuffle — uniform dağılım sağlar (Math.random() comparator yanlıdır).
-const shuffleArray = (input) => {
-  const arr = [...input];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-};
-
-const cleanOptionText = (option, index) => {
-  if (typeof option !== 'string') return `${OPTION_LABELS[index] || index + 1} Şıkkı`;
-  const label = OPTION_LABELS[index];
-  const cleaned = label
-    ? option.replace(new RegExp(`^\\s*${label}\\s*[).:\\-]\\s*`, 'i'), '').trim()
-    : option.trim();
-  return cleaned || `${label || index + 1} Şıkkı`;
-};
-
-// ─── Timer Hook ──────────────────────────────────────────────────────────────
-const useTimer = (durationMinutes, onExpire, active = false) => {
-  const durationSeconds = Math.max(1, durationMinutes || 45) * 60;
-  const [remaining, setRemaining] = useState(durationSeconds);
-  const clockRef = useRef(null);
-  const intervalRef = useRef(null);
-  const onExpireRef = useRef(onExpire);
-
-  useEffect(() => { onExpireRef.current = onExpire; }, [onExpire]);
-
-  useEffect(() => {
-    if (!active) return undefined;
-    const clock = createExamClock(durationSeconds);
-    clockRef.current = clock;
-    const tick = () => {
-      if (clock.stopped) return;
-      const value = clock.remaining();
-      setRemaining(value);
-      if (value === 0) {
-        clock.stop();
-        clearInterval(intervalRef.current);
-        onExpireRef.current?.();
-      }
-    };
-    tick();
-    intervalRef.current = setInterval(tick, 1000);
-    document.addEventListener('visibilitychange', tick);
-    window.addEventListener('focus', tick);
-    return () => {
-      clock.stop();
-      clearInterval(intervalRef.current);
-      document.removeEventListener('visibilitychange', tick);
-      window.removeEventListener('focus', tick);
-    };
-  }, [active, durationSeconds]);
-
-  const stop = () => {
-    clockRef.current?.stop();
-    clearInterval(intervalRef.current);
-    return clockRef.current?.elapsed() ?? 0;
-  };
-
-  const formatted = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
-  const pct = ((durationSeconds - remaining) / durationSeconds) * 100;
-  const isWarning = remaining < 300; // < 5 min
-  const isDanger = remaining < 60;
-
-  return { formatted, pct, isWarning, isDanger, stop, remaining };
-};
-
-// ─── Result Screen ────────────────────────────────────────────────────────────
-const ResultScreen = ({ questions, answers, exam, reviewSync, resultSync, onRetry, onHome }) => {
-  let correct = 0, wrong = 0, empty = 0;
-  questions.forEach((q, i) => {
-    if (answers[i] === undefined || answers[i] === null) empty++;
-    else if (answers[i] === q.correctAnswer) correct++;
-    else wrong++;
-  });
-  const total = questions.length;
-  const score = getExamScore(correct, total);
-  const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
-  const isReview = exam?.testType === TEST_TYPES.WRONG_REVIEW || exam?._id === 'wrong_review_today';
-  const isWrongPool = exam?.testType === TEST_TYPES.WRONG_ANSWERS || exam?._id === 'wrong_answers_all';
-  const isAdaptiveReview = isReview || isWrongPool;
-  const reviewSummary = reviewSync?.summary || {};
-  const resultTone = isAdaptiveReview ? (wrong === 0 ? 'success' : 'primary') : (passed ? 'success' : 'danger');
-  const toneClasses = {
-    success: 'border-success bg-success/10 shadow-success/20 text-success',
-    primary: 'border-primary bg-primary/10 shadow-primary/20 text-primary-light',
-    danger: 'border-danger bg-danger/10 shadow-danger/20 text-danger',
-  }[resultTone];
-
-  return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
-      <MotionDiv
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', duration: 0.6 }}
-        className="w-full max-w-2xl glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
-      >
-        {/* Score Circle */}
-        <div className={`w-32 h-32 rounded-full mx-auto mb-8 flex flex-col items-center justify-center border-4 shadow-xl ${toneClasses}`}>
-          <span className="text-4xl font-black">{score}</span>
-          <span className="text-xs text-white/50 font-bold">{isAdaptiveReview ? 'BAŞARI' : 'PUAN'}</span>
-        </div>
-
-        <h2 className={`text-2xl font-black tracking-tight mb-2 ${
-          isAdaptiveReview ? 'text-primary-light' : passed ? 'text-success' : 'text-danger'
-        }`}>
-          {isReview
-            ? 'Tekrar Tamamlandı'
-            : isWrongPool
-              ? 'Yanlışlar Güncellendi'
-              : passed ? 'Tebrikler, Geçtiniz!' : 'Maalesef Kaldınız'}
-        </h2>
-        <p className="text-text-muted text-sm mb-8 font-medium">
-          {isReview
-            ? `Bugünkü tekrar testi bitti. 4 kez doğru yapılan sorular tamamlandı; diğer doğrular ileriki bir güne bırakıldı.`
-            : isWrongPool
-              ? 'Doğru yaptığın sorular tekrar aşamasında ilerledi. Bir soru 4 doğru tekrardan sonra öğrenildi sayılır.'
-            : `${exam?.name} sınavı sonuçlandı. ${passed ? 'Harika bir performans!' : 'Bir sonraki denemede başarılar!'}`}
-        </p>
-
-        {/* Stats Row */}
-        <div className="mb-8 grid grid-cols-3 gap-2 sm:gap-4">
-          <div className="bg-success/10 border border-success/20 rounded-2xl p-4">
-            <p className="text-2xl font-black text-success">{correct}</p>
-            <p className="text-[10px] font-bold text-success/70 uppercase tracking-widest mt-1">Doğru</p>
-          </div>
-          <div className="bg-danger/10 border border-danger/20 rounded-2xl p-4">
-            <p className="text-2xl font-black text-danger">{wrong}</p>
-            <p className="text-[10px] font-bold text-danger/70 uppercase tracking-widest mt-1">Yanlış</p>
-          </div>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <p className="text-2xl font-black text-text-muted">{empty}</p>
-            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Boş</p>
-          </div>
-        </div>
-
-        {reviewSync?.status && reviewSync.status !== 'idle' && (
-          <div className={`mb-8 flex items-start gap-3 rounded-2xl border p-4 text-left ${
-            reviewSync.status === 'success'
-              ? 'border-primary/20 bg-primary/10 text-primary-light'
-              : 'border-warning/20 bg-warning/10 text-warning'
-          }`}>
-            {reviewSync.status === 'success' ? (
-              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
-            ) : (
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
-            )}
-            <div>
-              <p className="text-xs font-black uppercase tracking-widest">
-                {reviewSync.status === 'success'
-                  ? isReview ? 'Tekrar Sonuçları Kaydedildi' : 'Yanlışlar Kaydedildi'
-                  : 'Yanlışlar Kaydedilemedi'}
-              </p>
-              <p className="mt-1 text-sm font-semibold leading-relaxed text-white/80">
-                {reviewSync.status === 'success'
-                  ? isAdaptiveReview
-                    ? [
-                        reviewSummary.masteredCount > 0 ? `${reviewSummary.masteredCount} soru öğrenildi ve artık tekrar listesinde görünmeyecek.` : '',
-                        reviewSummary.postponedCount > 0 ? `${reviewSummary.postponedCount} doğru soru ileriki bir güne bırakıldı.` : '',
-                        reviewSummary.wrongCount > 0 ? `${reviewSummary.wrongCount} yanlış soru tekrar listesinde kaldı.` : '',
-                      ].filter(Boolean).join(' ') || 'Tekrar sonuçların kaydedildi.'
-                    : reviewSync.wrongCount > 0
-                      ? `${reviewSync.wrongCount} yanlış cevap tekrar listene eklendi.`
-                      : 'Bu sınavda yeni yanlış yok; tekrar listen güncellendi.'
-                  : 'Yanlış cevaplar şu an tekrar listesine eklenemedi.'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {resultSync === 'error' && (
-          <div role="alert" className="mb-6 rounded-2xl border border-warning/30 bg-warning/10 p-4 text-left text-warning">
-            <p className="font-bold">Sınav sonucu geçmişe kaydedilemedi</p>
-            <p className="mt-1 text-sm">Bu ekrandaki sonuç cihazınızda hesaplandı. Kaydın sunucuya ulaştığı doğrulanamadı; sınav geçmişinizi kontrol edin.</p>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={onRetry}
-            className="flex-1 flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-          >
-            <RefreshCw className="w-4 h-4" /> {isReview || isWrongPool ? 'Kalanları Göster' : 'Tekrar Çöz'}
-          </button>
-          
-          {isReview ? (
-            <button
-              onClick={() => onHome('/dashboard')}
-              className="flex-1 flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
-            >
-              <Home className="w-4 h-4" /> Ana Sayfaya Dön
-            </button>
-          ) : exam?._id?.startsWith('short_test_') ? (
-            <button
-              onClick={() => onHome('/dashboard/lessons')}
-              className="flex-1 flex items-center justify-center gap-2 py-4 bg-success text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-success/20 hover:scale-[1.02] active:scale-95 transition-all"
-            >
-              <BookOpen className="w-4 h-4" /> Derslere Dön
-            </button>
-          ) : (
-            <button
-              onClick={() => onHome('/dashboard/exams')}
-              className="flex-1 flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
-            >
-              <Home className="w-4 h-4" /> Sınav Merkezine Dön
-            </button>
-          )}
-        </div>
-      </MotionDiv>
-    </div>
-  );
-};
 
 // ─── Main Exam Solve Component ────────────────────────────────────────────────
 const UserExamSolve = ({ customType }) => {
@@ -685,41 +473,7 @@ const UserExamSolve = ({ customType }) => {
   );
 
   if ((mode === 'review' || mode === 'wrong') && phase === 'intro' && questions.length === 0) {
-    return (
-      <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
-        <MotionDiv
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="w-full max-w-lg glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
-        >
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-[28px] border-2 border-success/30 bg-success/10">
-            <CheckCircle2 className="h-10 w-10 text-success" />
-          </div>
-          <h2 className="mb-2 text-2xl font-black tracking-tight text-white">
-            {mode === 'review' ? 'Bugün Çözülecek Yanlış Kalmadı' : 'Açıkta Yanlış Soru Kalmadı'}
-          </h2>
-          <p className="mb-8 text-sm font-medium leading-relaxed text-text-muted">
-            {mode === 'review'
-              ? 'Şu anda yeniden çözmen gereken yanlış soru yok. Yeni test çözdükçe veya eski yanlışların günü geldikçe bu alan yeniden dolacak.'
-              : 'Yanlış listen temiz görünüyor. Yeni test çözdükçe hatalı cevapların burada tekrar çözülebilir hale gelir.'}
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="flex-1 rounded-2xl border border-white/10 bg-white/5 py-4 text-xs font-black uppercase tracking-widest text-white transition-all hover:bg-white/10"
-            >
-              <Home className="mr-1 inline h-4 w-4" /> Ana Sayfa
-            </button>
-            <button
-              onClick={() => navigate('/dashboard/exams')}
-              className="flex-1 rounded-2xl bg-primary py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] hover:bg-primary-light active:scale-95"
-            >
-              Yeni Test Çöz →
-            </button>
-          </div>
-        </MotionDiv>
-      </div>
-    );
+    return <EmptyReviewState mode={mode} navigate={navigate} />;
   }
 
   // ─── RESULT ────────────────────────────────────────────────────────
@@ -749,78 +503,15 @@ const UserExamSolve = ({ customType }) => {
   // ─── INTRO ─────────────────────────────────────────────────────────
   if (phase === 'intro') {
     return (
-    <div className="flex min-h-[70vh] flex-col items-center justify-center p-3 sm:p-6">
-        <MotionDiv
-          initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-          className="w-full max-w-lg glass-card rounded-3xl border border-white/10 p-5 text-center shadow-2xl sm:p-10"
-        >
-          <div className="w-20 h-20 rounded-[28px] bg-primary/20 border-2 border-primary/30 flex items-center justify-center mx-auto mb-6">
-            <BarChart2 className="w-10 h-10 text-primary-light" />
-          </div>
-          <h2 className="text-2xl font-black text-white mb-2 tracking-tight">{exam.name}</h2>
-          {exam.description && <p className="text-text-muted text-sm mb-6 font-medium">{exam.description}</p>}
-
-          {mode === 'review' ? (
-            <div className="mb-8 grid grid-cols-3 gap-3 sm:flex sm:justify-center sm:gap-6">
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{questions.length}</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Şimdi Çözülecek</p>
-              </div>
-              <div className="w-px bg-white/10" />
-              <div className="text-center">
-                <p className="text-2xl font-black text-primary-light">{reviewTotalCount}</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Bugünkü Toplam</p>
-              </div>
-              <div className="w-px bg-white/10" />
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{exam.duration || 45}</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Dakika</p>
-              </div>
-            </div>
-          ) : (
-            <div className="mb-8 grid grid-cols-3 gap-3 sm:flex sm:justify-center sm:gap-6">
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{questions.length}</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Soru</p>
-              </div>
-              <div className="w-px bg-white/10" />
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{exam.duration || 45}</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Dakika</p>
-              </div>
-              <div className="w-px bg-white/10" />
-              <div className="text-center">
-                <p className="text-2xl font-black text-success">{getPassingScore(exam)}</p>
-                <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Geçme Puanı</p>
-              </div>
-            </div>
-          )}
-
-          <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl text-xs text-primary-light font-medium text-left mb-8 flex gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span className="leading-relaxed">
-              {mode === 'short' ? 'Bu bir pekiştirme testidir. Yanlış cevap verdiğinizde doğru cevap ve açıklama gösterilir. Seçiminiz sonradan değiştirilemez.' :
-               mode === 'review' ? `Bugünün tekrar testindesiniz. Şimdi ${questions.length} soru çözülecek${reviewPendingAfterSession > 0 ? `, kalan ${reviewPendingAfterSession} soru daha sonra çözülecek` : ''}. Bir soru 4 kez doğru yapılınca tamamlanır ve listeden çıkar.` :
-               mode === 'wrong' ? 'Yanlışlar testindesiniz. Doğru yaptığın sorular listenden çıkarılır; yeniden yanlış yaptıkların tekrar listende kalır.' :
-               mode === 'mock' ? 'Genel Deneme modundasınız. Cevaplarınız sınavı teslim ettiğinizde değerlendirilecektir. Sürenizi verimli kullanın.' :
-               'Gerçek Sınav Simülasyonu. Sınavı tamamla butonuna basana kadar cevapların doğru/yanlış olduğunu göremeyeceksiniz. Kalan sürenize dikkat edin!'}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <button onClick={() => navigate(-1)} className="flex-1 py-4 bg-white/5 border border-white/10 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
-              <ChevronLeft className="w-4 h-4 inline mr-1" /> Geri
-            </button>
-            <button
-              onClick={handleStartExam}
-              disabled={questions.length === 0}
-              className="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-            >
-              {mode === 'review' ? 'Tekrar Testini Başlat →' : mode === 'wrong' ? 'Yanlışlar Testini Başlat →' : 'Sınava Başla →'}
-            </button>
-          </div>
-        </MotionDiv>
-      </div>
+      <ExamIntroScreen
+        exam={exam}
+        mode={mode}
+        questions={questions}
+        reviewTotalCount={reviewTotalCount}
+        reviewPendingAfterSession={reviewPendingAfterSession}
+        navigate={navigate}
+        handleStartExam={handleStartExam}
+      />
     );
   }
 
