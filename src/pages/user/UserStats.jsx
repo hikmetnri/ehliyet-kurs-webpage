@@ -1,94 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
 import api from '../../api';
 import { TEST_TYPES, WRONG_REVIEW_TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, BarChart2, Target, Clock, Award, ChevronRight, TrendingUp, ClipboardList, Star, Trophy, Zap, Crown, Shield, Gem, Medal, Rocket, Heart, Flame, Search, BookOpen, PlayCircle, CheckCircle2, XCircle, HelpCircle, AlertCircle, Percent } from 'lucide-react';
+import { Loader2, BarChart2, Target, Clock, Award, ClipboardList, Trophy, Zap, Crown, Shield, Medal, Flame, Search, BookOpen, PlayCircle, CheckCircle2, XCircle, HelpCircle, AlertCircle, Percent } from 'lucide-react';
 import ExamDetailModal from '../../components/user/ExamDetailModal';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 import { buildScopedStats, filterResultsToCategoryTree } from '../../utils/scopedStats';
 import { normalizeId, readApiList } from '../../utils/wrongAnswers';
 import { clearAiPageContext, compactStatsContext, setAiPageContext } from '../../utils/aiPageContext';
-
-const ICON_MAP = { Award, Star, Trophy, Zap, Crown, Target, Flame, Shield, Gem, Medal, Rocket, Heart };
-
-const BadgeIcon = ({ name, ...props }) => {
-  const Icon = ICON_MAP[name] || Award;
-  return <Icon {...props} />;
-};
 import useAuthStore from '../../store/authStore';
 
-const MotionDiv = motion.div;
+// ─── Extracted Modules (SRP) ─────────────────────────────────────
+import { BadgeIcon, EmptyAction, formatDuration, MiniStat, SectionHeader } from './stats/userStatsBits';
+import BadgeDetailModal from './stats/BadgeDetailModal';
 
-const EmptyAction = ({ icon: Icon, title, text, action, to }) => (
-  <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.025] px-4 py-8 text-center">
-    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-      <Icon className="h-5 w-5 text-primary-light" />
-    </div>
-    <h4 className="text-sm font-black text-white">{title}</h4>
-    <p className="mt-2 max-w-xs text-xs font-semibold leading-relaxed text-text-muted">{text}</p>
-    <Link
-      to={to}
-      className="mt-5 inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary-light transition hover:bg-primary/20"
-    >
-      {action}
-      <ChevronRight className="h-3.5 w-3.5" />
-    </Link>
-  </div>
-);
-
-const formatDuration = (seconds) => {
-  if (!seconds || seconds <= 0) return '0dk';
-  if (seconds < 60) return `${seconds}sn`;
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  if (hours > 0) {
-    const remMin = minutes % 60;
-    return remMin > 0 ? `${hours}sa ${remMin}dk` : `${hours}sa`;
-  }
-  return `${minutes}dk`;
-};
-
-const MiniStat = ({ icon: Icon, label, value, color, bg }) => (
-  <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-white/[0.025] border border-white/10 hover:border-white/15 transition-all">
-    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg} ${color} shrink-0 mb-2`}>
-      <Icon className="w-4.5 h-4.5" />
-    </div>
-    <span className="text-sm font-black text-white leading-tight">{value}</span>
-    <span className="text-[10px] font-bold text-text-muted mt-1 uppercase tracking-tight line-clamp-1">{label}</span>
-  </div>
-);
-
-const SectionHeader = ({ icon: Icon, title, subtitle, action }) => (
-  <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.035]">
-        <Icon className="h-5 w-5 text-primary-light" />
-      </div>
-      <div>
-        <h3 className="text-base font-black tracking-tight text-white">{title}</h3>
-        {subtitle && <p className="mt-0.5 text-xs font-semibold text-text-muted">{subtitle}</p>}
-      </div>
-    </div>
-    {action}
-  </div>
-);
-
-const MetricTile = ({ icon: Icon, label, value, helper, color = 'text-white', bg = 'bg-white/[0.04]' }) => (
-  <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-    <div className="flex items-center justify-between gap-3">
-      <p className="text-[10px] font-black uppercase tracking-widest text-text-muted">{label}</p>
-      <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${bg} ${color}`}>
-        <Icon className="h-4.5 w-4.5" />
-      </div>
-    </div>
-    <p className={`mt-3 text-2xl font-black leading-none ${color}`}>{value}</p>
-    {helper && <p className="mt-2 text-xs font-semibold leading-relaxed text-text-muted">{helper}</p>}
-  </div>
-);
-
-const UserStats = () => {
+const MotionDiv = motion.div;const UserStats = () => {
   const { user } = useAuthStore();
   const [stats, setStats] = useState(null);
   const [catStats, setCatStats] = useState([]);
@@ -619,80 +545,7 @@ const UserStats = () => {
               )}
             </div>
 
-            {/* Badge Detail Modal */}
-            {createPortal(
-              <AnimatePresence>
-                {selectedBadge && (
-                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-                    <motion.div 
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      onClick={() => setSelectedBadge(null)}
-                      className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                    />
-                    <motion.div 
-                      initial={{ opacity: 0, scale: 0.9, y: 20 }} 
-                      animate={{ opacity: 1, scale: 1, y: 0 }} 
-                      exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                      className="relative w-full max-w-sm bg-bg-card border border-white/10 rounded-[40px] overflow-hidden shadow-2xl shadow-black/50"
-                    >
-                      <div className="flex max-h-[90vh] flex-col items-center overflow-y-auto p-6 text-center custom-scrollbar sm:p-8">
-                        <div 
-                          className="w-24 h-24 rounded-[32px] flex items-center justify-center mb-6 relative shadow-2xl"
-                          style={{ 
-                            backgroundColor: `${selectedBadge.color}15`, 
-                            border: `2px solid ${selectedBadge.color}40` 
-                          }}
-                        >
-                          <div className="absolute inset-0 blur-2xl opacity-20" style={{ backgroundColor: selectedBadge.color }}></div>
-                          <BadgeIcon name={selectedBadge.icon} className="w-12 h-12 relative z-10" style={{ color: selectedBadge.color }} />
-                        </div>
-                        
-                        <h3 className="text-2xl font-black text-white tracking-tight mb-2">{selectedBadge.name}</h3>
-                        
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${selectedBadge.isEarned ? 'bg-success/10 border-success/20 text-success' : 'bg-white/5 border-white/10 text-text-muted'}`}>
-                            {selectedBadge.isEarned ? '🏆 KAZANILDI' : '🔒 KİLİTLİ'}
-                          </span>
-                          {selectedBadge.isEarned && (
-                            <span className="text-[10px] font-bold text-text-muted uppercase">
-                              {new Date(selectedBadge.earnedAt).toLocaleDateString('tr-TR')}
-                            </span>
-                          )}
-                        </div>
-                        
-                        <div className="bg-white/5 border border-white/5 rounded-3xl p-6 w-full mb-8">
-                          <p className="text-sm text-text-secondary leading-relaxed font-medium">
-                            {selectedBadge.description}
-                          </p>
-                        </div>
-                        
-                        {!selectedBadge.isEarned && (
-                          <div className="w-full flex flex-col items-center gap-2 mb-4">
-                             <p className="text-[10px] font-black text-primary-light uppercase tracking-widest">Gereksinim</p>
-                             <p className="text-xs font-bold text-white">
-                               {selectedBadge.type === 'exam_count' ? `${selectedBadge.requiredValue} Sınav Tamamla` :
-                                selectedBadge.type === 'question_count' ? `${selectedBadge.requiredValue} Soru Çöz` :
-                                selectedBadge.type === 'streak' ? `${selectedBadge.requiredValue} Günlük Seri Yap` :
-                                selectedBadge.type === 'correct_count' ? `${selectedBadge.requiredValue} Doğru Cevaba Ulaş` :
-                                selectedBadge.type === 'success_rate' ? `%${selectedBadge.requiredValue} Başarı Oranını Geç` :
-                                `${selectedBadge.requiredValue} Günlük Hedefini Tamamla`}
-                             </p>
-                          </div>
-                        )}
-  
-                        <button 
-                          onClick={() => setSelectedBadge(null)}
-                          className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all border border-white/5"
-                        >
-                          Kapat
-                        </button>
-                      </div>
-                    </motion.div>
-                  </div>
-                )}
-              </AnimatePresence>,
-              document.body
-            )}
+            <BadgeDetailModal selectedBadge={selectedBadge} onClose={() => setSelectedBadge(null)} />
 
             {/* Exam History Section */}
             <div className="glass-card rounded-3xl border border-white/10 p-4 sm:p-6">
