@@ -1,5 +1,5 @@
 import {
-  BarChart3, Brain, CheckCircle2, Map, PlayCircle, ShieldCheck, Sparkles, Target, Trophy, Users, Zap,
+  BarChart3, Brain, CarFront, CheckCircle2, Map, PlayCircle, ShieldCheck, Sparkles, Target, Trophy, Users, Zap,
 } from 'lucide-react';
 
 export const FALLBACK_FAQS = [

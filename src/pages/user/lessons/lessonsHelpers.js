@@ -1,3 +1,5 @@
+import { Activity, AlertCircle, BookOpen, Settings2, ShieldCheck } from 'lucide-react';
+
 export const stripMarkdownForSpeech = (input = '') =>
   String(input)
     .replace(/```[\s\S]*?```/g, ' ')

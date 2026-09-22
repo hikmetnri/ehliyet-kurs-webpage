@@ -19,6 +19,7 @@ import {
   formatExamDate,
   renderMobileModal,
   buildDefaultBadges,
+  getSortedBadges,
 } from './userSettingsBits';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
@@ -423,6 +424,8 @@ const UserSettings = () => {
   const reminderLabel = `${String(notifData.notifHour).padStart(2, '0')}:${String(notifData.notifMinute).padStart(2, '0')}`;
   const examDateLabel = formatExamDate(notifData.examDate);
   const earnedBadges = DEFAULT_BADGES.filter((badge) => badge.isEarned).length;
+  const activeBadgeList = badges.length > 0 ? badges : DEFAULT_BADGES;
+  const sortedBadges = getSortedBadges(activeBadgeList);
   const profileCompletionItems = [
     Boolean(profileData.firstName && profileData.lastName),
     Boolean(profileData.phone),
@@ -503,6 +506,7 @@ const UserSettings = () => {
         setLeaderboardPeriod={setLeaderboardPeriod}
         setNotifData={setNotifData}
         showMessage={showMessage}
+        sortedBadges={sortedBadges}
         stats={stats}
         todayIndex={todayIndex}
         user={user}

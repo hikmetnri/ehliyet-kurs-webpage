@@ -55,6 +55,7 @@ export const DesktopSettingsView = ({
   setLeaderboardPeriod,
   setNotifData,
   showMessage,
+  sortedBadges,
   stats,
   todayIndex,
   user,
