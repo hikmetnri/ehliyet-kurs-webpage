@@ -955,7 +955,7 @@ export const DesktopSettingsView = ({
                           const isEarned = badge.isEarned;
                           return (
                             <div
-                              key={badge.id}
+                              key={badge._id || badge.id}
                               className="relative p-5 rounded-2xl border flex flex-col items-center text-center transition-all duration-300 hover:scale-[1.01]"
                               style={{
                                 backgroundColor: isEarned ? `${badgeColor}10` : 'rgba(255,255,255,0.01)',

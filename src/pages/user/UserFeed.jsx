@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare, HelpCircle, Lightbulb, MessageCircle, Sparkles
@@ -10,24 +10,18 @@ import ReportPostModal from '../../components/user/ReportPostModal';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
 import { DesktopFeed, MobileFeed, CreatePostModal } from './feed/FeedViews';
+import { useFeedPosts } from './feed/useFeedPosts';
 
 export default function UserFeed() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const userId = normalizeUserId(user);
 
-  const PAGE_SIZE = 15;
-
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-  const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [commentTexts, setCommentTexts] = useState({});
   const [activeFilter, setActiveFilter] = useState('all');
+  const { posts, setPosts, loading, loadingMore, hasMore, total, fetchPosts, handleLoadMore } = useFeedPosts(activeFilter);
   const [searchQuery, setSearchQuery] = useState('');
   const [showReport, setShowReport] = useState(false);
   const [reportPost, setReportPost] = useState(null);
@@ -38,45 +32,7 @@ export default function UserFeed() {
 
   const commentsEndRef = useRef(null);
 
-  // Filter/search değişince sayfa sıfırla
-  useEffect(() => {
-    setPage(1);
-    setPosts([]);
-    fetchPosts(1, true);
-  }, [activeFilter, searchQuery]);
-
-  // İlk yüklemede de çalış
-  useEffect(() => {
-    fetchPosts(1, true);
-  }, []);
-
-  const fetchPosts = async (pageNum = 1, reset = false) => {
-    try {
-      if (pageNum === 1) setLoading(true);
-      else setLoadingMore(true);
-
-      const params = { page: pageNum, limit: PAGE_SIZE };
-      const res = await api.get('/posts', { params });
-      const incoming = res.data.posts || [];
-      const serverTotal = res.data.total ?? incoming.length;
-
-      setPosts(prev => reset || pageNum === 1 ? incoming : [...prev, ...incoming]);
-      setTotal(serverTotal);
-      setHasMore(pageNum * PAGE_SIZE < serverTotal);
-      setPage(pageNum);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
-
-  const handleLoadMore = () => {
-    if (!loadingMore && hasMore) fetchPosts(page + 1);
-  };
-
-  // Filtre client-side sadece arama için (type filtresi server'a gönderilecek, arama local)
+  // Tür sunucuda, arama yüklenmiş gönderiler üzerinde filtrelenir.
   const filtered = posts.filter(p => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -121,8 +77,6 @@ export default function UserFeed() {
         setSubmitSuccess(false);
         setNewPost({ title: '', content: '', type: 'discussion', tags: '' });
         // Yeni post sonrası ilk sayfadan yenile
-        setPage(1);
-        setPosts([]);
         fetchPosts(1, true);
       }, 1800);
     } catch (e) {

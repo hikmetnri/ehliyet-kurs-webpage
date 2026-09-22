@@ -425,8 +425,8 @@ const UserSettings = () => {
   const displayName = [profileData.firstName, profileData.lastName].filter(Boolean).join(' ') || user?.name || 'Sürücü Adayı';
   const reminderLabel = `${String(notifData.notifHour).padStart(2, '0')}:${String(notifData.notifMinute).padStart(2, '0')}`;
   const examDateLabel = formatExamDate(notifData.examDate);
-  const earnedBadges = DEFAULT_BADGES.filter((badge) => badge.isEarned).length;
   const activeBadgeList = badges.length > 0 ? badges : DEFAULT_BADGES;
+  const earnedBadges = activeBadgeList.filter((badge) => badge.isEarned).length;
   const sortedBadges = getSortedBadges(activeBadgeList);
   const profileCompletionItems = [
     Boolean(profileData.firstName && profileData.lastName),
@@ -841,7 +841,7 @@ const UserSettings = () => {
                       const badgeColor = badge.color || '#a855f7';
                       return (
                         <div
-                          key={badge.id}
+                          key={badge._id || badge.id}
                           className="p-3.5 rounded-2xl border flex flex-col items-center text-center transition-all"
                           style={{
                             backgroundColor: badge.isEarned ? `${badgeColor}15` : 'rgba(255,255,255,0.02)',
