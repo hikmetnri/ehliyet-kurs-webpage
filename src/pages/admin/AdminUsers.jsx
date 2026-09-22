@@ -5,6 +5,7 @@ import {
   Loader2, Search, User, Shield, Crown,
   Trash2, Mail, Phone, Calendar, RefreshCw,
   XCircle, UserX, UserCheck, Bell,
+  Activity, ArrowUpDown, Star,
 } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 

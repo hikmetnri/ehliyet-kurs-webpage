@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Activity, X, User, Mail, Target, PieChart, Flame,
   BarChart2, CheckCircle2, FileText, XCircle, ArrowUpDown, Award,
+  Loader2, AlertTriangle,
 } from 'lucide-react';
 import { TEST_TYPES } from '../../../constants/testTypes';
 import { ReportCard, BadgeIcon } from './userBits';

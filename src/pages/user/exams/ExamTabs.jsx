@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  BookOpen, ChevronDown, Lock, Play, Target, AlertCircle,
+  BookOpen, ChevronDown, Lock, Play, Target, AlertCircle, FileQuestion,
 } from 'lucide-react';
 import { trackEvent } from '../../../utils/analytics';
 import UserWrongAnswers from '../UserWrongAnswers';
