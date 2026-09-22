@@ -10,7 +10,6 @@ import {
 } from './homeHelpers';
 
 export const DesktopView = ({
-  action,
   actionCards,
   dailyGoal,
   dailyProgress,
@@ -18,7 +17,6 @@ export const DesktopView = ({
   examCountdown,
   level,
   levelProgress,
-  list,
   logout,
   navigate,
   quote,
@@ -33,7 +31,6 @@ export const DesktopView = ({
   stats,
   studyPlan,
   subCategories,
-  to,
   todayQuestions,
   totalScore,
   user,
@@ -438,7 +435,6 @@ export const DesktopView = ({
 );
 
 export const MobileHomeView = ({
-  action,
   circumference,
   dailyGoal,
   dailyPlan,
@@ -468,9 +464,7 @@ export const MobileHomeView = ({
   strokeDashoffset,
   strokeWidth,
   subCategories,
-  target,
   themeMode,
-  to,
   todayQuestions,
   toggleThemeMode,
   unreadCount,
