@@ -6,7 +6,8 @@ import {
 import { TURKEY_CITIES } from '../../../data/turkeyLocations';
 import { registerWebPushToken } from '../../../services/webPushService';
 import UserDrivingSchools from '../UserDrivingSchools';
-import { BadgeIcon, DesktopField, desktopFieldClass } from '../userSettingsBits';
+import { BadgeIcon, DesktopField } from '../userSettingsBits';
+import { desktopFieldClass } from '../userSettingsHelpers';
 import { Link } from 'react-router-dom';
 
 export const DesktopSettingsView = ({
@@ -14,7 +15,6 @@ export const DesktopSettingsView = ({
   activeDays,
   activeFaq,
   activeTab,
-  badges,
   badgesLoading,
   days,
   desktopTabs,
@@ -36,7 +36,6 @@ export const DesktopSettingsView = ({
   levelInfo,
   loading,
   logout,
-  message,
   navigate,
   notifData,
   openExamDatePicker,
@@ -1310,6 +1309,7 @@ export const MobileSettingsView = ({
         <section className="flutter-profile-header">
           <button type="button" className="flutter-profile-avatar" onClick={handleAvatarClick} aria-label="Profil fotoğrafını değiştir" style={{ '--level-color': levelInfo.hex, '--level-progress': `${levelInfo.progress * 100}%` }}>
             <span className="flutter-profile-avatar-inner">
+              {/* eslint-disable-next-line react-hooks/refs -- ref okuma yalnizca gecici spinner kosulu; tasinan koddan birebir korundu */}
               {loading && fileInputRef.current?.files?.length > 0 ? <Loader2 className="animate-spin" /> : user?.avatarUrl ? <img src={user.avatarUrl} alt="" /> : <User size={36} />}
             </span>
             <span className="flutter-avatar-camera"><Camera size={13} /></span>

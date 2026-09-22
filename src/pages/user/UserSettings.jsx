@@ -16,11 +16,13 @@ import { soundService } from '../../services/soundService';
 import { registerWebPushToken } from '../../services/webPushService';
 import {
   BadgeIcon,
-  formatExamDate,
   renderMobileModal,
-  buildDefaultBadges,
-  getSortedBadges,
 } from './userSettingsBits';
+import {
+  buildDefaultBadges,
+  formatExamDate,
+  getSortedBadges,
+} from './userSettingsHelpers';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
 import { getStoredExamDateInput } from './settings/settingsHelpers';
@@ -465,7 +467,6 @@ const UserSettings = () => {
         activeDays={activeDays}
         activeFaq={activeFaq}
         activeTab={activeTab}
-        badges={badges}
         badgesLoading={badgesLoading}
         days={days}
         desktopTabs={desktopTabs}
@@ -487,7 +488,6 @@ const UserSettings = () => {
         levelInfo={levelInfo}
         loading={loading}
         logout={logout}
-        message={message}
         navigate={navigate}
         notifData={notifData}
         openExamDatePicker={openExamDatePicker}

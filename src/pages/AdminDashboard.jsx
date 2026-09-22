@@ -33,12 +33,8 @@ import {
 import api from '../api';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
+import { COLORS, numberValue, getPayload, formatNumber, formatDate } from './adminDashboardHelpers';
 import {
-  COLORS,
-  numberValue,
-  getPayload,
-  formatNumber,
-  formatDate,
   SectionHeader,
   MetricCard,
   QueueRow,

@@ -28,7 +28,6 @@ export const DesktopView = ({
   reviewDue,
   selectedPackage,
   setShowCategoryModal,
-  stats,
   studyPlan,
   subCategories,
   todayQuestions,

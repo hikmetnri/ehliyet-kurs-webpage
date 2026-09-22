@@ -450,7 +450,6 @@ const UserHome = () => {
         reviewDue={reviewDue}
         selectedPackage={selectedPackage}
         setShowCategoryModal={setShowCategoryModal}
-        stats={stats}
         studyPlan={studyPlan}
         subCategories={subCategories}
         todayQuestions={todayQuestions}

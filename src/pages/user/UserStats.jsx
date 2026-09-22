@@ -11,7 +11,8 @@ import { clearAiPageContext, compactStatsContext, setAiPageContext } from '../..
 import useAuthStore from '../../store/authStore';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
-import { BadgeIcon, EmptyAction, formatDuration, MiniStat, SectionHeader } from './stats/userStatsBits';
+import { BadgeIcon, EmptyAction, MiniStat, SectionHeader } from './stats/userStatsBits';
+import { formatDuration } from './stats/userStatsHelpers';
 import BadgeDetailModal from './stats/BadgeDetailModal';
 
 const MotionDiv = motion.div;const UserStats = () => {

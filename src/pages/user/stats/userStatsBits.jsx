@@ -28,18 +28,6 @@ export const EmptyAction = ({ icon: Icon, title, text, action, to }) => (
   </div>
 );
 
-export const formatDuration = (seconds) => {
-  if (!seconds || seconds <= 0) return '0dk';
-  if (seconds < 60) return `${seconds}sn`;
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  if (hours > 0) {
-    const remMin = minutes % 60;
-    return remMin > 0 ? `${hours}sa ${remMin}dk` : `${hours}sa`;
-  }
-  return `${minutes}dk`;
-};
-
 export const MiniStat = ({ icon: Icon, label, value, color, bg }) => (
   <div className="flex flex-col items-center text-center p-3 rounded-2xl bg-white/[0.025] border border-white/10 hover:border-white/15 transition-all">
     <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg} ${color} shrink-0 mb-2`}>

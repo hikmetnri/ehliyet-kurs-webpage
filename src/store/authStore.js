@@ -4,7 +4,7 @@ import { create } from 'zustand'
 import { signOut } from 'firebase/auth'
 import { auth } from '../config/firebase'
 import { registerWebPushToken } from '../services/webPushService'
-import api, { revokeSession } from '../api'
+import { revokeSession } from '../api'
 import { setAccessToken, clearAccessToken, getSessionGeneration } from '../api/session'
 
 const clearCategorySession = () => {
