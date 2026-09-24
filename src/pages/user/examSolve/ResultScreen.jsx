@@ -7,13 +7,23 @@ import { getPassingScore, getExamScore } from '../../../utils/examTiming';
 const MotionDiv = motion.div;
 
 // ─── Result Screen ────────────────────────────────────────────────────────────
-export const ResultScreen = ({ questions, answers, exam, reviewSync, resultSync, onRetry, onHome }) => {
+export const ResultScreen = ({ questions, answers, exam, reviewSync, resultSync, verifiedResult, onRetry, onHome }) => {
+  if (questions.some(q => !Number.isInteger(q.correctAnswer)) && !verifiedResult) {
+    return (
+      <div className="mx-auto max-w-xl rounded-3xl border border-warning/30 bg-warning/10 p-8 text-center text-white">
+        <h2 className="text-xl font-bold">Sonuç doğrulanmayı bekliyor</h2>
+        <p className="mt-3 text-sm">Sınav cevabı sunucuda değerlendiriliyor. Bağlantı geri geldiğinde sınav geçmişinden sonucunu görebilirsin.</p>
+        <button onClick={() => onHome('/dashboard/exams')} className="mt-6 rounded-xl bg-primary px-5 py-3 font-bold">Sınavlara dön</button>
+      </div>
+    );
+  }
   let correct = 0, wrong = 0, empty = 0;
   questions.forEach((q, i) => {
     if (answers[i] === undefined || answers[i] === null) empty++;
     else if (answers[i] === q.correctAnswer) correct++;
     else wrong++;
   });
+  if (verifiedResult) ({ correct, wrong, empty } = verifiedResult);
   const total = questions.length;
   const score = getExamScore(correct, total);
   const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;

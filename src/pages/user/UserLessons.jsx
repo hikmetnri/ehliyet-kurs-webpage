@@ -217,12 +217,9 @@ const UserLessons = () => {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await api.get('/exam-results');
-        const results = res.data?.data || res.data?.results || res.data;
-        if (Array.isArray(results)) {
-          const passed = results
-            .filter(r => r.passed && r.categoryId)
-            .map(r => r.categoryId);
+        const res = await api.get('/exam-results/overview');
+        const passed = res.data?.passedCategoryIds;
+        if (Array.isArray(passed)) {
           setPassedTestIds([...new Set(passed)]);
           
           // Otomatik tamamlama: testi geçilen dersler otomatik tamamlandı işaretlenir

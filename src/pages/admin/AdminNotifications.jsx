@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../../api';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -55,9 +55,11 @@ const AdminNotifications = () => {
   const [notifImageUrl, setImageUrl]        = useState('');
   const [notifTarget, setTarget]            = useState('all');
   const [broadcastHistory, setHistory]      = useState([]);
+  const [audience, setAudience]              = useState({ all: 0, pro: 0, free: 0, waiting_first_test: 0 });
   const [allUsers, setAllUsers]             = useState([]);
   const [selectedUserIds, setSelectedUsers] = useState([]);
   const [userSearchText, setUserSearch]     = useState('');
+  const pendingSend = useRef(null);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -69,6 +71,7 @@ const AdminNotifications = () => {
       setLoading(true);
       const res = await api.get('/notifications/broadcast-history');
       setHistory(res.data.data || []);
+      setAudience(res.data.audience || { all: 0, pro: 0, free: 0, waiting_first_test: 0 });
     } catch {
       showToast('Geçmiş yüklenirken hata oluştu.', 'error');
     } finally {
@@ -78,8 +81,14 @@ const AdminNotifications = () => {
 
   const fetchUsersForSelection = useCallback(async () => {
     try {
-      const res = await api.get('/users?limit=1000');
-      if (res.data.success) setAllUsers(res.data.users);
+      const users = [];
+      for (let page = 1; page <= 10000; page += 1) {
+        const res = await api.get('/users', { params: { limit: 100, page } });
+        if (!res.data.success) break;
+        users.push(...res.data.users);
+        if (page >= res.data.pages) break;
+      }
+      setAllUsers(users);
     } catch (err) {
       console.error('Kullanıcılar alınamadı', err);
     }
@@ -91,10 +100,7 @@ const AdminNotifications = () => {
   }, [fetchBroadcastHistory, fetchUsersForSelection]);
 
   const audienceCount = () => {
-    if (notifTarget === 'all') return allUsers.length;
-    if (notifTarget === 'pro') return allUsers.filter(u => u.proStatus).length;
-    if (notifTarget === 'free') return allUsers.filter(u => !u.proStatus).length;
-    if (notifTarget === 'waiting_first_test') return allUsers.filter(u => u.hasSolvedExam === false).length;
+    if (notifTarget in audience) return audience[notifTarget];
     if (notifTarget === 'targeted') return selectedUserIds.length;
     return 0;
   };
@@ -112,17 +118,20 @@ const AdminNotifications = () => {
 
     try {
       setLoading(true);
-      if (notifTarget === 'targeted') {
-        await api.post('/notifications/targeted', {
-          title: notifTitle, body: notifBody,
-          userIds: selectedUserIds, imageUrl: notifImageUrl
-        });
-      } else {
-        await api.post('/notifications/broadcast', {
-          title: notifTitle, body: notifBody,
-          target: notifTarget, imageUrl: notifImageUrl
-        });
+      const payload = notifTarget === 'targeted'
+        ? { title: notifTitle, body: notifBody, userIds: selectedUserIds, imageUrl: notifImageUrl }
+        : { title: notifTitle, body: notifBody, target: notifTarget, imageUrl: notifImageUrl };
+      const signature = JSON.stringify(payload);
+      if (pendingSend.current?.signature !== signature) {
+        pendingSend.current = { signature, key: crypto.randomUUID() };
       }
+      const config = { headers: { 'Idempotency-Key': pendingSend.current.key } };
+      if (notifTarget === 'targeted') {
+        await api.post('/notifications/targeted', payload, config);
+      } else {
+        await api.post('/notifications/broadcast', payload, config);
+      }
+      pendingSend.current = null;
       showToast('Bildirim başarıyla gönderildi!');
       setTitle(''); setBody(''); setImageUrl(''); setSelectedUsers([]);
       fetchBroadcastHistory();

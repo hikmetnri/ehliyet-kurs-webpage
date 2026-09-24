@@ -20,6 +20,18 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'admin', 'user'
   const [sortMode, setSortMode] = useState('newest');
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
+  const [matchingTotal, setMatchingTotal] = useState(0);
+  const [summary, setSummary] = useState({ totalUsers: 0, adminCount: 0, proCount: 0, suspendedCount: 0 });
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => { setPage(1); }, [debouncedSearch, roleFilter, sortMode]);
 
   // Analytics Modal States
   const [statsModalOpen, setStatsModalOpen] = useState(false);
@@ -35,23 +47,29 @@ const AdminUsers = () => {
 
   const currentUser = useAuthStore((state) => state.user);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (signal) => {
     try {
       setLoading(true);
-      // Backend'deki varsayılan 20 limit sınırını aşıp eski kullanıcıları (Admin/PRO) görebilmek için limit=1000 eklendi.
-      const res = await api.get(`/users?limit=1000&sort=${sortMode}`);
+      const res = await api.get('/users', { signal, params: { limit: 50, page, sort: sortMode, filter: roleFilter, search: debouncedSearch } });
+      if (signal?.aborted) return;
       if (res.data.success) {
         setUsers(res.data.users);
+        setPages(res.data.pages || 1);
+        if (page > (res.data.pages || 1)) setPage(res.data.pages || 1);
+        setMatchingTotal(res.data.total || 0);
+        setSummary(res.data.summary || { totalUsers: 0, adminCount: 0, proCount: 0, suspendedCount: 0 });
       }
     } catch (err) {
-      console.error('Kullanıcılar alınamadı:', err);
+      if (!signal?.aborted) console.error('Kullanıcılar alınamadı:', err);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
-  }, [sortMode]);
+  }, [sortMode, roleFilter, debouncedSearch, page]);
 
   useEffect(() => {
-    fetchUsers();
+    const controller = new AbortController();
+    fetchUsers(controller.signal);
+    return () => controller.abort();
   }, [fetchUsers]);
 
   const handleRoleToggle = async (userId, currentRole) => {
@@ -62,7 +80,7 @@ const AdminUsers = () => {
     try {
       const newRole = currentRole === 'admin' ? 'user' : 'admin';
       await api.put(`/users/${userId}/role`, { role: newRole });
-      setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+      await fetchUsers();
     } catch {
       alert("Rol güncellenirken hata oluştu.");
     }
@@ -70,8 +88,8 @@ const AdminUsers = () => {
 
   const handleProToggle = async (userId) => {
     try {
-      const res = await api.put(`/users/${userId}/pro`);
-      setUsers(users.map(u => u._id === userId ? { ...u, proStatus: res.data.proStatus } : u));
+      await api.put(`/users/${userId}/pro`);
+      await fetchUsers();
     } catch {
       alert("Pro statüsü güncellenirken hata oluştu.");
     }
@@ -87,8 +105,8 @@ const AdminUsers = () => {
     if (!confirm) return;
 
     try {
-      const res = await api.put(`/users/${userId}/status`);
-      setUsers(users.map(u => u._id === userId ? { ...u, isActive: res.data.isActive } : u));
+      await api.put(`/users/${userId}/status`);
+      await fetchUsers();
     } catch {
       alert("Kullanıcı durumu güncellenirken hata oluştu.");
     }
@@ -104,7 +122,7 @@ const AdminUsers = () => {
 
     try {
       await api.delete(`/users/${userId}`);
-      setUsers(users.filter(u => u._id !== userId));
+      await fetchUsers();
     } catch {
       alert("Kullanıcı silinirken hata oluştu.");
     }
@@ -185,67 +203,7 @@ const AdminUsers = () => {
     }
   };
 
-  const filteredUsers = users.filter(u => {
-    const searchString = searchTerm.toLowerCase();
-    const fullName = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
-    const matchesSearch = fullName.includes(searchString) || u.email.toLowerCase().includes(searchString);
-    let matchesRole = true;
-    if (roleFilter === 'admin') matchesRole = u.role === 'admin';
-    else if (roleFilter === 'pro') matchesRole = u.proStatus === true;
-    else if (roleFilter === 'active') matchesRole = u.isActive !== false;
-    else if (roleFilter === 'online') matchesRole = u.isOnline === true;
-    else if (roleFilter === 'waiting_first_test') matchesRole = u.hasSolvedExam === false;
-    return matchesSearch && matchesRole;
-  });
-
-  const sortedUsers = [...filteredUsers].sort((a, b) => {
-    const fullName = (user) => `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || '';
-    const dateValue = (value) => value ? new Date(value).getTime() || 0 : 0;
-    const boolValue = (value) => value ? 1 : 0;
-    const onlineValue = (user) => {
-      const lastActive = dateValue(user.lastActiveAt);
-      return lastActive && Date.now() - lastActive < 2 * 60 * 1000 ? 1 : 0;
-    };
-    const numberValue = (value) => Number(value || 0);
-
-    if (sortMode === 'lastActive' || sortMode === 'onlineFirst') {
-      if (sortMode === 'onlineFirst') {
-        const onlineDiff = onlineValue(b) - onlineValue(a);
-        if (onlineDiff !== 0) return onlineDiff;
-      }
-      return dateValue(b.lastActiveAt) - dateValue(a.lastActiveAt);
-    }
-
-    if (sortMode === 'alphabetical') {
-      return fullName(a).localeCompare(fullName(b), 'tr', { sensitivity: 'base' });
-    }
-
-    if (sortMode === 'oldest') {
-      return dateValue(a.createdAt) - dateValue(b.createdAt);
-    }
-
-    if (sortMode === 'highestScore') {
-      return numberValue(b.totalScore) - numberValue(a.totalScore);
-    }
-
-    if (sortMode === 'highestLevel') {
-      return numberValue(b.level) - numberValue(a.level);
-    }
-
-    if (sortMode === 'proFirst') {
-      return boolValue(b.proStatus) - boolValue(a.proStatus) || dateValue(b.createdAt) - dateValue(a.createdAt);
-    }
-
-    if (sortMode === 'adminFirst') {
-      return boolValue(b.role === 'admin') - boolValue(a.role === 'admin') || dateValue(b.createdAt) - dateValue(a.createdAt);
-    }
-
-    if (sortMode === 'suspendedFirst') {
-      return boolValue(b.isActive === false) - boolValue(a.isActive === false) || dateValue(b.createdAt) - dateValue(a.createdAt);
-    }
-
-    return dateValue(b.createdAt) - dateValue(a.createdAt);
-  });
+  const sortedUsers = users;
 
   const sortOptions = [
     { value: 'newest', label: 'En Yeni Kayıt' },
@@ -261,10 +219,10 @@ const AdminUsers = () => {
   ];
   const selectedVisibleCount = sortedUsers.filter(u => selectedUserIds.includes(u._id)).length;
 
-  const totalUsers = users.length;
-  const adminCount = users.filter(u => u.role === 'admin').length;
-  const proCount = users.filter(u => u.proStatus).length;
-  const inactiveCount = users.filter(u => u.isActive === false).length;
+  const totalUsers = summary.totalUsers;
+  const adminCount = summary.adminCount;
+  const proCount = summary.proCount;
+  const inactiveCount = summary.suspendedCount;
   const filterOptions = [
     { value: 'all', label: 'Tümü' },
     { value: 'admin', label: 'Yönetici' },
@@ -664,11 +622,19 @@ const AdminUsers = () => {
 
         {!loading && sortedUsers.length > 0 && (
           <div className="flex items-center justify-between border-t border-white/10 bg-white/[0.01] px-5 py-4 text-xs font-bold text-text-muted">
-            <span>{sortedUsers.length} kullanıcı gösteriliyor • {sortOptions.find(option => option.value === sortMode)?.label}</span>
-            <span className="rounded-lg border border-white/10 bg-white/[0.02] px-2 py-1">{selectedUserIds.length} seçili</span>
+            <span>{matchingTotal} eşleşmeden {sortedUsers.length} kullanıcı • {sortOptions.find(option => option.value === sortMode)?.label}</span>
+            <span>{selectedUserIds.length} seçili</span>
           </div>
         )}
       </motion.div>
+
+      {pages > 1 && (
+        <nav className="flex items-center justify-center gap-3 text-sm text-white" aria-label="Kullanıcı sayfaları">
+          <button type="button" disabled={loading || page <= 1} onClick={() => setPage(value => value - 1)} className="rounded-xl border border-white/10 px-4 py-2 disabled:opacity-40">Önceki</button>
+          <span>{page} / {pages}</span>
+          <button type="button" disabled={loading || page >= pages} onClick={() => setPage(value => value + 1)} className="rounded-xl border border-white/10 px-4 py-2 disabled:opacity-40">Sonraki</button>
+        </nav>
+      )}
 
       <UserAnalysisModal
         statsModalOpen={statsModalOpen}

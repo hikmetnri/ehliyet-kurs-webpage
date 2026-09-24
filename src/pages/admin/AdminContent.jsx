@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../api';
+import { fetchAllQuestions } from '../../utils/questionPages';
 import { TEST_TYPES } from '../../constants/testTypes';
 import { AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -106,8 +107,7 @@ const AdminContent = () => {
     if (!catId) return;
     setLoadingQuestions(true);
     try {
-      const res = await api.get('/questions', { params: { testType: TEST_TYPES.SHORT_TEST, category: catId } });
-      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      const data = await fetchAllQuestions({ testType: TEST_TYPES.SHORT_TEST, category: catId });
       setShortTestQuestions(data.filter(q => (q.category?._id || q.category) === catId));
     } catch (err) {
       console.error('Sorular alınamadı:', err);

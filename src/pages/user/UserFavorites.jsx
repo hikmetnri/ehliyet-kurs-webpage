@@ -343,6 +343,9 @@ const UserFavorites = () => {
                       );
                     })}
                   </div>
+                  {!Number.isInteger(selectedQuestion.correctAnswer) && (
+                    <p className="mx-auto mt-4 max-w-3xl text-sm text-text-muted">Sınav sorusunun doğru cevabı test tamamlandıktan sonra sonuçlarda gösterilir.</p>
+                  )}
 
                   {selectedQuestion.explanation && (
                     <div className="mx-auto max-w-3xl rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-transparent p-6 shadow-[0_4px_20px_rgba(99,102,241,0.05)]">

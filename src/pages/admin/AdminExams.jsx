@@ -7,6 +7,7 @@ import {
   HelpCircle, Send, Image as ImageIcon, AlertCircle,
 } from 'lucide-react';
 import { isVideoCategory } from '../../utils/categoryContent';
+import { fetchAllQuestions } from '../../utils/questionPages';
 
 // ─── Extracted Modules (SRP) ──────────────────────────────────────────────────
 import {
@@ -35,12 +36,12 @@ const AdminExams = () => {
     try {
       setLoading(true);
       setError('');
-      const [qRes, cRes, eRes] = await Promise.all([
-        api.get('/questions'),
+      const [questionList, cRes, eRes] = await Promise.all([
+        fetchAllQuestions(),
         api.get('/categories/all'),
         api.get('/exams?admin=true'), // Admin: taslaklar dahil tüm sınavlar
       ]);
-      setQuestions(Array.isArray(qRes.data) ? qRes.data : (qRes.data.data || []));
+      setQuestions(questionList);
       setCategories(cRes.data.data || []);
       setExams(Array.isArray(eRes.data) ? eRes.data : (eRes.data.data || eRes.data || []));
     } catch (err) {

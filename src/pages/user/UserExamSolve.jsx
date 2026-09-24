@@ -23,6 +23,7 @@ import {
 } from '../../utils/wrongAnswers';
 import { clearAiPageContext, compactQuestionContext, setAiPageContext } from '../../utils/aiPageContext';
 import { queueOperation, flushOperations } from '../../services/resultOutbox';
+import { fetchAllQuestions } from '../../utils/questionPages';
 
 // ─── Extracted Modules (SRP) ──────────────────────────────────────────────────
 import { OPTION_LABELS, REVIEW_SESSION_LIMIT, shuffleArray, cleanOptionText } from './examSolve/examSolveUtils';
@@ -70,6 +71,7 @@ const UserExamSolve = ({ customType }) => {
   const [reviewSync, setReviewSync] = useState({ status: 'idle', wrongCount: 0 });
   const [reloadKey, setReloadKey] = useState(0);
   const [resultSync, setResultSync] = useState('idle');
+  const [verifiedResult, setVerifiedResult] = useState(null);
   const submittedRef = useRef(false);
 
   useEffect(() => {
@@ -118,24 +120,25 @@ const UserExamSolve = ({ customType }) => {
         setLoading(true);
         if (customType === TEST_TYPES.SHORT_TEST) {
           // Synthetic exam based on category questions
-          const [qRes, catRes] = await Promise.all([
-            api.get(`/questions?category=${categoryId}&testType=${TEST_TYPES.SHORT_TEST}`),
+          const [qs, catRes] = await Promise.all([
+            fetchAllQuestions({ category: categoryId, testType: TEST_TYPES.SHORT_TEST }),
             api.get(`/categories/${categoryId}`)
           ]);
-          const qs = readApiList(qRes);
-          setQuestions(qs);
+          const sessionQuestions = qs.length > 500 ? shuffleArray(qs).slice(0, 500) : qs;
+          setQuestions(sessionQuestions);
           setExam({
             _id: `short_test_${categoryId}`,
             name: `${catRes.data?.data?.name || 'Konu'} Kısa Testi`,
             categoryName: catRes.data?.data?.name || 'Konu Testi',
             description: 'Bu kategorideki konulardan oluşan özel test.',
-            duration: Math.max(10, Math.ceil(qs.length * 1.5)), // ~1.5 min per question
+            duration: Math.max(10, Math.ceil(sessionQuestions.length * 1.5)), // ~1.5 min per question
             categoryId: categoryId
           });
         } else if (customType === TEST_TYPES.REAL_TEST) {
           // Real MEB Simulator
-          const qRes = await api.get('/questions');
-          let allQ = qRes.data || [];
+          let allQ = (await fetchAllQuestions()).filter(q => (
+            [TEST_TYPES.REAL_EXAM, TEST_TYPES.MOCK_EXAM, TEST_TYPES.EXAM].includes(q.testType)
+          ));
           // Random 50 questions
           allQ = shuffleArray(allQ).slice(0, 50);
           
@@ -144,7 +147,7 @@ const UserExamSolve = ({ customType }) => {
             _id: `real_test_${categoryId}`,
             name: `E-Sınav Simülatörü`,
             categoryName: 'Karma Simülasyon',
-            description: 'MEB formatında 50 soruluk gerçek elektronik sınav simülasyonu. Anında geri bildirim yoktur, süreyi verimli kullanın.',
+            description: `MEB formatında ${allQ.length} soruluk elektronik sınav simülasyonu. Anında geri bildirim yoktur, süreyi verimli kullanın.`,
             duration: 45,
             categoryId: categoryId
           });
@@ -196,29 +199,30 @@ const UserExamSolve = ({ customType }) => {
           const qs = scoped.filter((question) => (
             question._id && question.text && Array.isArray(question.options) && question.options.length > 0
           ));
+          const sessionQuestions = qs.length > 500 ? shuffleArray(qs).slice(0, 500) : qs;
 
-          setQuestions(qs);
+          setQuestions(sessionQuestions);
           setExam({
             _id: 'wrong_answers_all',
             name: 'Yanlışlar Testi',
             categoryName: 'Yanlışlarım',
             description: 'Yanlış yaptığın sorulardan oluşan kişisel tekrar testi.',
-            duration: Math.max(10, Math.ceil(qs.length * 1.5)),
+            duration: Math.max(10, Math.ceil(sessionQuestions.length * 1.5)),
             categoryId: user?.selectedCategoryId || null,
             testType: TEST_TYPES.WRONG_ANSWERS,
           });
         } else {
           // Normal exam
-          const [examRes, qRes] = await Promise.all([
+          const [examRes, examQuestions] = await Promise.all([
             api.get(`/exams/${examId}`),
-            api.get(`/questions?exam=${examId}`),
+            fetchAllQuestions({ exam: examId }),
           ]);
           const examData = examRes.data?.exam || examRes.data;
           setExam({
             ...examData,
             categoryName: examData.categoryId?.name || examData.categoryName || 'Genel Sınav'
           });
-          setQuestions(qRes.data || []);
+          setQuestions(examQuestions);
         }
       } catch (err) {
         console.error(err);
@@ -314,6 +318,7 @@ const UserExamSolve = ({ customType }) => {
     });
     submittedRef.current = false;
     setResultSync('idle');
+    setVerifiedResult(null);
     setPhase('solving');
   };
 
@@ -356,9 +361,19 @@ const UserExamSolve = ({ customType }) => {
       });
 
       const total = questions.length;
-      const empty = total - correct - wrong;
+      const empty = total - Object.keys(answers).length;
+      const hiddenAnswers = questions.some(q => !Number.isInteger(q.correctAnswer));
+      if (hiddenAnswers && user?.isGuest) {
+        const response = await api.post(`/exam-results/attempts/${attemptRef.current}/guest-finish`, {
+          duration: timeSpentSecs,
+          answers: questions.map((q, i) => ({ questionId: q._id, answer: answers[i] ?? -1 })),
+        });
+        correct = response.data.correctCount;
+        wrong = response.data.wrongCount - empty;
+        setVerifiedResult({ correct, wrong, empty });
+      }
       const score = getExamScore(correct, total);
-      const passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
+      let passed = total > 0 && correct * 100 >= getPassingScore(exam) * total;
 
       const isWrongPoolMode = customType === TEST_TYPES.WRONG_ANSWERS;
 
@@ -400,8 +415,22 @@ const UserExamSolve = ({ customType }) => {
           const owner = String(user?._id || user?.id || '');
           queueOperation(owner, '/exam-results', resultPayload);
           const synced = await flushOperations(owner);
-          setResultSync(synced ? 'success' : 'error');
-          setReviewSync({ status: synced ? 'success' : 'error', wrongCount: wrongQuestions.length });
+          let verifiedWrongCount = wrongQuestions.length;
+          if (hiddenAnswers) {
+            const review = await api.get(`/exam-results/attempts/${attemptRef.current}/review`);
+            const key = new Map((review.data?.answers || []).map(item => [item.questionId, item.correctAnswer]));
+            if (key.size !== questions.length || questions.some(q => !key.has(q._id))) throw new Error('Cevap anahtarı eksik.');
+            setQuestions(questions.map(q => ({ ...q, correctAnswer: key.get(q._id) })));
+            verifiedWrongCount = questions.reduce((count, q, index) => (
+              answers[index] !== undefined && answers[index] !== key.get(q._id) ? count + 1 : count
+            ), 0);
+            const verifiedCorrect = questions.reduce((count, q, index) => (
+              answers[index] === key.get(q._id) ? count + 1 : count
+            ), 0);
+            passed = total > 0 && verifiedCorrect * 100 >= getPassingScore(exam) * total;
+          }
+          setResultSync(synced || hiddenAnswers ? 'success' : 'error');
+          setReviewSync({ status: synced || hiddenAnswers ? 'success' : 'error', wrongCount: verifiedWrongCount });
         } catch { setResultSync('error'); }
 
       }
@@ -481,11 +510,13 @@ const UserExamSolve = ({ customType }) => {
     return <ResultScreen
       questions={questions}
       answers={answers}
+      verifiedResult={verifiedResult}
       exam={exam}
       reviewSync={reviewSync}
       resultSync={resultSync}
       onRetry={() => {
         setAnswers({});
+        setVerifiedResult(null);
         setCurrentIdx(0);
         setReviewSync({ status: 'idle', wrongCount: 0 });
         if (WRONG_REVIEW_TEST_TYPES.includes(customType)) {

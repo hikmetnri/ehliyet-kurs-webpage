@@ -67,9 +67,9 @@ export default function UserAIChat() {
         }
 
         const [statsRes, catRes, resultsRes, categoryRes] = await Promise.allSettled([
-          api.get('/exam-results/stats'),
+          api.get('/exam-results/stats', { params: { categoryId: user?.selectedCategoryId || undefined } }),
           api.get('/exam-results/category-stats'),
-          api.get('/exam-results?limit=500'),
+          api.get('/exam-results', { params: { limit: 50, categoryId: user?.selectedCategoryId || undefined } }),
           user?.selectedCategoryId
             ? api.get('/categories/all')
             : Promise.resolve({ data: [] }),
@@ -102,7 +102,7 @@ export default function UserAIChat() {
         }
 
         setPageContext(compactStatsContext({
-          stats: scoped.stats,
+          stats: selectedCategoryId ? { ...baseStats, scope: 'selected_category' } : scoped.stats,
           catStats: rawCatStats,
           recentResults: scoped.results.slice(0, 20),
           scopeLabel: selectedCategoryId ? (user?.selectedCategoryName || 'Seçili eğitim') : 'Tüm eğitimler',

@@ -66,19 +66,15 @@ const UserSettings = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [statsRes, resultsRes] = await Promise.allSettled([
-          api.get('/exam-results/stats'),
-          api.get('/exam-results?limit=200'),
-        ]);
-
-        if (statsRes.status === 'fulfilled') {
-          setStats(statsRes.value.data?.stats || statsRes.value.data || {});
-        }
-
-        if (resultsRes.status === 'fulfilled') {
-          const results = resultsRes.value.data?.data ||
-                          resultsRes.value.data?.results ||
-                          (Array.isArray(resultsRes.value.data) ? resultsRes.value.data : []);
+        const statsRes = await api.get('/exam-results/stats', {
+          params: { offsetMinutes: -new Date().getTimezoneOffset() },
+        });
+        const loadedStats = statsRes.data?.stats || statsRes.data || {};
+        setStats(loadedStats);
+        if (Array.isArray(loadedStats.weeklyActivity)) {
+          const activeDays = new Set(loadedStats.weeklyActivity
+            .filter(day => day.isActive)
+            .map(day => day.date));
 
           // Son 7 günü Pazartesi=0 ... Pazar=6 sırasına göre hesapla
           const today = new Date();
@@ -92,12 +88,8 @@ const UserSettings = () => {
             const offset = todayDow - i; // kaç gün önce
             const day = new Date(today);
             day.setDate(day.getDate() - offset);
-            const dayEnd = new Date(day);
-            dayEnd.setDate(dayEnd.getDate() + 1);
-            return results.some(r => {
-              const d = new Date(r.createdAt);
-              return d >= day && d < dayEnd;
-            });
+            const dateKey = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+            return activeDays.has(dateKey);
           });
 
           setWeekActivity(active);

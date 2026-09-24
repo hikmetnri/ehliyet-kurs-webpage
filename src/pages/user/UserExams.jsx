@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api';
+import { fetchAllQuestions } from '../../utils/questionPages';
 import { TEST_TYPES } from '../../constants/testTypes';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -86,14 +87,14 @@ const UserExams = () => {
         // Flutter da kısa test sayılarını tek seferde çekilen short_test havuzundan hesaplıyor.
         const [examRes, shortQuestionRes, resultRes, reviewRes, wrongRes] = await Promise.all([
           api.get('/exams'),
-          api.get(`/questions?testType=${TEST_TYPES.SHORT_TEST}`),
-          api.get('/exam-results').catch(() => ({ data: [] })),
+          fetchAllQuestions({ testType: TEST_TYPES.SHORT_TEST }),
+          api.get('/exam-results/overview').catch(() => ({ data: { latestResults: [] } })),
           api.get('/wrong-answers/review-due?limit=100').catch(() => ({ data: { data: [] } })),
           api.get('/wrong-answers').catch(() => ({ data: { data: [] } })),
         ]);
         const allExams = examRes.data?.exams || examRes.data || [];
-        const shortQuestionRows = shortQuestionRes.data?.data || shortQuestionRes.data || [];
-        const resultRows = resultRes.data?.results || resultRes.data || [];
+        const shortQuestionRows = shortQuestionRes || [];
+        const resultRows = resultRes.data?.latestResults || [];
         const validCatSet = new Set(validCatIds.map((id) => normalizeId(id)).filter(Boolean));
 
         const shortQuestionCountByCategory = new Map();

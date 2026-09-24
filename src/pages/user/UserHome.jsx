@@ -62,7 +62,8 @@ const UserHome = () => {
       const res = await api.get('/notifications');
       const data = res.data?.notifications || res.data?.data || res.data;
       const list = Array.isArray(data) ? data : [];
-      setUnreadCount(list.filter(n => !n.isRead).length);
+      const serverCount = res.data?.data?.unreadCount ?? res.data?.unreadCount;
+      setUnreadCount(Number.isInteger(serverCount) ? serverCount : list.filter(n => !n.isRead).length);
     } catch (err) {
       console.error('Bildirim sayısı alınamadı:', err);
     }
@@ -98,8 +99,8 @@ const UserHome = () => {
 
         try {
           const [statsRes, resultsRes, categoryRes] = await Promise.all([
-            api.get('/exam-results/stats'),
-            api.get('/exam-results?limit=500').catch(() => ({ data: [] })),
+            api.get('/exam-results/stats', { params: { categoryId: user?.selectedCategoryId || undefined } }),
+            api.get('/exam-results', { params: { limit: 50, categoryId: user?.selectedCategoryId || undefined } }).catch(() => ({ data: [] })),
             user?.selectedCategoryId
               ? api.get('/categories/all').catch(() => ({ data: [] }))
               : Promise.resolve({ data: [] }),
@@ -111,7 +112,7 @@ const UserHome = () => {
               categories: readApiList(categoryRes),
               selectedCategoryId: normalizeId(user?.selectedCategoryId),
             });
-            setStats(scoped.stats);
+            setStats(user?.selectedCategoryId ? { ...statsRes.data, scope: 'selected_category' } : scoped.stats);
             // Son 5 sınav sonucunu sidebar için kaydet
             setRecentResults(scoped.results.slice(0, 5));
           }
