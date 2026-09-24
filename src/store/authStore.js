@@ -1,9 +1,6 @@
 import { queueOperation, flushOperations } from '../services/resultOutbox'
 import { TEST_TYPES } from '../constants/testTypes'
 import { create } from 'zustand'
-import { signOut } from 'firebase/auth'
-import { auth } from '../config/firebase'
-import { registerWebPushToken } from '../services/webPushService'
 import { revokeSession } from '../api'
 import { setAccessToken, clearAccessToken, getSessionGeneration } from '../api/session'
 
@@ -22,9 +19,13 @@ const syncCategorySession = (user) => {
 }
 
 const registerPushAfterAuth = () => {
-  registerWebPushToken().catch((error) => {
-    console.info('Web push token kaydedilemedi:', error?.message || error)
-  })
+  // Dinamik import: firebase/messaging + config yalnızca gerektiğinde yüklenir
+  // (landing sayfasının ana JS paketini küçük tutar).
+  import('../services/webPushService')
+    .then(({ registerWebPushToken }) => registerWebPushToken())
+    .catch((error) => {
+      console.info('Web push token kaydedilemedi:', error?.message || error)
+    })
 }
 
 const syncGuestData = async (user) => {
@@ -87,7 +88,15 @@ const useAuthStore = create((set) => ({
         return false
       }
     }
-    try { await signOut(auth) } catch { /* Local application session is still cleared. */ }
+    try {
+      // Firebase'ı yalnızca çıkışta yükle: ~33 KB JS ve Firebase auth
+      // iframe'ini (94 KB) landing/ilk yüklemeye sokmamak için dinamik import.
+      const [{ signOut }, { auth }] = await Promise.all([
+        import('firebase/auth'),
+        import('../config/firebase'),
+      ])
+      await signOut(auth)
+    } catch { /* Local application session is still cleared. */ }
     useAuthStore.getState().clearSession()
     if (typeof BroadcastChannel !== 'undefined') {
       const channel = new BroadcastChannel('ehliyet-auth')

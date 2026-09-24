@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- İlk görseller Cloudinary'den gelir; bağlantıyı erkenden ısıt -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+
+    <!-- Hero görseli LCP adayı: tarayıcıya en erken indirmeyi bildir -->
+    <link rel="preload" as="image" href="/app-hero.webp" fetchpriority="high" />
+
     <!-- Optimized Scripts Loading (AdSense & GTM loaded on window load to avoid render-blocking) -->
     <script>
       window.addEventListener('load', function() {

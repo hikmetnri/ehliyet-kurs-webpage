@@ -36,13 +36,16 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (
-              id.includes('react') ||
-              id.includes('react-dom') ||
-              id.includes('react-router') ||
-              id.includes('zustand') ||
-              id.includes('axios')
-            ) {
+            // ÖNEMLİ: react-markdown ve lucide-react, "react" içerdikleri için
+            // aşağıdaki react kuralına TAKILMAMALI; aksi halde vendor-core
+            // içine düşüp landing sayfasında gereksiz yüklenirler.
+            if (/react-markdown|remark-|rehype-|micromark|mdast|unist|hast-|vfile|property-information|parse5|separated-tokens|decode-named/.test(id)) {
+              return 'vendor-markdown';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (/node_modules\/(react|react-dom|scheduler)(\/|$)/.test(id) || id.includes('react-router') || id.includes('zustand') || id.includes('axios')) {
               return 'vendor-core';
             }
             if (id.includes('recharts') || id.includes('d3')) {
@@ -50,25 +53,6 @@ export default defineConfig({
             }
             if (id.includes('firebase')) {
               return 'vendor-firebase';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-icons';
-            }
-            if (
-              id.includes('react-markdown') ||
-              id.includes('remark') ||
-              id.includes('rehype') ||
-              id.includes('micromark') ||
-              id.includes('unist') ||
-              id.includes('vfile') ||
-              id.includes('mdast') ||
-              id.includes('parse5') ||
-              id.includes('property-information') ||
-              id.includes('space-separated-tokens') ||
-              id.includes('comma-separated-tokens') ||
-              id.includes('decode-named-character-reference')
-            ) {
-              return 'vendor-markdown';
             }
             if (id.includes('framer-motion')) {
               return 'vendor-motion';

@@ -207,7 +207,7 @@ const LandingPage = () => {
                 <div className="absolute -inset-[3px] rounded-[1.15rem] sm:rounded-[1.25rem] bg-gradient-to-br from-primary via-orange-500 to-rose-400 opacity-0 group-hover:opacity-60 blur-[6px] transition-opacity duration-500" />
                 <div className="relative w-9 h-9 sm:w-12 sm:h-12 rounded-[0.85rem] sm:rounded-[1rem] bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-md shadow-primary/10 flex items-center justify-center overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]">
                   <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.7rem] sm:rounded-[0.85rem] flex items-center justify-center">
-                    <img src="/logo_v2.png" alt="Ehliyet Yolu Logo" width="44" height="44" decoding="async" className="w-[88%] h-[88%] object-contain transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
+                    <img src="/logo-88.webp" alt="Ehliyet Yolu Logo" width="44" height="44" decoding="async" className="w-[88%] h-[88%] object-contain transition-transform duration-500 group-hover:scale-105" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                     <CarFront className="w-5 h-5 sm:w-7 sm:h-7 text-primary hidden" />
                   </div>
                 </div>
@@ -269,13 +269,13 @@ const LandingPage = () => {
           {/* ── Sol: Metin ── */}
           <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
             {/* Badge */}
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", duration: 0.8 }} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/30 bg-primary/10 text-primary-light text-xs sm:text-sm font-black tracking-widest uppercase mb-8 shadow-[0_0_20px_rgba(249,115,22,0.15)] relative overflow-hidden group">
+            <motion.div initial={false} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-primary/30 bg-primary/10 text-primary-light text-xs sm:text-sm font-black tracking-widest uppercase mb-8 shadow-[0_0_20px_rgba(249,115,22,0.15)] relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/20 to-primary/0 -translate-x-full group-hover:animate-[shine_2s_infinite]"></div>
               <Sparkles className="w-4 h-4" /> 2026 MEB Müfredatına %100 Uyumlu
             </motion.div>
 
             {/* Headline */}
-            <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }} className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.05] font-black tracking-tighter mb-8 max-w-2xl">
+            <motion.h1 initial={false} className="text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.05] font-black tracking-tighter mb-8 max-w-2xl">
               Eski Kitapları{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-br from-gray-400 to-gray-600 relative inline-block">
                 Çöpe Atın
@@ -291,12 +291,12 @@ const LandingPage = () => {
             </motion.h1>
 
             {/* Sub-headline */}
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="text-lg md:text-2xl text-text-muted max-w-2xl mb-12 font-medium leading-relaxed">
+            <motion.p initial={false} className="text-lg md:text-2xl text-text-muted max-w-2xl mb-12 font-medium leading-relaxed">
               Türkiye'nin en gelişmiş, yapay zeka destekli ehliyet sınavı hazırlık platformu. Zaman kaybetme, eksiklerini gör, sınava %100 hazır gir.
             </motion.p>
 
             {/* Action Buttons */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
+            <motion.div initial={false} className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full sm:w-auto">
               <Link to="/register" className="relative bg-gradient-to-r from-primary to-rose-600 hover:from-primary-light hover:to-rose-500 text-white text-lg font-black tracking-wide py-5 px-10 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-105 shadow-[0_0_40px_rgba(249,115,22,0.5)] w-full sm:w-auto group border border-white/10 overflow-hidden">
                 <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full animate-[shimmer_3s_infinite]" />
                 Hemen Serüvene Başla <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -307,7 +307,7 @@ const LandingPage = () => {
             </motion.div>
 
             {/* Mini istatistik şeridi */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.45 }} className="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-8">
+            <motion.div initial={false} className="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-8">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-success/15 border border-success/20 flex items-center justify-center"><Users className="w-5 h-5 text-success" /></div>
                 <div className="text-left">
@@ -334,9 +334,7 @@ const LandingPage = () => {
 
           {/* ── Sağ: Telefon Mockup + Animasyonlar ── */}
           <motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.4, type: "spring", stiffness: 60 }}
+            initial={false}
             className="relative flex justify-center"
           >
             <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-72 bg-gradient-to-r from-primary/15 via-rose-500/10 to-primary/15 blur-[120px] rounded-full pointer-events-none" />
@@ -359,7 +357,7 @@ const LandingPage = () => {
 
             {/* Telefon */}
             <div className="relative w-[290px] sm:w-[320px] bg-[#0c0c12] rounded-[3rem] border-[10px] border-[#1f2029] shadow-[0_40px_80px_rgba(0,0,0,0.8)] overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-700">
-              <img src="/app-hero.png" alt="Ehliyet Yolu uygulaması — koyu tema ana ekran" width="598" height="1300" loading="lazy" decoding="async" className="block w-full h-[620px] object-cover" />
+              <img src="/app-hero.webp" alt="Ehliyet Yolu uygulaması — koyu tema ana ekran" width="598" height="1300" fetchPriority="high" decoding="async" className="block w-full h-[620px] object-cover" />
             </div>
 
             {/* Yüzen kartlar */}
@@ -1059,7 +1057,7 @@ const LandingPage = () => {
                   </div>
                   <div className="w-12 h-12 rounded-[0.85rem] bg-gradient-to-br from-primary to-accent p-[1px] shadow-lg overflow-hidden">
                     <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.75rem] flex items-center justify-center">
-                      <img src="/logo_v2.png" className="w-[85%] h-[85%] object-contain" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
+                      <img src="/logo-88.webp" className="w-[85%] h-[85%] object-contain" alt="Logo" width="48" height="48" loading="lazy" decoding="async" />
                     </div>
                   </div>
                 </div>
@@ -1115,7 +1113,7 @@ const LandingPage = () => {
               <Link to="/" className="flex items-center gap-3 mb-6 group">
                 <div className="w-12 h-12 rounded-[1rem] bg-gradient-to-br from-primary to-accent p-[1.5px] shadow-md shadow-primary/10 overflow-hidden transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]">
                   <div className="w-full h-full bg-gradient-to-br from-white to-gray-100 rounded-[0.85rem] flex items-center justify-center">
-                    <img src="/logo_v2.png" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-[88%] h-[88%] object-contain" onError={(e) => { e.target.style.display='none'; }} />
+                    <img src="/logo-88.webp" alt="Ehliyet Yolu" width="48" height="48" loading="lazy" decoding="async" className="w-[88%] h-[88%] object-contain" onError={(e) => { e.target.style.display='none'; }} />
                   </div>
                 </div>
                 <span className="font-black text-white text-2xl tracking-tighter">Ehliyet<span className="text-primary-light">Yolu</span></span>

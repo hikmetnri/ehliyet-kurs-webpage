@@ -2,13 +2,14 @@ import { Suspense, lazy, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import useAuthStore from './store/authStore'
 import api, { bootstrapSession } from './api'
-import MaintenanceScreen from './components/MaintenanceScreen'
-import {
-  registerWebPushToken,
-  startWebPushForegroundListener,
-} from './services/webPushService'
 
-const LandingPage = lazy(() => import('./pages/LandingPage'))
+// LandingPage eager import: ön-render edilen landing HTML'i hydrate edilirken
+// ilk istemci render'ı SSR ile birebir eşleşmelidir (lazy olsa Suspense
+// fallback'i görünür ve hydration başarısız olur).
+import LandingPage from './pages/LandingPage'
+
+const MaintenanceScreen = lazy(() => import('./components/MaintenanceScreen'))
+
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
@@ -37,9 +38,13 @@ const RouteFallback = () => (
 
 // Protected Route for Admin
 const AdminRoute = ({ children }) => {
+  const initialized = useAuthStore((state) => state.initialized)
   const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
-  
+
+  // Oturum geri yüklenmeden yönlendirme yapma (aksi halde geçerli çerezli
+  // ziyaretçi yanlışlıkla /login'e atılır).
+  if (!initialized) return <RouteFallback />
   if (!token || !user) return <Navigate to="/login" replace />
   if (user.role !== 'admin') return <Navigate to="/dashboard" replace />
   
@@ -48,6 +53,7 @@ const AdminRoute = ({ children }) => {
 
 // Protected Route for Users
 const UserRoute = ({ children }) => {
+  const initialized = useAuthStore((state) => state.initialized)
   const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
   const logout = useAuthStore((state) => state.logout)
@@ -94,6 +100,7 @@ const UserRoute = ({ children }) => {
   const checkingMaintenance = shouldCheckMaintenance && maintenanceStatus.key !== maintenanceKey
   const maintenance = shouldCheckMaintenance && maintenanceStatus.key === maintenanceKey && maintenanceStatus.maintenance
   
+  if (!initialized) return <RouteFallback />
   if (!token || !user) return <RouteFallback />
   if (user.role === 'admin') return <Navigate to="/admin" replace />
   if (checkingMaintenance) return <RouteFallback />
@@ -110,17 +117,21 @@ const UserRoute = ({ children }) => {
   return children
 }
 
-function App() {
+export function AppRoutes() {
   const user = useAuthStore((state) => state.user)
   const token = useAuthStore((state) => state.token)
-  const initialized = useAuthStore(state => state.initialized)
   const startupError = useAuthStore(state => state.startupError)
   const logoutError = useAuthStore(state => state.logoutError)
 
   useEffect(() => { bootstrapSession() }, [])
 
   useEffect(() => {
-    startWebPushForegroundListener()
+    if (typeof window === 'undefined' || !('Notification' in window)) return
+    if (Notification.permission !== 'granted') return
+    // Dinamik import: firebase/messaging landing ilk yüklemede indirilmez.
+    import('./services/webPushService').then((module) => {
+      module.startWebPushForegroundListener()
+    })
   }, [])
 
   useEffect(() => {
@@ -128,18 +139,22 @@ function App() {
     if (typeof window === 'undefined' || !('Notification' in window)) return
     if (Notification.permission !== 'granted') return
 
-    registerWebPushToken().catch((error) => {
-      console.info('Web push yeniden kaydedilemedi:', error?.message || error)
-    })
+    import('./services/webPushService')
+      .then((module) => module.registerWebPushToken())
+      .catch((error) => {
+        console.info('Web push yeniden kaydedilemedi:', error?.message || error)
+      })
   }, [token, user])
 
   if (startupError) return <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6">
     <p>{startupError}</p><button onClick={bootstrapSession}>Tekrar Dene</button>
   </div>
-  if (!initialized) return <RouteFallback />
 
+  // NOT: `initialized` beklemesi yalnızca korumalı route'lara taşındı.
+  // Landing gibi açık sayfalar oturum doğrulamasını beklemeden çizilir
+  // (ön-render edilen HTML ile hydration eşleşmesi için şart).
   return (
-    <Router>
+    <>
       {logoutError && <div role="alert" className="fixed bottom-4 left-4 right-4 z-[9999] rounded-xl bg-red-950 p-4 text-white">
         {logoutError} <button className="ml-4 underline" onClick={async () => {
           if (await useAuthStore.getState().logout()) window.location.href = '/login'
@@ -201,8 +216,14 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
-    </Router>
+    </>
   )
 }
+
+const App = () => (
+  <Router>
+    <AppRoutes />
+  </Router>
+)
 
 export default App
