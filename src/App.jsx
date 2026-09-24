@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import useAuthStore from './store/authStore'
 import api, { bootstrapSession } from './api'
 
@@ -35,6 +35,18 @@ const UserDashboard = lazy(() => import('./pages/UserDashboard'))
 const RouteFallback = () => (
   <div className="min-h-screen bg-[#050508]" aria-label="Sayfa yükleniyor" />
 )
+
+// Oturum doğrulaması başarısız olsa bile bu sayfalar misafir olarak açılır:
+// pazarlama sayfası (satış/kampanya trafiği) hiçbir durumda ağ hatasıyla
+// değiştirilmemeli. Korumalı sayfalarda ise hata ekranı gösterilir.
+const PUBLIC_PATHS = new Set([
+  '/',
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/policy',
+  '/delete-account',
+])
 
 // Protected Route for Admin
 const AdminRoute = ({ children }) => {
@@ -122,6 +134,7 @@ export function AppRoutes() {
   const token = useAuthStore((state) => state.token)
   const startupError = useAuthStore(state => state.startupError)
   const logoutError = useAuthStore(state => state.logoutError)
+  const location = useLocation()
 
   useEffect(() => { bootstrapSession() }, [])
 
@@ -146,7 +159,7 @@ export function AppRoutes() {
       })
   }, [token, user])
 
-  if (startupError) return <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6">
+  if (startupError && !PUBLIC_PATHS.has(location.pathname)) return <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6">
     <p>{startupError}</p><button onClick={bootstrapSession}>Tekrar Dene</button>
   </div>
 
