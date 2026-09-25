@@ -9,6 +9,7 @@ import {
   FileText, Lock, Mail, Link, Smartphone as PhoneIcon, ShieldCheck, Activity,
   ChevronRight, ToggleLeft, ToggleRight, Globe, AppWindow, User, Search
 } from 'lucide-react';
+import { createAdminSettingsRepository } from './settings/adminSettingsRepository';
 import { limitQuoteText } from '../../utils/categoryContent';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
@@ -22,6 +23,7 @@ import {
   Toast,
 } from './settings/AdminSettingsBits';
 
+const adminSettings = createAdminSettingsRepository(api);
 const QUOTE_MAX_LENGTH = 350;
 
 const TABS = [
@@ -87,17 +89,7 @@ const AdminSettings = () => {
   const fetchSettingsMap = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get('/admin/settings-map');
-      const d = res.data;
-      setSettingsMap({
-        privacy_policy: d.privacy_policy || '',
-        kvkk_text:      d.kvkk_text      || '',
-        contact_email:  d.contact_email  || '',
-        app_version_android: d.app_version_android || '1.0.0',
-        app_version_ios:     d.app_version_ios     || '1.0.0',
-        playstore_url:  d.playstore_url  || '',
-        appstore_url:   d.appstore_url   || '',
-      });
+      setSettingsMap(await adminSettings.loadSettings());
     } catch {
       showToast('Ayarlar yüklenirken hata oluştu.', 'error');
     } finally {
@@ -110,28 +102,26 @@ const AdminSettings = () => {
   const fetchQuotes = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get('/quotes');
-      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-      setQuotes(data.map((quote) => ({ ...quote, text: limitQuoteText(quote.text, QUOTE_MAX_LENGTH) })));
+      setQuotes(await adminSettings.loadQuotes());
     }
     catch { // ignore
     } finally { setLoading(false); }
   }, []);
 
   const fetchFaqs = useCallback(async () => {
-    try { setLoading(true); const res = await api.get('/admin/faqs'); setFaqs(res.data); }
+    try { setLoading(true); setFaqs(await adminSettings.loadFaqs()); }
     catch { // ignore
     } finally { setLoading(false); }
   }, []);
 
   const fetchMaintenanceStatus = useCallback(async () => {
-    try { const res = await api.get('/admin/maintenance-status'); setIsMaintenance(res.data.isMaintenance); }
+    try { setIsMaintenance(await adminSettings.loadMaintenanceStatus()); }
     catch { // ignore
     }
   }, []);
 
   const fetchLogs = useCallback(async () => {
-    try { setLoading(true); const res = await api.get('/admin/logs'); setLogs(res.data || []); }
+    try { setLoading(true); setLogs(await adminSettings.loadLogs()); }
     catch { // ignore
     } finally { setLoading(false); }
   }, []);
@@ -152,7 +142,7 @@ const AdminSettings = () => {
   const handleSaveSetting = async (key) => {
     try {
       setLegalSaving(key);
-      await api.put(`/admin/settings-map/${key}`, { value: settingsMap[key] });
+      await adminSettings.saveSetting(key, settingsMap[key]);
       showToast('Ayar başarıyla kaydedildi!');
     } catch { showToast('Kayıt hatası.', 'error'); }
     finally { setLegalSaving(''); }
@@ -162,16 +152,10 @@ const AdminSettings = () => {
 
   const handleQuoteSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      ...quoteData,
-      text: limitQuoteText(quoteData.text, QUOTE_MAX_LENGTH),
-      author: quoteData.author.trim(),
-    };
-    if (!payload.text) return;
+    if (!quoteData.text.trim()) return;
     try {
       setLoading(true);
-      if (editingQuote) { await api.put(`/quotes/${editingQuote._id}`, payload); }
-      else              { await api.post('/quotes', payload); }
+      await adminSettings.saveQuote(editingQuote?._id, quoteData);
       setShowQuoteForm(false); setEditingQuote(null); setQuoteData({ text: '', author: '' });
       showToast('Söz kaydedildi!');
       fetchQuotes();
@@ -181,7 +165,7 @@ const AdminSettings = () => {
 
   const handleDeleteQuote = async (id) => {
     if (!window.confirm('Bu sözü silmek istiyor musunuz?')) return;
-    try { await api.delete(`/quotes/${id}`); setQuotes(prev => prev.filter(q => q._id !== id)); showToast('Silindi.'); }
+    try { await adminSettings.deleteQuote(id); setQuotes(prev => prev.filter(q => q._id !== id)); showToast('Silindi.'); }
     catch { showToast('Silinemedi.', 'error'); }
   };
 
@@ -189,8 +173,7 @@ const AdminSettings = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      if (editingFaq) { await api.put(`/admin/faqs/${editingFaq._id}`, faqData); }
-      else            { await api.post('/admin/faqs', faqData); }
+      await adminSettings.saveFaq(editingFaq?._id, faqData);
       setShowFaqForm(false); setEditingFaq(null); setFaqData({ question: '', answer: '', isActive: true });
       showToast('S.S.S. kaydedildi!');
       fetchFaqs();
@@ -200,13 +183,13 @@ const AdminSettings = () => {
 
   const handleDeleteFaq = async (id) => {
     if (!window.confirm('Bu S.S.S. başlığını silmek istiyor musunuz?')) return;
-    try { await api.delete(`/admin/faqs/${id}`); setFaqs(prev => prev.filter(f => f._id !== id)); showToast('Silindi.'); }
+    try { await adminSettings.deleteFaq(id); setFaqs(prev => prev.filter(f => f._id !== id)); showToast('Silindi.'); }
     catch { showToast('Silinemedi.', 'error'); }
   };
 
   const handleToggleFaqActive = async (faq) => {
     try {
-      await api.put(`/admin/faqs/${faq._id}`, { ...faq, isActive: !faq.isActive });
+      await adminSettings.setFaqActive(faq);
       fetchFaqs();
     } catch { showToast('Durum değiştirilemedi.', 'error'); }
   };
@@ -216,9 +199,9 @@ const AdminSettings = () => {
     if (!window.confirm(msg)) return;
     try {
       setSystemLoading(true);
-      const res = await api.post('/admin/maintenance', { enabled: !isMaintenance });
-      setIsMaintenance(res.data.isMaintenance);
-      showToast(res.data.isMaintenance ? 'Bakım modu açıldı.' : 'Bakım modu kapatıldı.');
+      const enabled = await adminSettings.setMaintenance(!isMaintenance);
+      setIsMaintenance(enabled);
+      showToast(enabled ? 'Bakım modu açıldı.' : 'Bakım modu kapatıldı.');
     } catch { showToast('Hata!', 'error'); }
     finally { setSystemLoading(false); }
   };
@@ -226,8 +209,8 @@ const AdminSettings = () => {
   const handleBackup = async () => {
     try {
       setSystemLoading(true);
-      const res = await api.get('/admin/backup');
-      showToast(`Yedek oluşturuldu: ${res.data.filename}`);
+      const filename = await adminSettings.createBackup();
+      showToast(`Yedek oluşturuldu: ${filename}`);
     } catch { showToast('Yedekleme hatası!', 'error'); }
     finally { setSystemLoading(false); }
   };

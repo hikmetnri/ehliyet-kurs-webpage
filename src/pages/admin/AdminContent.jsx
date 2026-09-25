@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../api';
 import { fetchAllQuestions } from '../../utils/questionPages';
-import { TEST_TYPES } from '../../constants/testTypes';
 import { AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -30,6 +29,9 @@ import { TopicQuestionsWorkspace } from './content/TopicQuestionParts';
 import VideoManagementWorkspace from './content/VideoParts';
 import CategoryModal from './content/CategoryModal';
 import CategoryTreePanel from './content/CategoryTreePanel';
+import { createContentAdminRepository, buildShortTestQuestionPayload } from './content/contentAdminRepository';
+
+const contentAdmin = createContentAdminRepository({ client: api, loadQuestions: fetchAllQuestions });
 
 // ─── Main AdminContent Component ────────────────────────────────────────────
 const AdminContent = () => {
@@ -66,6 +68,13 @@ const AdminContent = () => {
   const [questionSaving, setQuestionSaving] = useState(false);
 
   const textareaRef = useRef(null);
+  const categoryRequest = useRef(0);
+  const questionRequest = useRef(0);
+
+  useEffect(() => () => {
+    categoryRequest.current++;
+    questionRequest.current++;
+  }, []);
 
   const contentCategories = allCategories.filter((category) => !isVideoRecord(category));
   const selectedCat = contentCategories.find(c => c._id === selectedCatId);
@@ -86,33 +95,29 @@ const AdminContent = () => {
   }, [selectedCatId, allCategories]);
 
   const fetchCategories = async () => {
+    const request = ++categoryRequest.current;
     try {
       setLoading(true);
-      let catRes;
-      try {
-        catRes = await api.get('/categories/admin/all');
-      } catch (adminErr) {
-        if (adminErr.response?.status !== 404) throw adminErr;
-        catRes = await api.get('/categories/all');
-      }
-      setAllCategories(catRes.data.data || []);
+      const categories = await contentAdmin.loadCategories();
+      if (request === categoryRequest.current) setAllCategories(categories);
     } catch (err) {
       console.error('Kategoriler alınamadı:', err);
     } finally {
-      setLoading(false);
+      if (request === categoryRequest.current) setLoading(false);
     }
   };
 
   const fetchShortTestQuestions = async (catId) => {
     if (!catId) return;
+    const request = ++questionRequest.current;
     setLoadingQuestions(true);
     try {
-      const data = await fetchAllQuestions({ testType: TEST_TYPES.SHORT_TEST, category: catId });
-      setShortTestQuestions(data.filter(q => (q.category?._id || q.category) === catId));
+      const questions = await contentAdmin.loadShortTestQuestions(catId);
+      if (request === questionRequest.current) setShortTestQuestions(questions);
     } catch (err) {
       console.error('Sorular alınamadı:', err);
     } finally {
-      setLoadingQuestions(false);
+      if (request === questionRequest.current) setLoadingQuestions(false);
     }
   };
 
@@ -129,14 +134,10 @@ const AdminContent = () => {
 
     // 2. Persist to backend
     try {
-      const orders = newOrder.map((cat, index) => ({
-        id: cat._id,
-        order: index,
-        parent: parentId // usually same
-      }));
-      await api.put('/categories/reorder', { orders });
+      await contentAdmin.reorderCategories(parentId, newOrder);
     } catch (err) {
       console.error('Sıralama kaydedilemedi:', err);
+      await fetchCategories();
     }
   };
 
@@ -180,10 +181,7 @@ const AdminContent = () => {
     if (!selectedCatId) return;
     setSaveLoading('draft');
     try {
-      await api.put(`/categories/${selectedCatId}`, {
-        publicationAction: 'save_draft',
-        draftContent: editContent,
-      });
+      await contentAdmin.saveDraft(selectedCatId, editContent);
       await fetchCategories();
       setIsEditing(false);
     } catch (err) {
@@ -198,10 +196,7 @@ const AdminContent = () => {
     const contentToPublish = typeof contentOverride === 'string' ? contentOverride : editContent;
     setSaveLoading('publish');
     try {
-      await api.put(`/categories/${selectedCatId}`, {
-        publicationAction: 'publish',
-        content: contentToPublish,
-      });
+      await contentAdmin.publish(selectedCatId, contentToPublish);
       await fetchCategories();
       setEditContent(contentToPublish);
       setIsEditing(false);
@@ -270,7 +265,7 @@ const AdminContent = () => {
   const handleDeleteQuestion = async (qId) => {
     if (!window.confirm('Bu soruyu silmek istediğinize emin misiniz?')) return;
     try {
-      await api.delete(`/questions/${qId}`);
+      await contentAdmin.deleteQuestion(qId);
       if (editingQuestionId === qId) handleNewQuestion();
       await fetchShortTestQuestions(selectedCatId);
     } catch (err) {
@@ -282,42 +277,17 @@ const AdminContent = () => {
     e.preventDefault();
     if (!selectedCatId) return;
 
-    const filledOptions = questionForm.options
-      .map((value, index) => ({ value: value.trim(), index }))
-      .filter(option => option.value);
-
-    if (!questionForm.text.trim() || filledOptions.length < 2) {
-      alert('Soru metni ve en az 2 şık zorunludur.');
-      return;
-    }
-
-    const correctAnswer = filledOptions.findIndex(option => option.index === questionForm.correctAnswer);
-    if (correctAnswer === -1) {
-      alert('Doğru cevap olarak seçilen şık boş olamaz.');
-      return;
-    }
-
-    const payload = {
-      text: questionForm.text.trim(),
-      options: filledOptions.map(option => option.value),
-      correctAnswer,
-      difficulty: questionForm.difficulty,
-      explanation: questionForm.explanation.trim(),
-      media: questionForm.media.trim(),
-      testType: TEST_TYPES.SHORT_TEST,
-      category: selectedCatId,
-    };
+    const { payload, error } = buildShortTestQuestionPayload(questionForm, selectedCatId);
+    if (error) return alert(error);
 
     setQuestionSaving(true);
     try {
-      const res = editingQuestionId
-        ? await api.put(`/questions/${editingQuestionId}`, payload)
-        : await api.post('/questions', payload);
+      const saved = await contentAdmin.saveQuestion(editingQuestionId, payload);
 
       await fetchShortTestQuestions(selectedCatId);
 
       if (editingQuestionId) {
-        setQuestionForm(createQuestionForm(res.data));
+        setQuestionForm(createQuestionForm(saved));
       } else {
         setQuestionForm(createQuestionForm());
         setEditingQuestionId(null);
@@ -351,11 +321,7 @@ const AdminContent = () => {
     if (!catForm.name.trim()) return alert('İsim zorunludur.');
     setCatSaving(true);
     try {
-      if (catModal.cat) {
-        await api.put(`/categories/${catModal.cat._id}`, catForm);
-      } else {
-        await api.post('/categories', catForm);
-      }
+      await contentAdmin.saveCategory(catModal.cat?._id, catForm);
       await fetchCategories();
       setCatModal({ open: false, cat: null });
     } catch {
@@ -366,8 +332,12 @@ const AdminContent = () => {
   };
 
   const handleToggleActive = async (cat) => {
-    await api.put(`/categories/${cat._id}`, { isActive: !cat.isActive });
-    setAllCategories(prev => prev.map(c => c._id === cat._id ? { ...c, isActive: !cat.isActive } : c));
+    try {
+      await contentAdmin.setCategoryActive(cat._id, !cat.isActive);
+      setAllCategories(prev => prev.map(c => c._id === cat._id ? { ...c, isActive: !cat.isActive } : c));
+    } catch (err) {
+      alert('Kategori durumu güncellenemedi: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   // Root categories for tree

@@ -27,6 +27,14 @@ import {
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
 import { getStoredExamDateInput } from './settings/settingsHelpers';
 import { DesktopSettingsView, MobileSettingsView } from './settings/SettingsViews';
+import { createSettingsDataRepository } from './settings/settingsDataRepository';
+import { createProfileSettingsRepository } from './settings/profileSettingsRepository';
+import { createAccountSecurityRepository, changePasswordAndSignOut } from './settings/accountSecurityRepository';
+import { weekActivityFromStats } from './settings/settingsDashboardModel';
+
+const settingsData = createSettingsDataRepository(api);
+const profileSettings = createProfileSettingsRepository(api);
+const accountSecurity = createAccountSecurityRepository(api);
 
 const UserSettings = () => {
   const { themeMode, changeThemeMode, isThemeLocked } = useOutletContext() || {};
@@ -64,92 +72,76 @@ const UserSettings = () => {
 
   // Load stats + son 7 gün aktivite
   useEffect(() => {
+    let active = true;
     const fetchStats = async () => {
       try {
-        const statsRes = await api.get('/exam-results/stats', {
-          params: { offsetMinutes: -new Date().getTimezoneOffset() },
-        });
-        const loadedStats = statsRes.data?.stats || statsRes.data || {};
+        const loadedStats = await settingsData.loadStats(-new Date().getTimezoneOffset());
+        if (!active) return;
         setStats(loadedStats);
-        if (Array.isArray(loadedStats.weeklyActivity)) {
-          const activeDays = new Set(loadedStats.weeklyActivity
-            .filter(day => day.isActive)
-            .map(day => day.date));
-
-          // Son 7 günü Pazartesi=0 ... Pazar=6 sırasına göre hesapla
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          // todayIndex: Pzt=0 ... Paz=6
-          const todayDow = (today.getDay() + 6) % 7;
-
-          const active = Array.from({ length: 7 }, (_, i) => {
-            // i=0 → Pzt ... i=todayDow → bugün
-            if (i > todayDow) return false; // henüz gelmemiş gün
-            const offset = todayDow - i; // kaç gün önce
-            const day = new Date(today);
-            day.setDate(day.getDate() - offset);
-            const dateKey = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
-            return activeDays.has(dateKey);
-          });
-
-          setWeekActivity(active);
-        }
+        setWeekActivity(weekActivityFromStats(loadedStats.weeklyActivity));
       } catch (err) {
-        console.error("Stats load err:", err);
+        if (active) console.error('Stats load err:', err);
       }
     };
     fetchStats();
+    return () => { active = false; };
   }, []);
 
   // Fetch Badges
   useEffect(() => {
     if (!isBadgesOpen && activeTab !== 'badges') return;
+    let active = true;
     const fetchBadges = async () => {
       setBadgesLoading(true);
       try {
-        const res = await api.get('/badges/my');
-        setBadges(res.data || []);
+        const result = await settingsData.loadBadges();
+        if (active) setBadges(result);
       } catch (err) {
-        console.error("Badges load err:", err);
+        if (active) console.error('Badges load err:', err);
       } finally {
-        setBadgesLoading(false);
+        if (active) setBadgesLoading(false);
       }
     };
     fetchBadges();
+    return () => { active = false; };
   }, [isBadgesOpen, activeTab]);
 
   // Fetch Leaderboard
   useEffect(() => {
     if (!isLeaderboardOpen && activeTab !== 'leaderboard') return;
+    let active = true;
     const fetchLeaderboard = async () => {
       setLeaderboardLoading(true);
       try {
-        const res = await api.get(`/exam-results/leaderboard?period=${leaderboardPeriod}`);
-        setLeaderboardData(res.data || []);
+        const result = await settingsData.loadLeaderboard(leaderboardPeriod);
+        if (active) setLeaderboardData(result);
       } catch (err) {
-        console.error("Leaderboard load err:", err);
+        if (active) console.error('Leaderboard load err:', err);
       } finally {
-        setLeaderboardLoading(false);
+        if (active) setLeaderboardLoading(false);
       }
     };
     fetchLeaderboard();
+    return () => { active = false; };
   }, [isLeaderboardOpen, leaderboardPeriod, activeTab]);
 
   // Fetch FAQs
   useEffect(() => {
     if (!isFaqOpen && activeTab !== 'faq') return;
+    let active = true;
     const fetchFaqs = async () => {
       setFaqsLoading(true);
       try {
-        const res = await api.get('/faqs');
-        setFaqs(res.data || []);
+        const result = await settingsData.loadFaqs();
+        if (active) setFaqs(result);
       } catch (err) {
-        console.error("Faqs load err:", err);
+        if (active) console.error('Faqs load err:', err);
       } finally {
-        setFaqsLoading(false);
+        if (active) setFaqsLoading(false);
       }
     };
     fetchFaqs();
+    return () => { active = false; };
   }, [isFaqOpen, activeTab]);
 
   // Tab 1: Profile
@@ -228,12 +220,13 @@ const UserSettings = () => {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.put('/auth/profile', profileData);
-      if (res.data.success) {
-        setAuth({ ...user, ...res.data.user }, token);
+      const result = await profileSettings.saveProfile(profileData);
+      if (result.success) {
+        setAuth({ ...user, ...result.user }, token);
         showMessage('success', 'Profil bilgileriniz başarıyla güncellendi.');
         return true;
       }
+      showMessage('error', result.error || 'Profil güncellenirken hata oluştu.');
     } catch (error) {
       showMessage('error', error.response?.data?.error || 'Profil güncellenirken hata oluştu.');
     } finally {
@@ -254,17 +247,19 @@ const UserSettings = () => {
     }
     setLoading(true);
     try {
-      const res = await api.put('/auth/change-password', {
+      const result = await changePasswordAndSignOut({
+        repository: accountSecurity,
         currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
+        newPassword: passwordData.newPassword,
+        clearSession: () => useAuthStore.getState().clearSession(),
+        redirect: (path) => { window.location.href = path; },
       });
-      useAuthStore.getState().clearSession();
-      window.location.href = '/login';
-      if (res.data.success) {
+      if (result.success) {
         showMessage('success', 'Şifreniz başarıyla değiştirildi.');
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
         return true;
       }
+      showMessage('error', result.error || 'Şifre değiştirilirken hata oluştu.');
     } catch (error) {
       showMessage('error', error.response?.data?.error || 'Şifre değiştirilirken hata oluştu.');
     } finally {
@@ -277,23 +272,17 @@ const UserSettings = () => {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.put('/auth/profile', {
-        dailyGoal: notifData.dailyGoal,
-        notifEnabled: notifData.notifEnabled,
-        notifHour: notifData.notifHour,
-        notifMinute: notifData.notifMinute,
-        examDate: notifData.examDate || null,
-        theme: notifData.theme || 'default'
-      });
-      if (res.data.success) {
+      const result = await profileSettings.savePreferences(notifData);
+      if (result.success) {
         if (notifData.examDate) localStorage.setItem('exam_date', new Date(notifData.examDate).toISOString());
         else localStorage.removeItem('exam_date');
         soundService.setSoundEnabled(notifData.soundEnabled);
         soundService.playSave();
-        setAuth({ ...user, ...res.data.user }, token);
+        setAuth({ ...user, ...result.user }, token);
         showMessage('success', 'Tercihleriniz başarıyla kaydedildi.');
         return true;
       }
+      showMessage('error', result.error || 'Tercihler kaydedilirken hata oluştu.');
     } catch {
       showMessage('error', 'Tercihler kaydedilirken hata oluştu.');
     } finally {
@@ -305,13 +294,13 @@ const UserSettings = () => {
   const handleThemeChange = async (newTheme) => {
     setNotifData(prev => ({ ...prev, theme: newTheme }));
     try {
-      const res = await api.put('/auth/profile', {
-        theme: newTheme
-      });
-      if (res.data.success) {
+      const result = await profileSettings.saveTheme(newTheme);
+      if (result.success) {
         soundService.playSave();
-        setAuth({ ...user, ...res.data.user }, token);
+        setAuth({ ...user, ...result.user }, token);
         showMessage('success', 'Tema tercihi başarıyla güncellendi.');
+      } else {
+        showMessage('error', result.error || 'Tema güncellenirken hata oluştu.');
       }
     } catch {
       showMessage('error', 'Tema güncellenirken hata oluştu.');
@@ -326,17 +315,14 @@ const UserSettings = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('avatar', file);
-
     setLoading(true);
     try {
-      const res = await api.post('/auth/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      if (res.data.success) {
-        setAuth({ ...user, avatarUrl: res.data.avatarUrl }, token);
+      const result = await profileSettings.uploadAvatar(file);
+      if (result.success) {
+        setAuth({ ...user, avatarUrl: result.avatarUrl }, token);
         showMessage('success', 'Profil fotoğrafı başarıyla güncellendi.');
+      } else {
+        showMessage('error', result.error || 'Fotoğraf yüklenirken hata oluştu.');
       }
     } catch (error) {
       showMessage('error', error.response?.data?.error || 'Fotoğraf yüklenirken hata oluştu.');

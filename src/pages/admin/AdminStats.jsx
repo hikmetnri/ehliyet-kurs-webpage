@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import api from '../../api';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip,
@@ -11,7 +10,8 @@ import {
   Target, Bell, Clock, Crown, DownloadCloud,
   Filter, X, MousePointerClick, ShieldAlert
 } from 'lucide-react';
-import { hasChartValue, normalizeCategoryStats, normalizeRegistrationTrend } from '../../utils/statsData';
+import { hasChartValue } from '../../utils/statsData';
+import { useAdminStatsData } from './stats/useAdminStatsData';
 
 // ─── Extracted Modules (SRP) ──────────────────────────────────────────────────
 import {
@@ -26,111 +26,17 @@ import { StatsCard, StatProgressBar, InsightCard } from './stats/StatsCards';
 const MotionDiv = motion.div;
 
 const AdminStats = () => {
-  const [overview, setOverview] = useState(null);
-  const [categoryStats, setCategoryStats] = useState([]);
-  const [difficultQuestions, setDifficultQuestions] = useState([]);
-  const [registrationTrend, setRegistrationTrend] = useState([]);
-  const [qrStats, setQrStats] = useState({ count: 0, daily: {} });
-  const [dailyGoals, setDailyGoals] = useState([]);
-  const [journeyAnalytics, setJourneyAnalytics] = useState(null);
-  const [journeyDays, setJourneyDays] = useState('30');
-  const [journeySource, setJourneySource] = useState('all');
-  const [journeyLoading, setJourneyLoading] = useState(false);
-  const [timelineUser, setTimelineUser] = useState(null);
-  const [timelineEvents, setTimelineEvents] = useState([]);
-  const [timelineLoading, setTimelineLoading] = useState(false);
+  const {
+    overview, categoryStats, difficultQuestions, registrationTrend, qrStats,
+    dailyGoals, journeyAnalytics, journeyDays, setJourneyDays,
+    journeySource, setJourneySource, journeyLoading, timelineUser,
+    timelineEvents, timelineLoading, loading, rootCategories,
+    selectedCategoryId, setSelectedCategoryId, fetchStats,
+    openTimeline, closeTimeline,
+  } = useAdminStatsData();
   const [activeSection, setActiveSection] = useState('overview');
   const [analysisGuideOpen, setAnalysisGuideOpen] = useState(false);
   const [showGuides, setShowGuides] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  // Kategori Filtresi Eyaletleri
-  const [rootCategories, setRootCategories] = useState([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState('all');
-
-  useEffect(() => {
-    const fetchRootCategories = async () => {
-      try {
-        const res = await api.get('/categories/all');
-        const list = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
-        const roots = list.filter(cat => !cat.parent);
-        setRootCategories(roots);
-      } catch (err) {
-        console.error('Kategoriler alınamadı:', err);
-      }
-    };
-    fetchRootCategories();
-  }, []);
-
-  const fetchJourneyStats = useCallback(async ({ silent = false } = {}) => {
-    try {
-      if (!silent) setJourneyLoading(true);
-      const params = new URLSearchParams({ days: journeyDays });
-      if (journeySource !== 'all') params.set('source', journeySource);
-      if (selectedCategoryId !== 'all') params.set('categoryId', selectedCategoryId);
-      const res = await api.get(`/admin/stats/journey?${params.toString()}`);
-      setJourneyAnalytics(res.data);
-    } catch (err) {
-      console.error('Kullanıcı yolculuğu alınamadı:', err);
-      setJourneyAnalytics(null);
-    } finally {
-      if (!silent) setJourneyLoading(false);
-    }
-  }, [journeyDays, journeySource, selectedCategoryId]);
-
-  const fetchStats = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (selectedCategoryId !== 'all') params.set('categoryId', selectedCategoryId);
-      const queryStr = params.toString() ? `?${params.toString()}` : '';
-
-      const results = await Promise.allSettled([
-        api.get(`/admin/stats/overview${queryStr}`),
-        api.get(`/admin/stats/categories${queryStr}`),
-        api.get(`/admin/stats/difficult-questions${queryStr}`),
-        api.get(`/admin/stats/qr${queryStr}`),
-        api.get(`/admin/stats/registration-trend${queryStr}`),
-        api.get(`/admin/stats/daily-goals${queryStr}`)
-      ]);
-
-      setOverview(results[0].status === 'fulfilled' ? results[0].value.data : null);
-      setCategoryStats(results[1].status === 'fulfilled' ? normalizeCategoryStats(results[1].value.data) : []);
-      setDifficultQuestions(results[2].status === 'fulfilled' ? results[2].value.data : []);
-      setQrStats(results[3].status === 'fulfilled' ? results[3].value.data : { count: 0, daily: {} });
-      setRegistrationTrend(results[4].status === 'fulfilled' ? normalizeRegistrationTrend(results[4].value.data) : []);
-      setDailyGoals(results[5].status === 'fulfilled' ? results[5].value.data : []);
-      await fetchJourneyStats({ silent: true });
-    } catch (err) {
-      console.error('İstatistikler alınamadı:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedCategoryId, fetchJourneyStats]);
-
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
-
-  useEffect(() => {
-    if (!loading) fetchJourneyStats();
-  }, [loading, fetchJourneyStats]);
-
-  const openTimeline = async (user) => {
-    if (!user?.id) return;
-    try {
-      setTimelineUser(user);
-      setTimelineLoading(true);
-      setTimelineEvents([]);
-      const res = await api.get(`/analytics/users/${user.id}/timeline?limit=80`);
-      setTimelineEvents(res.data?.data || []);
-    } catch (err) {
-      console.error('Kullanıcı timeline alınamadı:', err);
-      setTimelineEvents([]);
-    } finally {
-      setTimelineLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -985,7 +891,7 @@ const AdminStats = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setTimelineUser(null)}
+                  onClick={closeTimeline}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-text-muted transition hover:bg-white/10 hover:text-white"
                 >
                   <X className="h-5 w-5" />

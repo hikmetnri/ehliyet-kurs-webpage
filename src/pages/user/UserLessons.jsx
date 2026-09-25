@@ -12,17 +12,12 @@ import remarkGfm from 'remark-gfm';
 import useAuthStore from '../../store/authStore';
 import { resolveMediaUrl } from '../../utils/mediaUrl';
 import { trackEvent } from '../../utils/analytics';
-import { isVideoRecord } from '../../utils/categoryContent';
 import { clearAiPageContext, compactLessonContext, setAiPageContext } from '../../utils/aiPageContext';
 
 // ─── Extracted Modules (SRP) ─────────────────────────────────────
 import {
-  stripMarkdownForSpeech,
-  chunkSpeechText,
   getVoiceKey,
   getVoiceLabel,
-  sortVoices,
-  buildTree,
   COMPLETED_KEY,
   getCompletedLessons,
   toggleLessonComplete,
@@ -31,8 +26,11 @@ import { MobileLessonBrowser, MobileLessonReader } from './lessons/MobileLessonV
 import MobileSyllabusDrawer from './lessons/MobileSyllabusDrawer';
 import LessonPreviewModal from './lessons/LessonPreviewModal';
 import { TreeNode } from './lessons/LessonTreeNode';
+import { useLessonReader } from './lessons/useLessonReader';
+import { createLessonCatalogRepository } from './lessons/lessonCatalogRepository';
 
 const MotionDiv = motion.div;
+const lessonCatalog = createLessonCatalogRepository(api);
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const UserLessons = () => {
@@ -49,16 +47,14 @@ const UserLessons = () => {
   const [completedIds, setCompletedIds] = useState(getCompletedLessons());
   const [passedTestIds, setPassedTestIds] = useState([]); // Testi geçilen kategori ID'leri
   const [previewImage, setPreviewImage] = useState(null);
-  const [isReadingLesson, setIsReadingLesson] = useState(false);
-  const [availableVoices, setAvailableVoices] = useState([]);
-  const [selectedVoiceKey, setSelectedVoiceKey] = useState(() => localStorage.getItem('lesson_reader_voice_key') || '');
-  const [isVoiceMenuOpen, setIsVoiceMenuOpen] = useState(false);
-  const speechSessionRef = React.useRef(0);
-
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1280);
   const [mobileNavStack, setMobileNavStack] = useState([]);
   const [isSyllabusOpen, setIsSyllabusOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const {
+    isReadingLesson, availableVoices, selectedVoiceKey, isVoiceMenuOpen,
+    setIsVoiceMenuOpen, handleSelectVoice, handleToggleLessonReading, selectedVoice,
+  } = useLessonReader({ selectedLesson, proStatus: user?.proStatus });
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1280);
@@ -68,58 +64,6 @@ const UserLessons = () => {
 
   useEffect(() => {
     setScrollProgress(0);
-  }, [selectedLesson?._id]);
-
-  useEffect(() => {
-    const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
-    if (!synth) return undefined;
-
-    const syncVoices = () => {
-      const voices = sortVoices(synth.getVoices() || []);
-      setAvailableVoices(voices);
-    };
-
-    syncVoices();
-    synth.addEventListener?.('voiceschanged', syncVoices);
-
-    return () => {
-      synth.removeEventListener?.('voiceschanged', syncVoices);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!availableVoices.length) return;
-    if (selectedVoiceKey && availableVoices.some((voice) => getVoiceKey(voice) === selectedVoiceKey)) {
-      return;
-    }
-    const stored = localStorage.getItem('lesson_reader_voice_key') || '';
-    if (stored && availableVoices.some((voice) => getVoiceKey(voice) === stored)) {
-      setSelectedVoiceKey(stored);
-      return;
-    }
-    const defaultVoice =
-      availableVoices.find((voice) => `${voice.lang || ''}`.toLowerCase().startsWith('tr')) ||
-      availableVoices[0];
-    if (defaultVoice) {
-      setSelectedVoiceKey(getVoiceKey(defaultVoice));
-    }
-  }, [availableVoices, selectedVoiceKey]);
-
-  useEffect(() => {
-    return () => {
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    setIsReadingLesson(false);
-    setIsVoiceMenuOpen(false);
-    speechSessionRef.current += 1;
   }, [selectedLesson?._id]);
 
   useEffect(() => {
@@ -144,53 +88,26 @@ const UserLessons = () => {
   };
 
   useEffect(() => {
+    let active = true;
     const fetchAll = async () => {
       try {
         setLoading(true);
-        const res = await api.get('/categories/all');
-        const cats = (res.data?.data || []).filter((category) => !isVideoRecord(category));
-        
-        let finalTree = buildTree(cats);
-        let finalFlat = cats;
-        let topics = [];
-
-        if (user?.selectedCategoryId) {
-          const mainNode = cats.find(c => c._id === user.selectedCategoryId);
-          if (mainNode) {
-            const rootTree = buildTree(cats, user.selectedCategoryId);
-            finalTree = [{ ...mainNode, children: rootTree }];
-            topics = rootTree;
-            
-            const flat = [];
-            const extract = (nodes) => {
-              for (const n of nodes) {
-                flat.push(n);
-                if (n.children) extract(n.children);
-              }
-            };
-            extract(finalTree);
-            finalFlat = flat;
-            
-            // Seçili ana kategoriyi ilk açılışta açık olarak (expanded) işaretle
-            setExpandedIds(prev => new Set(prev).add(mainNode._id));
-            
-            // İlk alt kategoriyi otomatik seç
-            if (topics.length > 0) {
-              setActiveTopicId(topics[0]._id);
-            }
-          }
-        }
-
-        setAllCategories(finalFlat);
-        setTree(finalTree);
-        setTopicCategories(topics);
+        const catalog = await lessonCatalog.load(user?.selectedCategoryId);
+        if (!active) return;
+        setAllCategories(catalog.categories);
+        setTree(catalog.tree);
+        setTopicCategories(catalog.topics);
+        setExpandedIds(catalog.rootId ? new Set([catalog.rootId]) : new Set());
+        setActiveTopicId(catalog.topics[0]?._id || 'all');
+        setSelectedLesson(null);
       } catch (err) {
-        console.error(err);
+        if (active) console.error(err);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
     fetchAll();
+    return () => { active = false; };
   }, [user?.selectedCategoryId]);
 
   const handleTopicClick = (topicId) => {
@@ -215,12 +132,13 @@ const UserLessons = () => {
 
   // Sınav sonuçlarını çek — hangi konularda test geçilmiş?
   useEffect(() => {
+    let active = true;
     const fetchResults = async () => {
       try {
-        const res = await api.get('/exam-results/overview');
-        const passed = res.data?.passedCategoryIds;
-        if (Array.isArray(passed)) {
-          setPassedTestIds([...new Set(passed)]);
+        const passed = await lessonCatalog.loadPassedCategoryIds();
+        if (!active) return;
+        if (passed.length) {
+          setPassedTestIds(passed);
           
           // Otomatik tamamlama: testi geçilen dersler otomatik tamamlandı işaretlenir
           const currentCompleted = getCompletedLessons();
@@ -237,10 +155,11 @@ const UserLessons = () => {
           }
         }
       } catch (err) {
-        console.error('Sınav sonuçları alınamadı:', err);
+        if (active) console.error('Sınav sonuçları alınamadı:', err);
       }
     };
     fetchResults();
+    return () => { active = false; };
   }, []);
 
   const toggleExpand = useCallback((id) => {
@@ -267,89 +186,6 @@ const UserLessons = () => {
     const updated = toggleLessonComplete(selectedLesson._id);
     setCompletedIds([...updated]);
   }, [selectedLesson]);
-
-  const stopLessonReading = useCallback(() => {
-    speechSessionRef.current += 1;
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-    }
-    setIsReadingLesson(false);
-  }, []);
-
-  const handleSelectVoice = useCallback((voiceKey) => {
-    setSelectedVoiceKey(voiceKey);
-    localStorage.setItem('lesson_reader_voice_key', voiceKey);
-    setIsVoiceMenuOpen(false);
-  }, []);
-
-  const speakLessonChunks = useCallback((chunks, sessionId, index = 0) => {
-    if (
-      typeof window === 'undefined' ||
-      !window.speechSynthesis ||
-      speechSessionRef.current !== sessionId
-    ) {
-      return;
-    }
-
-    if (index >= chunks.length) {
-      setIsReadingLesson(false);
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(chunks[index]);
-    utterance.lang = 'tr-TR';
-    utterance.rate = 0.98;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    const selectedVoice = availableVoices.find((voice) => getVoiceKey(voice) === selectedVoiceKey);
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang || utterance.lang;
-    }
-    utterance.onend = () => speakLessonChunks(chunks, sessionId, index + 1);
-    utterance.onerror = () => {
-      if (speechSessionRef.current === sessionId) {
-        setIsReadingLesson(false);
-      }
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }, [availableVoices, selectedVoiceKey]);
-
-  const handleToggleLessonReading = useCallback(() => {
-    if (
-      typeof window === 'undefined' ||
-      !window.speechSynthesis ||
-      !selectedLesson ||
-      (selectedLesson.isPro && !user?.proStatus)
-    ) {
-      return;
-    }
-
-    if (window.speechSynthesis.speaking || isReadingLesson) {
-      stopLessonReading();
-      return;
-    }
-
-    const speechText = stripMarkdownForSpeech(
-      `${selectedLesson.name}. ${selectedLesson.description ? `${selectedLesson.description}. ` : ''}${selectedLesson.content}`,
-    );
-
-    if (!speechText) return;
-
-    const chunks = chunkSpeechText(speechText);
-    speechSessionRef.current += 1;
-    const sessionId = speechSessionRef.current;
-
-    window.speechSynthesis.cancel();
-    setIsReadingLesson(true);
-    speakLessonChunks(chunks, sessionId, 0);
-  }, [isReadingLesson, selectedLesson, speakLessonChunks, stopLessonReading, user?.proStatus]);
-
-  const selectedVoice = useMemo(
-    () => availableVoices.find((voice) => getVoiceKey(voice) === selectedVoiceKey) || null,
-    [availableVoices, selectedVoiceKey],
-  );
 
   // İçeriği olan tüm derslerin düz listesi (sıradaki ders için)
   const contentLessons = useMemo(

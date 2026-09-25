@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion as Motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -17,13 +17,12 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react';
-import api from '../../api';
+import { createSchoolAdminRepository } from './schools/schoolAdminRepository';
 import { TURKEY_CITIES, getDistrictsForCity } from '../../data/turkeyLocations';
 
 // ─── Extracted Modules (SRP) ──────────────────────────────────────────────────
 import {
   emptyForm,
-  readList,
   withProtocol,
   toDateInput,
   addMonthsForInput,
@@ -32,6 +31,8 @@ import {
 } from './schools/schoolHelpers';
 import SchoolModal from './schools/SchoolModal';
 import SponsorModal from './schools/SponsorModal';
+
+const schoolRepository = createSchoolAdminRepository();
 
 const AdminDrivingSchools = () => {
   const [schools, setSchools] = useState([]);
@@ -56,6 +57,8 @@ const AdminDrivingSchools = () => {
   const [appPage, setAppPage] = useState(1);
   const [appTotalPages, setAppTotalPages] = useState(1);
   const [appTotalCount, setAppTotalCount] = useState(0);
+  const schoolsRequest = useRef(0);
+  const applicationsRequest = useRef(0);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -86,21 +89,20 @@ const AdminDrivingSchools = () => {
   }, [cityFilter, districtFilter, debouncedQuery, activeTab]);
 
   const fetchSchools = useCallback(async () => {
+    const request = ++schoolsRequest.current;
     try {
       setLoading(true);
       setError('');
-      const params = { includeInactive: true, page, limit: 50 };
-      if (cityFilter) params.city = cityFilter;
-      if (districtFilter) params.district = districtFilter;
-      if (debouncedQuery) params.q = debouncedQuery;
-      if (activeTab === 'sponsors') params.isSponsored = true;
-      const res = await api.get('/driving-schools', { params });
-      setSchools(readList(res));
-
-      const pag = res.data?.pagination || {};
-      setTotalCount(pag.total || 0);
-      setTotalPages(Math.ceil((pag.total || 0) / (pag.limit || 50)) || 1);
+      const result = await schoolRepository.listSchools({
+        page, city: cityFilter, district: districtFilter,
+        query: debouncedQuery, sponsored: activeTab === 'sponsors',
+      });
+      if (request !== schoolsRequest.current) return;
+      setSchools(result.items);
+      setTotalCount(result.total);
+      setTotalPages(result.pages);
     } catch (err) {
+      if (request !== schoolsRequest.current) return;
       if (err.response?.status === 404) {
         setSchools([]);
         setError('Sürücü kursları API rotası bu sunucuda henüz aktif değil. Local test için backend ve web dev sunucusunu yeniden başlatın; canlı panel için backend deploy gerekiyor.');
@@ -108,28 +110,27 @@ const AdminDrivingSchools = () => {
       }
       setError(err.response?.data?.error || 'Sürücü kursları alınamadı.');
     } finally {
-      setLoading(false);
+      if (request === schoolsRequest.current) setLoading(false);
     }
   }, [cityFilter, districtFilter, debouncedQuery, page, activeTab]);
 
   const fetchApplications = useCallback(async () => {
+    const request = ++applicationsRequest.current;
     try {
       setApplicationsLoading(true);
       setError('');
-      const params = { page: appPage, limit: 20 };
-      if (appStatusFilter) params.status = appStatusFilter;
-      if (debouncedAppQuery) params.q = debouncedAppQuery;
-
-      const res = await api.get('/driving-schools/applications', { params });
-      setApplications(res.data?.data || []);
-
-      const pag = res.data?.pagination || {};
-      setAppTotalCount(pag.total || 0);
-      setAppTotalPages(Math.ceil((pag.total || 0) / (pag.limit || 20)) || 1);
+      const result = await schoolRepository.listApplications({
+        page: appPage, status: appStatusFilter, query: debouncedAppQuery,
+      });
+      if (request !== applicationsRequest.current) return;
+      setApplications(result.items);
+      setAppTotalCount(result.total);
+      setAppTotalPages(result.pages);
     } catch (err) {
+      if (request !== applicationsRequest.current) return;
       setError(err.response?.data?.error || 'Başvurular alınamadı.');
     } finally {
-      setApplicationsLoading(false);
+      if (request === applicationsRequest.current) setApplicationsLoading(false);
     }
   }, [appPage, appStatusFilter, debouncedAppQuery]);
 
@@ -140,6 +141,11 @@ const AdminDrivingSchools = () => {
   useEffect(() => {
     fetchApplications();
   }, [fetchApplications]);
+
+  useEffect(() => () => {
+    schoolsRequest.current++;
+    applicationsRequest.current++;
+  }, []);
 
   const cities = useMemo(() => {
     return TURKEY_CITIES;
@@ -231,10 +237,10 @@ const AdminDrivingSchools = () => {
 
     try {
       if (editing?._id) {
-        await api.put(`/driving-schools/${editing._id}`, payload);
+        await schoolRepository.saveSchool(editing._id, payload);
         showSuccess('Sürücü kursu güncellendi.');
       } else {
-        await api.post('/driving-schools', payload);
+        await schoolRepository.saveSchool(null, payload);
         showSuccess('Sürücü kursu eklendi.');
       }
       setModalOpen(false);
@@ -249,8 +255,8 @@ const AdminDrivingSchools = () => {
   const handleDelete = async (school) => {
     if (!window.confirm(`${school.name} silinsin mi?`)) return;
     try {
-      await api.delete(`/driving-schools/${school._id}`);
-      setSchools((current) => current.filter((item) => item._id !== school._id));
+      await schoolRepository.deleteSchool(school._id);
+      await fetchSchools();
       showSuccess('Sürücü kursu silindi.');
     } catch (err) {
       setError(err.response?.data?.error || 'Kurs silinemedi.');
@@ -268,15 +274,8 @@ const AdminDrivingSchools = () => {
         sponsorEndAt: nextSponsored ? (toDateInput(school.sponsorEndAt) || addMonthsForInput(2)) : '',
         sponsorNote: school.sponsorNote || '',
       };
-      const res = await api.put(`/driving-schools/${school._id}`, payload);
-      const updated = res.data?.data || { ...school, ...payload };
-      if (activeTab === 'sponsors' && !nextSponsored) {
-        setSchools((current) => current.filter((item) => item._id !== school._id));
-      } else {
-        setSchools((current) =>
-          current.map((item) => (item._id === school._id ? updated : item)),
-        );
-      }
+      await schoolRepository.updateSchool(school._id, payload);
+      await fetchSchools();
       showSuccess(nextSponsored ? 'Kurs sponsorlu yapıldı.' : 'Sponsorluğu kaldırıldı.');
     } catch (err) {
       setError(err.response?.data?.error || 'Sponsor durumu güncellenemedi.');
@@ -295,7 +294,7 @@ const AdminDrivingSchools = () => {
         sponsorEndAt: sponsorForm.sponsorEndAt || addMonthsForInput(2),
         sponsorNote: sponsorForm.sponsorNote || '',
       };
-      await api.put(`/driving-schools/${school._id}`, payload);
+      await schoolRepository.updateSchool(school._id, payload);
       
       setSponsorModalOpen(false);
       showSuccess(`${school.name} sponsorlu yapıldı.`);
@@ -309,10 +308,8 @@ const AdminDrivingSchools = () => {
   const handleUpdateAppStatus = async (appId, nextStatus) => {
     try {
       setError('');
-      await api.put(`/driving-schools/applications/${appId}`, { status: nextStatus });
-      setApplications((current) =>
-        current.map((app) => (app._id === appId ? { ...app, status: nextStatus } : app)),
-      );
+      await schoolRepository.updateApplication(appId, nextStatus);
+      await fetchApplications();
       showSuccess('Başvuru durumu güncellendi.');
     } catch (err) {
       setError(err.response?.data?.error || 'Başvuru durumu güncellenemedi.');
@@ -323,9 +320,8 @@ const AdminDrivingSchools = () => {
     if (!window.confirm(`${app.userName} isimli kullanıcının başvurusu silinsin mi?`)) return;
     try {
       setError('');
-      await api.delete(`/driving-schools/applications/${app._id}`);
-      setApplications((current) => current.filter((item) => item._id !== app._id));
-      setAppTotalCount((c) => Math.max(c - 1, 0));
+      await schoolRepository.deleteApplication(app._id);
+      await fetchApplications();
       showSuccess('Başvuru silindi.');
     } catch (err) {
       setError(err.response?.data?.error || 'Başvuru silinemedi.');
